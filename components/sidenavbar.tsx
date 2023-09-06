@@ -1,6 +1,7 @@
 import { DetailsIcon, LogoutIcon, NotificationIcon, ProductIcon, SettingsIcon, UsersIcon } from '@/assets'
 import Link from 'next/link'
 import React from 'react'
+import SideTab from './atoms/sideTab'
 
 const Sidebar = () => {
   return (
@@ -8,32 +9,13 @@ const Sidebar = () => {
         <p className='font-semibold text-lg my-5'>LenderLab</p>
         <div className='h-[85%] flex flex-col gap-4 justify-between flex-grow'>
             <div className='flex flex-col gap-4 text-base'>
-                <div className='flex gap-4'>
-                  <ProductIcon />
-                  <Link href="/">Product Details</Link>
-                </div>
-                <div className='flex gap-4'>
-                  <DetailsIcon />
-                  <Link href="/details">Enter Details</Link>
-                </div>
-                <div className='flex gap-4'>
-                  <NotificationIcon />
-                  <Link href="/notifications">Notifications</Link>
-                </div>
-                <div className='flex gap-4'>
-                  <SettingsIcon />
-                  <Link href="/settings">Settings</Link>
-                </div>
+                <SideTab icon={<ProductIcon />} label="Product Details" href="/" />
+                <SideTab icon={<DetailsIcon />} label="Enter Details" href="/details" />
+                <SideTab icon={<SettingsIcon />} label="Settings" href="/settings" />
             </div>
             <div className='flex flex-col gap-2 justify-end mt-auto'>
-                <div className='flex gap-4'>
-                  <UsersIcon />
-                  <Link href="/users">Users</Link>
-                </div>
-                <div className='flex gap-4'>
-                  <LogoutIcon />
-                  <Link href="">Log out</Link>
-                </div>
+                <SideTab icon={<UsersIcon />} label="Users" href="/users" />
+                <SideTab icon={<LogoutIcon />} label="Log out" href="" />
             </div>
         </div>
     </div>
