@@ -1,7 +1,7 @@
 import { DetailsIcon, LogoutIcon, NotificationIcon, ProductIcon, SettingsIcon, UsersIcon } from '@/assets'
 import Link from 'next/link'
 import React from 'react'
-import SideTab from './atoms/sideTab'
+import SideTab from '../atoms/sideTab'
 
 const Sidebar = () => {
   return (

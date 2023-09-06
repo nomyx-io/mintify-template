@@ -1,5 +1,5 @@
 import React from 'react'
-import { Input } from "../material-tailwind"
+import { Input } from "../../material-tailwind"
 import  Profile  from "../assets/image.png"
 import Image from 'next/image'
 import { NotificationIcon, SearchIcon } from '@/assets'

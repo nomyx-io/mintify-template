@@ -1,8 +1,8 @@
-import Sidebar from '@/components/sidenavbar'
+import Sidebar from '@/components/molecules/sidenavbar'
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import Topnavbar from '@/components/topnavbar'
+import Topnavbar from '@/components/molecules/topnavbar'
 import { ThemeProvider } from '../material-tailwind'
 
 const inter = Inter({ subsets: ['latin'] })
