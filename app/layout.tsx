@@ -20,8 +20,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <ThemeProvider>
-      <body className={inter.className}>
-        <div className='flex'>
+      <body className={`${inter.className} w-full h-screen`}>
+        <div className='flex w-full h-screen'>
           <Sidebar />
           <div className='w-full'>
             <Topnavbar />
