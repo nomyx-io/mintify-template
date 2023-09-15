@@ -1,9 +1,8 @@
 import React from 'react'
+import CreateNftDetails from '@/components/createNftDetails'
 
-const Details = () => {
+export default function Details() {
   return (
-    <div>Enter Details</div>
+    <CreateNftDetails />
   )
 }
-
-export default Details
