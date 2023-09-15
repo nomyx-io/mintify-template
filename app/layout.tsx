@@ -21,11 +21,13 @@ export default function RootLayout({
     <html lang="en">
       <ThemeProvider>
       <body className={`${inter.className} w-full h-screen`}>
-        <div className='flex w-full h-screen'>
+        <div className='flex h-full w-full'>
           <Sidebar />
           <div className='w-full'>
+            <div className='w-full'>
             <Topnavbar />
-            <div className='z-10 relative h-max overflow-x-hidden w-max overflow-y-auto left-[16%] top-[81px]'>
+            </div>
+            <div className='h-max overflow-x-hidden w-full overflow-y-auto p-5'>
             {children}
             </div>
           </div>
