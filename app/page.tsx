@@ -1,6 +1,7 @@
 import BarChart from '@/components/atoms/Graphs/Barchart';
 import { CustomTable } from '@/components/molecules/Table';
 import KPI from '@/components/atoms/KPI'
+import { EventFeed } from '@/components/molecules/EventFeed'
 import React from 'react'
 
 export default function Home() {
@@ -92,7 +93,7 @@ export default function Home() {
       </div>
 
       <div>
-        FEED
+          <EventFeed />
       </div>
     </div>
   )
