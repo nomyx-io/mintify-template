@@ -7,7 +7,7 @@ import { NotificationIcon, SearchIcon } from '@/assets'
 
 const Topnavbar = () => {
   return (
-    <div className='fixed right-0 bg-[#f0f0f0] w-[84%] p-5 flex items-center justify-between z-20'>
+    <div className='bg-[#f0f0f0] w-full p-5 flex items-center justify-between'>
         <div className='w-1/2'>
             <Input 
             className='bg-white' 

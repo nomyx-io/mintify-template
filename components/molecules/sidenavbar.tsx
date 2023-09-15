@@ -5,7 +5,7 @@ import SideTab from '../atoms/sideTab'
 
 const Sidebar = () => {
   return (
-    <div className='fixed bg-[#f0f0f0] h-screen p-4 min-w-[16%] z-20'>
+    <div className='bg-[#f0f0f0] h-screen p-4 min-w-[16%]'>
         <p className='font-semibold text-lg my-5'>LenderLab</p>
         <div className='h-[85%] flex flex-col gap-4 justify-between flex-grow'>
             <div className='flex flex-col gap-4 text-base'>
