@@ -28,7 +28,7 @@ export default function RootLayout({
             <Topnavbar />
             </div>
             <div className='h-max overflow-x-hidden w-full overflow-y-auto p-5'>
-            {children}
+              {children}
             </div>
           </div>
         </div>

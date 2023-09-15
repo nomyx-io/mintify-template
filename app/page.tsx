@@ -1,13 +1,15 @@
 import BarChart from '@/components/atoms/Graphs/Barchart';
+import { CustomTable } from '@/components/molecules/Table';
 import KPI from '@/components/atoms/KPI'
 import React from 'react'
 
 export default function Home() {
-  const data = {
+
+  const graphData = {
     labels: ['January', 'February', 'March', 'April', 'May'],
     datasets: [
       {
-        label: 'Total Initial Value',
+          label: 'Total Initial Value',
         data: [65, 59, 80, 81, 56],
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
         borderColor: 'rgba(75, 192, 192, 1)',
@@ -39,8 +41,24 @@ export default function Home() {
     ],
   };
 
+  const columns = [
+    { key: 'id', label: 'Id', align: 'left', unique: true },
+    {
+      key: 'created_date', label: 'Loan Created', align: 'center'
+    },
+    { key: 'nft_created', label: 'NFT Created', align: 'center' },
+    { key: 'original_value', label: 'Original Value', align: 'center', sortable: true },
+    { key: 'current_value', label: 'Current Value', align: 'right', sortable: true },
+  ];
+
+  const tableData = [
+    { id: 1, created_date: "30/02/23", "nft_created": "30/02/23", "original_value": "200K", "current_value": "254k" },
+    { id: 2, created_date: "21/02/23", "nft_created": "30/02/23", "original_value": "210K", "current_value": "354k" },
+    { id: 3, created_date: "25/02/23", "nft_created": "30/02/23", "original_value": "300K", "current_value": "204k" }
+  ];
+
   return (
-    <div className='w-full grid grid-cols-4'>
+    <div className='w-full grid grid-cols-4 p-5'>
 
       <div className="col-span-3">
 
@@ -66,15 +84,16 @@ export default function Home() {
         />
 
         <div className='w-full'>
-          <BarChart data={data}/>
+          <BarChart data={graphData}/>
         </div>
+
+        <CustomTable columns={columns as any} data={tableData} />
 
       </div>
 
       <div>
         FEED
       </div>
-
     </div>
   )
 }
