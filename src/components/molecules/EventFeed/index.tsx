@@ -22,7 +22,7 @@ export const EventFeed = ({ activeTab, setActiveTab, data, TabsData }: any) => {
                 <br />
                 <TabsBody>
                     {Object.entries(data).map(([key, value]: any) => (
-                        <div className='border-b'>
+                        <div className='border-b' key={key}>
                             <div>{key}</div>
                             {
                                 value.data.map((item: any, index: any) => (

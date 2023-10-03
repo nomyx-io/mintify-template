@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import PubSub from 'pubsub-js';
-import * as LLMintedRegistry from "../abi/LLMintedRegistry.json";
+import LLMintedRegistry from "../abi/LLMintedRegistry.json";
 
 
 
