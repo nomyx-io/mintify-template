@@ -9,6 +9,7 @@ import {
   Legend,
   PointElement,
   LineElement,
+  LineController,
 } from 'chart.js';
 import { Bar, Line } from 'react-chartjs-2';
 
@@ -21,6 +22,7 @@ ChartJS.register(
   Legend,
   PointElement,
   LineElement,
+  LineController
 );
 
 const BarChart = ({ data, title, height, width }: any) => {
