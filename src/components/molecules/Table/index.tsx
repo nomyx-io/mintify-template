@@ -67,7 +67,7 @@ export const CustomTable: React.FC<CustomTableProps> = ({
   const filteredData =
     enableTabs && activeTab && activeTab !== 'All' ? data.filter((row) => row[enableTabsBy] === activeTab) : data;
 
-  const filteredAndSearchedData = filteredData.filter((row) => {
+  const filteredAndSearchedData = filteredData && filteredData.length > 0 && filteredData.filter((row) => {
     return columns.some((column) => {
       const value = row[column.key];
       return typeof value === 'string' && value.toLowerCase().includes(filterText.toLowerCase());
@@ -75,14 +75,14 @@ export const CustomTable: React.FC<CustomTableProps> = ({
   });
 
   const sortedData = sortedColumn
-    ? filteredAndSearchedData.slice().sort((a, b) => {
-        const valueA = a[sortedColumn];
-        const valueB = b[sortedColumn];
+    ? filteredAndSearchedData && filteredAndSearchedData.slice().sort((a, b) => {
+      const valueA = a[sortedColumn];
+      const valueB = b[sortedColumn];
 
-        if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
-        if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
-        return 0;
-      })
+      if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
+      if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    })
     : filteredAndSearchedData;
 
   return (
@@ -112,9 +112,8 @@ export const CustomTable: React.FC<CustomTableProps> = ({
           {statusList?.map((status) => (
             <button
               key={status}
-              className={`py-2 px-4 rounded-md ${
-                activeTab === status ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
-              }`}
+              className={`py-2 px-4 rounded-md ${activeTab === status ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'
+                }`}
               onClick={() => handleTabClick(status)}
             >
               {status}
@@ -130,28 +129,25 @@ export const CustomTable: React.FC<CustomTableProps> = ({
                 <th
                   key={column.key}
                   scope="col"
-                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-y border-gray-200 ${
-                    column.align === 'right'
-                      ? 'text-right'
-                      : column.align === 'left'
+                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-y border-gray-200 ${column.align === 'right'
+                    ? 'text-right'
+                    : column.align === 'left'
                       ? 'text-left'
                       : 'text-center'
-                  }`}
+                    }`}
                 >
                   <button
                     key={column.key}
-                    className={`ml-2 focus:outline-none ${
-                      sortedColumn === column.key ? 'font-bold' : ''
-                    }`}
+                    className={`ml-2 focus:outline-none ${sortedColumn === column.key ? 'font-bold' : ''
+                      }`}
                     onClick={() => column.sortable && handleSort(column.key)}
                   >
                     <div className="flex items-center gap-2">
                       {column.label}
                       {sortedColumn === column.key ? (
                         <span
-                          className={`ml-1 ${
-                            sortDirection === 'asc' ? 'text-gray-600' : 'text-gray-400'
-                          }`}
+                          className={`ml-1 ${sortDirection === 'asc' ? 'text-gray-600' : 'text-gray-400'
+                            }`}
                         >
                           {sortDirection === 'asc' ? '▲' : '▼'}
                         </span>
@@ -167,28 +163,26 @@ export const CustomTable: React.FC<CustomTableProps> = ({
             </tr>
           </thead>
           <tbody>
-            {sortedData?.map((row, i) => (
+            {sortedData && sortedData.length > 0 && sortedData?.map((row, i) => (
               <tr key={row[uniqueKey] || i}>
                 {columns?.map((column) => (
                   <td
                     key={column.key}
-                    className={`px-6 py-4 whitespace-pre-wrap text-sm text-gray-500 border-y border-gray-200   ${
-                      column.align === 'right'
-                        ? 'text-right'
-                        : column.align === 'left'
+                    className={`px-6 py-4 whitespace-pre-wrap text-sm text-gray-500 border-y border-gray-200   ${column.align === 'right'
+                      ? 'text-right'
+                      : column.align === 'left'
                         ? 'text-left'
                         : 'text-center'
-                    }`}
+                      }`}
                   >
                     {column.render ? (
                       <div
-                        className={`flex items-center ${
-                          column.align === 'right'
-                            ? 'justify-end'
-                            : column.align === 'left'
+                        className={`flex items-center ${column.align === 'right'
+                          ? 'justify-end'
+                          : column.align === 'left'
                             ? 'justify-start'
                             : 'justify-center'
-                        }`}
+                          }`}
                       >
                         {column.render(row)}
                       </div>
