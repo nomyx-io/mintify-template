@@ -77,10 +77,10 @@ export default function Home() {
 
   useEffect(() => {
     async function getData() {
-      let mintedNfts:any = await api.getMintedNfts()
+      let mintedNfts: any = await api.getMintedNfts()
       let events = await api.getEvents()
       let nftDetails = await api.getMintedNftDetails(mintedNfts?.[0]?.id)
-      let data = await api.getPortfolioPerformance()      
+      let data = await api.getPortfolioPerformance()
       setMintedNfts(mintedNfts)
       setEventDetails(events)
       setGraphValues(data)
@@ -169,6 +169,7 @@ export default function Home() {
         <div className="flex items-center justify-between gap-x-6">
           {KPIS && KPIS.map((kpi) => (
             <KPI
+              key={kpi.title}
               icon={kpi.icon}
               title={kpi.title}
               value={kpi.value}
