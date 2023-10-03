@@ -7,13 +7,24 @@ import { useEffect } from 'react';
 import { useAccount } from 'wagmi'
 
 
-export default function Login() {
+export default function Login({onConnect}:any) {
     const { address, isConnected, isConnecting } = useAccount()
     const router = useRouter();
 
     useEffect(() => {
         isConnected && router.push('/')
     }, [isConnected])
+
+    useAccount({
+        onConnect: function ({ address, connector, isReconnected }) {
+            console.log('Connected', { address, connector, isReconnected });
+            onConnect(address, connector);
+        },
+        onDisconnect: function () {
+            console.log('DisConnected');
+            // onDisconnect();
+        },
+    });
 
     return (
         <div className='relative h-screen w-screen flex overflow-hidden p-0'>
