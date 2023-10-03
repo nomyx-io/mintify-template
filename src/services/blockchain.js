@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import PubSub from 'pubsub-js';
-import * as ClaimTopicsRegistry from "../abi/IClaimTopicsRegistry.json";
 import * as LLMintedRegistry from "../abi/LLMintedRegistry.json";
 
 
