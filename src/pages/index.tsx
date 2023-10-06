@@ -1,0 +1,187 @@
+'use client'
+import { CustomTable } from '@/components/molecules/Table';
+import KPI from '@/components/atoms/KPI'
+import { ApiHook } from '@/services/api'
+import { EventFeed } from '@/components/molecules/EventFeed'
+import React, { useEffect, useState } from 'react'
+import { getDashboardLayout } from '../Layouts';
+import BarChart from '@/components/atoms/Graphs/Barchart';
+export default function Home() {
+  const api = ApiHook()
+  const [graphValues, setGraphValues] = useState<any>([])
+  const [eventDetails, setEventDetails] = useState<any>({})
+  const [mintedNfts, setMintedNfts] = useState<any>([])
+  const [activeTab, setActiveTab] = useState('all')
+
+  const KPIS = [{
+    icon: <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="white"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      height={24}
+      width={24}
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 8 12 12 16 16" />
+      <line x1="8" y1="12" x2="12" y2="12" />
+    </svg>
+    ,
+    title: "Activity",
+    value: "Recent"
+  }, {
+    icon: <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={20}
+      height={20}
+      viewBox="0 0 20 20"
+      fill="white"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+    >
+      <path
+        d="M10 3.125V16.875M10 16.875L4.375 11.25M10 16.875L15.625 11.25"
+        stroke="white"
+        strokeWidth={2.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+    ,
+    title: "Income",
+    value: "Earnings"
+  }, {
+    icon: <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={20}
+      height={20}
+      viewBox="0 0 20 20"
+      fill="white"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      transform="matrix(-1,1.2246467991473532e-16,-1.2246467991473532e-16,-1,0,0)"
+    >
+      <path
+        d="M10 3.125V16.875M10 16.875L4.375 11.25M10 16.875L15.625 11.25"
+        stroke="white"
+        strokeWidth={2.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+    ,
+    title: "Expenses",
+    value: "Spending"
+  }]
+
+  useEffect(() => {
+    async function getData() {
+      let mintedNfts: any = await api.getMintedNfts()
+      let events = await api.getEvents()
+      let data = await api.getPortfolioPerformance()      
+      setMintedNfts(mintedNfts)
+      setEventDetails(events)
+      setGraphValues(data)
+    }
+    getData()
+  }, [])
+
+  const graphData = {
+    labels: graphValues?.labels || [],
+    datasets: [
+      {
+        label: 'Total Initial Value',
+        data: graphValues?.initialValues || [],
+        backgroundColor: '#2f59d6',
+        borderWidth: 0,
+        barThickness: 30,
+        categoryPercentage: 0.5,
+        barPercentage: 1,
+      },
+      {
+        label: 'Net Asset Value',
+        data: graphValues?.assetValues || [],
+        backgroundColor: '#7a7977',
+        borderColor: '#7a7977',
+        borderWidth: 0,
+        barThickness: 30,
+        categoryPercentage: 0.5,
+        barPercentage: 1,
+      },
+      {
+        type: 'line' as const,
+        label: 'Total Accured Value',
+        data: graphValues?.accruedValues || [],
+        backgroundColor: '#fc4103',
+        borderColor: '#fc4103',
+        borderWidth: 3,
+        fill: false,
+      },
+      {
+        type: 'line' as const,
+        label: 'Total Yield Value',
+        data: graphValues?.yieldClaimedTill || [],
+        backgroundColor: '#fc8c03',
+        borderColor: '#fc8c03',
+        borderWidth: 3,
+        fill: false,
+      },
+
+    ]
+  }
+
+  const columns = [
+    { key: 'id', label: 'Id', align: 'left', unique: true },
+    {
+      key: 'created_date', label: 'Loan Created', align: 'center'
+    },
+    { key: 'nft_created', label: 'NFT Created', align: 'center' },
+    { key: 'original_value', label: 'Original Value', align: 'center', sortable: true },
+    { key: 'current_value', label: 'Current Value', align: 'right', sortable: true },
+  ];
+
+  const TabsData = [
+    {
+      label: "All",
+      value: "all",
+    },
+    {
+      label: "NFTS",
+      value: "nfts",
+    },
+    {
+      label: "Minted",
+      value: "minted",
+    }
+  ];
+
+  return (
+    <div className='w-full grid grid-cols-4 p-5 gap-x-6'>
+      <div className="col-span-3 py-2">
+        <div className="flex items-center justify-between gap-x-6">
+          {KPIS && KPIS.map((kpi) => (
+            <KPI
+              key={kpi.title}
+              icon={kpi.icon}
+              title={kpi.title}
+              value={kpi.value}
+            />
+          ))}
+        </div>
+        <br />
+
+        <div className='w-full'>
+          <BarChart data={graphData} title="Net Asset Value & Yield" />
+        </div>
+        <br />
+        <CustomTable columns={columns as any} data={mintedNfts} />
+      </div>
+      <div className='p-2'>
+        <div className='text-black text-lg font-bold'>Form</div>
+        <EventFeed data={eventDetails} TabsData={TabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
+      </div >
+    </div >
+  )
+}
+Home.getLayout = getDashboardLayout;
