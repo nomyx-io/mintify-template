@@ -6,7 +6,10 @@ import { EventFeed } from '@/components/molecules/EventFeed'
 import React, { useEffect, useState } from 'react'
 import { getDashboardLayout } from '../Layouts';
 import BarChart from '@/components/atoms/Graphs/Barchart';
+import moment from 'moment';
+import { useRouter } from 'next/navigation';
 export default function Home() {
+  const router = useRouter()
   const api = ApiHook()
   const [graphValues, setGraphValues] = useState<any>([])
   const [eventDetails, setEventDetails] = useState<any>({})
@@ -75,12 +78,25 @@ export default function Home() {
     value: "Spending"
   }]
 
+  function findValueByKey(array: any, key: any) {
+    for (let i = 0; i < array.length; i++) {
+        if (array[i][0] === key) {
+            return array[i][2];
+        }
+    }
+    return 0;
+  }
+
   useEffect(() => {
     async function getData() {
       let mintedNfts: any = await api.getMintedNfts()
       let events = await api.getEvents()
       let nftDetails = await api.getMintedNftDetails(mintedNfts?.[0]?.id)
       let data = await api.getPortfolioPerformance()
+      for (let index = 0; index < mintedNfts.length; index++) {
+        mintedNfts[index]._createdAt = moment(mintedNfts[index].attributes.createdAt).format('DD/MM/YY')
+        mintedNfts[index]._amount = (findValueByKey(mintedNfts[index].attributes.attributes, "loan_amount"))
+      }
       setMintedNfts(mintedNfts)
       setEventDetails(events)
       setGraphValues(data)
@@ -131,15 +147,18 @@ export default function Home() {
 
     ]
   }
+  console.log(mintedNfts)
 
   const columns = [
-    { key: 'id', label: 'Id', align: 'left', unique: true },
+    { key: 'id', label: 'Id', align: 'left', unique: true, render:  ((row: any) => (
+      <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/detail-view?id=${row.id}`)}>{row.id}</div>
+    )) },
     {
-      key: 'created_date', label: 'Loan Created', align: 'center'
+      key: '_createdAt', label: 'Loan Created', align: 'center'
     },
-    { key: 'nft_created', label: 'NFT Created', align: 'center' },
-    { key: 'original_value', label: 'Original Value', align: 'center', sortable: true },
-    { key: 'current_value', label: 'Current Value', align: 'right', sortable: true },
+    { key: '_createdAt', label: 'NFT Created', align: 'center' },
+    { key: '_amount', label: 'Original Value', align: 'center', sortable: true },
+    { key: '_amount', label: 'Current Value', align: 'right', sortable: true },
   ];
 
   const tableData = [
