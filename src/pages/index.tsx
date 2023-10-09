@@ -93,10 +93,6 @@ export default function Home() {
       let events = await api.getEvents()
       let nftDetails = await api.getMintedNftDetails(mintedNfts?.[0]?.id)
       let data = await api.getPortfolioPerformance()
-      for (let index = 0; index < mintedNfts.length; index++) {
-        mintedNfts[index]._createdAt = moment(mintedNfts[index].attributes.createdAt).format('DD/MM/YY')
-        mintedNfts[index]._amount = (findValueByKey(mintedNfts[index].attributes.attributes, "loan_amount"))
-      }
       setMintedNfts(mintedNfts)
       setEventDetails(events)
       setGraphValues(data)
@@ -159,6 +155,12 @@ export default function Home() {
     { key: '_createdAt', label: 'NFT Created', align: 'center' },
     { key: '_amount', label: 'Original Value', align: 'center', sortable: true },
     { key: '_amount', label: 'Current Value', align: 'right', sortable: true },
+  ];
+
+  const tableData = [
+    { id: 1, created_date: "30/02/23", "nft_created": "30/02/23", "original_value": "200K", "current_value": "254k" },
+    { id: 2, created_date: "21/02/23", "nft_created": "30/02/23", "original_value": "210K", "current_value": "354k" },
+    { id: 3, created_date: "25/02/23", "nft_created": "30/02/23", "original_value": "300K", "current_value": "204k" }
   ];
 
   const TabsData = [

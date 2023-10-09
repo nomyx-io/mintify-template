@@ -7,7 +7,7 @@ interface RecordType {
   description: string;
 }
  interface ComplianceType {
-  mockData: RecordType[],
+  claimTopics: any,
   targetKeys: any, 
   selectedKeys: any, 
   onChange: any, 
@@ -16,7 +16,7 @@ interface RecordType {
  }
 
 const Compliance = ({
-  mockData, 
+  claimTopics,
   targetKeys, 
   selectedKeys, 
   onChange, 
@@ -26,14 +26,15 @@ const Compliance = ({
     <div className='mt-4 p-5 bg-[#f0f0f0]'>
         <p className='mb-2 font-semibold'>Compliance Features</p>
           <Transfer
-              dataSource={mockData}
-              titles={['First Category', 'Second Category']}
+              dataSource={claimTopics}
+              titles={['Available Claims', 'Selected Claims']}
+              showSelectAll={false}
               targetKeys={targetKeys}
               selectedKeys={selectedKeys}
               onChange={onChange}
               onSelectChange={onSelectChange}
               onScroll={onScroll}
-              render={(item) => item.title}
+              render={(item) => <div>{item?.displayName}({item.topic})</div>}
           />
     </div>
   );

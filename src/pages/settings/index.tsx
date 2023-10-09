@@ -62,7 +62,7 @@ const Setting = () => {
           {errors.walletAddress && touched.walletAddress && <ErrorMessage error={errors.walletAddress} />}
         </div>
         <Compliance
-          mockData={mockData}
+          claimTopics={mockData}
           targetKeys={values.targetKeys}
           selectedKeys={values.selectedKeys}
           onChange={onChange}
