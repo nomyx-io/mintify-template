@@ -1,5 +1,6 @@
 import React from 'react'
 import ParseClient from './Parclient';
+import moment from 'moment';
 const monthNames = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -61,39 +62,52 @@ export const ApiHook = () => {
     const getEvents = async () => {
         try {
             let records = await ParseClient.getRecords('Event', [], [], ["*"])
-            const today = new Date().toISOString().split('T')[0];
+            let dateWiseData = {};
             const todayEvents = [];
-            const pastEvents = [];
+
             records && records.forEach((entry) => {
-                let record = entry.attributes
-                const eventDate = record.updatedAt.toISOString().split('T')[0];
-                if (eventDate === today) {
-                    todayEvents.push({
-                        name: record?.event,
-                        description: "description",
-                        value: "value"
-                    });
-                } else if (eventDate < today) {
-                    pastEvents.push({
-                        name: record?.event,
-                        description: "description",
-                        value: "value"
-                    });
+                let record = entry.attributes;
+                const eventDate = record.updatedAt.toISOString().split('T')[0] == moment().format('yyyy-MM-DD') ? 'Today' : record.updatedAt.toISOString().split('T')[0];
+
+                const eventData = {
+                    name: record?.event,
+                    // description: "description",
+                    value: 1
+                };
+
+                if (!dateWiseData[eventDate]) {
+                    dateWiseData[eventDate] = { data: [eventData] };
+                } else {
+                    const existingEvent = dateWiseData[eventDate].data.find(e => e.name === eventData.name);
+                    if (existingEvent) {
+                        existingEvent.value++;
+                    } else {
+                        dateWiseData[eventDate].data.push(eventData);
+                    }
+                }
+                if (eventDate === 'Today') {
+                    todayEvents.push(eventData);
                 }
             });
-            return {
-                "Today": { data: todayEvents },
-                "Past": { data: pastEvents }
+            if (dateWiseData.hasOwnProperty('Today')) {
+                const todayData = dateWiseData.Today;
+                delete dateWiseData.Today;
+                dateWiseData = { Today: todayData, ...dateWiseData };
             }
+            // Sort events by date in descending order
+            const sortedDateWiseData = Object.fromEntries(
+                Object.entries(dateWiseData).sort(([a], [b]) => new Date(b) - new Date(a))
+            );
+            return sortedDateWiseData;
         } catch (error) {
             console.log(error);
         }
     }
-    const getMintedNfts=async()=>{
+    const getMintedNfts = async () => {
         let records = await ParseClient.getRecords('Event', ['event'], ['LlMinted'], ["*"])
         return records
     }
-    const getMintedNftDetails=async(id)=>{
+    const getMintedNftDetails = async (id) => {
         let records = await ParseClient.getRecords('Event', ['objectId'], [id], ["*"])
         return records
     }

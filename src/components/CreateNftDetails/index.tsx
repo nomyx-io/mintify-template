@@ -6,18 +6,20 @@ import React, { useState } from 'react'
 import { Button } from "../../material-tailwind"
 import type { TransferDirection } from 'antd/es/transfer';
 
-export default function CreateNftDetails({handlePreview}: any) {
+export default function CreateNftDetails({ handlePreview, claimTopics }: any) {
   const [file, setFile] = useState('')
   const [nftTitle, setNftTitle] = useState("")
   const [description, setDescription] = useState("")
-  const [loadId, setLoanId] = useState("")
+  const [loanId, setLoanId] = useState("")
   const [loanAmount, setLoanAmount] = useState("")
   const [term, setTerm] = useState("")
-  const [fico, setFico] = useState("")
+  const [ficoScore, setFicoScore] = useState("")
   const [yields, setYields] = useState("")
   const [monthly, setMonthly] = useState("")
+  const [discount, setDiscount] = useState("")
+  const [location, setLocation] = useState("")
   const [price, setPrice] = useState("")
-  const [mint, setMint] = useState("")
+  const [mintAddress, setMintAddress] = useState("")
   const handleInputValues = (e: any) => {
     const name = e.target.name
     const value = e.target.value
@@ -28,7 +30,7 @@ export default function CreateNftDetails({handlePreview}: any) {
       case "description":
         setDescription(value)
         break;
-      case "loadId":
+      case "loanId":
         setLoanId(value)
         break;
       case "loanAmount":
@@ -38,7 +40,7 @@ export default function CreateNftDetails({handlePreview}: any) {
         setTerm(value)
         break;
       case "fico":
-        setFico(value)
+        setFicoScore(value)
         break;
       case "yields":
         setYields(value)
@@ -46,11 +48,17 @@ export default function CreateNftDetails({handlePreview}: any) {
       case "monthly":
         setMonthly(value)
         break;
+      case "discount":
+        setDiscount(value)
+        break;
+      case "location":
+        setLocation(value)
+        break;
       case "price":
         setPrice(value)
         break;
       case "mintAddress":
-        setMint(value)
+        setMintAddress(value)
         break;
 
       default:
@@ -67,14 +75,7 @@ export default function CreateNftDetails({handlePreview}: any) {
     description: string;
   }
 
-  const mockData: RecordType[] = Array.from({ length: 10 }).map((_, i) => ({
-    key: i.toString(),
-    title: `Option ${i + 1}`,
-    description: `description of content${i + 1}`,
-  }));
-
-  const initialTargetKeys = mockData.filter((item) => Number(item.key) > 5).map((item) => item.key);
-  const [targetKeys, setTargetKeys] = useState(initialTargetKeys);
+  const [targetKeys, setTargetKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
   const onChange = (nextTargetKeys: string[], direction: TransferDirection, moveKeys: string[]) => {
@@ -91,34 +92,40 @@ export default function CreateNftDetails({handlePreview}: any) {
   };
 
   const handlePreviewFunc = () => {
-    handlePreview({file, nftTitle, description, loadId, loanAmount, term, fico, yields, monthly, price, mint, targetKeys})
+    handlePreview({ nftTitle, description, loanId, loanAmount, term, ficoScore, yields, monthly, discount, location, price, mintAddress, targetKeys, file })
     console.log("Preview Clicked")
   }
 
   const fields = [
     {label: 'NFT Title', name: 'nftTitle', dataType: 'text', placeHolder: 'Enter Loan ID.Total Amount(Yield)', defaultValue: nftTitle, value: nftTitle },
     {label: 'Description', name: 'description', dataType: 'text', placeHolder: 'Add a description for the NFT', defaultValue: description, value: description },
-    {label: 'Key Feature', name: 'loadId', dataType: 'text', placeHolder: 'Enter Loan ID', defaultValue: loadId, value: undefined },
+    {label: 'Key Feature', name: 'loanId', dataType: 'text', placeHolder: 'Enter Loan ID', defaultValue: loanId, value: undefined },
     { 
       value: [
-        {label: '', name: 'loadId', dataType: 'text', placeHolder: 'Enter Loan ID', defaultValue: loadId, value: loadId },
-        {label: '', name: 'loanAmount', dataType: 'text', placeHolder: 'Enter Loan Origination Amount', defaultValue: loanAmount, value: loanAmount },
+        { label: '', name: 'loanId', dataType: 'text', placeHolder: 'Enter Loan ID', defaultValue: loanId, value: loanId },
+        { label: '', name: 'loanAmount', dataType: 'text', placeHolder: 'Enter Loan Origination Amount', defaultValue: loanAmount, value: loanAmount },
       ]
     },
-    { 
+    {
       value: [
-        {label: '', name: 'term', dataType: 'text', placeHolder: 'Enter Term', defaultValue: term, value: term },
-        {label: '', name: 'fico', dataType: 'text', placeHolder: 'Enter FICO Score', defaultValue: fico, value: fico },
+        { label: '', name: 'term', dataType: 'text', placeHolder: 'Enter Term', defaultValue: term, value: term },
+        { label: '', name: 'fico', dataType: 'text', placeHolder: 'Enter FICO Score', defaultValue: ficoScore, value: ficoScore },
       ]
     },
-    { 
+    {
       value: [
-        {label: '', name: 'yields', dataType: 'text', placeHolder: 'Enter Yield', defaultValue: yields, value: yields },
-        {label: '', name: 'monthly', dataType: 'text', placeHolder: 'Enter Monthly', defaultValue: monthly, value: monthly },
+        { label: '', name: 'yields', dataType: 'text', placeHolder: 'Enter Interest Rate', defaultValue: yields, value: yields },
+        { label: '', name: 'monthly', dataType: 'text', placeHolder: 'Enter Monthly Payment', defaultValue: monthly, value: monthly },
       ]
     },
-    {label: 'Pricing', name: 'price', dataType: 'text', placeHolder: '$', defaultValue: price, value: price },
-    {label: 'Mint to', name: 'mintAddress', dataType: 'text', placeHolder: 'Enter Wallet Address', defaultValue: mint, value: mint }
+    {
+      value: [
+        { label: '', name: 'discount', dataType: 'text', placeHolder: 'Enter Discount Coupan (%age off)', defaultValue: discount, value: discount },
+        { label: '', name: 'location', dataType: 'text', placeHolder: 'Location of Issuance (first three letters of zip)', defaultValue: location, value: location },
+      ]
+    },
+    { label: 'Pricing', name: 'price', dataType: 'text', placeHolder: '$', defaultValue: price, value: price },
+    { label: 'Mint to', name: 'mintAddress', dataType: 'text', placeHolder: 'Enter Wallet Address', defaultValue: mintAddress, value: mintAddress }
   ]
 
   return (
@@ -129,7 +136,7 @@ export default function CreateNftDetails({handlePreview}: any) {
           handleChange={handleInputValues}
         />
         <Compliance
-          mockData={mockData}
+          claimTopics={claimTopics}
           targetKeys={targetKeys}
           selectedKeys={selectedKeys}
           onChange={onChange}

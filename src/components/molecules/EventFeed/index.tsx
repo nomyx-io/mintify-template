@@ -12,16 +12,16 @@ export const EventFeed = ({ activeTab, setActiveTab, data, TabsData }: any) => {
     return (
         <div className='w-full lg:max-w-sm'>
             <Tabs value={activeTab}>
-                <TabsHeader>
+                {/* <TabsHeader>
                     {TabsData.map(({ label, value }: any) => (
                         <Tab key={value} value={value} onClick={() => setActiveTab(value)}>
                             {label}
                         </Tab>
                     ))}
-                </TabsHeader>
+                </TabsHeader> */}
                 <br />
                 <TabsBody>
-                    {Object.entries(data).map(([key, value]: any) => (
+                    {data && Object.entries(data).map(([key, value]: any) => (
                         <div className='border-b' key={key}>
                             <div>{key}</div>
                             {

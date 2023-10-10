@@ -14,6 +14,8 @@ import PrivateRoute from '@/components/atoms/PrivateRoute'
 import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import BlockchainService from '@/services/blockchain';
+import { ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 export default function App({ Component, pageProps }: any) {
 
   const { chains, publicClient } = configureChains(
@@ -79,6 +81,14 @@ export default function App({ Component, pageProps }: any) {
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains}>
+        <ToastContainer
+          position='top-right'
+          className='toast-background'
+          progressClassName='toast-progress-bar'
+          autoClose={4000}
+          closeOnClick
+          pauseOnHover
+        />
         <PrivateRoute>
             {getLayout(<Component service={blockchainService} {...pageProps} onConnect={onConnect}/>)}
         </PrivateRoute>
