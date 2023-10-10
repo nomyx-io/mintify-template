@@ -6,7 +6,7 @@ import Previewbottomcards from '.././molecules/PreviewBottomCards'
 import { toast } from 'react-toastify'
 
 const PreviewNftDetails = ({ service, handleBack, data }: any) => {
-    const { nftTitle, description, fico, file, loanId, loanAmount, mint, monthly, discount, location, price, targetKeys, term, yields } = data
+    const { nftTitle, description, ficoScore, file, loanId, loanAmount, mintAddress, monthly, discount, location, price, targetKeys, term, yields } = data
     const metadata = [
         {
             key: "nftTitle",
@@ -38,7 +38,7 @@ const PreviewNftDetails = ({ service, handleBack, data }: any) => {
         {
             key: "ficoScore",
             attributeType: 1,
-            value: fico,
+            value: ficoScore,
         },
         {
             key: "monthly",
@@ -78,13 +78,13 @@ const PreviewNftDetails = ({ service, handleBack, data }: any) => {
         {
             key: "mintAddress",
             attributeType: 1,
-            value: mint,
+            value: mintAddress,
         }
     ];
     const handleMint = async () => {
         try {
             const result = await service.llmint(metadata)
-            toast.success(`Nft Minted to ${mint}  !`)
+            toast.success(`Nft Minted to ${mintAddress}  !`)
 
         } catch (error) {
             console.log(error, "error >>")
