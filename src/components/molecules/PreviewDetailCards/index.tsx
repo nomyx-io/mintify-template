@@ -16,7 +16,7 @@ const Previewdetailcards = ({ data }: any) => {
                 <div className='flex gap-4'>
                     <div className='bg-[#f4f4f4] rounded text-center p-4 flex flex-col items-center min-w-[140px]'>
                         <div>interest rate</div>
-                        <div className='text-[#871212]'>{data?.yields || ""}</div>
+                        <div className='text-[#871212]'>{data?.yield || ""}</div>
                     </div>
                     <div className='bg-[#f4f4f4] rounded text-center p-4 flex flex-col items-center min-w-[140px]'>
                         <div>load Id</div>

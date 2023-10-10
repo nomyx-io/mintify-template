@@ -20,9 +20,9 @@ export default function DetailView ({ handleBack, data }: any) {
             setNftData(resultObject)
         }
         getData()
-    }, [])
+    }, [pathName])
     return (
-        <PreviewNftDetails data={nftData} handleBack={handleBack} />
+        nftData && <PreviewNftDetails detailView data={nftData} />
     )
 }
 DetailView.getLayout = getDashboardLayout;

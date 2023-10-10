@@ -5,8 +5,8 @@ import Previewdetailcards from '.././molecules/PreviewDetailCards'
 import Previewbottomcards from '.././molecules/PreviewBottomCards'
 import { toast } from 'react-toastify'
 
-const PreviewNftDetails = ({ service, handleBack, data }: any) => {
-    const { nftTitle, description, ficoScore, file, loanId, loanAmount, mintAddress, monthly, discount, location, price, targetKeys, term, yields } = data
+const PreviewNftDetails = ({ service, handleBack, data, detailView = false }: any) => {
+    const { nftTitle, description, ficoScore, Image, loanId, loanAmount, mintAddress, monthly, discount, location, price, targetKeys, term, yields } = data
     const metadata = [
         {
             key: "nftTitle",
@@ -61,9 +61,9 @@ const PreviewNftDetails = ({ service, handleBack, data }: any) => {
             value: price,
         },
         {
-            key: "Image",
+            key: "image",
             attributeType: 1,
-            value: file,
+            value: Image,
         },
         {
             key: "yield",
@@ -73,7 +73,7 @@ const PreviewNftDetails = ({ service, handleBack, data }: any) => {
         {
             key: "claimTopics",
             attributeType: 0,
-            value: targetKeys.join(','),
+            value: targetKeys ? targetKeys.join(',') : targetKeys,
         },
         {
             key: "mintAddress",
@@ -93,7 +93,7 @@ const PreviewNftDetails = ({ service, handleBack, data }: any) => {
     return (
         <div className='p-4 my-2 w-full flex flex-col gap-4'>
             <p className='text-lg font-semibold'>Preview NFT</p>
-            <div className='flex gap-4'>
+            <div className={`flex gap-4 ${detailView && 'mb-28'}`}>
                 <div className='flex flex-col flex-grow h-20 gap-10 max-w-[68%]'>
                     <div>
                         {nftTitle}
@@ -101,11 +101,17 @@ const PreviewNftDetails = ({ service, handleBack, data }: any) => {
                     <Previewdetailcards data={data} />
                 </div>
                 <div className='w-[30%] flex flex-col gap-4'>
+                    {!detailView &&
+                    <>
                     <Button onClick={handleBack} className='bg-[#dedede] text-black rounded-none'>Back</Button>
                     <Button onClick={handleMint} className='bg-[#637eab] rounded-none'>Mint</Button>
-                    <ImageComp previewPage file={data.file} />
+                    </>
+}
+                    <ImageComp previewPage file={data?.Image || ""} />
                 </div>
             </div>
+            {detailView &&
+                <Previewbottomcards />}
         </div>
     )
 }
