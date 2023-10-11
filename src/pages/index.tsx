@@ -93,6 +93,10 @@ export default function Home() {
       let events = await api.getEvents()
       let nftDetails = await api.getMintedNftDetails(mintedNfts?.[0]?.id)
       let data = await api.getPortfolioPerformance()
+      for (let index = 0; index < mintedNfts.length; index++) {
+        mintedNfts[index]._createdAt = moment(mintedNfts[index].attributes.createdAt).format('DD/MM/YY')
+        mintedNfts[index]._amount = (findValueByKey(mintedNfts[index].attributes.attributes, "loan_amount"))
+      }
       setMintedNfts(mintedNfts)
       setEventDetails(events)
       setGraphValues(data)
@@ -143,11 +147,10 @@ export default function Home() {
 
     ]
   }
-  console.log(mintedNfts)
 
   const columns = [
     { key: 'id', label: 'Id', align: 'left', unique: true, render:  ((row: any) => (
-      <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/detail-view?${row.id}`)}>{row.id}</div>
+      <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/detail-view?id=${row.id}`)}>{row.id}</div>
     )) },
     {
       key: '_createdAt', label: 'Loan Created', align: 'center'
