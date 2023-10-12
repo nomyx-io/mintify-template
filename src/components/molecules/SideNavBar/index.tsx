@@ -9,8 +9,7 @@ const Sidebar = () => {
         <p className='font-semibold text-lg my-5'>LenderLab</p>
         <div className='h-[85%] flex flex-col gap-4 justify-between flex-grow'>
             <div className='flex flex-col gap-4 text-base'>
-                <SideTab icon={<ProductIcon />} label="Product Details" href="/" />
-                <SideTab icon={<DetailsIcon />} label="Enter Details" href="/details" />
+                <SideTab icon={<DetailsIcon />} label="Mint New NBT" href="/details" />
                 <SideTab icon={<SettingsIcon />} label="Settings" href="/settings" />
             </div>
             <div className='flex flex-col gap-2 justify-end mt-auto'>

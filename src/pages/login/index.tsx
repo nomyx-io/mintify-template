@@ -1,4 +1,3 @@
-
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Spin } from 'antd';
 import Image from 'next/image';
@@ -6,6 +5,10 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useAccount } from 'wagmi'
 
+import bg from '../../assets/LenderLabSplashMetal.png'
+import logo from '../../assets/LenderLabLogo.svg'
+
+import styles from './login.module.scss';
 
 export default function Login({onConnect}:any) {
     const { address, isConnected, isConnecting } = useAccount()
@@ -34,21 +37,24 @@ export default function Login({onConnect}:any) {
             </div>
             :
             <>
-            <div className='bg-[#8454a4] max-[550px]:hidden w-1/2 flex flex-col justify-center items-center gap-10'>
-                <Image alt="" src={require('../../assets/loginimg.png')} />
+            <div className='bg-black max-[550px]:hidden w-1/2 flex flex-col justify-center items-center gap-10'  style={{ backgroundImage: `url(${bg.src})`, backgroundSize: 'cover', backgroundPosition:'center'}}>
+
+                <Image alt="" src={logo} />
+
                 <div className='text-white text-center'>
-                    <p className='font-bold text-xl mb-2'>Mintify</p>
+                    {/*<p className='font-bold text-xl mb-2'>Mintify</p>*/}
                     {/* <p className='font-semibold text-xs'>All your ID information in one place</p> */}
                 </div>
             </div>
-            <div className='relative max-[550px]:absolute max-[550px]:w-full w-1/2 flex flex-col p-5'>
-                <p className='text-right font-bold text-xl'>Mintify <br /></p>
-                <div className='flex flex-col justify-center items-center mt-14'>
-                    <div className='flex flex-col gap-2 max-[768px]:w-[90%] w-[90%] min-h-[300px] justify-center items-center'>
+                <div className='max-[550px]:hidden w-1/2 flex flex-col justify-center items-center p-2'>
+                    <div className='text-right font-bold text-xl w-full'>
+                        NBT MANAGER
+                    </div>
+                    <div className={styles.btnContainer + " flex flex-grow justify-center items-center align-middle"}>
                         <ConnectButton label='Log in with Wallet' />
                     </div>
                 </div>
-            </div>
+
             </>}
         </div>
     )

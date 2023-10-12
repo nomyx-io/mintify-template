@@ -94,7 +94,7 @@ const PreviewNftDetails = ({ service, handleBack, data }: any) => {
     }
     return (
         <div className='p-4 my-2 w-full flex flex-col gap-4'>
-            <p className='text-lg font-semibold'>Preview NFT</p>
+            <p className='text-lg font-semibold'>Preview NBT</p>
             <div className='flex gap-4'>
                 <div className='flex flex-col flex-grow h-20 gap-10 max-w-[68%]'>
                     <div>

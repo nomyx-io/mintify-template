@@ -80,7 +80,7 @@ export default function App({ Component, pageProps }: any) {
 
   return (
     <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains}>
+      <RainbowKitProvider chains={chains} coolMode>
         <ToastContainer
           position='top-right'
           className='toast-background'

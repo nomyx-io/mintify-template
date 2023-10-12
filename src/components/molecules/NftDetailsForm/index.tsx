@@ -4,7 +4,7 @@ import React from 'react'
 const NftDetailsForm = ({ fields, handleChange }: any) => {
     return (
         <div className='flex flex-col gap-4 bg-[#f0f0f0] p-4'>
-            <p className='font-semibold mb-2'>NFT Details</p>
+            <p className='font-semibold mb-2'>NBT Details</p>
             {fields.map((field: any) => {
                 return (
                     <div key={field.name} className={`${typeof (field.value) == 'object' ? 'flex gap-3' : 'flex-col'}`}>
