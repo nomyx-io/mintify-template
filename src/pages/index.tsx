@@ -94,8 +94,10 @@ export default function Home() {
       let nftDetails = await api.getMintedNftDetails(mintedNfts?.[0]?.id)
       let data = await api.getPortfolioPerformance()
       for (let index = 0; index < mintedNfts.length; index++) {
-        mintedNfts[index]._createdAt = moment(mintedNfts[index].attributes.createdAt).format('DD/MM/YY')
-        mintedNfts[index]._amount = (findValueByKey(mintedNfts[index].attributes.attributes, "loan_amount"))
+        mintedNfts[index]._createdAt = moment(mintedNfts[index].attributes.createdAt).format('YYYY-MM-DD')
+        mintedNfts[index]._amount = (findValueByKey(mintedNfts[index].attributes.attributes, "loanAmount"))
+        mintedNfts[index]._originationDate = (findValueByKey(mintedNfts[index].attributes.attributes, "originationDate"))
+        mintedNfts[index]._currentValue = (findValueByKey(mintedNfts[index].attributes.attributes, "currentValue"))
       }
       setMintedNfts(mintedNfts)
       setEventDetails(events)
@@ -150,14 +152,14 @@ export default function Home() {
 
   const columns = [
     { key: 'id', label: 'Id', align: 'left', unique: true, render:  ((row: any) => (
-      <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/detail-view?id=${row.id}`)}>{row.id}</div>
+      <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/`)}>{row.id}</div>
     )) },
     {
-      key: '_createdAt', label: 'Loan Created', align: 'center'
+      key: '_originationDate', label: 'Loan Created', align: 'center'
     },
     { key: '_createdAt', label: 'NFT Created', align: 'center' },
     { key: '_amount', label: 'Original Value', align: 'center', sortable: true },
-    { key: '_amount', label: 'Current Value', align: 'right', sortable: true },
+    { key: '_currentValue', label: 'Current Value', align: 'right', sortable: true },
   ];
 
   const tableData = [

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Input } from '../../../material-tailwind'
 
-const TextInput = ({ placeholder, name, value, handleChange }: any) => {
+const TextInput = ({ placeholder, name, value, handleChange, type = "text" }: any) => {
   return (
     <>
       <Input
@@ -10,6 +10,7 @@ const TextInput = ({ placeholder, name, value, handleChange }: any) => {
         placeholder={placeholder}
         name={name}
         value={value}
+        type={type}
         onChange={handleChange} crossOrigin={undefined} />
     </>
   )

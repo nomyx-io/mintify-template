@@ -44,34 +44,34 @@ export default function App({ Component, pageProps }: any) {
   useEffect(() => {
     setMounted(true);
   }, []);
-  
-  const onConnect = async (address:any, connector:any) => {
-	  console.log('connected!');
-	  console.log('address = ' + address);
-	  console.log('connector = ' + connector);
 
-	  console.log("ethereum:");
-	  console.log((window as any).ethereum);
+  const onConnect = async (address?: any, connector?: any) => {
+    console.log('connected!');
+    console.log('address = ' + address);
+    console.log('connector = ' + connector);
 
-	  const provider = new ethers.providers.Web3Provider((window as any).ethereum);
-	
-	  let jsonConfig: any = await import(`./../../config.json`);
-	  const network = provider.getNetwork().then( async (network:any)=>{
+    console.log("ethereum:");
+    console.log((window as any).ethereum);
 
-		  const chainId = network.chainId;
-		  console.log('chainId = ' + chainId);
-		  setCurrentNetwork(network.chainId);
+    const provider = new ethers.providers.Web3Provider((window as any).ethereum);
 
-		  const config = jsonConfig[chainId];
+    let jsonConfig: any = await import(`./../../config.json`);
+    const network = provider.getNetwork().then(async (network: any) => {
 
-		  if (!config) {
-			  // setUnsupportedNetworkDialogVisible(true);
-			  return;
-		  }
-		  
-		  const _blockchainService:any = new BlockchainService(provider, config.contract, config.identityFactory);
-		  setBlockchainService(_blockchainService);
-	  });
+      const chainId = network.chainId;
+      console.log('chainId = ' + chainId);
+      setCurrentNetwork(network.chainId);
+
+      const config = jsonConfig[chainId];
+
+      if (!config) {
+        // setUnsupportedNetworkDialogVisible(true);
+        return;
+      }
+
+      const _blockchainService: any = new BlockchainService(provider, config.contract, config.identityFactory);
+      setBlockchainService(_blockchainService);
+    });
   };
 
   if (!mounted) return <></>;
@@ -89,8 +89,8 @@ export default function App({ Component, pageProps }: any) {
           closeOnClick
           pauseOnHover
         />
-        <PrivateRoute>
-            {getLayout(<Component service={blockchainService} {...pageProps} onConnect={onConnect}/>)}
+        <PrivateRoute onConnected={onConnect}>
+          {getLayout(<Component service={blockchainService} {...pageProps} onConnect={onConnect} />)}
         </PrivateRoute>
       </RainbowKitProvider>
     </WagmiConfig>

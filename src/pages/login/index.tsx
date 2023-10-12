@@ -18,17 +18,6 @@ export default function Login({onConnect}:any) {
         isConnected && router.push('/')
     }, [isConnected])
 
-    useAccount({
-        onConnect: function ({ address, connector, isReconnected }) {
-            console.log('Connected', { address, connector, isReconnected });
-            onConnect(address, connector);
-        },
-        onDisconnect: function () {
-            console.log('DisConnected');
-            // onDisconnect();
-        },
-    });
-
     return (
         <div className='relative h-screen w-screen flex overflow-hidden p-0'>
             {isConnecting ?
