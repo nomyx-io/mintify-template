@@ -11,12 +11,21 @@ import {
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public'
 import PrivateRoute from '@/components/atoms/PrivateRoute'
-import { useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import BlockchainService from '@/services/blockchain';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { generateRandomString } from '@/utils';
+import parseConfig from "../parse.json"
+import axios from 'axios';
+
+export const UserContext = createContext(()=>{});
+
 export default function App({ Component, pageProps }: any) {
+
+  const [role, setRole] = useState<any[]>([])
+  const [forecLogout, setForceLogout] = useState(false)
 
   const { chains, publicClient } = configureChains(
     [sepolia],
@@ -45,6 +54,23 @@ export default function App({ Component, pageProps }: any) {
     setMounted(true);
   }, []);
 
+  const getToken = async (request: any) => {
+		try {
+			let data: any = await axios.post(`${parseConfig.publicURL}/auth/login`, request)
+			data = data.data
+			return {
+				token: data?.access_token || '',
+				roles: data?.user?.roles || []
+			}
+		} catch (error) {
+			console.log('Error', error);
+			return {
+					token:'',
+					roles:[]
+			}
+		}
+	}
+
   const onConnect = async (address?: any, connector?: any) => {
     console.log('connected!');
     console.log('address = ' + address);
@@ -54,7 +80,21 @@ export default function App({ Component, pageProps }: any) {
     console.log((window as any).ethereum);
 
     const provider = new ethers.providers.Web3Provider((window as any).ethereum);
-
+    let RandomString = generateRandomString(10)
+    const message = `Sign this message to validate that you are the owner of the account. Random string: ${RandomString}`;
+    const signer = await provider.getSigner();
+    const signature = await signer.signMessage(message);
+    let { token, roles }: any = await getToken({
+      "message": message,
+      "signature": signature
+    })
+    if (roles.length > 0) {
+      setRole([...roles])
+    }
+    else if (roles.length == 0) {
+      toast.error("Sorry You are not Authorized !")
+      setForceLogout(true);
+    }
     let jsonConfig: any = await import(`./../../config.json`);
     const network = provider.getNetwork().then(async (network: any) => {
 
@@ -74,25 +114,33 @@ export default function App({ Component, pageProps }: any) {
     });
   };
 
+  const onDisconnect = () => {
+		setRole([])
+		setForceLogout(true)
+		console.log("disconnected")
+	}
+
   if (!mounted) return <></>;
   const getLayout =
     (Component as any).getLayout || ((page: React.ReactNode) => page);
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains} coolMode>
-        <ToastContainer
-          position='top-right'
-          className='toast-background'
-          progressClassName='toast-progress-bar'
-          autoClose={4000}
-          closeOnClick
-          pauseOnHover
-        />
-        <PrivateRoute onConnected={onConnect}>
-          {getLayout(<Component service={blockchainService} {...pageProps} onConnect={onConnect} />)}
-        </PrivateRoute>
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <UserContext.Provider value={onDisconnect}>
+      <WagmiConfig config={wagmiConfig}>
+        <RainbowKitProvider chains={chains} coolMode>
+          <ToastContainer
+            position='top-right'
+            className='toast-background'
+            progressClassName='toast-progress-bar'
+            autoClose={4000}
+            closeOnClick
+            pauseOnHover
+          />
+          <PrivateRoute forceLogout={forecLogout} role={role} onConnect={onConnect}>
+            {getLayout(<Component connectionStatus={connectionStatus} role={role} service={blockchainService} {...pageProps} onConnect={onConnect} onDisconnect={onDisconnect} />)}
+          </PrivateRoute>
+        </RainbowKitProvider>
+      </WagmiConfig>
+    </UserContext.Provider>
   )
 }

@@ -3,24 +3,29 @@ import { Spin } from 'antd';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useAccount } from 'wagmi'
+import { useAccount, useDisconnect } from 'wagmi'
 
 import bg from '../../assets/LenderLabSplashMetal.png'
 import logo from '../../assets/LenderLabLogo.svg'
 
 import styles from './login.module.scss';
 
-export default function Login({onConnect}:any) {
+export default function Login({onConnect, role, onDisconnect, forceLogout}:any) {
     const { address, isConnected, isConnecting } = useAccount()
+    const {disconnect} = useDisconnect()
     const router = useRouter();
 
     useEffect(() => {
-        isConnected && router.push('/')
-    }, [isConnected])
+        (isConnected && role.length) > 0 && router.push('/')
+    }, [role])
+
+    useEffect(() => {
+        forceLogout && disconnect()
+      }, [forceLogout])
 
     return (
         <div className='relative h-screen w-screen flex overflow-hidden p-0'>
-            {isConnecting ?
+            {isConnected && role.length == 0 ?
                 <div className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
                 <Spin />
             </div>

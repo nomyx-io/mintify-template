@@ -8,6 +8,7 @@ import { getDashboardLayout } from '../Layouts';
 import BarChart from '@/components/atoms/Graphs/Barchart';
 import moment from 'moment';
 import { useRouter } from 'next/navigation';
+import { useAccount } from 'wagmi';
 export default function Home() {
   const router = useRouter()
   const api = ApiHook()
@@ -15,6 +16,7 @@ export default function Home() {
   const [eventDetails, setEventDetails] = useState<any>({})
   const [mintedNfts, setMintedNfts] = useState<any>([])
   const [activeTab, setActiveTab] = useState('all')
+  const { isConnected } = useAccount()
 
   const KPIS = [{
     icon: <svg
@@ -86,6 +88,11 @@ export default function Home() {
     }
     return 0;
   }
+
+  useEffect(() => {
+    !isConnected && router.push('/login')
+  }, [])
+  
 
   useEffect(() => {
     async function getData() {

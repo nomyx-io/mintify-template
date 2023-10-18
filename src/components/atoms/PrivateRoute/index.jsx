@@ -1,8 +1,10 @@
+import { Spin } from 'antd';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useAccount } from 'wagmi';
+import { useAccount, useDisconnect } from 'wagmi';
 
-function PrivateRoute({ children, onConnected }) {
+function PrivateRoute({ children, onConnect, role, forceLogout }) {
+  const {disconnect} = useDisconnect()
   const router = useRouter();
   const { address, isConnected, isConnecting } = useAccount()
 
@@ -10,10 +12,18 @@ function PrivateRoute({ children, onConnected }) {
     if (!isConnected && !address) {
       router.push('/login');
     }
-    onConnected()
-  }, [address, isConnected]);
+    if(isConnected && role.length == 0){
+      onConnect()
+    }
+  }, [address, isConnected, role]);
 
-  return isConnecting ? <div>Loading...</div> : children;
+  useEffect(() => {
+    forceLogout && disconnect()
+  }, [forceLogout])
+  
+  return isConnected && role.length == 0 ? <div className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
+  <Spin />
+</div> : children;
 }
 
 export default PrivateRoute;
