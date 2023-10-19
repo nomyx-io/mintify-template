@@ -1,4 +1,3 @@
-import { input } from "@material-tailwind/react";
 import { toast } from "react-toastify";
 
 const isAlphanumeric=(input: any)=> {
@@ -45,53 +44,52 @@ const generateRandomString=(length: number)=> {
   }  
 
   const validateData = (data: any) => {
-    console.log(!isTwoDecimal(data.loanAmount), data.loanAmount, data, ">>>>")
     if(!isAlphanumeric(data.nftTitle) || !maxChar(data.nftTitle,30)){
-      toast.error('Invalid Nft Title. LoanId must be alphanumeric and can contain max 30 characters.');
+      toast.error('Invalid Nft Title.It must be alphanumeric and can contain max 30 characters.');
       return false;
     }
     if(!maxChar(data.description,256)){
-      toast.error('Invalid input in description. It should conatin maximum 256 characters ');
+      toast.error('Invalid description. It can contain max 256 characters ');
       return false;
     }
     if(!isAlphanumeric(data.loanId) || !maxChar(data.loanId,30)){
-      toast.error('Invalid loan Id. LoanId must be alphanumeric and can contain max 30 characters.');
+      toast.error('Invalid loan Id. It must be alphanumeric and can contain max 30 characters.');
       return false;
     }
-    if(!isNumeric(data?.currentValue) || !maxChar(data?.currentValue,3)){
-      toast.error('Invalid input in Current Value. It must be Numeric and should conatin maximum 3 characters ');
+    if(!isNumeric(data?.currentValue) || !maxChar(data?.currentValue,10)){
+      toast.error('Invalid input in Current Value. It must be Numeric and can conatin maximum 10 characters.');
       return false;
     }
-    if(!isTwoDecimal(data.loanAmount)){
-      toast.error('Invalid Loan Origination Amount.It must be numeric and allowed max 2 characters after decimal')
+    if(!isNumeric(data.loanAmount) || !maxChar(data?.currentValue,10)){
+      toast.error('Invalid input in Loan Origination Amount.It must be numeric and can contain max 10 characters.')
       return false
     }
     if(!isNumericWithM(data?.term) || !maxChar(data?.term,3)){
-      toast.error('Invalid input in Term. It must be Numeric and should conatin maximum 3 characters followed by m ');
+      toast.error('Invalid input in Term. It must be Numeric and can conatin max 3 characters followed by m ');
       return false;
     }
     if(!isNumeric(data?.ficoScore) || !maxChar(data?.ficoScore,3)){
-      toast.error('Invalid input in Fico Score. It must be Numeric and should conatin maximum 3 characters ');
+      toast.error('Invalid input in Fico Score. It must be Numeric and can conatin max 3 characters ');
       return false;
     }
     if(!isValidInterestRate(data?.yields)){
-      toast.error('Invalid input in Interest Rate. It must be Numeric and should conatin maximum 3 characters after decimal ');
+      toast.error('Invalid input in Interest Rate. It must be Numeric and can conatin max 3 characters after decimal ');
       return false;
     }
     if(!isTwoDecimal(data.monthly)){
-      toast.error('Invalid Monthly Payment.It must be numeric and allowed max 2 characters after decimal')
+      toast.error('Invalid Monthly Payment.It must be numeric and can contain max 2 characters after decimal')
       return false
     }
     if(!isTwoDecimal(data.discount)){
-      toast.error('Invalid Discount.It must be numeric and allowed max 2 characters after decimal')
+      toast.error('Invalid Discount.It must be numeric and can contain max 2 characters after decimal')
       return false
     }
     if(!isTwoDecimal(data.price)){
-      toast.error('Invalid Pricing.It must be numeric and allowed max 2 characters after decimal')
+      toast.error('Invalid Pricing.It must be numeric and can contain max 2 characters after decimal')
       return false
     }
     if(!isNumeric(data?.location) || !maxChar(data?.location,3)){
-      toast.error('Invalid input in Location. It must be Numeric and should conatin maximum 3 characters ');
+      toast.error('Invalid input in Location. It must be Numeric and can conatin max 3 characters ');
       return false;
     }
     if (!isEthereumAddress(data?.Wallet)) {
