@@ -5,6 +5,7 @@ import PreviewNftDetails from '@/components/PreviewNftDetails'
 import { getDashboardLayout } from '@/Layouts'
 import { toast } from 'react-toastify'
 import { TransferDirection } from 'antd/es/transfer'
+import {validateData} from '@/utils'
 
 export default function Details({ service }: any) {
   const [preview, setPreview] = useState(false)
@@ -169,11 +170,13 @@ export default function Details({ service }: any) {
 
   const handlePreview = (data: any) => {
     setNftData(data)
-    if (data.nftTitle == "" || data.description == "" || data.loanId == "" || data.loanAmount == "" || data.term == "" || data.fico == "" || data.yields == "" || data.monthly == "" || data.discount == "" || data.location == "" || data.price == "" || data.mint == "" || data.file == "" || data.originationDate == "" || data.currentValue == "") {
+    if (data.nftTitle == "" || data.description == "" || data.loanId == "" || data.loanAmount == "" || data.term == "" || data.ficoScore == "" || data.yields == "" || data.monthly == "" || data.discount == "" || data.location == "" || data.price == "" || data.mint == "" || data.file == "" || data.originationDate == "" || data.currentValue == "") {
       toast.error("Nft Data is mandatory")
     }
     else {
-      setPreview(true)
+      if (validateData(data)) {
+        setPreview(true)
+      }
     }
   }
   const handleBack = () => {
