@@ -26,6 +26,7 @@ export default function App({ Component, pageProps }: any) {
 
   const [role, setRole] = useState<any[]>([])
   const [forecLogout, setForceLogout] = useState(false)
+  const [status, setStatus] = useState(false)
 
   const { chains, publicClient } = configureChains(
     [sepolia],
@@ -41,8 +42,12 @@ export default function App({ Component, pageProps }: any) {
     chains
   });
 
+  useEffect(() => {
+    window.location.pathname == '/login' && role.length == 0 ? setStatus(true) : setStatus(false)
+  }, [status, role])
+  
   const wagmiConfig = createConfig({
-    autoConnect: true,
+    autoConnect: status ? false : true,
     connectors,
     publicClient
   })
@@ -114,6 +119,10 @@ export default function App({ Component, pageProps }: any) {
     });
   };
 
+  const handleForecLogout = () => {
+    setForceLogout(false)
+  }
+
   const onDisconnect = () => {
 		setRole([])
 		setForceLogout(true)
@@ -136,8 +145,8 @@ export default function App({ Component, pageProps }: any) {
             closeOnClick
             pauseOnHover
           />
-          <PrivateRoute forceLogout={forecLogout} role={role} onConnect={onConnect}>
-            {getLayout(<Component connectionStatus={connectionStatus} role={role} service={blockchainService} {...pageProps} onConnect={onConnect} onDisconnect={onDisconnect} />)}
+          <PrivateRoute handleForecLogout={handleForecLogout} forceLogout={forecLogout} role={role} onConnect={onConnect}>
+            {getLayout(<Component role={role} service={blockchainService} {...pageProps} onConnect={onConnect} onDisconnect={onDisconnect} />)}
           </PrivateRoute>
         </RainbowKitProvider>
       </WagmiConfig>
