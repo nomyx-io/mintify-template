@@ -3,29 +3,16 @@ import { Spin } from 'antd';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
-import { useAccount } from 'wagmi'
+import { useAccount, useDisconnect } from 'wagmi'
 
 import bg from '../../assets/LenderLabSplashMetal.png'
 import logo from '../../assets/LenderLabLogo.svg'
 
 import styles from './login.module.scss';
 
-export default function Login({onConnect}:any) {
-    const { address, isConnected, isConnecting } = useAccount()
-    const router = useRouter();
-
-    useEffect(() => {
-        isConnected && router.push('/')
-    }, [isConnected])
-
+export default function Login() {
     return (
         <div className='relative h-screen w-screen flex overflow-hidden p-0'>
-            {isConnecting ?
-                <div className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
-                <Spin />
-            </div>
-            :
-            <>
             <div className='bg-black max-[550px]:hidden w-1/2 flex flex-col justify-center items-center gap-10'  style={{ backgroundImage: `url(${bg.src})`, backgroundSize: 'cover', backgroundPosition:'center'}}>
 
                 <Image alt="" src={logo} />
@@ -43,8 +30,6 @@ export default function Login({onConnect}:any) {
                         <ConnectButton label='Log in with Wallet' />
                     </div>
                 </div>
-
-            </>}
         </div>
     )
 }

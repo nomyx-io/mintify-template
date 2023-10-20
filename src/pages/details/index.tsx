@@ -5,8 +5,12 @@ import PreviewNftDetails from '@/components/PreviewNftDetails'
 import { getDashboardLayout } from '@/Layouts'
 import { toast } from 'react-toastify'
 import { TransferDirection } from 'antd/es/transfer'
+import { useRouter } from 'next/router'
+import { useAccount } from 'wagmi'
 
 export default function Details({ service }: any) {
+  const {isConnected} = useAccount()
+  const router = useRouter()
   const [preview, setPreview] = useState(false)
   const [nftData, setNftData] = useState()
   const [claimTopics, setClaimTopics] = useState<any[]>([])
@@ -151,6 +155,10 @@ export default function Details({ service }: any) {
   useEffect(() => {
     getClaimTopics()
   }, [service])
+
+  useEffect(() => {
+    !isConnected && router.push('/login')
+  }, [])
 
   const getClaimTopics = async () => {
     const claims =  service && await service.getClaimTopics()
