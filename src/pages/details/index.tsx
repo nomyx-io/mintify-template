@@ -5,6 +5,7 @@ import PreviewNftDetails from '@/components/PreviewNftDetails'
 import { getDashboardLayout } from '@/Layouts'
 import { toast } from 'react-toastify'
 import { TransferDirection } from 'antd/es/transfer'
+import {validateData} from '@/utils'
 import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
 
@@ -121,13 +122,13 @@ export default function Details({ service }: any) {
     { 
       value: [
         { label: '', name: 'loanId', dataType: 'text', placeHolder: 'Enter Loan ID', defaultValue: loanId, value: loanId },
-        { label: '', name: 'currentValue', dataType: 'text', placeHolder: 'Enter Current Value', defaultValue: currentValue, value: currentValue },
+        { label: '', name: 'currentValue', dataType: 'text', placeHolder: 'Enter Current Value', defaultValue: currentValue, value: currentValue, prefix: '$' },
       ]
     },
     { 
       value: [
         { label: '', name: 'originationDate', dataType: 'date', placeHolder: 'Enter Loan Origination Date', defaultValue: originationDate, value: originationDate },
-        { label: '', name: 'loanAmount', dataType: 'text', placeHolder: 'Enter Loan Origination Amount', defaultValue: loanAmount, value: loanAmount },
+        { label: '', name: 'loanAmount', dataType: 'text', placeHolder: 'Enter Loan Origination Amount', defaultValue: loanAmount, value: loanAmount, prefix: '$' },
       ]
     },
     {
@@ -138,17 +139,17 @@ export default function Details({ service }: any) {
     },
     {
       value: [
-        { label: '', name: 'yields', dataType: 'text', placeHolder: 'Enter Interest Rate', defaultValue: yields, value: yields },
-        { label: '', name: 'monthly', dataType: 'text', placeHolder: 'Enter Monthly Payment', defaultValue: monthly, value: monthly },
+        { label: '', name: 'yields', dataType: 'text', placeHolder: 'Enter Interest Rate', defaultValue: yields, value: yields, prefix: '%' },
+        { label: '', name: 'monthly', dataType: 'text', placeHolder: 'Enter Monthly Payment', defaultValue: monthly, value: monthly, prefix: '$' },
       ]
     },
     {
       value: [
-        { label: '', name: 'discount', dataType: 'text', placeHolder: 'Enter Discount Coupan (%age off)', defaultValue: discount, value: discount },
+        { label: '', name: 'discount', dataType: 'text', placeHolder: 'Enter Discount Coupan (%age off)', defaultValue: discount, value: discount, prefix: '%' },
         { label: '', name: 'location', dataType: 'text', placeHolder: 'Location of Issuance (first three letters of zip)', defaultValue: location, value: location },
       ]
     },
-    { label: 'Pricing', name: 'price', dataType: 'text', placeHolder: '$', defaultValue: price, value: price },
+    { label: 'Pricing', name: 'price', dataType: 'text', placeHolder: 'Price', defaultValue: price, value: price, prefix: '$' },
     { label: 'Mint to', name: 'mintAddress', dataType: 'text', placeHolder: 'Enter Wallet Address', defaultValue: mintAddress, value: mintAddress }
   ]
 
@@ -177,11 +178,13 @@ export default function Details({ service }: any) {
 
   const handlePreview = (data: any) => {
     setNftData(data)
-    if (data.nftTitle == "" || data.description == "" || data.loanId == "" || data.loanAmount == "" || data.term == "" || data.fico == "" || data.yields == "" || data.monthly == "" || data.discount == "" || data.location == "" || data.price == "" || data.mint == "" || data.file == "" || data.originationDate == "" || data.currentValue == "") {
+    if (data.nftTitle == "" || data.description == "" || data.loanId == "" || data.loanAmount == "" || data.term == "" || data.ficoScore == "" || data.yields == "" || data.monthly == "" || data.discount == "" || data.location == "" || data.price == "" || data.mint == "" || data.file == "" || data.originationDate == "" || data.currentValue == "") {
       toast.error("Nft Data is mandatory")
     }
     else {
-      setPreview(true)
+      if (validateData(data)) {
+        setPreview(true)
+      }
     }
   }
   const handleBack = () => {

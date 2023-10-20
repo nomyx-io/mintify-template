@@ -14,14 +14,14 @@ const NftDetailsForm = ({ fields, frozen, handleChange, handleFreeze }: any) => 
                                 return (
                                     <div key={item.name} className='flex flex-col gap-1 w-1/2'>
                                         <p>{item.label}</p>
-                                        <TextInput type={item.dataType} handleChange={handleChange} name={item.name} value={item.value} defaultValue={item.defaultValue} placeholder={item.placeHolder} />
+                                        <TextInput prefix={item?.prefix || null} type={item.dataType} handleChange={handleChange} name={item.name} value={item.value} defaultValue={item.defaultValue} placeholder={item.placeHolder} />
                                     </div>
                                 )
                             }) :
                             field.value == undefined ? <p className='-mb-4 mt-2'>{field.label}</p> :
                                 <div className='flex flex-col gap-1'>
                                     <p>{field.label}</p>
-                                    <TextInput type={field.dataType} handleChange={handleChange} name={field.name} value={field.value} defaultValue={field.defaultValue} placeholder={field.placeHolder} />
+                                    <TextInput prefix={field?.prefix || null} type={field.dataType} handleChange={handleChange} name={field.name} value={field.value} defaultValue={field.defaultValue} placeholder={field.placeHolder} />
                                 </div>
                         }
                     </div>)
