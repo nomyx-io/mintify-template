@@ -1,5 +1,5 @@
 import { Button } from '@material-tailwind/react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import type { TransferDirection } from 'antd/es/transfer';
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -7,6 +7,8 @@ import { ErrorMessage } from '@/components/atoms/Message/ErrorMessage';
 import { getDashboardLayout } from '@/Layouts';
 import TextInput from '@/components/atoms/TextInput';
 import Compliance from '@/components/molecules/Compliance';
+import { useRouter } from 'next/router';
+import { useAccount } from 'wagmi';
 
 const schema = Yup.object().shape({
   walletAddress: Yup.string().matches(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address")
@@ -14,6 +16,8 @@ const schema = Yup.object().shape({
 });
 
 const Setting = () => {
+  const { isConnected } = useAccount()
+  const router = useRouter()
   const mockData: any[] = Array.from({ length: 10 }).map((_, i) => ({
     key: i.toString(),
     title: `Option ${i + 1}`,
@@ -47,6 +51,10 @@ const Setting = () => {
     // console.log('direction:', direction);
     // console.log('target:', e.target);
   };
+
+  useEffect(() => {
+    !isConnected && router.push('/login')
+  }, [])
 
   return (
     <div>

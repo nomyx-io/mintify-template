@@ -26,7 +26,7 @@ export default function App({ Component, pageProps }: any) {
 
   const [role, setRole] = useState<any[]>([])
   const [forecLogout, setForceLogout] = useState(false)
-  const [status, setStatus] = useState(false)
+  const [status, setStatus] = useState(true)
 
   const { chains, publicClient } = configureChains(
     [sepolia],
@@ -43,7 +43,7 @@ export default function App({ Component, pageProps }: any) {
   });
 
   useEffect(() => {
-    window.location.pathname == '/login' && role.length == 0 ? setStatus(true) : setStatus(false)
+    (window.location.pathname == '/login' && role.length == 0) || window.location.pathname == '/' ? setStatus(true) : setStatus(false)
   }, [status, role])
   
   const wagmiConfig = createConfig({
@@ -95,9 +95,11 @@ export default function App({ Component, pageProps }: any) {
     })
     if (roles.length > 0) {
       setRole([...roles])
+      setStatus(false)
     }
     else if (roles.length == 0) {
       toast.error("Sorry You are not Authorized !")
+      setStatus(true)
       setForceLogout(true);
     }
     let jsonConfig: any = await import(`./../../config.json`);

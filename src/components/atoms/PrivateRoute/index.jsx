@@ -18,7 +18,7 @@ function PrivateRoute({ children, onConnect, role, forceLogout, handleForecLogou
   }, [address, isConnected, role]);
 
   useEffect(() => {
-    (isConnected && role.length > 0) && router.push('/')
+    (isConnected && role.length > 0) && router.push('/home')
   }, [role, isConnected])
 
   const handleDisconnect = () => {
