@@ -111,11 +111,36 @@ export const ApiHook = () => {
         let records = await ParseClient.getRecords('Event', ['objectId'], [id], ["*"])
         return records
     }
+
+    const getSaleTokens = async(tokenId) => {
+        let records = await ParseClient.getRecords('TokenSale', ['tokenId'], [tokenId], ["*"]);
+        return records
+    }
+
+    const getListings = async (tokenId) => {
+        let records = await ParseClient.getRecords('Listing', ['tokenId'], [tokenId], ["*"]);
+        return records
+    }
+
+    const getTreasuryClaims = async (tokenId) => {
+        let records = await ParseClient.getRecords('TreasuryClaim', ['tokenId'], [tokenId], ["*"]);
+        return records
+    }
+
+    const getDeposits = async (tokenId) => {
+        let records = await ParseClient.getRecords('Deposit', ['tokenId'], [tokenId], ["*"]);
+        return records
+    }
+
     return {
         getPortfolioPerformance,
         getEvents,
         getMintedNfts,
-        getMintedNftDetails
+        getMintedNftDetails,
+        getSaleTokens,
+        getListings,
+        getTreasuryClaims,
+        getDeposits
     };
 }
 
