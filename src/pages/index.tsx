@@ -9,7 +9,7 @@ import BarChart from '@/components/atoms/Graphs/Barchart';
 import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
-export default function LandingPage(){
+export default function LandingPage() {
   const router = useRouter()
   router.push('/login')
 }

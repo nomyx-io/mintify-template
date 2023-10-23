@@ -15,84 +15,101 @@ export default function Home() {
   const [graphValues, setGraphValues] = useState<any>([])
   const [eventDetails, setEventDetails] = useState<any>({})
   const [mintedNfts, setMintedNfts] = useState<any>([])
+  const [kpisData, setkpisData] = useState<any>(null)
   const [activeTab, setActiveTab] = useState('all')
-  const { isConnected } = useAccount()
 
-  const KPIS = [{
-    icon: <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="white"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      height={24}
-      width={24}
-    >
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 8 12 12 16 16" />
-      <line x1="8" y1="12" x2="12" y2="12" />
-    </svg>
-    ,
-    title: "Activity",
-    value: "Recent"
-  }, {
-    icon: <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={20}
-      height={20}
-      viewBox="0 0 20 20"
-      fill="white"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
-    >
-      <path
-        d="M10 3.125V16.875M10 16.875L4.375 11.25M10 16.875L15.625 11.25"
+  const KPIS = [
+    {
+      icon: <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
         stroke="white"
-        strokeWidth={2.5}
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-    </svg>
-    ,
-    title: "Income",
-    value: "Earnings"
-  }, {
-    icon: <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={20}
-      height={20}
-      viewBox="0 0 20 20"
-      fill="white"
-      xmlnsXlink="http://www.w3.org/1999/xlink"
-      transform="matrix(-1,1.2246467991473532e-16,-1.2246467991473532e-16,-1,0,0)"
-    >
-      <path
-        d="M10 3.125V16.875M10 16.875L4.375 11.25M10 16.875L15.625 11.25"
+        height={24}
+        width={24}
+      >
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 8 12 12 16 16" />
+        <line x1="8" y1="12" x2="12" y2="12" />
+      </svg>
+      ,
+      title: "Total Assets",
+      value: kpisData?.totalAssets
+    },
+    {
+      icon: <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
         stroke="white"
-        strokeWidth={2.5}
+        strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-      />
-    </svg>
-    ,
-    title: "Expenses",
-    value: "Spending"
-  }]
+        height={24}
+        width={24}
+      >
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 8 12 12 16 16" />
+        <line x1="8" y1="12" x2="12" y2="12" />
+      </svg>
+      ,
+      title: "Total Initial Value",
+      value: kpisData?.totalInitialValue
+    },
+    {
+      icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
+        <text x="50%" y="50%" text-anchor="middle" font-size="20" dy=".3em" fill="#fff">$</text>
+      </svg>,
+      title: "Total Asset Value",
+      value: kpisData?.totalAssetValue
+    },
+    {
+      icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
+        <text x="50%" y="50%" text-anchor="middle" font-size="20" dy=".3em" fill="#fff">$</text>
+      </svg>,
+      title: "Total Yield Generated",
+      value: kpisData?.totalAccruedValue
+    },
+    {
+      icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
+        <text x="50%" y="50%" text-anchor="middle" font-size="20" dy=".3em" fill="#fff">$</text>
+      </svg>,
+      title: "Total Yield Claimed",
+      value: kpisData?.totalYieldClaimed
+    },
+    {
+      icon: <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={20}
+        height={20}
+        viewBox="0 0 20 20"
+        fill="white"
+        xmlnsXlink="http://www.w3.org/1999/xlink"
+        transform="matrix(-1,1.2246467991473532e-16,-1.2246467991473532e-16,-1,0,0)"
+      >
+        <path
+          d="M10 3.125V16.875M10 16.875L4.375 11.25M10 16.875L15.625 11.25"
+          stroke="white"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>,
+      title: "Total Delinquent NBTs",
+      value: kpisData?.totalDeliquent
+    }]
 
   function findValueByKey(array: any, key: any) {
     for (let i = 0; i < array.length; i++) {
-        if (array[i][0] === key) {
-            return array[i][2];
-        }
+      if (array[i][0] === key) {
+        return array[i][2];
+      }
     }
     return 0;
   }
-
-  useEffect(() => {
-    !isConnected && router.push('/login')
-  }, [])
-  
 
   useEffect(() => {
     async function getData() {
@@ -100,12 +117,14 @@ export default function Home() {
       let events = await api.getEvents()
       let nftDetails = await api.getMintedNftDetails(mintedNfts?.[0]?.id)
       let data = await api.getPortfolioPerformance()
+      let kpis = await api.getKpis()
       for (let index = 0; index < mintedNfts.length; index++) {
         mintedNfts[index]._createdAt = moment(mintedNfts[index].attributes.createdAt).format('YYYY-MM-DD')
         mintedNfts[index]._amount = (findValueByKey(mintedNfts[index].attributes.attributes, "loanAmount"))
         mintedNfts[index]._originationDate = (findValueByKey(mintedNfts[index].attributes.attributes, "originationDate"))
         mintedNfts[index]._currentValue = (findValueByKey(mintedNfts[index].attributes.attributes, "currentValue"))
       }
+      setkpisData(kpis)
       setMintedNfts(mintedNfts)
       setEventDetails(events)
       setGraphValues(data)
@@ -116,25 +135,6 @@ export default function Home() {
   const graphData = {
     labels: graphValues?.labels || [],
     datasets: [
-      {
-        label: 'Total Initial Value',
-        data: graphValues?.initialValues || [],
-        backgroundColor: '#2f59d6',
-        borderWidth: 0,
-        barThickness: 30,
-        categoryPercentage: 0.5,
-        barPercentage: 1,
-      },
-      {
-        label: 'Net Asset Value',
-        data: graphValues?.assetValues || [],
-        backgroundColor: '#7a7977',
-        borderColor: '#7a7977',
-        borderWidth: 0,
-        barThickness: 30,
-        categoryPercentage: 0.5,
-        barPercentage: 1,
-      },
       {
         type: 'line' as const,
         label: 'Total Accured Value',
@@ -153,14 +153,35 @@ export default function Home() {
         borderWidth: 3,
         fill: false,
       },
+      {
+        label: 'Total Initial Value',
+        data: graphValues?.initialValues || [],
+        backgroundColor: '#2f59d6',
+        borderWidth: 0,
+        barThickness: 30,
+        categoryPercentage: 0.5,
+        barPercentage: 1,
+      },
+      {
+        label: 'Net Asset Value',
+        data: graphValues?.assetValues || [],
+        backgroundColor: '#7a7977',
+        borderColor: '#7a7977',
+        borderWidth: 0,
+        barThickness: 30,
+        categoryPercentage: 0.5,
+        barPercentage: 1,
+      }
 
     ]
   }
 
   const columns = [
-    { key: 'id', label: 'Id', align: 'left', unique: true, render:  ((row: any) => (
-      <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/home`)}>{row.id}</div>
-    )) },
+    {
+      key: 'id', label: 'Id', align: 'left', unique: true, render: ((row: any) => (
+        <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/`)}>{row.id}</div>
+      ))
+    },
     {
       key: '_originationDate', label: 'Loan Created', align: 'center'
     },
@@ -193,7 +214,7 @@ export default function Home() {
   return (
     <div className='w-full grid grid-cols-4 p-5 gap-x-6'>
       <div className="col-span-3 py-2">
-        <div className="flex items-center justify-between gap-x-6">
+        <div className="flex items-center gap-4 flex-wrap">
           {KPIS && KPIS.map((kpi) => (
             <KPI
               key={kpi.title}

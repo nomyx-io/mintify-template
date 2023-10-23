@@ -111,11 +111,40 @@ export const ApiHook = () => {
         let records = await ParseClient.getRecords('Event', ['objectId'], [id], ["*"])
         return records
     }
+    const getKpis = async (id) => {
+        let records = await ParseClient.getRecords('AssetPerformance', [], [], ["*"], 1, 0, 'createdAt', 'desc')
+        let tokenRecords = await ParseClient.getRecords('Token', [], [], ["*"])
+        let numberOfFrozen = 0
+        let totalYieldClaimed = 0
+        let queryTreasuryWithdrawnresults = await ParseClient.getRecords('Event', ['event'], ['TreasuryWithdrawn'], ["*"])
+        if (queryTreasuryWithdrawnresults && queryTreasuryWithdrawnresults.length > 0) {
+            queryTreasuryWithdrawnresults.forEach(element => {
+                totalYieldClaimed += Number(element.attributes?.amount);
+            });
+        }
+        tokenRecords && tokenRecords.length > 0 && tokenRecords.forEach((data) => {
+            if (data.attributes?.frozen) {
+                numberOfFrozen += 1
+            }
+        })
+        let performanceKpis = records?.[0]?.attributes
+        let kpis = {
+            totalAssets:tokenRecords?.length,
+            totalDeliquent:numberOfFrozen,
+            totalAccruedValue:parseInt(performanceKpis?.accruedValue),
+            totalAssetValue:parseInt(performanceKpis?.assetValue),
+            totalInitialValue:parseInt(performanceKpis?.initialValue),
+            totalYieldClaimed:totalYieldClaimed
+
+        }
+        return kpis
+    }
     return {
         getPortfolioPerformance,
         getEvents,
         getMintedNfts,
-        getMintedNftDetails
+        getMintedNftDetails,
+        getKpis
     };
 }
 
