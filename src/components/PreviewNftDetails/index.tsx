@@ -5,7 +5,7 @@ import Previewdetailcards from '.././molecules/PreviewDetailCards'
 import Previewbottomcards from '.././molecules/PreviewBottomCards'
 import { toast } from 'react-toastify'
 
-const PreviewNftDetails = ({ service, handleBack, data, detailView = false }: any) => {
+const PreviewNftDetails = ({ TablesData = [], service, handleBack, data, detailView = false }: any) => {
     const { nftTitle, description, ficoScore, file, loanId, loanAmount, mintAddress, monthly, discount, location, price, targetKeys, term, yields, currentValue, originationDate, freeze } = data
     const metadata = [
         {
@@ -72,7 +72,7 @@ const PreviewNftDetails = ({ service, handleBack, data, detailView = false }: an
         {
             key: "image",
             attributeType: 1,
-            value: Image,
+            value: file,
         },
         {
             key: "yield",
@@ -123,11 +123,11 @@ const PreviewNftDetails = ({ service, handleBack, data, detailView = false }: an
                     <Button onClick={handleMint} className='bg-[#637eab] rounded-none'>Mint</Button>
                     </>
 }
-                    <ImageComp previewPage file={data?.Image || ""} />
+                    <ImageComp previewPage file={data?.file || ""} />
                 </div>
             </div>
             {detailView &&
-                <Previewbottomcards />}
+                <Previewbottomcards TablesData={TablesData} />}
         </div>
     )
 }

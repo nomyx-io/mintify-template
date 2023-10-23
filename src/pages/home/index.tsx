@@ -159,7 +159,7 @@ export default function Home() {
 
   const columns = [
     { key: 'id', label: 'Id', align: 'left', unique: true, render:  ((row: any) => (
-      <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/home`)}>{row.id}</div>
+      <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/detail-view?id=${row.id}`)}>{row.id}</div>
     )) },
     {
       key: '_originationDate', label: 'Loan Created', align: 'center'
