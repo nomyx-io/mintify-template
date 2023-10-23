@@ -1,16 +1,18 @@
 import React from 'react'
-import { Input } from '../../../material-tailwind'
+import { Input } from 'antd'
 
-const TextInput = ({ placeholder, name, value, handleChange }: any) => {
+const TextInput = ({ prefix = null, placeholder, name, value, handleChange, type = "text" }: any) => {
   return (
     <>
       <Input
-        className='!border-[#646260] rounded-sm w-full bg-white outline-none blur-none'
-        labelProps={{ className: 'before:mr-0 after:ml-0 hidden' }}
+        className='!border-[#646260] rounded-sm w-full bg-white outline-none blur-nonez-1 input_class p-2'
         placeholder={placeholder}
         name={name}
         value={value}
-        onChange={handleChange} crossOrigin={undefined} />
+        type={type}
+        prefix={prefix && prefix}
+        onChange={handleChange} 
+        />
     </>
   )
 }

@@ -1,12 +1,20 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Input } from "../../../material-tailwind"
 import Profile from "../../../assets/image.png"
 import Image from 'next/image'
 import { NotificationIcon, SearchIcon } from '@/assets'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
-
+import { useAccount } from 'wagmi'
+import { UserContext } from '@/pages/_app'
 
 const Topnavbar = () => {
+  const onDisconnect = useContext(UserContext);
+
+  useAccount({
+    onDisconnect: function () {
+        onDisconnect();
+    },
+});
   return (
     <div className='bg-[#f0f0f0] w-full p-5 flex items-center justify-between'>
       <div className='w-1/2'>

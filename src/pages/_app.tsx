@@ -11,12 +11,22 @@ import {
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public'
 import PrivateRoute from '@/components/atoms/PrivateRoute'
-import { useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import BlockchainService from '@/services/blockchain';
-import { ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { generateRandomString } from '@/utils';
+import parseConfig from "../parse.json"
+import axios from 'axios';
+
+export const UserContext = createContext(()=>{});
+
 export default function App({ Component, pageProps }: any) {
+
+  const [role, setRole] = useState<any[]>([])
+  const [forecLogout, setForceLogout] = useState(false)
+  const [status, setStatus] = useState(true)
 
   const { chains, publicClient } = configureChains(
     [sepolia],
@@ -32,8 +42,12 @@ export default function App({ Component, pageProps }: any) {
     chains
   });
 
+  useEffect(() => {
+    (window.location.pathname == '/login' && role.length == 0) || window.location.pathname == '/' ? setStatus(true) : setStatus(false)
+  }, [status, role])
+  
   const wagmiConfig = createConfig({
-    autoConnect: true,
+    autoConnect: status ? false : true,
     connectors,
     publicClient
   })
@@ -44,55 +58,100 @@ export default function App({ Component, pageProps }: any) {
   useEffect(() => {
     setMounted(true);
   }, []);
-  
-  const onConnect = async (address:any, connector:any) => {
-	  console.log('connected!');
-	  console.log('address = ' + address);
-	  console.log('connector = ' + connector);
 
-	  console.log("ethereum:");
-	  console.log((window as any).ethereum);
+  const getToken = async (request: any) => {
+		try {
+			let data: any = await axios.post(`${parseConfig.publicURL}/auth/login`, request)
+			data = data.data
+			return {
+				token: data?.access_token || '',
+				roles: data?.user?.roles || []
+			}
+		} catch (error) {
+			console.log('Error', error);
+			return {
+					token:'',
+					roles:[]
+			}
+		}
+	}
 
-	  const provider = new ethers.providers.Web3Provider((window as any).ethereum);
-	
-	  let jsonConfig: any = await import(`./../../config.json`);
-	  const network = provider.getNetwork().then( async (network:any)=>{
+  const onConnect = async (address?: any, connector?: any) => {
+    console.log('connected!');
+    console.log('address = ' + address);
+    console.log('connector = ' + connector);
 
-		  const chainId = network.chainId;
-		  console.log('chainId = ' + chainId);
-		  setCurrentNetwork(network.chainId);
+    console.log("ethereum:");
+    console.log((window as any).ethereum);
 
-		  const config = jsonConfig[chainId];
+    const provider = new ethers.providers.Web3Provider((window as any).ethereum);
+    let RandomString = generateRandomString(10)
+    const message = `Sign this message to validate that you are the owner of the account. Random string: ${RandomString}`;
+    const signer = await provider.getSigner();
+    const signature = await signer.signMessage(message);
+    let { token, roles }: any = await getToken({
+      "message": message,
+      "signature": signature
+    })
+    if (roles.length > 0) {
+      setRole([...roles])
+      setStatus(false)
+    }
+    else if (roles.length == 0) {
+      toast.error("Sorry You are not Authorized !")
+      setStatus(true)
+      setForceLogout(true);
+    }
+    let jsonConfig: any = await import(`./../../config.json`);
+    const network = provider.getNetwork().then(async (network: any) => {
 
-		  if (!config) {
-			  // setUnsupportedNetworkDialogVisible(true);
-			  return;
-		  }
-		  
-		  const _blockchainService:any = new BlockchainService(provider, config.contract, config.identityFactory);
-		  setBlockchainService(_blockchainService);
-	  });
+      const chainId = network.chainId;
+      console.log('chainId = ' + chainId);
+      setCurrentNetwork(network.chainId);
+
+      const config = jsonConfig[chainId];
+
+      if (!config) {
+        // setUnsupportedNetworkDialogVisible(true);
+        return;
+      }
+
+      const _blockchainService: any = new BlockchainService(provider, config.contract, config.identityFactory);
+      setBlockchainService(_blockchainService);
+    });
   };
+
+  const handleForecLogout = () => {
+    setForceLogout(false)
+  }
+
+  const onDisconnect = () => {
+		setRole([])
+		setForceLogout(true)
+		console.log("disconnected")
+	}
 
   if (!mounted) return <></>;
   const getLayout =
     (Component as any).getLayout || ((page: React.ReactNode) => page);
 
   return (
-    <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains}>
-        <ToastContainer
-          position='top-right'
-          className='toast-background'
-          progressClassName='toast-progress-bar'
-          autoClose={4000}
-          closeOnClick
-          pauseOnHover
-        />
-        <PrivateRoute>
-            {getLayout(<Component service={blockchainService} {...pageProps} onConnect={onConnect}/>)}
-        </PrivateRoute>
-      </RainbowKitProvider>
-    </WagmiConfig>
+    <UserContext.Provider value={onDisconnect}>
+      <WagmiConfig config={wagmiConfig}>
+        <RainbowKitProvider chains={chains} coolMode>
+          <ToastContainer
+            position='top-right'
+            className='toast-background'
+            progressClassName='toast-progress-bar'
+            autoClose={4000}
+            closeOnClick
+            pauseOnHover
+          />
+          <PrivateRoute handleForecLogout={handleForecLogout} forceLogout={forecLogout} role={role} onConnect={onConnect}>
+            {getLayout(<Component role={role} service={blockchainService} {...pageProps} onConnect={onConnect} onDisconnect={onDisconnect} />)}
+          </PrivateRoute>
+        </RainbowKitProvider>
+      </WagmiConfig>
+    </UserContext.Provider>
   )
 }

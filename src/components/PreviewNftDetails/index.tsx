@@ -6,7 +6,7 @@ import Previewbottomcards from '.././molecules/PreviewBottomCards'
 import { toast } from 'react-toastify'
 
 const PreviewNftDetails = ({ service, handleBack, data, detailView = false }: any) => {
-    const { nftTitle, description, ficoScore, Image, loanId, loanAmount, mintAddress, monthly, discount, location, price, targetKeys, term, yields } = data
+    const { nftTitle, description, ficoScore, file, loanId, loanAmount, mintAddress, monthly, discount, location, price, targetKeys, term, yields, currentValue, originationDate, freeze } = data
     const metadata = [
         {
             key: "nftTitle",
@@ -24,11 +24,20 @@ const PreviewNftDetails = ({ service, handleBack, data, detailView = false }: an
             value: loanId,
         },
         {
+            key: "currentValue",
+            attributeType: 1,
+            value: currentValue,
+        },
+        {
             key: "loanAmount",
             attributeType: 1,
             value: loanAmount,
         },
-
+        {
+            key: "originationDate",
+            attributeType: 1,
+            value: originationDate,
+        },
         {
             key: "term",
             attributeType: 1,
@@ -79,22 +88,29 @@ const PreviewNftDetails = ({ service, handleBack, data, detailView = false }: an
             key: "mintAddress",
             attributeType: 1,
             value: mintAddress,
+        },
+        {
+            key: "frozen",
+            attributeType: 1,
+            value: freeze
         }
     ];
     const handleMint = async () => {
-        try {
-            const result = await service.llmint(metadata)
-            toast.success(`Nft Minted to ${mintAddress}  !`)
-
-        } catch (error) {
-            console.log(error, "error >>")
-        }
+        toast.promise(
+            async () => {
+                await service.llmint(metadata)
+            },
+            {
+                pending: 'Minting Nft...',
+                success: 'Successfully minted Nft to ' + mintAddress,
+                error: 'An error occurred while minting Nft'
+            })
     }
     return (
         <div className='p-4 my-2 w-full flex flex-col gap-4'>
-            <p className='text-lg font-semibold'>Preview NFT</p>
-            <div className={`flex gap-4 ${detailView && 'mb-28'}`}>
-                <div className='flex flex-col flex-grow h-20 gap-10 max-w-[68%]'>
+            <p className='text-lg font-semibold'>Preview NBT</p>
+            <div className='flex gap-4'>
+                <div className='flex flex-col flex-grow h-max gap-10 max-w-[68%]'>
                     <div>
                         {nftTitle}
                     </div>
