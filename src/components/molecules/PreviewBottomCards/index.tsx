@@ -18,7 +18,7 @@ const Previewbottomcards = ({TablesData}: any) => {
                   :
                   <div className='border border-[#c0c0c0] p-8 flex flex-col gap-2 justify-center items-center text-center'>
                       <Image alt="" src={require('../../../assets/offers.png')} />
-                      {item.noDataText}
+                      No Data
                   </div>}
           </div>)})}
 </div>

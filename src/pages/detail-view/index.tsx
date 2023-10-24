@@ -73,10 +73,10 @@ export default function DetailView () {
         let tokenSaleData: any = await api.getSaleTokens(tokenId)
         tokenSaleData.map((item: any)=>{newTokenData.push(item.attributes)})
         let TablesData = [
-            {columns: tokenSaleColumns, tableData: newTokenData,label: 'Token Sale', headerImage: require('../../assets/priceHistoryIcon.png'),noDataImage: require('../../assets/clock.png'),noDataText: 'No Data'},
-            {columns: listingColumns, tableData: newListData,label: 'Listing', headerImage: require('../../assets/listingIcon.png'), noDataImage: require('../../assets/clock.png'),noDataText: 'No Data'},
-            {columns: depositColumns, tableData: newDepositData, label: 'Deposit',headerImage: require('../../assets/offerIcon.png'), noDataImage: require('../../assets/offerIcon.png'),noDataText: 'No Data'},
-            {columns: claimColumns, tableData: newClaimData, label: 'Claim', headerImage: require('../../assets/offerIcon.png'), noDataImage: require('../../assets/offerIcon.png'),noDataText: 'No Data'},
+            {columns: tokenSaleColumns, tableData: newTokenData,label: 'Token Sale', headerImage: require('../../assets/priceHistoryIcon.png'),noDataImage: require('../../assets/clock.png')},
+            {columns: listingColumns, tableData: newListData,label: 'Listing', headerImage: require('../../assets/listingIcon.png'), noDataImage: require('../../assets/clock.png')},
+            {columns: depositColumns, tableData: newDepositData, label: 'Deposit',headerImage: require('../../assets/offerIcon.png'), noDataImage: require('../../assets/offerIcon.png')},
+            {columns: claimColumns, tableData: newClaimData, label: 'Claim', headerImage: require('../../assets/offerIcon.png'), noDataImage: require('../../assets/offerIcon.png')},
         ]
         setTablesData(TablesData)
         }
