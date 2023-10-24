@@ -129,7 +129,7 @@ export const CustomTable: React.FC<CustomTableProps> = ({
                 <th
                   key={column.key}
                   scope="col"
-                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-y border-gray-200 ${column.align === 'right'
+                  className={`w-1/4 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-y border-gray-200 ${column.align === 'right'
                     ? 'text-right'
                     : column.align === 'left'
                       ? 'text-left'
