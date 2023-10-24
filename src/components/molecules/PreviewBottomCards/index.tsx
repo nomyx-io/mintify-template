@@ -11,7 +11,7 @@ const Previewbottomcards = ({TablesData}: any) => {
                   <Image alt="" src={item.headerImage} height={10} width={20} />
                   {item.label}
               </p>
-              {TablesData.length > 0 ?
+              {item?.tableData.length > 0 ?
                   <div className='-mt-4'>
                       <CustomTable data={item.tableData} columns={item.columns} />
                   </div>

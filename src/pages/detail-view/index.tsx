@@ -55,24 +55,28 @@ export default function DetailView () {
         getData()
     }, [pathName])
 
+    let newTokenData: any = []
+    let newDepositData: any = []
+    let newClaimData: any = []
+    let newListData: any = []
     useEffect(() => {
         const getNewData = async () => {
         const id = pathName.get('id')
         let tokenId = await api.getMintedNftDetails(id)
         tokenId = tokenId && tokenId[0]?.attributes?.tokenId
         let depositData: any = await api.getDeposits(tokenId)
-        depositData = depositData && depositData[0]?.attributes
+        depositData.map((item: any)=>{newDepositData.push(item.attributes)})
         let claimData: any = await api.getTreasuryClaims(tokenId)
-        claimData = claimData && claimData[0]?.attributes
+        claimData.map((item: any)=>{newClaimData.push(item.attributes)})
         let listingData: any = await api.getListings(tokenId)
-        listingData = listingData && listingData[0]?.attributes
+        listingData.map((item: any)=>{newListData.push(item.attributes)})
         let tokenSaleData: any = await api.getSaleTokens(tokenId)
-        tokenSaleData = tokenSaleData && tokenSaleData[0]?.attributes
+        tokenSaleData.map((item: any)=>{newTokenData.push(item.attributes)})
         let TablesData = [
-            {columns: tokenSaleColumns, tableData: [tokenSaleData],label: 'Token Sale', headerImage: require('../../assets/priceHistoryIcon.png'),noDataImage: require('../../assets/clock.png'),noDataText: 'No Data'},
-            {columns: listingColumns, tableData: [listingData],label: 'Listing', headerImage: require('../../assets/listingIcon.png'), noDataImage: require('../../assets/clock.png'),noDataText: 'No Data'},
-            {columns: depositColumns, tableData: [depositData], label: 'Deposit',headerImage: require('../../assets/offerIcon.png'), noDataImage: require('../../assets/offerIcon.png'),noDataText: 'No Data'},
-            {columns: claimColumns, tableData: [claimData], label: 'Claim', headerImage: require('../../assets/offerIcon.png'), noDataImage: require('../../assets/offerIcon.png'),noDataText: 'No Data'},
+            {columns: tokenSaleColumns, tableData: newTokenData,label: 'Token Sale', headerImage: require('../../assets/priceHistoryIcon.png'),noDataImage: require('../../assets/clock.png'),noDataText: 'No Data'},
+            {columns: listingColumns, tableData: newListData,label: 'Listing', headerImage: require('../../assets/listingIcon.png'), noDataImage: require('../../assets/clock.png'),noDataText: 'No Data'},
+            {columns: depositColumns, tableData: newDepositData, label: 'Deposit',headerImage: require('../../assets/offerIcon.png'), noDataImage: require('../../assets/offerIcon.png'),noDataText: 'No Data'},
+            {columns: claimColumns, tableData: newClaimData, label: 'Claim', headerImage: require('../../assets/offerIcon.png'), noDataImage: require('../../assets/offerIcon.png'),noDataText: 'No Data'},
         ]
         setTablesData(TablesData)
         }
