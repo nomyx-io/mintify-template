@@ -75,7 +75,7 @@ export default function DetailViewId () {
         let claimData: any = await api.getTreasuryClaims(tokenId)
         claimData.map((item: any)=>{newClaimData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD')})})
         let listingData: any = await api.getListings(tokenId)
-        listingData.map((item: any)=>{newListData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD')})})
+        listingData.map((item: any)=>{newListData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD'), active: JSON.stringify(item?.attributes?.active)})})
         let tokenSaleData: any = await api.getSaleTokens(tokenId)
         tokenSaleData.map((item: any)=>{newTokenData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD')})})
         let TablesData = [

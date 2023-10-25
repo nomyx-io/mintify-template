@@ -16,10 +16,6 @@ const isNumeric=(input: any) => {
     return /^[0-9]+$/.test(input)
 }
 
-const isNumericWithM=(input: any) => {
-    return /^[0-9]+m$/.test(input)
-}
-
 const maxChar = (input: any, char: number) => {
     const regex = new RegExp(`^.{1,${char}}$`)
     return regex.test(input)
@@ -61,8 +57,8 @@ const generateRandomString=(length: number)=> {
       toast.error('Invalid input in Loan Origination Amount.It must be numeric and can contain max 10 characters.')
       return false
     }
-    if(!isNumericWithM(data?.term) || !maxChar(data?.term,3)){
-      toast.error('Invalid input in Term. It must be Numeric and can conatin max 3 characters followed by m ');
+    if(!isNumeric(data?.term) || !maxChar(data?.term,3)){
+      toast.error('Invalid input in Term. It must be Numeric and can conatin max 3 characters.');
       return false;
     }
     if(!isNumeric(data?.ficoScore) || !maxChar(data?.ficoScore,3)){
@@ -99,7 +95,6 @@ const generateRandomString=(length: number)=> {
 
 export {
     isNumeric,
-    isNumericWithM,
     maxChar,
     isAlphanumeric,
     isAlphanumericAndSpace,
