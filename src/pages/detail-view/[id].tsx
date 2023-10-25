@@ -4,12 +4,16 @@ import { useSearchParams } from 'next/navigation'
 import { ApiHook } from '@/services/api'
 import PreviewNftDetails from '@/components/PreviewNftDetails'
 import MockImage from '../../assets/loginimg.png'
+import { useRouter } from 'next/router'
+import { Spin } from 'antd'
+import moment from 'moment'
 
-export default function DetailView () {
+export default function DetailViewId () {
+    const router = useRouter()
     const api = ApiHook()
-    const pathName = useSearchParams()
     const [nftData, setNftData] = useState()
     const [tablesData, setTablesData] = useState<any>([])
+    const [loading, setLoading] = useState(false)
 
     const depositColumns = [
         { key: 'tokenId', label: 'Token Id', align: 'center', sortable: true },
@@ -37,11 +41,12 @@ export default function DetailView () {
         { key: 'createdDate', label: 'Created Date', align: 'center' },
         { key: 'listingId', label: 'Listing ID', align: 'center' },
     ]
-
+    const id = router.query.id
     useEffect(() => {
         const getData = async () => {
-            const id = pathName.get('id')
+            setLoading(true)
             let nft = await api.getMintedNftDetails(id)
+            const transactionHash = nft && nft[0]?.attributes?.transactionHash
             nft = nft && nft[0]?.attributes?.attributes
             let resultObject: any = {};
             if (nft) {
@@ -49,11 +54,13 @@ export default function DetailView () {
                     resultObject[key] = value;
                 }
                 resultObject.file = MockImage
+                resultObject.txHash = transactionHash
                 setNftData(resultObject)
             }
+            setLoading(false)
         }
         getData()
-    }, [pathName])
+    }, [])
 
     let newTokenData: any = []
     let newDepositData: any = []
@@ -61,17 +68,16 @@ export default function DetailView () {
     let newListData: any = []
     useEffect(() => {
         const getNewData = async () => {
-        const id = pathName.get('id')
         let tokenId = await api.getMintedNftDetails(id)
         tokenId = tokenId && tokenId[0]?.attributes?.tokenId
         let depositData: any = await api.getDeposits(tokenId)
-        depositData.map((item: any)=>{newDepositData.push(item.attributes)})
+        depositData.map((item: any)=>{newDepositData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD'), 'depositDate':moment(item?.attributes?.depositDate).format('YYYY-MM-DD') })})
         let claimData: any = await api.getTreasuryClaims(tokenId)
-        claimData.map((item: any)=>{newClaimData.push(item.attributes)})
+        claimData.map((item: any)=>{newClaimData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD')})})
         let listingData: any = await api.getListings(tokenId)
-        listingData.map((item: any)=>{newListData.push(item.attributes)})
+        listingData.map((item: any)=>{newListData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD')})})
         let tokenSaleData: any = await api.getSaleTokens(tokenId)
-        tokenSaleData.map((item: any)=>{newTokenData.push(item.attributes)})
+        tokenSaleData.map((item: any)=>{newTokenData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD')})})
         let TablesData = [
             {columns: tokenSaleColumns, tableData: newTokenData,label: 'Token Sale', headerImage: require('../../assets/priceHistoryIcon.png'),noDataImage: require('../../assets/clock.png')},
             {columns: listingColumns, tableData: newListData,label: 'Listing', headerImage: require('../../assets/listingIcon.png'), noDataImage: require('../../assets/clock.png')},
@@ -82,9 +88,14 @@ export default function DetailView () {
         }
         getNewData()
       }, [])
-
+      
     return (
-        nftData && <PreviewNftDetails TablesData={tablesData} detailView data={nftData} />
+        <div>
+            {loading ? <div className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
+                <Spin />
+            </div> :
+            nftData && <PreviewNftDetails id={id} TablesData={tablesData} detailView data={nftData} />}
+        </div>
     )
 }
-DetailView.getLayout = getDashboardLayout;
+DetailViewId.getLayout = getDashboardLayout;
