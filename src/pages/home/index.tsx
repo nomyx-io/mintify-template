@@ -9,6 +9,7 @@ import BarChart from '@/components/atoms/Graphs/Barchart';
 import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
+import { Spin } from 'antd';
 export default function Home() {
   const router = useRouter()
   const api = ApiHook()
@@ -17,6 +18,7 @@ export default function Home() {
   const [mintedNfts, setMintedNfts] = useState<any>([])
   const [activeTab, setActiveTab] = useState('all')
   const { isConnected } = useAccount()
+  const [loading, setLoading] = useState(false)
 
   const KPIS = [{
     icon: <svg
@@ -96,6 +98,7 @@ export default function Home() {
 
   useEffect(() => {
     async function getData() {
+      setLoading(true)
       let mintedNfts: any = await api.getMintedNfts()
       let events = await api.getEvents()
       let nftDetails = await api.getMintedNftDetails(mintedNfts?.[0]?.id)
@@ -109,6 +112,7 @@ export default function Home() {
       setMintedNfts(mintedNfts)
       setEventDetails(events)
       setGraphValues(data)
+      setLoading(false)
     }
     getData()
   }, [])
@@ -159,7 +163,7 @@ export default function Home() {
 
   const columns = [
     { key: 'id', label: 'Id', align: 'left', unique: true, render:  ((row: any) => (
-      <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/detail-view?id=${row.id}`)}>{row.id}</div>
+      <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/detail-view/${row.id}`)}>{row.id}</div>
     )) },
     {
       key: '_originationDate', label: 'Loan Created', align: 'center'
@@ -191,31 +195,34 @@ export default function Home() {
   ];
 
   return (
-    <div className='w-full grid grid-cols-4 p-5 gap-x-6'>
-      <div className="col-span-3 py-2">
-        <div className="flex items-center justify-between gap-x-6">
-          {KPIS && KPIS.map((kpi) => (
-            <KPI
-              key={kpi.title}
-              icon={kpi.icon}
-              title={kpi.title}
-              value={kpi.value}
-            />
-          ))}
-        </div>
-        <br />
+    loading ? <div className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
+      <Spin />
+    </div> :
+      <div className='w-full grid grid-cols-4 p-5 gap-x-6'>
+        <div className="col-span-3 py-2">
+          <div className="flex items-center justify-between gap-x-6">
+            {KPIS && KPIS.map((kpi) => (
+              <KPI
+                key={kpi.title}
+                icon={kpi.icon}
+                title={kpi.title}
+                value={kpi.value}
+              />
+            ))}
+          </div>
+          <br />
 
-        <div className='w-full'>
-          <BarChart data={graphData} title="Net Asset Value & Yield" />
+          <div className='w-full'>
+            <BarChart data={graphData} title="Net Asset Value & Yield" />
+          </div>
+          <br />
+          <CustomTable columns={columns as any} data={mintedNfts} />
         </div>
-        <br />
-        <CustomTable columns={columns as any} data={mintedNfts} />
-      </div>
-      <div className='p-2'>
-        <div className='text-black text-lg font-bold'>Form</div>
-        <EventFeed data={eventDetails} TabsData={TabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
+        <div className='p-2'>
+          <div className='text-black text-lg font-bold'>Form</div>
+          <EventFeed data={eventDetails} TabsData={TabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
+        </div >
       </div >
-    </div >
   )
 }
 Home.getLayout = getDashboardLayout;

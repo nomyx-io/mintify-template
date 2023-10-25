@@ -5,6 +5,7 @@ import ImageComp from '@/components/molecules/ImageBox'
 import React, { useState } from 'react'
 import { Button } from "../../material-tailwind"
 import type { TransferDirection } from 'antd/es/transfer';
+import { useRouter } from 'next/router'
 
 export default function CreateNftDetails({ 
   claimTopics,
@@ -21,7 +22,7 @@ export default function CreateNftDetails({
   onScroll,
   handleFreeze
  }: any) {
-  
+  const router = useRouter()
 
   return (
     <div className='p-2 w-full flex gap-3'>
@@ -42,7 +43,7 @@ export default function CreateNftDetails({
         />
       </div>
       <div className='w-[30%] flex flex-col gap-4'>
-        <Button className='bg-[#dedede] text-black rounded-none'>Cancel</Button>
+        <Button onClick={() => router.push('/home')} className='bg-[#dedede] text-black rounded-none'>Cancel</Button>
         <Button onClick={handlePreviewFunc} className='bg-[#637eab] rounded-none'>Preview</Button>
         <ImageComp file={file} handleChange={handleImage} />
       </div>
