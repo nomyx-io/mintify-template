@@ -220,7 +220,7 @@ export default function Home() {
     </div> :
       <div className='w-full grid grid-cols-4 p-5 gap-x-6'>
         <div className="col-span-3 py-2">
-          <div className="flex items-center justify-between gap-x-6">
+          <div className="flex items-center gap-4 flex-wrap">
             {KPIS && KPIS.map((kpi) => (
               <KPI
                 key={kpi.title}
