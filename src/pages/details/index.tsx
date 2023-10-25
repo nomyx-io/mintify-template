@@ -133,7 +133,7 @@ export default function Details({ service }: any) {
     },
     {
       value: [
-        { label: '', name: 'term', dataType: 'text', placeHolder: 'Enter Term', defaultValue: term, value: term },
+        { label: '', name: 'term', dataType: 'text', placeHolder: 'Enter Term', defaultValue: term, value: term, prefix: 'M' },
         { label: '', name: 'fico', dataType: 'text', placeHolder: 'Enter FICO Score', defaultValue: ficoScore, value: ficoScore },
       ]
     },

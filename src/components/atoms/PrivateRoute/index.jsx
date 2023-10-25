@@ -1,12 +1,13 @@
 import { Spin } from 'antd';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccount, useDisconnect } from 'wagmi';
 
 function PrivateRoute({ children, onConnect, role, forceLogout, handleForecLogout }) {
   const {disconnect} = useDisconnect()
   const router = useRouter();
   const { address, isConnected, isConnecting } = useAccount()
+  const [history, setHistory] = useState([])
 
   useEffect(() => {
     if (!isConnected && !address) {
@@ -18,7 +19,21 @@ function PrivateRoute({ children, onConnect, role, forceLogout, handleForecLogou
   }, [address, isConnected, role]);
 
   useEffect(() => {
-    (isConnected && role.length > 0) && router.push('/home')
+    const handleRouteChange = (url) => {
+      setHistory((prevHistory) => {
+        const newHistory = [url, ...prevHistory].slice(0, 3);
+        return newHistory;
+      });
+    };
+    handleRouteChange(router.asPath);
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [])
+  
+  useEffect(() => {
+    (isConnected && role.length > 0) && router.push(history[1] == '/' || history[1] == '/login' || history[1] == '/detail-view/[id]' ? '/home' : history[1])
   }, [role, isConnected])
 
   const handleDisconnect = () => {

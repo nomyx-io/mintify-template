@@ -4,9 +4,12 @@ import ImageComp from '.././molecules/ImageBox'
 import Previewdetailcards from '.././molecules/PreviewDetailCards'
 import Previewbottomcards from '.././molecules/PreviewBottomCards'
 import { toast } from 'react-toastify'
+import { useRouter } from 'next/router'
+import { LeftArrowIcon, ShareIcon } from '@/assets'
 
-const PreviewNftDetails = ({ service, handleBack, data }: any) => {
-    const { nftTitle, description, ficoScore, file, loanId, loanAmount, mintAddress, monthly, discount, location, price, targetKeys, term, yields, currentValue, originationDate, freeze } = data
+const PreviewNftDetails = ({ id, TablesData = [], service, handleBack, data, detailView = false }: any) => {
+    const router = useRouter()
+    const { nftTitle, description, ficoScore, file, loanId, loanAmount, mintAddress, monthly, discount, location, price, targetKeys, term, yields, currentValue, originationDate, freeze, txHash } = data
     const metadata = [
         {
             key: "nftTitle",
@@ -70,7 +73,7 @@ const PreviewNftDetails = ({ service, handleBack, data }: any) => {
             value: price,
         },
         {
-            key: "Image",
+            key: "image",
             attributeType: 1,
             value: file,
         },
@@ -82,7 +85,7 @@ const PreviewNftDetails = ({ service, handleBack, data }: any) => {
         {
             key: "claimTopics",
             attributeType: 0,
-            value: targetKeys.join(','),
+            value: targetKeys ? targetKeys.join(',') : targetKeys,
         },
         {
             key: "mintAddress",
@@ -108,7 +111,11 @@ const PreviewNftDetails = ({ service, handleBack, data }: any) => {
     }
     return (
         <div className='p-4 my-2 w-full flex flex-col gap-4'>
-            <p className='text-lg font-semibold'>Preview NBT</p>
+            {detailView && <p className='flex items-center justify-between -ml-4 p-0 cursor-pointer' onClick={() => router.back()}>
+                <div className='flex items-center gap-1'> <LeftArrowIcon /> <p>Back</p> </div>
+                <Button size='sm' onClick={() => window.open(`https://sepolia.etherscan.io/tx/${txHash ? txHash : ''}`)} className='flex items-center gap-2'><ShareIcon /> Preview Link</Button>
+            </p>}
+            <p className='text-lg font-semibold'>{detailView ? `Detail View NBT - ${id}` : 'Preview NBT'}</p>
             <div className='flex gap-4'>
                 <div className='flex flex-col flex-grow h-max gap-10 max-w-[68%]'>
                     <div>
@@ -117,11 +124,17 @@ const PreviewNftDetails = ({ service, handleBack, data }: any) => {
                     <Previewdetailcards data={data} />
                 </div>
                 <div className='w-[30%] flex flex-col gap-4'>
+                    {!detailView &&
+                    <>
                     <Button onClick={handleBack} className='bg-[#dedede] text-black rounded-none'>Back</Button>
                     <Button onClick={handleMint} className='bg-[#637eab] rounded-none'>Mint</Button>
-                    <ImageComp previewPage file={data.file} />
+                    </>
+}
+                    <ImageComp previewPage file={data?.file || ""} />
                 </div>
             </div>
+            {detailView &&
+                <Previewbottomcards TablesData={TablesData} />}
         </div>
     )
 }
