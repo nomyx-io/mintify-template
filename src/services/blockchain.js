@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import PubSub from 'pubsub-js';
-import * as LLMintedRegistry from "../abi/LLMintedRegistry.json";
+import * as LLMintedRegistry from "../abi/ILenderLabMinterFacet.json";
 
 import ParseClient from "./Parclient";
 
