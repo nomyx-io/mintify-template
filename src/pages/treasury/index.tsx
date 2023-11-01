@@ -6,6 +6,7 @@ import { CloseIcon } from "@/assets";
 import Papa from "papaparse";
 import * as XLSX from 'xlsx'
 import moment from "moment";
+import { FileUploader } from "react-drag-drop-files";
 
 export const PopupDeposit = ({columns, rows, close, handleAddMakeDeposite,setSelectedDeposite}:any) => {
   return (
@@ -225,12 +226,10 @@ const Treasury = () => {
     });
   };
 
-  function handleCscFile(e:any){
+  function handleCscFile(file:any){
     if(makeDeposite.length > 0){
       setMakeDeposit([])
-    }
-    const file = e.target.files[0]
-    
+    }    
     if(file?.name.endsWith('.csv')){
       parseCSV(file)
       handleOpenModal()
@@ -252,12 +251,15 @@ const Treasury = () => {
           <div className="w-full bg-[#f0f0f0] flex flex-col p-5">
             <div className="flex flex-col gap-5 h-full ">
               <h1 className="capitalize font-extrabold">make a deposit</h1>
-              <div className="bg-white text-center p-2 font-extrabold">                
-                <label htmlFor="fileSelect" className="cursor-pointer">drag your csv here</label>
-                <input className="hidden" onChange={(e)=>{
-                  const {files} = e.target
-                  handleCscFile(e)                  
-                }} id="fileSelect" name="csvFile" type="file" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+              <div className="w-full flex justify-center">
+                <FileUploader
+                  handleChange={(file: any) => {
+                    handleCscFile(file)
+                  }}
+                  classes="!w-full"
+                  name="file"
+                  types={["csv", "xlsx", "xls"]}
+                />
               </div>
               {makeDeposite.length > 0 && <div className="flex-grow bg-white h-[300px] overflow-y-auto">
                 <CustomTable columns={fileColumnData as any} data={makeDeposite} />
