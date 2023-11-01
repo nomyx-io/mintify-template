@@ -88,7 +88,14 @@ export default function App({ Component, pageProps }: any) {
     let RandomString = generateRandomString(10)
     const message = `Sign this message to validate that you are the owner of the account. Random string: ${RandomString}`;
     const signer = await provider.getSigner();
-    const signature = await signer.signMessage(message);
+    let signature
+	  try {
+		  signature = await signer.signMessage(message);
+	  } catch (error: any) {
+		const message = error.reason ? error.reason : error.message
+		toast.error(message)
+		setForceLogout(true);
+	  }
     let { token, roles }: any = await getToken({
       "message": message,
       "signature": signature
@@ -98,9 +105,11 @@ export default function App({ Component, pageProps }: any) {
       setStatus(false)
     }
     else if (roles.length == 0) {
-      toast.error("Sorry You are not Authorized !")
+      if(signature){
+        toast.error("Sorry You are not Authorized !")
+        setForceLogout(true);
+      }
       setStatus(true)
-      setForceLogout(true);
     }
     let jsonConfig: any = await import(`./../../config.json`);
     const network = provider.getNetwork().then(async (network: any) => {
