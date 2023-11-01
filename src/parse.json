@@ -1,7 +1,7 @@
 {
     "applicationId": "lenderLabs",
     "masterKey": "lenderLabsMasterKey",
-    "server": "https://127.0.0.1/parse",
-    "serverURL":"https://104.207.134.90/parse",
-    "publicURL":"https://104.207.134.90"
+    "server": "https://gemforce-dev.lenderlab.nomyx.io/parse",
+    "serverURL": "https://gemforce-dev.lenderlab.nomyx.io/parse",
+    "publicURL": "https://gemforce-dev.lenderlab.nomyx.io"
 }
