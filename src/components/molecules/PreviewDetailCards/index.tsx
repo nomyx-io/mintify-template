@@ -20,11 +20,11 @@ const Previewdetailcards = ({ data }: any) => {
                         </div>
                         <div className='bg-[#f4f4f4] rounded text-center p-4 flex flex-col items-center min-w-[140px]'>
                             <div>Current Value</div>
-                            <div className='text-[#871212]'>${data?.currentValue || "N/A"}</div>
+                            <div className='text-[#871212]'>${Number(data?.currentValue)?.toLocaleString() || "N/A"}</div>
                         </div>
                         <div className='bg-[#f4f4f4] rounded text-center p-4 flex flex-col items-center min-w-[140px]'>
                             <div>Origination amount</div>
-                            <div className='text-[#871212]'>${data?.loanAmount || "N/A"}</div>
+                            <div className='text-[#871212]'>${Number(data?.loanAmount)?.toLocaleString() || "N/A"}</div>
                         </div>
                         <div className='bg-[#f4f4f4] rounded text-center p-4 flex flex-col items-center min-w-[140px]'>
                             <div>Origination Date</div>
@@ -44,7 +44,7 @@ const Previewdetailcards = ({ data }: any) => {
                         </div>
                         <div className='bg-[#f4f4f4] rounded text-center p-4 flex flex-col items-center min-w-[140px]'>
                             <div>Monthly amount</div>
-                            <div className='text-[#871212]'>{data?.monthly || "N/A"}</div>
+                            <div className='text-[#871212]'>${Number(data?.monthly)?.toLocaleString() || "N/A"}</div>
                         </div>
                         <div className='bg-[#f4f4f4] rounded text-center p-4 flex flex-col items-center min-w-[140px]'>
                             <div>Discount</div>
