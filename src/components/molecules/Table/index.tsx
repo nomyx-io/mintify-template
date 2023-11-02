@@ -1,4 +1,5 @@
 "use client"
+import moment from 'moment';
 import React, { useEffect, useState } from 'react';
 
 interface Column {
@@ -79,11 +80,17 @@ export const CustomTable: React.FC<CustomTableProps> = ({
       const valueA = a[sortedColumn];
       const valueB = b[sortedColumn];
 
-      if (valueA < valueB) return sortDirection === 'asc' ? -1 : 1;
-      if (valueA > valueB) return sortDirection === 'asc' ? 1 : -1;
+      if (Number(valueA) < Number(valueB)) return sortDirection === 'asc' ? -1 : 1;
+      if (Number(valueA) > Number(valueB)) return sortDirection === 'asc' ? 1 : -1;
       return 0;
     })
-    : filteredAndSearchedData;
+    : filteredAndSearchedData && filteredAndSearchedData.slice().sort((a, b) => {
+      const valueA = moment((a['attributes'])['createdAt']).format('YYYYMMDDHHMMSS');
+      const valueB = moment((b['attributes'])['createdAt']).format('YYYYMMDDHHMMSS');
+      if (Number(valueA) < Number(valueB)) return sortDirection === 'desc' ? -1 : 1;
+      if (Number(valueA) > Number(valueB)) return sortDirection === 'desc' ? 1 : -1;
+      return 0;
+    });
 
   return (
     <>
