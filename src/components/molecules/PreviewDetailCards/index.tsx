@@ -64,7 +64,7 @@ const Previewdetailcards = ({ data }: any) => {
                 image={<Image alt="" src={require('../../../assets/listingPriceIcon.png')} />}
                 label={'Listing Price'}
             >
-                <p>List Price: $20,000</p>
+                <p>List Price: ${data?.price || "N/A"}</p>
             </Detailscard>
 
             <Detailscard>
