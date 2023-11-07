@@ -10,7 +10,7 @@ interface IconCardProps {
 const IconCard: React.FC<IconCardProps>= ({ icon, name, description, value }) => {
   return (
     <div className="flex items-center p-4 rounded-sm hover:bg-blue-gray-100 cursor-pointer">
-      <div className="flex-shrink-0 mr-4 border p-2 rounded">
+      <div className="flex-shrink-0 mr-2 border p-2 rounded">
         {icon}
       </div>
       <div className="flex-grow">
