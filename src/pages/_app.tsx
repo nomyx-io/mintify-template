@@ -100,11 +100,11 @@ export default function App({ Component, pageProps }: any) {
       "message": message,
       "signature": signature
     })
-    if (roles.length > 0) {
+    if (roles.length > 0 && roles.includes("CentralAuthority")) {
       setRole([...roles])
       setStatus(false)
     }
-    else if (roles.length == 0) {
+    else {
       if(signature){
         toast.error("Sorry You are not Authorized !")
         setForceLogout(true);
