@@ -218,8 +218,8 @@ export default function Home() {
     loading ? <div className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
       <Spin />
     </div> :
-      <div className='w-full grid grid-cols-4 p-5 gap-x-6'>
-        <div className="col-span-3 py-2">
+      <div className='w-full grid grid-cols-3 p-5 gap-x-2'>
+        <div className="col-span-2 py-2">
           <div className="flex items-center gap-4 flex-wrap">
             {KPIS && KPIS.map((kpi) => (
               <KPI
@@ -238,7 +238,7 @@ export default function Home() {
           <br />
           <CustomTable columns={columns as any} data={mintedNfts} />
         </div>
-        <div className='p-2'>
+        <div className='p-2 h-[90vh] overflow-y-auto'>
           <div className='text-black text-lg font-bold'>Form</div>
           <EventFeed data={eventDetails} TabsData={TabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
         </div >
