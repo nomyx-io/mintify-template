@@ -1,8 +1,8 @@
 {
-  "11155111": {
-    "identityFactory": "0x44914e4482aFA24bF9Ab61874225426c12ff5ac2",
-    "factory": "0x9C560c193E7fa936e2655Ca95b1B2Ad25FD2767b",
-    "contract": "0xa8b3796a17bE1319570e6Eb0146e0f938d6D4c71",
-    "owner": "0x3AAF0e6023A2745FB62052c1954260559fFF4947"
+  "31337": {
+    "identityFactory": "0x68B1D87F95878fE05B998F19b66F4baba5De1aed",
+    "factory": "0xE6E340D132b5f46d1e472DebcD681B2aBc16e57E",
+    "contract": "0x9f33187f7ACe70B921cA7e49446030865493d13E",
+    "owner": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
   }
 }
