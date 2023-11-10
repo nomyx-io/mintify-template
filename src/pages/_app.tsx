@@ -111,7 +111,7 @@ export default function App({ Component, pageProps }: any) {
       }
       setStatus(true)
     }
-    let jsonConfig: any = await import(`./../../config.json`);
+    let jsonConfig: any = await import(`../hardhatConfig.json`);
     const network = provider.getNetwork().then(async (network: any) => {
 
       const chainId = network.chainId;
