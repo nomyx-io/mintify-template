@@ -85,8 +85,14 @@ export default function Details({ service }: any) {
   }
 
   const handleImage = (e: any) => {
-    setFile(URL.createObjectURL(e.target.files[0]))
+    if (e.target.files[0].type == 'image/jpeg' || e.target.files[0].type == 'image/png' || e.target.files[0].type == 'image/gif' || e.target.files[0].type == 'image/jpg' || e.target.files[0].type == 'image/svg+xml') {
+      setFile(URL.createObjectURL(e.target.files[0]))
+    } else {
+      setFile("")
+      toast.error('Only Jpg, Png, Svg or Gif files are allowed.Please select again.')
+    }
   }
+
   interface RecordType {
     key: string;
     title: string;
