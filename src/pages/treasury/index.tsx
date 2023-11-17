@@ -96,6 +96,9 @@ const Treasury = () => {
       _TokenIds: "saddwad",
       _amount: 234,
       _total: 2344,
+      attributes: {
+        _createdAt: '2023-11-16T16:08:26.684Z'
+      }
     },
     {
         id : 2,
@@ -103,6 +106,9 @@ const Treasury = () => {
       _TokenIds: "saddwad",
       _amount: 234,
       _total: 2344,
+      attributes: {
+        _createdAt: '2023-11-16T16:08:26.684Z'
+      }
     },
     {
         id : 3,
@@ -110,6 +116,9 @@ const Treasury = () => {
       _TokenIds: "saddwad",
       _amount: 234,
       _total: 2344,
+      attributes: {
+        _createdAt: '2023-11-16T16:08:26.684Z'
+      }
     },
     {
         id : 4,
@@ -117,6 +126,9 @@ const Treasury = () => {
       _TokenIds: "saddwad",
       _amount: 234,
       _total: 2344,
+      attributes: {
+        _createdAt: '2023-11-16T16:08:26.684Z'
+      }
     },
     {
         id : 5,
@@ -124,6 +136,9 @@ const Treasury = () => {
       _TokenIds: "saddwad",
       _amount: 234,
       _total: 2344,
+      attributes: {
+        _createdAt: '2023-11-16T16:08:26.684Z'
+      }
     },
     {
         id : 6,
@@ -131,6 +146,9 @@ const Treasury = () => {
       _TokenIds: "saddwad",
       _amount: 234,
       _total: 2344,
+      attributes: {
+        _createdAt: '2023-11-16T16:08:26.684Z'
+      }
     },
     {
         id : 7,
@@ -138,6 +156,9 @@ const Treasury = () => {
       _TokenIds: "saddwad",
       _amount: 234,
       _total: 2344,
+      attributes: {
+        _createdAt: '2023-11-16T16:08:26.684Z'
+      }
     },
   ];
 
@@ -285,7 +306,7 @@ const Treasury = () => {
           </select>
           <div className="w-full bg-[#f0f0f0] p-3">
             <h1 className="font-extrabold text-lg">Treasury: 123</h1>
-            <div className="mt-3">
+            <div className="mt-3 break-words">
               Tokken Address : 0x0000000000000000000000000
             </div>
             <div className="mt-3">Depositors : 69</div>
