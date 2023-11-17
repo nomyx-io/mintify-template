@@ -40,7 +40,7 @@ const Previewdetailcards = ({ data }: any) => {
                         </div>
                         <div className='bg-[#f4f4f4] rounded text-center p-4 flex flex-col items-center min-w-[140px]'>
                             <div>Interest rate</div>
-                            <div className='text-[#871212]'>{data?.yields || "N/A"}</div>
+                            <div className='text-[#871212]'>{data?.yields+'%' || "N/A"}</div>
                         </div>
                         <div className='bg-[#f4f4f4] rounded text-center p-4 flex flex-col items-center min-w-[140px]'>
                             <div>Monthly amount</div>
@@ -48,7 +48,7 @@ const Previewdetailcards = ({ data }: any) => {
                         </div>
                         <div className='bg-[#f4f4f4] rounded text-center p-4 flex flex-col items-center min-w-[140px]'>
                             <div>Discount</div>
-                            <div className='text-[#871212]'>{data?.discount || "N/A"}</div>
+                            <div className='text-[#871212]'>{data?.discount+'%' || "N/A"}</div>
                         </div>
                         <div className='bg-[#f4f4f4] rounded text-center p-4 flex flex-col items-center min-w-[140px]'>
                             <div>Location of issuance</div>

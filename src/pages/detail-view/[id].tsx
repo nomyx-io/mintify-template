@@ -71,13 +71,13 @@ export default function DetailViewId () {
         let tokenId = await api.getMintedNftDetails(id)
         tokenId = tokenId && tokenId[0]?.attributes?.tokenId
         let depositData: any = await api.getDeposits(tokenId)
-        depositData.map((item: any)=>{newDepositData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD'), 'depositDate':moment(item?.attributes?.depositDate).format('YYYY-MM-DD') })})
+        depositData?.map((item: any)=>{newDepositData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD'), 'depositDate':moment(item?.attributes?.depositDate).format('YYYY-MM-DD') })})
         let claimData: any = await api.getTreasuryClaims(tokenId)
-        claimData.map((item: any)=>{newClaimData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD')})})
+        claimData?.map((item: any)=>{newClaimData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD')})})
         let listingData: any = await api.getListings(tokenId)
-        listingData.map((item: any)=>{newListData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD'), active: JSON.stringify(item?.attributes?.active)})})
+        listingData?.map((item: any)=>{newListData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD'), active: JSON.stringify(item?.attributes?.active)})})
         let tokenSaleData: any = await api.getSaleTokens(tokenId)
-        tokenSaleData.map((item: any)=>{newTokenData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD')})})
+        tokenSaleData?.map((item: any)=>{newTokenData.push({...item.attributes,"createdDate":moment(item?.attributes?.createdDate).format('YYYY-MM-DD')})})
         let TablesData = [
             {columns: tokenSaleColumns, tableData: newTokenData,label: 'Token Sale', headerImage: require('../../assets/priceHistoryIcon.png')},
             {columns: listingColumns, tableData: newListData,label: 'Listing', headerImage: require('../../assets/listingIcon.png')},

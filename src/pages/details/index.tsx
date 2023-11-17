@@ -177,10 +177,6 @@ export default function Details({ service }: any) {
       setClaimTopics(data);
     }
   }
-  const mint = async () => {
-    console.log(service);
-
-  }
 
   const handlePreview = (data: any) => {
     setNftData(data)
@@ -200,13 +196,139 @@ export default function Details({ service }: any) {
   const handleFreeze = () => {
     setFrozen(!frozen)
   }
+
+  const metadata = [
+    {
+        key: "nftTitle",
+        attributeType: 1,
+        value: nftTitle,
+    },
+    {
+        key: "description",
+        attributeType: 1,
+        value: description,
+    },
+    {
+        key: "loanId",
+        attributeType: 1,
+        value: loanId,
+    },
+    {
+        key: "currentValue",
+        attributeType: 1,
+        value: currentValue,
+    },
+    {
+        key: "loanAmount",
+        attributeType: 1,
+        value: loanAmount,
+    },
+    {
+        key: "originationDate",
+        attributeType: 1,
+        value: originationDate,
+    },
+    {
+        key: "term",
+        attributeType: 1,
+        value: term,
+    },
+
+    {
+        key: "ficoScore",
+        attributeType: 1,
+        value: ficoScore,
+    },
+    {
+        key: "monthly",
+        attributeType: 1,
+        value: monthly,
+    },
+    {
+        key: "discount",
+        attributeType: 1,
+        value: discount,
+    },
+    {
+        key: "location",
+        attributeType: 1,
+        value: location,
+    },
+    {
+        key: "price",
+        attributeType: 1,
+        value: price,
+    },
+    {
+        key: "image",
+        attributeType: 1,
+        value: file,
+    },
+    {
+        key: "yields",
+        attributeType: 1,
+        value: yields,
+    },
+    {
+        key: "claimTopics",
+        attributeType: 0,
+        value: targetKeys ? targetKeys.join(',') : targetKeys,
+    },
+    {
+        key: "mintAddress",
+        attributeType: 1,
+        value: mintAddress,
+    },
+    {
+        key: "frozen",
+        attributeType: 1,
+        value: frozen
+    }
+];
+const handleMint = async () => {
+    toast.promise(
+        async () => {
+            await service.llmint(metadata).then(()=>{
+                setNftTitle("")
+                setDescription("")
+                setLoanId("")
+                setLoanAmount("")
+                setTerm("")
+                setFicoScore("")
+                setYields("")
+                setMonthly("")
+                setDiscount("")
+                setLocation("")
+                setPrice("")
+                setMintAddress("")
+                setFile("")
+                setOriginationDate("")
+                setCurrentValue("")
+                setTargetKeys([])
+                setPreview(false)
+            })
+        },
+        {
+            pending: 'Minting Nft...',
+            success: 'Successfully minted Nft to ' + mintAddress,
+            error: {
+                render({data}: any){
+                  return <div>{data?.reason || 'An error occurred while minting Nft'}</div>
+                }
+              }
+        })
+}
   
   return (
     <>
 
       {
         preview ?
-          <PreviewNftDetails service={service} data={nftData} handleBack={handleBack} />
+          <PreviewNftDetails 
+            data={nftData} 
+            handleBack={handleBack}
+            handleMint={handleMint}
+          />
           :
           <CreateNftDetails 
             claimTopics={claimTopics} 
