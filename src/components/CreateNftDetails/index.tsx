@@ -6,6 +6,7 @@ import React, { useState } from 'react'
 import { Button } from "../../material-tailwind"
 import type { TransferDirection } from 'antd/es/transfer';
 import { useRouter } from 'next/router'
+import { Form } from 'antd';
 
 export default function CreateNftDetails({ 
   claimTopics,
@@ -22,7 +23,20 @@ export default function CreateNftDetails({
   onScroll,
   handleFreeze
  }: any) {
-  const router = useRouter()
+  
+  const router = useRouter();
+  const [form] = Form.useForm();
+
+  const onFinish = (values: any) => {
+    // Perform actions with form values, e.g., preview functionality if form has 
+    // been submitted all fields are valid and filled out
+      handlePreviewFunc(values);
+  };
+
+  const handlePreview = (e: any) => {
+    // trigger submit on NFT Details Form, only continue if form validation passes
+    form.submit();
+  };
 
   return (
     <div className='p-2 w-full flex gap-3'>
@@ -32,6 +46,8 @@ export default function CreateNftDetails({
           frozen={frozen}
           handleChange={handleInputValues}
           handleFreeze={handleFreeze}
+          form = {form}
+          onFinish={onFinish}
         />
         <Compliance
           claimTopics={claimTopics}
@@ -44,7 +60,7 @@ export default function CreateNftDetails({
       </div>
       <div className='w-[30%] flex flex-col gap-4'>
         <Button onClick={() => router.push('/home')} className='bg-[#dedede] text-black rounded-none'>Cancel</Button>
-        <Button onClick={handlePreviewFunc} className='bg-[#637eab] rounded-none'>Preview</Button>
+        <Button onClick={handlePreview} className='bg-[#637eab] rounded-none'>Preview</Button>
         <ImageComp file={file} handleChange={handleImage} />
       </div>
     </div>

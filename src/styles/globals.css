@@ -7,11 +7,12 @@
     min-width: 60%;
 }
 .ant-transfer .ant-transfer-list{
-    border-radius: 0px;
-    width: max-content;
-    padding-left:10px;
-    padding-right: 20px;
-    min-width: 45%;
+  border-radius: 0px;
+  width: 50%;
+}
+
+.ant-form-item {
+  margin: 0 0 5px;
 }
 
 .ant-btn {

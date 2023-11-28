@@ -5,36 +5,36 @@ import PreviewNftDetails from '@/components/PreviewNftDetails'
 import { getDashboardLayout } from '@/Layouts'
 import { toast } from 'react-toastify'
 import { TransferDirection } from 'antd/es/transfer'
-import {validateData} from '@/utils'
+import {Regex} from '@/utils'
 import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
 
 export default function Details({ service }: any) {
-  const {isConnected} = useAccount()
-  const router = useRouter()
-  const [preview, setPreview] = useState(false)
-  const [nftData, setNftData] = useState()
-  const [claimTopics, setClaimTopics] = useState<any[]>([])
-  const [file, setFile] = useState('')
-  const [nftTitle, setNftTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [loanId, setLoanId] = useState("")
-  const [loanAmount, setLoanAmount] = useState("")
-  const [term, setTerm] = useState("")
-  const [ficoScore, setFicoScore] = useState("")
-  const [yields, setYields] = useState("")
-  const [monthly, setMonthly] = useState("")
-  const [discount, setDiscount] = useState("")
-  const [location, setLocation] = useState("")
-  const [price, setPrice] = useState("")
-  const [mintAddress, setMintAddress] = useState("")
-  const [currentValue, setCurrentValue] = useState("")
-  const [originationDate, setOriginationDate] = useState("")
-  const [frozen, setFrozen] = useState(false)
+  const {isConnected} = useAccount();
+  const router = useRouter();
+  const [preview, setPreview] = useState(false);
+  const [nftData, setNftData] = useState();
+  const [claimTopics, setClaimTopics] = useState<any[]>([]);
+  const [file, setFile] = useState('');
+  const [nftTitle, setNftTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [loanId, setLoanId] = useState("");
+  const [loanAmount, setLoanAmount] = useState("");
+  const [term, setTerm] = useState("");
+  const [ficoScore, setFicoScore] = useState("");
+  const [yields, setYields] = useState("");
+  const [monthly, setMonthly] = useState("");
+  const [discount, setDiscount] = useState("");
+  const [location, setLocation] = useState("");
+  const [price, setPrice] = useState("");
+  const [mintAddress, setMintAddress] = useState("");
+  const [currentValue, setCurrentValue] = useState("");
+  const [originationDate, setOriginationDate] = useState("");
+  const [frozen, setFrozen] = useState(false);
   
   const handleInputValues = (e: any) => {
-    const name = e.target.name
-    const value = e.target.value
+    const name = e.target.name;
+    const value = e.target.value;
     switch (name) {
       case "nftTitle":
         setNftTitle(value)
@@ -86,10 +86,10 @@ export default function Details({ service }: any) {
 
   const handleImage = (e: any) => {
     if (e.target.files[0].type == 'image/jpeg' || e.target.files[0].type == 'image/png' || e.target.files[0].type == 'image/gif' || e.target.files[0].type == 'image/jpg' || e.target.files[0].type == 'image/svg+xml') {
-      setFile(URL.createObjectURL(e.target.files[0]))
+      setFile(URL.createObjectURL(e.target.files[0]));
     } else {
-      setFile("")
-      toast.error('Only Jpg, Png, Svg or Gif files are allowed.Please select again.')
+      setFile("");
+      toast.error('Only jpg, png, svg or gif files are allowed. Please try again.')
     }
   }
 
@@ -116,47 +116,49 @@ export default function Details({ service }: any) {
   };
 
   const handlePreviewFunc = () => {
-    const freeze = JSON.stringify(frozen)
-    handlePreview({ nftTitle, description, loanId, loanAmount, term, ficoScore, yields, monthly, discount, location, price, mintAddress, targetKeys, file, originationDate, currentValue, freeze})
-    console.log("Preview Clicked")
+    const freeze = JSON.stringify(frozen);
+    handlePreview({ nftTitle, description, loanId, loanAmount, term, ficoScore, yields, monthly, discount, location, price, mintAddress, targetKeys, file, originationDate, currentValue, freeze});
   }
 
+  const requiredRule = {required: true, message: `This field is required.` };
+  const alphaNumericRule = {pattern:Regex.alphaNumeric, message: `This field must be alphanumeric.`};
+  const numericRule = {pattern:Regex.alphaNumeric, message: `This field must be numeric only.`};
+
   const fields = [
-    {label: 'NFT Title', name: 'nftTitle', dataType: 'text', placeHolder: 'Enter Loan ID.Total Amount(Yield)', defaultValue: nftTitle, value: nftTitle },
-    {label: 'Description', name: 'description', dataType: 'text', placeHolder: 'Add a description for the NFT', defaultValue: description, value: description },
-    {label: 'Key Feature', name: 'loanId', dataType: 'text', placeHolder: 'Enter Loan ID', defaultValue: loanId, value: undefined },
+    {label: 'NFT Title', name: 'nftTitle', dataType: 'text', placeHolder: 'Enter Loan ID.Total Amount(Yield)', defaultValue: nftTitle, value: nftTitle, rules:[requiredRule, alphaNumericRule, {max: 30}] },
+    {label: 'Description', name: 'description', dataType: 'text', placeHolder: 'Add a description for the NFT', defaultValue: description, value: description, rules:[{...requiredRule, max: 256}] },
     { 
       value: [
-        { label: '', name: 'loanId', dataType: 'text', placeHolder: 'Enter Loan ID', defaultValue: loanId, value: loanId },
-        { label: '', name: 'currentValue', dataType: 'text', placeHolder: 'Enter Current Value', defaultValue: currentValue, value: currentValue, prefix: '$' },
+        { label: '', name: 'loanId', dataType: 'text', placeHolder: 'Enter Loan ID', defaultValue: loanId, value: loanId, rules:[requiredRule] },
+        { label: '', name: 'currentValue', dataType: 'text', placeHolder: 'Enter Current Value', defaultValue: currentValue, value: currentValue, prefix: '$', rules:[requiredRule, numericRule, {max: 10}] },
       ]
     },
     { 
       value: [
-        { label: '', name: 'originationDate', dataType: 'date', placeHolder: 'Enter Loan Origination Date', defaultValue: originationDate, value: originationDate },
-        { label: '', name: 'loanAmount', dataType: 'text', placeHolder: 'Enter Loan Origination Amount', defaultValue: loanAmount, value: loanAmount, prefix: '$' },
+        { label: '', name: 'originationDate', dataType: 'date', placeHolder: 'Enter Loan Origination Date', defaultValue: originationDate, value: originationDate, rules:[requiredRule] },
+        { label: '', name: 'loanAmount', dataType: 'text', placeHolder: 'Enter Loan Origination Amount', defaultValue: loanAmount, value: loanAmount, prefix: '$', rules:[requiredRule, numericRule, {max: 9}] },
       ]
     },
     {
       value: [
-        { label: '', name: 'term', dataType: 'text', placeHolder: 'Enter Term', defaultValue: term, value: term, prefix: 'M' },
-        { label: '', name: 'fico', dataType: 'text', placeHolder: 'Enter FICO Score', defaultValue: ficoScore, value: ficoScore },
+        { label: '', name: 'term', dataType: 'text', placeHolder: 'Enter Term', defaultValue: term, value: term, prefix: 'M', rules:[requiredRule, numericRule, {max: 3}] },
+        { label: '', name: 'fico', dataType: 'text', placeHolder: 'Enter FICO Score', defaultValue: ficoScore, value: ficoScore, rules:[requiredRule, numericRule, {len: 3}] },
       ]
     },
     {
       value: [
-        { label: '', name: 'yields', dataType: 'text', placeHolder: 'Enter Interest Rate', defaultValue: yields, value: yields, prefix: '%' },
-        { label: '', name: 'monthly', dataType: 'text', placeHolder: 'Enter Monthly Payment', defaultValue: monthly, value: monthly, prefix: '$' },
+        { label: '', name: 'yields', dataType: 'text', placeHolder: 'Enter Interest Rate', defaultValue: yields, value: yields, prefix: '%', rules:[requiredRule, {pattern:Regex.maxCharWithDecimal(2, 3), message:"Please enter a value with up to 2 digits and 3 decimal places."}] },
+        { label: '', name: 'monthly', dataType: 'text', placeHolder: 'Enter Monthly Payment', defaultValue: monthly, value: monthly, prefix: '$', rules:[requiredRule, {pattern:Regex.maxCharWithDecimal(9, 2), message:"Please enter a value with up to 9 digits and 2 decimal places."}] },
       ]
     },
     {
       value: [
-        { label: '', name: 'discount', dataType: 'text', placeHolder: 'Enter Discount Coupan (%age off)', defaultValue: discount, value: discount, prefix: '%' },
-        { label: '', name: 'location', dataType: 'text', placeHolder: 'Location of Issuance (first three letters of zip)', defaultValue: location, value: location },
+        { label: '', name: 'discount', dataType: 'text', placeHolder: 'Enter Discount Coupan (%age off)', defaultValue: discount, value: discount, prefix: '%', rules:[requiredRule, {pattern:Regex.maxCharWithDecimal(2, 2), message:"Please enter a value with up to 2 digits and 2 decimal places."}] },
+        { label: '', name: 'location', dataType: 'text', placeHolder: 'Location of Issuance (first three letters of zip)', defaultValue: location, value: location, rules:[requiredRule, numericRule, {len: 3}] },
       ]
     },
-    { label: 'Pricing', name: 'price', dataType: 'text', placeHolder: 'Price', defaultValue: price, value: price, prefix: '$' },
-    { label: 'Mint to', name: 'mintAddress', dataType: 'text', placeHolder: 'Enter Wallet Address', defaultValue: mintAddress, value: mintAddress }
+    { label: 'Pricing', name: 'price', dataType: 'text', placeHolder: 'Price', defaultValue: price, value: price, prefix: '$', rules:[requiredRule, {pattern:Regex.maxCharWithDecimal(9, 2), message:"Please enter a value with up to 9 digits and 2 decimal places."}] },
+    { label: 'Mint to', name: 'mintAddress', dataType: 'text', placeHolder: 'Enter Wallet Address', defaultValue: mintAddress, value: mintAddress, rules:[requiredRule, {pattern:Regex.ethereumAddress, message: "This field must be an ehtereum address."}] }
   ]
 
   useEffect(() => {
@@ -179,14 +181,12 @@ export default function Details({ service }: any) {
   }
 
   const handlePreview = (data: any) => {
-    setNftData(data)
-    if (data.nftTitle == "" || data.description == "" || data.loanId == "" || data.loanAmount == "" || data.term == "" || data.ficoScore == "" || data.yields == "" || data.monthly == "" || data.discount == "" || data.location == "" || data.price == "" || data.mint == "" || data.file == "" || data.originationDate == "" || data.currentValue == "") {
-      toast.error("Nft Data is mandatory")
-    }
-    else {
-      if (validateData(data)) {
-        setPreview(true)
-      }
+    setNftData(data);
+
+    if (data.file == "") {
+      toast.error("An image is required.");
+    } else {
+      setPreview(true);
     }
   }
   const handleBack = () => {
