@@ -9,10 +9,11 @@
 .ant-transfer .ant-transfer-list{
   border-radius: 0px;
   width: 50%;
+  height: auto;
 }
 
 .ant-form-item {
-  margin: 0 0 5px;
+  margin: 0 0 30px;
 }
 
 .ant-btn {
@@ -49,3 +50,4 @@
     background-color: rgb(99 126 171);
     outline: 1px solid slategrey;
   }
+

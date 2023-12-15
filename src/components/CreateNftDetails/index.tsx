@@ -1,7 +1,6 @@
 "use client"
 import NftDetailsForm from '@/components/molecules/NftDetailsForm'
 import Compliance from '@/components/molecules/Compliance'
-import ImageComp from '@/components/molecules/ImageBox'
 import React, { useState } from 'react'
 import { Button } from "../../material-tailwind"
 import type { TransferDirection } from 'antd/es/transfer';
@@ -61,7 +60,6 @@ export default function CreateNftDetails({
       <div className='w-[30%] flex flex-col gap-4'>
         <Button onClick={() => router.push('/home')} className='bg-[#dedede] text-black rounded-none'>Cancel</Button>
         <Button onClick={handlePreview} className='bg-[#637eab] rounded-none'>Preview</Button>
-        <ImageComp file={file} handleChange={handleImage} />
       </div>
     </div>
   )

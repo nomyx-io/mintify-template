@@ -122,27 +122,27 @@ export default function Details({ service }: any) {
 
   const requiredRule = {required: true, message: `This field is required.` };
   const alphaNumericRule = {pattern:Regex.alphaNumeric, message: `This field must be alphanumeric.`};
-  const numericRule = {pattern:Regex.alphaNumeric, message: `This field must be numeric only.`};
+  const numericRule = {pattern:Regex.numeric, message: `This field must be numeric only.`};
 
   const fields = [
     {label: 'NFT Title', name: 'nftTitle', dataType: 'text', placeHolder: 'Enter Loan ID.Total Amount(Yield)', defaultValue: nftTitle, value: nftTitle, rules:[requiredRule, alphaNumericRule, {max: 30}] },
     {label: 'Description', name: 'description', dataType: 'text', placeHolder: 'Add a description for the NFT', defaultValue: description, value: description, rules:[{...requiredRule, max: 256}] },
     { 
       value: [
-        { label: '', name: 'loanId', dataType: 'text', placeHolder: 'Enter Loan ID', defaultValue: loanId, value: loanId, rules:[requiredRule] },
-        { label: '', name: 'currentValue', dataType: 'text', placeHolder: 'Enter Current Value', defaultValue: currentValue, value: currentValue, prefix: '$', rules:[requiredRule, numericRule, {max: 10}] },
+        { label: '', name: 'loanId', dataType: 'text', placeHolder: 'Enter Loan ID', defaultValue: loanId, value: loanId, rules:[requiredRule, alphaNumericRule] },
+        { label: '', name: 'currentValue', dataType: 'text', placeHolder: 'Enter Current Value', defaultValue: currentValue, value: currentValue, prefix: '$', rules:[requiredRule, {pattern:Regex.maxCharWithDecimal(10, 2), message:"Please enter a value with up to 10 digits and 2 decimal places."}] },
       ]
     },
     { 
       value: [
         { label: '', name: 'originationDate', dataType: 'date', placeHolder: 'Enter Loan Origination Date', defaultValue: originationDate, value: originationDate, rules:[requiredRule] },
-        { label: '', name: 'loanAmount', dataType: 'text', placeHolder: 'Enter Loan Origination Amount', defaultValue: loanAmount, value: loanAmount, prefix: '$', rules:[requiredRule, numericRule, {max: 9}] },
+        { label: '', name: 'loanAmount', dataType: 'text', placeHolder: 'Enter Loan Origination Amount', defaultValue: loanAmount, value: loanAmount, prefix: '$', rules:[requiredRule, {pattern:Regex.maxCharWithDecimal(9, 2), message:"Please enter a value with up to 9 digits and 2 decimal places."}] },
       ]
     },
     {
       value: [
         { label: '', name: 'term', dataType: 'text', placeHolder: 'Enter Term', defaultValue: term, value: term, prefix: 'M', rules:[requiredRule, numericRule, {max: 3}] },
-        { label: '', name: 'fico', dataType: 'text', placeHolder: 'Enter FICO Score', defaultValue: ficoScore, value: ficoScore, rules:[requiredRule, numericRule, {len: 3}] },
+        { label: '', name: 'fico', dataType: 'text', placeHolder: 'Enter FICO Score', defaultValue: ficoScore, value: ficoScore, rules:[requiredRule, numericRule, {max: 3}] },
       ]
     },
     {
@@ -154,7 +154,7 @@ export default function Details({ service }: any) {
     {
       value: [
         { label: '', name: 'discount', dataType: 'text', placeHolder: 'Enter Discount Coupan (%age off)', defaultValue: discount, value: discount, prefix: '%', rules:[requiredRule, {pattern:Regex.maxCharWithDecimal(2, 2), message:"Please enter a value with up to 2 digits and 2 decimal places."}] },
-        { label: '', name: 'location', dataType: 'text', placeHolder: 'Location of Issuance (first three letters of zip)', defaultValue: location, value: location, rules:[requiredRule, numericRule, {len: 3}] },
+        { label: '', name: 'location', dataType: 'text', placeHolder: 'Location of Issuance (first three letters of zip)', defaultValue: location, value: location, rules:[requiredRule, numericRule, {max: 3}] },
       ]
     },
     { label: 'Pricing', name: 'price', dataType: 'text', placeHolder: 'Price', defaultValue: price, value: price, prefix: '$', rules:[requiredRule, {pattern:Regex.maxCharWithDecimal(9, 2), message:"Please enter a value with up to 9 digits and 2 decimal places."}] },

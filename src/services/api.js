@@ -1,6 +1,6 @@
-import React from 'react'
-import ParseClient from './Parclient';
 import moment from 'moment';
+import ParseClient from './Parclient';
+
 const monthNames = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
@@ -160,6 +160,74 @@ export const ApiHook = () => {
         }
         return kpis
     }
+
+    const saveSettings = async (settingsObj) => {
+
+        const parseSaveRequestPromises = [];
+
+        let tokenRecords = await ParseClient.getRecords('ERC721', [], [], ["*"]);
+
+        if (tokenRecords && tokenRecords.length > 0 && settingsObj.defaultTokenImage) {
+            let tokenRecord = tokenRecords[0];
+
+            let parseFile = settingsObj.defaultTokenImage ? 
+                await ParseClient.saveFile('token-image', settingsObj.defaultTokenImage) :
+                null;
+
+            parseSaveRequestPromises.push(ParseClient.updateRecord('ERC721', tokenRecord.id, { 'defaultTokenImage': parseFile }));
+        }
+
+        //save other settings by iterating through settingsObj key/value pairs, skipping the defaultTokenImage key
+            //for each prop on settingsObj
+                //skip defaultTokenImage prop
+                //create new LenderLabSetting record for key/value pair
+            //save settings to Parse
+            //parseSaveRequestPromises.push(saveSettingsRecordsPromise);
+
+        for (let k in settingsObj) {
+
+            let setting = settingsObj[k];
+
+            if (k == 'defaultTokenImage') continue;
+            
+            parseSaveRequestPromises.push(ParseClient.createOrUpdateRecord(
+                'LenderLabSetting', 
+                ['key'], 
+                [k], 
+                {key:k, value: typeof setting == 'object' ? JSON.stringify(setting) : setting} 
+            ));
+            
+        }
+
+        return Promise.all(parseSaveRequestPromises);
+
+    }
+
+    const getSettings = async () => {   
+        let records = await ParseClient.getRecords('LenderLabSetting', [], [], ["*"]);
+
+        let settingsObj = {};
+
+        records.forEach(record => {
+            settingsObj[record.attributes.key] = record.attributes.value;
+        });
+
+        let tokenRecords = await ParseClient.getRecords('ERC721', [], [], ["*"]);
+
+        if (tokenRecords && tokenRecords.length > 0) {
+            let tokenRecord = tokenRecords[0];
+            settingsObj.defaultTokenImage = tokenRecord.attributes.defaultTokenImage;
+        }    
+
+        return settingsObj;
+        
+    }
+
+    const getClaimTopics = async () => {
+        let records = await ParseClient.getRecords('ClaimTopic', ['active'], [true], ["*"]);
+        return records;
+    }
+
     return {
         getPortfolioPerformance,
         getEvents,
@@ -169,7 +237,10 @@ export const ApiHook = () => {
         getListings,
         getTreasuryClaims,
         getDeposits,
-        getKpis
+        getKpis,
+        saveSettings,
+        getSettings,
+        getClaimTopics
     };
 }
 
