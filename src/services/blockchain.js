@@ -46,9 +46,9 @@ class BlockchainService {
         return await this.parseClient.getRecords('ClaimTopic', [], [], ["*"]);
     }
 
-    async llmint(metaData) {
+    async llmint(metaData, imageUrl) {
         const contractWithSigner = this.llMintService.connect(this.signer);
-        const tx = await contractWithSigner.llMint(metaData);
+        const tx = await contractWithSigner.llMint(metaData, imageUrl);
         return await tx.wait();
     }
 

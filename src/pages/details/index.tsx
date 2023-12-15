@@ -8,10 +8,12 @@ import { TransferDirection } from 'antd/es/transfer'
 import {Regex} from '@/utils'
 import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
+import {ApiHook} from "@/services/api";
 
 export default function Details({ service }: any) {
   const {isConnected} = useAccount();
   const router = useRouter();
+  const api = ApiHook()
   const [preview, setPreview] = useState(false);
   const [nftData, setNftData] = useState();
   const [claimTopics, setClaimTopics] = useState<any[]>([]);
@@ -31,6 +33,7 @@ export default function Details({ service }: any) {
   const [currentValue, setCurrentValue] = useState("");
   const [originationDate, setOriginationDate] = useState("");
   const [frozen, setFrozen] = useState(false);
+  const [defaultTokenImageUrl, setDefaultTokenImageUrl] = useState("");
   
   const handleInputValues = (e: any) => {
     const name = e.target.name;
@@ -81,15 +84,6 @@ export default function Details({ service }: any) {
 
       default:
         break;
-    }
-  }
-
-  const handleImage = (e: any) => {
-    if (e.target.files[0].type == 'image/jpeg' || e.target.files[0].type == 'image/png' || e.target.files[0].type == 'image/gif' || e.target.files[0].type == 'image/jpg' || e.target.files[0].type == 'image/svg+xml') {
-      setFile(URL.createObjectURL(e.target.files[0]));
-    } else {
-      setFile("");
-      toast.error('Only jpg, png, svg or gif files are allowed. Please try again.')
     }
   }
 
@@ -162,7 +156,8 @@ export default function Details({ service }: any) {
   ]
 
   useEffect(() => {
-    getClaimTopics()
+    getClaimTopics();
+    getSettings();
   }, [service])
 
   useEffect(() => {
@@ -180,14 +175,16 @@ export default function Details({ service }: any) {
     }
   }
 
+    const getSettings = async () => {
+      if(api && api.getSettings){
+          const settings:any =  await api.getSettings()
+          setDefaultTokenImageUrl(settings.defaultTokenImage.url());
+      }
+    }
+
   const handlePreview = (data: any) => {
     setNftData(data);
-
-    if (data.file == "") {
-      toast.error("An image is required.");
-    } else {
-      setPreview(true);
-    }
+    setPreview(true);
   }
   const handleBack = () => {
     setPreview(false)
@@ -288,7 +285,7 @@ export default function Details({ service }: any) {
 const handleMint = async () => {
     toast.promise(
         async () => {
-            await service.llmint(metadata).then(()=>{
+            await service.llmint(metadata, defaultTokenImageUrl).then(()=>{
                 setNftTitle("")
                 setDescription("")
                 setLoanId("")
@@ -339,7 +336,6 @@ const handleMint = async () => {
             selectedKeys={selectedKeys}
             handleInputValues={handleInputValues}
             handlePreviewFunc={handlePreviewFunc}
-            handleImage={handleImage}
             onChange={onChange}
             onSelectChange={onSelectChange}
             onScroll={onScroll}
