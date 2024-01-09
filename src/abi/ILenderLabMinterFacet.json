@@ -68,6 +68,11 @@
           "internalType": "struct Attribute[]",
           "name": "metadata",
           "type": "tuple[]"
+        },
+        {
+          "internalType": "string",
+          "name": "imageUrl",
+          "type": "string"
         }
       ],
       "name": "llMint",
