@@ -17,7 +17,6 @@ export default function Details({ service }: any) {
   const [preview, setPreview] = useState(false);
   const [nftData, setNftData] = useState();
   const [claimTopics, setClaimTopics] = useState<any[]>([]);
-  const [file, setFile] = useState('');
   const [nftTitle, setNftTitle] = useState("");
   const [description, setDescription] = useState("");
   const [loanId, setLoanId] = useState("");
@@ -111,7 +110,7 @@ export default function Details({ service }: any) {
 
   const handlePreviewFunc = () => {
     const freeze = JSON.stringify(frozen);
-    handlePreview({ nftTitle, description, loanId, loanAmount, term, ficoScore, yields, monthly, discount, location, price, mintAddress, targetKeys, file, originationDate, currentValue, freeze});
+    handlePreview({ nftTitle, description, loanId, loanAmount, term, ficoScore, yields, monthly, discount, location, price, mintAddress, targetKeys, defaultTokenImageUrl, originationDate, currentValue, freeze});
   }
 
   const requiredRule = {required: true, message: `This field is required.` };
@@ -259,7 +258,7 @@ export default function Details({ service }: any) {
     {
         key: "image",
         attributeType: 1,
-        value: file,
+        value: defaultTokenImageUrl,
     },
     {
         key: "yields",
@@ -298,7 +297,6 @@ const handleMint = async () => {
                 setLocation("")
                 setPrice("")
                 setMintAddress("")
-                setFile("")
                 setOriginationDate("")
                 setCurrentValue("")
                 setTargetKeys([])
@@ -331,7 +329,7 @@ const handleMint = async () => {
             claimTopics={claimTopics} 
             fields={fields}
             frozen={frozen}
-            file={file}
+            image={defaultTokenImageUrl}
             targetKeys={targetKeys}
             selectedKeys={selectedKeys}
             handleInputValues={handleInputValues}

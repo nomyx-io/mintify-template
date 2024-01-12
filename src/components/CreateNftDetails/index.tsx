@@ -11,7 +11,7 @@ export default function CreateNftDetails({
   claimTopics,
   fields,
   frozen,
-  file,
+  image,
   targetKeys,
   selectedKeys,
   handleInputValues,

@@ -9,8 +9,8 @@ import { LeftArrowIcon, ShareIcon } from '@/assets'
 
 const PreviewNftDetails = ({ id, TablesData = [], handleMint, handleBack, data, detailView = false }: any) => {
     const router = useRouter()
-    const { nftTitle, txHash } = data
- 
+    const { nftTitle, txHash, defaultTokenImageUrl } = data;
+
     return (
         <div className='p-4 my-2 w-full flex flex-col gap-4'>
             {detailView && <p className='flex items-center justify-between -ml-4 p-0 cursor-pointer' onClick={() => router.back()}>
@@ -31,8 +31,9 @@ const PreviewNftDetails = ({ id, TablesData = [], handleMint, handleBack, data, 
                     <Button onClick={handleBack} className='bg-[#dedede] text-black rounded-none'>Back</Button>
                     <Button onClick={handleMint} className='bg-[#637eab] rounded-none'>Mint</Button>
                     </>
+
 }
-                    <ImageComp previewPage file={data?.file || ""} />
+                    <img src={defaultTokenImageUrl} />
                 </div>
             </div>
             {detailView &&
