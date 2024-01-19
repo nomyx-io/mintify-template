@@ -14,7 +14,7 @@ import { useAccount } from 'wagmi';
 import ImageComp from '@/components/molecules/ImageBox';
 import { ApiHook } from '@/services/api';
 import { toast } from 'react-toastify';
-
+import { useWalletAddress } from '@/context/WalletAddressContext';
 
 const schema = Yup.object().shape({
   walletAddress: Yup.string().matches(/^0x[a-fA-F0-9]{40}$/, "Invalid Ethereum address")
@@ -25,6 +25,7 @@ const Setting = () => {
   
   const router = useRouter();
   const [form] = Form.useForm();
+  const { walletAddress, setWalletAddress } = useWalletAddress();
   const api = ApiHook();
   const { isConnected } = useAccount();
   const [claimTopics, setClaimTopics] = useState<any[]>([]);
@@ -58,6 +59,9 @@ const Setting = () => {
     if (newFileSelected) {
       settings.defaultTokenImage = selectedImage;
     }
+    // Update the wallet address in the global context
+    setWalletAddress(values.walletAddress);
+
     // i.e. {setting1:value1, setting2:value2, ...}
     //todo: show a toast message that will disappear once the promise returned by api.saveSettings() is resolved
     //use toast.promise
@@ -68,6 +72,9 @@ const Setting = () => {
       success: 'Settings saved successfully!', // Display this message when the promise is resolved
       error: 'Failed to save settings!', // Display this message when the promise is rejected
     });
+
+    // Submit form with the existing settings values
+    form.setFieldsValue({ walletAddress: walletAddress });
   }
 
   const onChange = (nextTargetKeys: string[], direction: TransferDirection, moveKeys: string[]) => {
@@ -107,10 +114,9 @@ const Setting = () => {
         let selectedClaimTopicIds = settingsData.defaultClaimTopics ? JSON.parse(settingsData.defaultClaimTopics) : [];
         setSelectedClaimTopics(selectedClaimTopicIds);
         console.log('selectedImage = ', settingsData.defaultTokenImage);
-        // todo: setSelectedImage from settingsData (defaultTokenImage)
-        // setSelectedImage(settingsData.defaultTokenImage);
+        //setSelectedImage
         setSelectedImage(settingsData.defaultTokenImage);
-        setSelectedImageUrl(settingsData.defaultTokenImage.url());
+        setSelectedImageUrl(settingsData.defaultTokenImage?.url());
         
       }
 
@@ -122,6 +128,12 @@ const Setting = () => {
 
   }, []);
 
+
+  useEffect(() => {
+    // Prefill the form with the wallet address from the context
+    form.setFieldsValue({ walletAddress: walletAddress });
+  }, [walletAddress]);
+
   return (
     <div>
         <Form
@@ -129,7 +141,7 @@ const Setting = () => {
           form={form}
           onFinish={onFinish}
           initialValues={{
-            walletAddress: ''
+            walletAddress: walletAddress
           }}
           layout="vertical"
         >

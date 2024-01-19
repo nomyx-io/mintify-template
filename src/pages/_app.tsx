@@ -19,6 +19,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { generateRandomString } from '@/utils';
 import parseConfig from "../parse.json"
 import axios from 'axios';
+import { WalletAddressProvider } from '@/context/WalletAddressContext';
 
 export const UserContext = createContext(()=>{});
 
@@ -148,17 +149,19 @@ export default function App({ Component, pageProps }: any) {
     <UserContext.Provider value={onDisconnect}>
       <WagmiConfig config={wagmiConfig}>
         <RainbowKitProvider chains={chains} coolMode>
-          <ToastContainer
-            position='top-right'
-            className='toast-background'
-            progressClassName='toast-progress-bar'
-            autoClose={4000}
-            closeOnClick
-            pauseOnHover
-          />
-          <PrivateRoute handleForecLogout={handleForecLogout} forceLogout={forecLogout} role={role} onConnect={onConnect}>
-            {getLayout(<Component role={role} service={blockchainService} {...pageProps} onConnect={onConnect} onDisconnect={onDisconnect} />)}
-          </PrivateRoute>
+            <WalletAddressProvider>
+              <ToastContainer
+                position='top-right'
+                className='toast-background'
+                progressClassName='toast-progress-bar'
+                autoClose={4000}
+                closeOnClick
+                pauseOnHover
+              />
+              <PrivateRoute handleForecLogout={handleForecLogout} forceLogout={forecLogout} role={role} onConnect={onConnect}>
+                {getLayout(<Component role={role} service={blockchainService} {...pageProps} onConnect={onConnect} onDisconnect={onDisconnect} />)}
+              </PrivateRoute>
+            </WalletAddressProvider>
         </RainbowKitProvider>
       </WagmiConfig>
     </UserContext.Provider>

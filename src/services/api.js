@@ -205,13 +205,14 @@ export const ApiHook = () => {
 
     const getSettings = async () => {   
         let records = await ParseClient.getRecords('LenderLabSetting', [], [], ["*"]);
-
         let settingsObj = {};
 
-        records.forEach(record => {
-            settingsObj[record.attributes.key] = record.attributes.value;
-        });
-
+        if(records && records.length > 0){
+            records.forEach(record => {
+                settingsObj[record.attributes.key] = record.attributes.value;
+            });
+        }
+        
         let tokenRecords = await ParseClient.getRecords('ERC721', [], [], ["*"]);
 
         if (tokenRecords && tokenRecords.length > 0) {

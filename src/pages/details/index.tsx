@@ -9,10 +9,12 @@ import {Regex} from '@/utils'
 import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
 import {ApiHook} from "@/services/api";
+import { useWalletAddress } from '@/context/WalletAddressContext';
 
 export default function Details({ service }: any) {
   const {isConnected} = useAccount();
   const router = useRouter();
+  const { walletAddress } = useWalletAddress();
   const api = ApiHook()
   const [preview, setPreview] = useState(false);
   const [nftData, setNftData] = useState();
@@ -28,7 +30,7 @@ export default function Details({ service }: any) {
   const [discount, setDiscount] = useState("");
   const [location, setLocation] = useState("");
   const [price, setPrice] = useState("");
-  const [mintAddress, setMintAddress] = useState("");
+  const [mintAddress, setMintAddress] = useState(walletAddress);
   const [currentValue, setCurrentValue] = useState("");
   const [originationDate, setOriginationDate] = useState("");
   const [frozen, setFrozen] = useState(false);
@@ -85,6 +87,11 @@ export default function Details({ service }: any) {
         break;
     }
   }
+
+    // Update the mintAddress state when the walletAddress context value changes
+    useEffect(() => {
+        setMintAddress(walletAddress);
+    }, [walletAddress]);
 
   interface RecordType {
     key: string;
@@ -150,9 +157,9 @@ export default function Details({ service }: any) {
         { label: '', name: 'location', dataType: 'text', placeHolder: 'Location of Issuance (first three letters of zip)', defaultValue: location, value: location, rules:[requiredRule, numericRule, {max: 3}] },
       ]
     },
-    { label: 'Pricing', name: 'price', dataType: 'text', placeHolder: 'Price', defaultValue: price, value: price, prefix: '$', rules:[requiredRule, {pattern:Regex.maxCharWithDecimal(9, 2), message:"Please enter a value with up to 9 digits and 2 decimal places."}] },
-    { label: 'Mint to', name: 'mintAddress', dataType: 'text', placeHolder: 'Enter Wallet Address', defaultValue: mintAddress, value: mintAddress, rules:[requiredRule, {pattern:Regex.ethereumAddress, message: "This field must be an ehtereum address."}] }
-  ]
+      { label: 'Mint to', name: 'mintAddress', dataType: 'text', placeHolder: 'Enter Wallet Address', defaultValue: mintAddress, value: mintAddress, rules:[{required: true, pattern:Regex.ethereumAddress, message: "This field must be an ethereum address."}] },
+      { label: 'Pricing', name: 'price', dataType: 'text', placeHolder: 'Price', defaultValue: price, value: price, prefix: '$', rules:[requiredRule, {pattern:Regex.maxCharWithDecimal(9, 2), message:"Please enter a value with up to 9 digits and 2 decimal places."}] }
+  ];
 
   useEffect(() => {
     getClaimTopics();
@@ -178,6 +185,7 @@ export default function Details({ service }: any) {
       if(api && api.getSettings){
           const settings:any =  await api.getSettings()
           setDefaultTokenImageUrl(settings.defaultTokenImage.url());
+          setMintAddress(settings.walletAddress);
       }
     }
 
@@ -296,22 +304,21 @@ const handleMint = async () => {
                 setDiscount("")
                 setLocation("")
                 setPrice("")
-                setMintAddress("")
                 setOriginationDate("")
                 setCurrentValue("")
                 setTargetKeys([])
                 setPreview(false)
-            })
+            });
         },
-        {
-            pending: 'Minting Nft...',
-            success: 'Successfully minted Nft to ' + mintAddress,
-            error: {
-                render({data}: any){
-                  return <div>{data?.reason || 'An error occurred while minting Nft'}</div>
-                }
-              }
-        })
+    {
+        pending: 'Minting Nft...',
+        success: 'Successfully minted Nft to ' + mintAddress,
+        error: {
+            render({data}: any){
+              return <div>{data?.reason || 'An error occurred while minting Nft'}</div>
+            }
+          }
+    });
 }
   
   return (
