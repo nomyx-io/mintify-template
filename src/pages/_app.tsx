@@ -82,7 +82,7 @@ export default function App({ Component, pageProps }: any) {
 
   const getToken = async (request: any) => {
 		try {
-			let data: any = await axios.post(`${parseConfig.publicURL}/auth/login`, request)
+			let data: any = await axios.post(`${parseConfig.serverURL}/auth/login`, request)
 			data = data.data
 
             return {
