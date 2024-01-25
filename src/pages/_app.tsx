@@ -186,5 +186,5 @@ export default function App({ Component, pageProps }: any) {
         </RainbowKitProvider>
       </WagmiConfig>
     </UserContext.Provider>
-  )
+  );
 }
