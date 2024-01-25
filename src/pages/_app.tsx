@@ -4,7 +4,7 @@ import {
   getDefaultWallets,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
-import { configureChains, createConfig, sepolia, useAccount, WagmiConfig } from 'wagmi';
+import { configureChains, createConfig, sepolia, useAccount, WagmiConfig, Chain } from 'wagmi';
 import {
 
 } from 'wagmi/chains';
@@ -23,6 +23,26 @@ import { WalletAddressProvider } from '@/context/WalletAddressContext';
 
 export const UserContext = createContext(()=>{});
 
+const localhost: Chain = {
+    id: 31337,
+    name: 'Localhost',
+    network: 'localhost',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'Ethereum',
+        symbol: 'lETH',
+    },
+    rpcUrls: {
+        default: {
+            http: ['http://0.0.0.0:8545/']
+        },
+        public:{
+            http: ['http://0.0.0.0:8545/']
+        }
+    },
+    testnet: true,
+};
+
 export default function App({ Component, pageProps }: any) {
 
   const [role, setRole] = useState<any[]>([])
@@ -30,7 +50,7 @@ export default function App({ Component, pageProps }: any) {
   const [status, setStatus] = useState(true)
 
   const { chains, publicClient } = configureChains(
-    [sepolia],
+    [localhost, sepolia],
     [
       alchemyProvider({ apiKey: 'CSgNtTJ6_Clrf1zNjVp2j1ppfLE2-aVX' }),
       publicProvider()
@@ -64,7 +84,8 @@ export default function App({ Component, pageProps }: any) {
 		try {
 			let data: any = await axios.post(`${parseConfig.publicURL}/auth/login`, request)
 			data = data.data
-			return {
+
+            return {
 				token: data?.access_token || '',
 				roles: data?.user?.roles || []
 			}
@@ -126,7 +147,7 @@ export default function App({ Component, pageProps }: any) {
         return;
       }
 
-      const _blockchainService: any = new BlockchainService(provider, config.contract, config.identityFactory);
+      const _blockchainService: any = new BlockchainService(provider, config.contract);
       setBlockchainService(_blockchainService);
     });
   };

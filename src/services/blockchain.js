@@ -9,13 +9,11 @@ class BlockchainService {
 
     parseClient = ParseClient;
 
-    constructor(provider, contractAddress, identityRegistryAddress) {
+    constructor(provider, contractAddress) {
         this.provider = provider;
-        this.signer = this.provider.getSigner();
-
+        this.signer = this.provider.getSigner()
         this.llMintService = new ethers.Contract(contractAddress, this.llMintedAbi, this.provider);
-        // Claim Topics Registry
-        this.addClaimTopic = this.addClaimTopic.bind(this);
+
         this.llmint = this.llmint.bind(this)
         this.getClaimTopics = this.getClaimTopics.bind(this)
 
@@ -35,12 +33,6 @@ class BlockchainService {
         return PubSub.unsubscribe(token);
     }
 
-
-    async addClaimTopic(claimTopic) {
-        const contractWithSigner = this.claimTopicRegistryService.connect(this.signer);
-        const tx = await contractWithSigner.addClaimTopic(claimTopic);
-        return await tx.wait();
-    }
 
     async getClaimTopics() {
         return await this.parseClient.getRecords('ClaimTopic', [], [], ["*"]);

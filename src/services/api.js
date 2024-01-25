@@ -6,7 +6,7 @@ const monthNames = [
     "July", "August", "September", "October", "November", "December"
 ];
 
-export const ApiHook = () => {
+export const LenderLabAPI = () => {
     ParseClient.initialize()
     const getPortfolioPerformance = async () => {
         let records = await ParseClient.getRecords('AssetPerformance', [], [], ["*"])

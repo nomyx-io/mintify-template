@@ -8,14 +8,14 @@ import { TransferDirection } from 'antd/es/transfer'
 import {Regex} from '@/utils'
 import { useRouter } from 'next/router'
 import { useAccount } from 'wagmi'
-import {ApiHook} from "@/services/api";
+import {LenderLabAPI} from "@/services/api";
 import { useWalletAddress } from '@/context/WalletAddressContext';
 
 export default function Details({ service }: any) {
   const {isConnected} = useAccount();
   const router = useRouter();
   const { walletAddress } = useWalletAddress();
-  const api = ApiHook()
+  const api = LenderLabAPI();
   const [preview, setPreview] = useState(false);
   const [nftData, setNftData] = useState();
   const [claimTopics, setClaimTopics] = useState<any[]>([]);
@@ -184,7 +184,7 @@ export default function Details({ service }: any) {
     const getSettings = async () => {
       if(api && api.getSettings){
           const settings:any =  await api.getSettings()
-          setDefaultTokenImageUrl(settings.defaultTokenImage.url());
+          setDefaultTokenImageUrl(settings.defaultTokenImage?.url()||"");
           setMintAddress(settings.walletAddress);
       }
     }
@@ -292,23 +292,29 @@ export default function Details({ service }: any) {
 const handleMint = async () => {
     toast.promise(
         async () => {
-            await service.llmint(metadata, defaultTokenImageUrl).then(()=>{
-                setNftTitle("")
-                setDescription("")
-                setLoanId("")
-                setLoanAmount("")
-                setTerm("")
-                setFicoScore("")
-                setYields("")
-                setMonthly("")
-                setDiscount("")
-                setLocation("")
-                setPrice("")
-                setOriginationDate("")
-                setCurrentValue("")
-                setTargetKeys([])
-                setPreview(false)
-            });
+            try{
+                await service.llmint(metadata, defaultTokenImageUrl).then(()=>{
+                    setNftTitle("")
+                    setDescription("")
+                    setLoanId("")
+                    setLoanAmount("")
+                    setTerm("")
+                    setFicoScore("")
+                    setYields("")
+                    setMonthly("")
+                    setDiscount("")
+                    setLocation("")
+                    setPrice("")
+                    setOriginationDate("")
+                    setCurrentValue("")
+                    setTargetKeys([])
+                    setPreview(false)
+                });
+            }catch(e){
+                console.log(e);
+                throw e;
+            }
+
         },
     {
         pending: 'Minting Nft...',

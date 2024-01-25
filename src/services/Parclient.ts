@@ -6,7 +6,7 @@ export default class ParseClient {
 
     public static initialize() {
         Parse.initialize(parseConfig.applicationId, parseConfig.applicationId, parseConfig.masterKey);
-        Parse.serverURL = parseConfig.serverURL;
+        Parse.serverURL = parseConfig.serverURL + "/parse";
         Parse.masterKey = parseConfig.masterKey;
     }
 

@@ -1,7 +1,7 @@
 'use client'
 import { CustomTable } from '@/components/molecules/Table';
 import KPI from '@/components/atoms/KPI'
-import { ApiHook } from '@/services/api'
+import { LenderLabAPI } from '@/services/api'
 import { EventFeed } from '@/components/molecules/EventFeed'
 import React, { useEffect, useState } from 'react'
 import { getDashboardLayout } from '../../Layouts';
@@ -12,7 +12,7 @@ import { useAccount } from 'wagmi';
 import { Spin } from 'antd';
 export default function Home() {
   const router = useRouter()
-  const api = ApiHook()
+  const api = LenderLabAPI()
   const [graphValues, setGraphValues] = useState<any>([])
   const [eventDetails, setEventDetails] = useState<any>({})
   const [mintedNfts, setMintedNfts] = useState<any>([])
@@ -24,15 +24,15 @@ export default function Home() {
   const KPIS = [
     {
       icon: <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        height={24}
-        width={24}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          height={24}
+          width={24}
       >
         <circle cx="12" cy="12" r="10" />
         <polyline points="12 8 12 12 16 16" />
@@ -44,15 +44,15 @@ export default function Home() {
     },
     {
       icon: <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        height={24}
-        width={24}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="white"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          height={24}
+          width={24}
       >
         <circle cx="12" cy="12" r="10" />
         <polyline points="12 8 12 12 16 16" />
@@ -64,41 +64,41 @@ export default function Home() {
     },
     {
       icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
-        <text x="50%" y="50%" text-anchor="middle" font-size="20" dy=".3em" fill="#fff">$</text>
+        <text x="50%" y="50%" textAnchor="middle" fontSize="20" dy=".3em" fill="#fff">$</text>
       </svg>,
       title: "Total Asset Value",
       value: kpisData?.totalAssetValue
     },
     {
       icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
-        <text x="50%" y="50%" text-anchor="middle" font-size="20" dy=".3em" fill="#fff">$</text>
+        <text x="50%" y="50%" textAnchor="middle" fontSize="20" dy=".3em" fill="#fff">$</text>
       </svg>,
       title: "Total Yield Generated",
       value: kpisData?.totalAccruedValue
     },
     {
       icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
-        <text x="50%" y="50%" text-anchor="middle" font-size="20" dy=".3em" fill="#fff">$</text>
+        <text x="50%" y="50%" textAnchor="middle" fontSize="20" dy=".3em" fill="#fff">$</text>
       </svg>,
       title: "Total Yield Claimed",
       value: kpisData?.totalYieldClaimed
     },
     {
       icon: <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width={20}
-        height={20}
-        viewBox="0 0 20 20"
-        fill="white"
-        xmlnsXlink="http://www.w3.org/1999/xlink"
-        transform="matrix(-1,1.2246467991473532e-16,-1.2246467991473532e-16,-1,0,0)"
+          xmlns="http://www.w3.org/2000/svg"
+          width={20}
+          height={20}
+          viewBox="0 0 20 20"
+          fill="white"
+          xmlnsXlink="http://www.w3.org/1999/xlink"
+          transform="matrix(-1,1.2246467991473532e-16,-1.2246467991473532e-16,-1,0,0)"
       >
         <path
-          d="M10 3.125V16.875M10 16.875L4.375 11.25M10 16.875L15.625 11.25"
-          stroke="white"
-          strokeWidth={2.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
+            d="M10 3.125V16.875M10 16.875L4.375 11.25M10 16.875L15.625 11.25"
+            stroke="white"
+            strokeWidth={2.5}
+            strokeLinecap="round"
+            strokeLinejoin="round"
         />
       </svg>,
       title: "Total Delinquent NBTs",
@@ -122,7 +122,7 @@ export default function Home() {
       let nftDetails = await api.getMintedNftDetails(mintedNfts?.[0]?.id)
       let data = await api.getPortfolioPerformance()
       let kpis = await api.getKpis()
-      for (let index = 0; index < mintedNfts.length; index++) {
+      for (let index = 0; index < mintedNfts?.length; index++) {
         mintedNfts[index]._createdAt = moment(mintedNfts[index].attributes.createdAt).format('YYYY-MM-DD')
         mintedNfts[index]._amount = (findValueByKey(mintedNfts[index].attributes.attributes, "loanAmount"))
         mintedNfts[index]._originationDate = (findValueByKey(mintedNfts[index].attributes.attributes, "originationDate"))
@@ -183,8 +183,8 @@ export default function Home() {
 
   const columns = [
     { key: 'id', label: 'Id', align: 'left', unique: true, render:  ((row: any) => (
-      <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/detail-view/${row.id}`)}>{row.id}</div>
-    )) },
+          <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/detail-view/${row.id}`)}>{row.id}</div>
+      )) },
     {
       key: '_originationDate', label: 'Loan Created', align: 'center'
     },
@@ -215,34 +215,34 @@ export default function Home() {
   ];
 
   return (
-    loading ? <div className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
-      <Spin />
-    </div> :
-      <div className='w-full grid grid-cols-3 p-5 gap-x-2'>
-        <div className="col-span-2 py-2">
-          <div className="flex items-center gap-4 flex-wrap">
-            {KPIS && KPIS.map((kpi) => (
-              <KPI
-                key={kpi.title}
-                icon={kpi.icon}
-                title={kpi.title}
-                value={kpi.value}
-              />
-            ))}
-          </div>
-          <br />
+      loading ? <div className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
+            <Spin />
+          </div> :
+          <div className='w-full grid grid-cols-3 p-5 gap-x-2'>
+            <div className="col-span-2 py-2">
+              <div className="flex items-center gap-4 flex-wrap">
+                {KPIS && KPIS.map((kpi) => (
+                    <KPI
+                        key={kpi.title}
+                        icon={kpi.icon}
+                        title={kpi.title}
+                        value={kpi.value}
+                    />
+                ))}
+              </div>
+              <br />
 
-          <div className='w-full'>
-            <BarChart data={graphData} title="Net Asset Value & Yield" />
-          </div>
-          <br />
-          <CustomTable columns={columns as any} data={mintedNfts} />
-        </div>
-        <div className='p-2 h-[90vh] overflow-y-auto'>
-          <div className='text-black text-lg font-bold'>Form</div>
-          <EventFeed data={eventDetails} TabsData={TabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
-        </div >
-      </div >
+              <div className='w-full'>
+                <BarChart data={graphData} title="Net Asset Value & Yield" />
+              </div>
+              <br />
+              <CustomTable columns={columns as any} data={mintedNfts} />
+            </div>
+            <div className='p-2 h-[90vh] overflow-y-auto'>
+              <div className='text-black text-lg font-bold'>Form</div>
+              <EventFeed data={eventDetails} TabsData={TabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
+            </div >
+          </div >
   )
 }
 Home.getLayout = getDashboardLayout;

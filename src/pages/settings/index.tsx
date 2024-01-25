@@ -12,7 +12,7 @@ import Compliance from '@/components/molecules/Compliance';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import ImageComp from '@/components/molecules/ImageBox';
-import { ApiHook } from '@/services/api';
+import { LenderLabAPI } from '@/services/api';
 import { toast } from 'react-toastify';
 import { useWalletAddress } from '@/context/WalletAddressContext';
 
@@ -26,7 +26,7 @@ const Setting = () => {
   const router = useRouter();
   const [form] = Form.useForm();
   const { walletAddress, setWalletAddress } = useWalletAddress();
-  const api = ApiHook();
+  const api = LenderLabAPI();
   const { isConnected } = useAccount();
   const [claimTopics, setClaimTopics] = useState<any[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<any[]>([]);
@@ -98,7 +98,7 @@ const Setting = () => {
       setLoading(true);
 
       let cts:any = await api.getClaimTopics();
-      cts = cts.map((item:any) => ({...item, attributes: {...item.attributes}}));
+      cts = cts?.map((item:any) => ({...item, attributes: {...item.attributes}}));
 
       console.log('cts = ', cts);
 

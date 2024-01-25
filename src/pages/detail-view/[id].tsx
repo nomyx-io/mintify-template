@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { getDashboardLayout } from '@/Layouts'
 import { useSearchParams } from 'next/navigation'
-import { ApiHook } from '@/services/api'
+import { LenderLabAPI } from '@/services/api'
 import PreviewNftDetails from '@/components/PreviewNftDetails'
 import MockImage from '../../assets/loginimg.png'
 import { useRouter } from 'next/router'
@@ -10,7 +10,7 @@ import moment from 'moment'
 
 export default function DetailViewId () {
     const router = useRouter()
-    const api = ApiHook()
+    const api = LenderLabAPI()
     const [nftData, setNftData] = useState()
     const [tablesData, setTablesData] = useState<any>([])
     const [loading, setLoading] = useState(false)
