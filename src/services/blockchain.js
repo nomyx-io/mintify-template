@@ -5,13 +5,13 @@ import * as LLMintedRegistry from "../abi/ILenderLabMinterFacet.json";
 import ParseClient from "./Parclient";
 
 class BlockchainService {
-    llMintedAbi = LLMintedRegistry.abi;
 
+    llMintedAbi = LLMintedRegistry.abi;
     parseClient = ParseClient;
 
     constructor(provider, contractAddress) {
         this.provider = provider;
-        this.signer = this.provider.getSigner()
+        this.provider.getSigner().then(signer=>this.signer = signer);
         this.llMintService = new ethers.Contract(contractAddress, this.llMintedAbi, this.provider);
 
         this.llmint = this.llmint.bind(this)
@@ -33,15 +33,20 @@ class BlockchainService {
         return PubSub.unsubscribe(token);
     }
 
-
     async getClaimTopics() {
         return await this.parseClient.getRecords('ClaimTopic', [], [], ["*"]);
     }
 
-    async llmint(metaData, imageUrl) {
-        const contractWithSigner = this.llMintService.connect(this.signer);
-        const tx = await contractWithSigner.llMint(metaData, imageUrl);
-        return await tx.wait();
+    async llmint(metaData) {
+        try{
+            const contractWithSigner = this.llMintService.connect(this.signer);
+            const tx = await contractWithSigner.llMint(metaData);
+            return await tx.wait();
+        }catch(e){
+            console.log(e);
+            throw e;
+        }
+
     }
 
 }

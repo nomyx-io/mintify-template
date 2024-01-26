@@ -266,7 +266,7 @@ export default function Details({ service }: any) {
     {
         key: "image",
         attributeType: 1,
-        value: defaultTokenImageUrl,
+        value: defaultTokenImageUrl||"",
     },
     {
         key: "yields",
@@ -293,7 +293,7 @@ const handleMint = async () => {
     toast.promise(
         async () => {
             try{
-                await service.llmint(metadata, defaultTokenImageUrl).then(()=>{
+                await service.llmint(metadata).then(()=>{
                     setNftTitle("")
                     setDescription("")
                     setLoanId("")

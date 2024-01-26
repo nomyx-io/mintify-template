@@ -124,9 +124,11 @@ export default function Home() {
       let kpis = await api.getKpis()
       for (let index = 0; index < mintedNfts?.length; index++) {
         mintedNfts[index]._createdAt = moment(mintedNfts[index].attributes.createdAt).format('YYYY-MM-DD')
-        mintedNfts[index]._amount = (findValueByKey(mintedNfts[index].attributes.attributes, "loanAmount"))
-        mintedNfts[index]._originationDate = (findValueByKey(mintedNfts[index].attributes.attributes, "originationDate"))
-        mintedNfts[index]._currentValue = (findValueByKey(mintedNfts[index].attributes.attributes, "currentValue"))
+        mintedNfts[index]._amount = (mintedNfts[index].attributes.loanAmount);
+        mintedNfts[index]._originationDate = (mintedNfts[index].attributes.originationDate)
+        mintedNfts[index]._currentValue = (mintedNfts[index].attributes.currentValue);
+        mintedNfts[index]._loanId = (mintedNfts[index].attributes.loanId);
+        mintedNfts[index]._tokenId = (mintedNfts[index].attributes.tokenId);
       }
       setkpisData(kpis)
       setMintedNfts(mintedNfts)
@@ -185,9 +187,8 @@ export default function Home() {
     { key: 'id', label: 'Id', align: 'left', unique: true, render:  ((row: any) => (
           <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/detail-view/${row.id}`)}>{row.id}</div>
       )) },
-    {
-      key: '_originationDate', label: 'Loan Created', align: 'center'
-    },
+    { key: '_tokenId', label: 'Token Id', align: 'center'},
+    { key: '_loanId', label: 'Loan Id', align: 'center'},
     { key: '_createdAt', label: 'NFT Created', align: 'center' },
     { key: '_amount', label: 'Original Value', align: 'center', sortable: true },
     { key: '_currentValue', label: 'Current Value', align: 'right', sortable: true },

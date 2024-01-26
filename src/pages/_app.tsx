@@ -4,7 +4,7 @@ import {
   getDefaultWallets,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit';
-import { configureChains, createConfig, sepolia, useAccount, WagmiConfig, Chain } from 'wagmi';
+import {Chain, configureChains, createConfig, sepolia, useAccount, WagmiConfig} from 'wagmi';
 import {
 
 } from 'wagmi/chains';
@@ -71,7 +71,8 @@ export default function App({ Component, pageProps }: any) {
     autoConnect: status ? false : true,
     connectors,
     publicClient
-  })
+  });
+
   const [mounted, setMounted] = useState(false);
   const [blockchainService, setBlockchainService] = useState(null);
   const [currentNetwork, setCurrentNetwork] = useState(0);
@@ -106,33 +107,41 @@ export default function App({ Component, pageProps }: any) {
     console.log("ethereum:");
     console.log((window as any).ethereum);
 
-    const provider = new ethers.providers.Web3Provider((window as any).ethereum);
-    let RandomString = generateRandomString(10)
+    const RandomString = generateRandomString(10);
+    const provider = new ethers.BrowserProvider((window as any).ethereum);
     const message = `Sign this message to validate that you are the owner of the account. Random string: ${RandomString}`;
     const signer = await provider.getSigner();
-    let signature
-	  try {
-		  signature = await signer.signMessage(message);
-	  } catch (error: any) {
-		const message = error.reason ? error.reason : error.message
-		toast.error(message)
-		setForceLogout(true);
-	  }
+
+    let signature;
+
+    try {
+        signature = await signer.signMessage(message);
+    } catch (error: any) {
+        const message = error.reason ? error.reason : error.message
+        toast.error(message)
+        setForceLogout(true);
+    }
+
     let { token, roles }: any = await getToken({
       "message": message,
       "signature": signature
-    })
+    });
+
     if (roles.length > 0 && roles.includes("CentralAuthority")) {
+
       setRole([...roles])
       setStatus(false)
-    }
-    else {
+
+    } else {
+
       if(signature){
         toast.error("Sorry You are not Authorized !")
         setForceLogout(true);
       }
+
       setStatus(true)
     }
+
     let jsonConfig: any = await import(`../hardhatConfig.json`);
     const network = provider.getNetwork().then(async (network: any) => {
 
@@ -149,6 +158,7 @@ export default function App({ Component, pageProps }: any) {
 
       const _blockchainService: any = new BlockchainService(provider, config.contract);
       setBlockchainService(_blockchainService);
+
     });
   };
 

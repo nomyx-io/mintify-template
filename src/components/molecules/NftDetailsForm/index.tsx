@@ -17,7 +17,7 @@ const NftDetailsForm = ({ fields, frozen, handleChange, handleFreeze, form, onFi
                 //add the field name as the key and the field value as the value to the initialValues object
                 initialValues[field.name] = field.value;
             });
-            //for fields that are NOT nested in arrays
+        //for fields that are NOT nested in arrays    
         }else{
             //add the field name as the key and the field value as the value to the initialValues object
             initialValues[field.name] = field.value;
@@ -36,8 +36,8 @@ const NftDetailsForm = ({ fields, frozen, handleChange, handleFreeze, form, onFi
                 {fields.map((field: any, index:Number) => {
 
                     return (
-                        <div key={(field.name||("row-" + index))} className={`${typeof (field.value) == 'object' ? 'flex gap-3' : 'flex-col'}`}>
-
+                        <div key={(field.name||("row" + index))} className={`${typeof (field.value) == 'object' ? 'flex gap-3' : 'flex-col'}`}>
+                            
                             {typeof (field.value) == 'object' ?
                                 field.value.map((item: any) => {
                                     return (
@@ -54,25 +54,25 @@ const NftDetailsForm = ({ fields, frozen, handleChange, handleFreeze, form, onFi
                                                     onChange={(e) => handleChange(e, item.name)}
                                                     name={item.name}
                                                 />
-                                            </Form.Item>
+                                            </Form.Item>    
                                         </div>
                                     )
                                 }) :
-                                <div className='flex flex-col gap-1'>
-                                    <Form.Item
-                                        name={field.name}
-                                        label={field.label}
-                                        rules={field.rules}
-                                    >
-                                        <Input
-                                            prefix={field?.prefix || null}
-                                            type={field.dataType}
-                                            placeholder={field.placeHolder}
-                                            onChange={(e) => handleChange(e, field.name)}
+                                    <div className='flex flex-col gap-1'>
+                                        <Form.Item
                                             name={field.name}
-                                        />
-                                    </Form.Item>
-                                </div>
+                                            label={field.label}
+                                            rules={field.rules}
+                                        >
+                                            <Input
+                                                prefix={field?.prefix || null}
+                                                type={field.dataType}
+                                                placeholder={field.placeHolder}
+                                                onChange={(e) => handleChange(e, field.name)}
+                                                name={field.name} 
+                                            />
+                                        </Form.Item>
+                                    </div>
                             }
                         </div>)
                 })}

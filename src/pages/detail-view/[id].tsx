@@ -11,7 +11,7 @@ import moment from 'moment'
 export default function DetailViewId () {
     const router = useRouter()
     const api = LenderLabAPI()
-    const [nftData, setNftData] = useState()
+    const [nftData, setNftData] = useState<any>()
     const [tablesData, setTablesData] = useState<any>([])
     const [loading, setLoading] = useState(false)
 
@@ -41,25 +41,16 @@ export default function DetailViewId () {
         { key: 'createdDate', label: 'Created Date', align: 'center' },
         { key: 'listingId', label: 'Listing ID', align: 'center' },
     ]
-    const id = router.query.id
+    const id = router.query.id;
+
     useEffect(() => {
         const getData = async () => {
-            setLoading(true)
-            let nft = await api.getMintedNftDetails(id)
-            const transactionHash = nft && nft[0]?.attributes?.transactionHash
-            nft = nft && nft[0]?.attributes?.attributes
-            let resultObject: any = {};
-            if (nft) {
-                for (const [key, , value] of Object(nft)) {
-                    resultObject[key] = value;
-                }
-                resultObject.file = MockImage
-                resultObject.txHash = transactionHash
-                setNftData(resultObject)
-            }
-            setLoading(false)
+            setLoading(true);
+            let nft:any = await api.getMintedNftDetails(id);
+            setNftData(nft[0].attributes);
+            setLoading(false);
         }
-        getData()
+        getData();
     }, [])
 
     let newTokenData: any = []

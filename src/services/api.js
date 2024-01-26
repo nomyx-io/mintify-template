@@ -104,11 +104,11 @@ export const LenderLabAPI = () => {
         }
     }
     const getMintedNfts = async () => {
-        let records = await ParseClient.getRecords('Event', ['event'], ['LlMinted'], ["*"])
+        let records = await ParseClient.getRecords('Token', undefined, undefined, ["*"])
         return records
     }
     const getMintedNftDetails = async (id) => {
-        let records = await ParseClient.getRecords('Event', ['objectId'], [id], ["*"])
+        let records = await ParseClient.getRecords('Token', ['objectId'], [id], ["*"])
         return records
     }
 
