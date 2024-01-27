@@ -1,11 +1,10 @@
 "use client"
-import NftDetailsForm from '@/components/molecules/NftDetailsForm'
-import Compliance from '@/components/molecules/Compliance'
 import React, { useState } from 'react'
-import { Button } from "../../material-tailwind"
 import type { TransferDirection } from 'antd/es/transfer';
 import { useRouter } from 'next/router'
-import { Form } from 'antd';
+import { Form, Button } from 'antd';
+import NftDetailsForm from '@/components/molecules/NftDetailsForm';
+import Compliance from '@/components/molecules/Compliance';
 
 export default function CreateNftDetails({ 
   claimTopics,

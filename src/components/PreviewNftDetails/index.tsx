@@ -1,5 +1,5 @@
-import { Button } from '../../material-tailwind'
 import React from 'react'
+import { Button } from 'antd';
 import Previewdetailcards from '.././molecules/PreviewDetailCards'
 import Previewbottomcards from '.././molecules/PreviewBottomCards'
 import { useRouter } from 'next/router'
@@ -13,7 +13,7 @@ const PreviewNftDetails = ({ id, TablesData = [], handleMint, handleBack, data, 
         <div className='p-4 my-2 w-full flex flex-col gap-4'>
             {detailView && <p className='flex items-center justify-between -ml-4 p-0 cursor-pointer' onClick={() => router.back()}>
                 <div className='flex items-center gap-1'> <LeftArrowIcon /> <p>Back</p> </div>
-                <Button size='sm' onClick={() => window.open(`https://sepolia.etherscan.io/tx/${transactionHash ? transactionHash : ''}`)} className='flex items-center gap-2'><ShareIcon /> Preview Link</Button>
+                <Button onClick={() => window.open(`https://sepolia.etherscan.io/tx/${transactionHash ? transactionHash : ''}`)} className='flex items-center gap-2'><ShareIcon /> Preview Link</Button>
             </p>}
 
             <p className='text-lg font-semibold'>{detailView ? `Detail View NBT - ${id}` : 'Preview NBT'}</p>

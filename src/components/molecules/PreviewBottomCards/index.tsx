@@ -5,8 +5,8 @@ import { CustomTable } from '../Table'
 const Previewbottomcards = ({TablesData}: any) => {
   return (
     <div className='w-full flex flex-col gap-8 mt-10'>
-    {TablesData.map((item: any)=>{return(
-          <div>
+    {TablesData.map((item: any, index:any)=>{return(
+          <div key={index}>
               <p className='p-2 border border-[#c0c0c0] rounded flex gap-1'>
                   <Image alt="" src={item.headerImage} height={10} width={20} />
                   {item.label}

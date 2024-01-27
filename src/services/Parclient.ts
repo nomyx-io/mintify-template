@@ -1,13 +1,13 @@
-import parseConfig from "../parse.json";
+import config from "../config.json";
 import Parse from 'parse';
 
 export default class ParseClient {
     static createdSchemas: any = [];
 
     public static initialize() {
-        Parse.initialize(parseConfig.applicationId, parseConfig.applicationId, parseConfig.masterKey);
-        Parse.serverURL = parseConfig.serverURL + "/parse";
-        Parse.masterKey = parseConfig.masterKey;
+        Parse.initialize(config.applicationId, config.applicationId, config.masterKey);
+        Parse.serverURL = config.serverURL + "/parse";
+        Parse.masterKey = config.masterKey;
     }
 
     /**

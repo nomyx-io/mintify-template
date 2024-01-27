@@ -124,11 +124,11 @@ export default function Home() {
       let kpis = await api.getKpis()
       for (let index = 0; index < mintedNfts?.length; index++) {
         mintedNfts[index]._createdAt = moment(mintedNfts[index].attributes.createdAt).format('YYYY-MM-DD')
-        mintedNfts[index]._amount = (mintedNfts[index].attributes.loanAmount);
-        mintedNfts[index]._originationDate = (mintedNfts[index].attributes.originationDate)
-        mintedNfts[index]._currentValue = (mintedNfts[index].attributes.currentValue);
-        mintedNfts[index]._loanId = (mintedNfts[index].attributes.loanId);
-        mintedNfts[index]._tokenId = (mintedNfts[index].attributes.tokenId);
+        mintedNfts[index]._amount = (mintedNfts[index].attributes.loanAmount||"");
+        mintedNfts[index]._originationDate = (mintedNfts[index].attributes.originationDate||"")
+        mintedNfts[index]._currentValue = (mintedNfts[index].attributes.currentValue||"");
+        mintedNfts[index]._loanId = (mintedNfts[index].attributes.loanId||"");
+        mintedNfts[index]._tokenId = (mintedNfts[index].attributes.tokenId||"");
       }
       setkpisData(kpis)
       setMintedNfts(mintedNfts)
@@ -200,7 +200,7 @@ export default function Home() {
     { id: 3, created_date: "25/02/23", "nft_created": "30/02/23", "original_value": "300K", "current_value": "204k" }
   ];
 
-  const TabsData = [
+  const tabsData = [
     {
       label: "All",
       value: "all",
@@ -240,8 +240,7 @@ export default function Home() {
               <CustomTable columns={columns as any} data={mintedNfts} />
             </div>
             <div className='p-2 h-[90vh] overflow-y-auto'>
-              <div className='text-black text-lg font-bold'>Form</div>
-              <EventFeed data={eventDetails} TabsData={TabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
+              <EventFeed data={eventDetails} tabsData={tabsData} activeTab={activeTab} setActiveTab={setActiveTab} />
             </div >
           </div >
   )
