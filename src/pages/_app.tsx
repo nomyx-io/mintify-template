@@ -1,6 +1,6 @@
 import config from "../config.json"
 
-import '@/styles/globals.css'
+import '@/styles/globals.scss'
 import '@rainbow-me/rainbowkit/styles.css';
 import "react-toastify/dist/ReactToastify.css";
 
@@ -12,13 +12,15 @@ import {Chain, configureChains, createConfig, sepolia, useAccount, WagmiConfig} 
 import {alchemyProvider} from 'wagmi/providers/alchemy';
 import {publicProvider} from 'wagmi/providers/public'
 import {toast, ToastContainer} from 'react-toastify';
+import { ConfigProvider, theme } from "antd";
 
 import {generateRandomString} from '@/utils';
-import BlockchainService from '@/services/blockchain';
+import BlockchainService from '@/services/BlockchainService';
 import {WalletAddressProvider} from '@/context/WalletAddressContext';
 import PrivateRoute from '@/components/atoms/PrivateRoute'
 
-export const UserContext = createContext(() => {});
+import NomyxAppContext from "@/context/NomyxAppContext";
+
 
 const localhost: Chain = {
     id: 31337,
@@ -39,6 +41,28 @@ const localhost: Chain = {
     },
     testnet: true,
 };
+export const UserContext = createContext(() => {});
+
+const {chains, publicClient} = configureChains(
+    [sepolia, localhost],
+    [
+        alchemyProvider({apiKey: 'CSgNtTJ6_Clrf1zNjVp2j1ppfLE2-aVX'}),
+        publicProvider()
+    ]
+);
+
+const {connectors} = getDefaultWallets({
+    appName: 'LL Mintify',
+    projectId: 'ae575761a72370ab88834655acbba677',
+    chains
+});
+
+
+const wagmiConfig = createConfig({
+    autoConnect: true,
+    connectors,
+    publicClient
+});
 
 let provider:any;
 
@@ -50,27 +74,8 @@ export default function App({Component, pageProps}: any) {
     const [forceLogout, setForceLogout] = useState(false);
     const [status, setStatus] = useState(true);
 
-    const {chains, publicClient} = configureChains(
-        [localhost, sepolia],
-        [
-            alchemyProvider({apiKey: 'CSgNtTJ6_Clrf1zNjVp2j1ppfLE2-aVX'}),
-            publicProvider()
-        ]
-    );
-
-    const {connectors} = getDefaultWallets({
-        appName: 'LL MIntify',
-        projectId: 'ae575761a72370ab88834655acbba677',
-        chains
-    });
-
-    const wagmiConfig = createConfig({
-        autoConnect: status ? false : true,
-        connectors,
-        publicClient
-    });
-
     const getToken = async (request: any) => {
+
         try {
             let data: any = await axios.post(`${config.serverURL}/auth/login`, request)
             data = data.data
@@ -95,18 +100,25 @@ export default function App({Component, pageProps}: any) {
         console.log("chainId = ", provider?.getNetwork().chainId);
 
         const RandomString = generateRandomString(10);
-        const message = `Sign this message to validate that you are the owner of the account. Random string: ${RandomString}`;
-        const signer = await provider.getSigner();
-
+        let message = `Sign this message to validate that you are the owner of the account. Random string: ${RandomString}`;
+        let storedSignature = localStorage.getItem('signature') ? JSON.parse(localStorage.getItem('signature') as string) : null;
         let signature;
 
-        try {
-            signature = await signer.signMessage(message);
-        } catch (error: any) {
-            const message = error.reason ? error.reason : error.message
-            toast.error(message)
-            setForceLogout(true);
+        if(!storedSignature){
+
+            try {
+                const signer = await provider.getSigner();
+                signature = await signer.signMessage(message);
+            } catch (error: any) {
+                const message = error.reason ? error.reason : error.message
+                toast.error(message)
+                setForceLogout(true);
+            }
+        }else{
+            signature = storedSignature.signature;
+            message = storedSignature.message;
         }
+
 
         let {token, roles}: any = await getToken({
             "message": message,
@@ -116,7 +128,12 @@ export default function App({Component, pageProps}: any) {
         if (roles.length > 0 && roles.includes("CentralAuthority")) {
 
             setRole([...roles])
-            setStatus(false)
+            setStatus(false);
+
+            localStorage.setItem('signature', JSON.stringify({
+                "message": message,
+                "signature": signature
+            }));
 
         } else {
 
@@ -128,6 +145,10 @@ export default function App({Component, pageProps}: any) {
             setStatus(true)
         }
 
+
+        const _blockchainService: any = BlockchainService.getInstance();
+        setBlockchainService(_blockchainService);
+        /*
         let jsonConfig: any = await import(`../hardhatConfig.json`);
 
         const network = provider.getNetwork().then(async (network: any) => {
@@ -143,15 +164,19 @@ export default function App({Component, pageProps}: any) {
                 return;
             }
 
-            const _blockchainService: any = new BlockchainService(provider, config.contract);
-            setBlockchainService(_blockchainService);
 
-        });
+
+        });*/
     };
+
+
+
 
     const handleForceLogout = () => {
         setForceLogout(false)
     }
+
+
 
     const onDisconnect = () => {
         console.log("onDisconnect");
@@ -178,34 +203,46 @@ export default function App({Component, pageProps}: any) {
 
     if (!mounted) return <></>;
 
+    let isDarkMode = true;
+    const { defaultAlgorithm, darkAlgorithm } = theme;
+    const algorithm = isDarkMode ? darkAlgorithm : defaultAlgorithm;
+
     return (
-        <UserContext.Provider value={onDisconnect}>
-            <WagmiConfig config={wagmiConfig}>
-                <RainbowKitProvider chains={chains} coolMode>
-                    <WalletAddressProvider>
-                        <ToastContainer
-                            position='top-right'
-                            className='toast-background'
-                            progressClassName='toast-progress-bar'
-                            autoClose={4000}
-                            closeOnClick
-                            pauseOnHover
-                        />
-                        <PrivateRoute
-                            handleForecLogout={handleForceLogout}
-                            forceLogout={forceLogout} role={role}
-                            onConnect={onConnect}>
-                                {getLayout(<Component
-                                    {...pageProps}
+        <NomyxAppContext.Provider value={{blockchainService, setBlockchainService}}>
+            <UserContext.Provider value={onDisconnect}>
+                <WagmiConfig config={wagmiConfig}>
+                    <RainbowKitProvider chains={chains} coolMode>
+                        <WalletAddressProvider>
+                            <ConfigProvider theme={{
+                                algorithm,
+                            }}>
+                                <ToastContainer
+                                    position='top-right'
+                                    className='toast-background'
+                                    progressClassName='toast-progress-bar'
+                                    autoClose={4000}
+                                    closeOnClick
+                                    pauseOnHover
+                                />
+                                <PrivateRoute
+                                    handleForecLogout={handleForceLogout}
+                                    forceLogout={forceLogout}
                                     role={role}
-                                    service={blockchainService}
-                                    onConnect={onConnect}
-                                    onDisconnect={onDisconnect}
-                                />)}
-                        </PrivateRoute>
-                    </WalletAddressProvider>
-                </RainbowKitProvider>
-            </WagmiConfig>
-        </UserContext.Provider>
+                                    onConnect={onConnect}>
+                                    {getLayout(<Component
+                                        {...pageProps}
+                                        role={role}
+                                        service={blockchainService}
+                                        onConnect={onConnect}
+                                        onDisconnect={onDisconnect}
+                                    />)}
+                                </PrivateRoute>
+                            </ConfigProvider>
+                        </WalletAddressProvider>
+                    </RainbowKitProvider>
+                </WagmiConfig>
+            </UserContext.Provider>
+        </NomyxAppContext.Provider>
+
     );
 }

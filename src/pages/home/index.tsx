@@ -1,24 +1,23 @@
 'use client'
-import { CustomTable } from '@/components/molecules/Table';
 import KPI from '@/components/atoms/KPI'
-import { LenderLabAPI } from '@/services/api'
+import { LenderLabService } from '@/services/LenderLabService'
 import { EventFeed } from '@/components/molecules/EventFeed'
 import React, { useEffect, useState } from 'react'
-import { getDashboardLayout } from '../../Layouts';
+import { getDashboardLayout } from '@/Layouts';
 import BarChart from '@/components/atoms/Graphs/Barchart';
 import moment from 'moment';
 import { useRouter } from 'next/navigation';
 import { useAccount } from 'wagmi';
-import { Spin } from 'antd';
+import { Spin, Table } from 'antd';
+
 export default function Home() {
   const router = useRouter()
-  const api = LenderLabAPI()
+  const api = LenderLabService()
   const [graphValues, setGraphValues] = useState<any>([])
   const [eventDetails, setEventDetails] = useState<any>({})
   const [mintedNfts, setMintedNfts] = useState<any>([])
   const [kpisData, setkpisData] = useState<any>(null)
   const [activeTab, setActiveTab] = useState('all')
-  const { isConnected } = useAccount()
   const [loading, setLoading] = useState(false)
 
   const KPIS = [
@@ -103,41 +102,7 @@ export default function Home() {
       </svg>,
       title: "Total Delinquent NBTs",
       value: kpisData?.totalDeliquent
-    }]
-
-  function findValueByKey(array: any, key: any) {
-    for (let i = 0; i < array.length; i++) {
-      if (array[i][0] === key) {
-        return array[i][2];
-      }
-    }
-    return 0;
-  }
-
-  useEffect(() => {
-    async function getData() {
-      setLoading(true)
-      let mintedNfts: any = await api.getMintedNfts()
-      let events = await api.getEvents()
-      let nftDetails = await api.getMintedNftDetails(mintedNfts?.[0]?.id)
-      let data = await api.getPortfolioPerformance()
-      let kpis = await api.getKpis()
-      for (let index = 0; index < mintedNfts?.length; index++) {
-        mintedNfts[index]._createdAt = moment(mintedNfts[index].attributes.createdAt).format('YYYY-MM-DD')
-        mintedNfts[index]._amount = (mintedNfts[index].attributes.loanAmount||"");
-        mintedNfts[index]._originationDate = (mintedNfts[index].attributes.originationDate||"")
-        mintedNfts[index]._currentValue = (mintedNfts[index].attributes.currentValue||"");
-        mintedNfts[index]._loanId = (mintedNfts[index].attributes.loanId||"");
-        mintedNfts[index]._tokenId = (mintedNfts[index].attributes.tokenId||"");
-      }
-      setkpisData(kpis)
-      setMintedNfts(mintedNfts)
-      setEventDetails(events)
-      setGraphValues(data)
-      setLoading(false)
-    }
-    getData()
-  }, [])
+    }];
 
   const graphData = {
     labels: graphValues?.labels || [],
@@ -183,21 +148,15 @@ export default function Home() {
     ]
   }
 
-  const columns = [
-    { key: 'id', label: 'Id', align: 'left', unique: true, render:  ((row: any) => (
-          <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/detail-view/${row.id}`)}>{row.id}</div>
+  const columns:any = [
+    { dataIndex: 'id', title: 'Id', align: 'left', unique: true, render:  (({record}:any) => (
+          <div className='text-light-blue-500 cursor-pointer' onClick={() => router.push(`/nft-detail/${record.id}`)}>{record.id}</div>
       )) },
-    { key: '_tokenId', label: 'Token Id', align: 'center'},
-    { key: '_loanId', label: 'Loan Id', align: 'center'},
-    { key: '_createdAt', label: 'NFT Created', align: 'center' },
-    { key: '_amount', label: 'Original Value', align: 'center', sortable: true },
-    { key: '_currentValue', label: 'Current Value', align: 'right', sortable: true },
-  ];
-
-  const tableData = [
-    { id: 1, created_date: "30/02/23", "nft_created": "30/02/23", "original_value": "200K", "current_value": "254k" },
-    { id: 2, created_date: "21/02/23", "nft_created": "30/02/23", "original_value": "210K", "current_value": "354k" },
-    { id: 3, created_date: "25/02/23", "nft_created": "30/02/23", "original_value": "300K", "current_value": "204k" }
+    { dataIndex: '_tokenId', title: 'Token Id', align: 'center'},
+    { dataIndex: '_loanId', title: 'Loan Id', align: 'center'},
+    { dataIndex: '_createdAt', title: 'NFT Created', align: 'center' },
+    { dataIndex: '_amount', title: 'Original Value', align: 'center', sortable: true },
+    { dataIndex: '_currentValue', title: 'Current Value', align: 'right', sortable: true },
   ];
 
   const tabsData = [
@@ -215,12 +174,36 @@ export default function Home() {
     }
   ];
 
+  useEffect(() => {
+    async function getData() {
+      setLoading(true)
+      let mintedNfts: any = await api.getMintedNfts()
+      let events = await api.getEvents()
+      let data = await api.getPortfolioPerformance()
+      let kpis = await api.getKpis()
+      for (let index = 0; index < mintedNfts?.length; index++) {
+        mintedNfts[index]._createdAt = moment(mintedNfts[index].attributes.createdAt).format('YYYY-MM-DD')
+        mintedNfts[index]._amount = (mintedNfts[index].attributes.loanAmount||"");
+        mintedNfts[index]._originationDate = (mintedNfts[index].attributes.originationDate||"")
+        mintedNfts[index]._currentValue = (mintedNfts[index].attributes.currentValue||"");
+        mintedNfts[index]._loanId = (mintedNfts[index].attributes.loanId||"");
+        mintedNfts[index]._tokenId = (mintedNfts[index].attributes.tokenId||"");
+      }
+      setkpisData(kpis)
+      setMintedNfts(mintedNfts)
+      setEventDetails(events)
+      setGraphValues(data)
+      setLoading(false)
+    }
+    getData()
+  }, []);
+
   return (
       loading ? <div className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
             <Spin />
           </div> :
-          <div className='w-full grid grid-cols-3 p-5 gap-x-2'>
-            <div className="col-span-2 py-2">
+          <div className='w-full grid grid-cols-4 p-5 gap-x-2'>
+            <div className="col-span-3 py-2">
               <div className="flex items-center gap-4 flex-wrap">
                 {KPIS && KPIS.map((kpi) => (
                     <KPI
@@ -237,7 +220,8 @@ export default function Home() {
                 <BarChart data={graphData} title="Net Asset Value & Yield" />
               </div>
               <br />
-              <CustomTable columns={columns as any} data={mintedNfts} />
+              {/*<CustomTable columns={columns as any} data={mintedNfts} />*/}
+              <Table columns={columns}  dataSource={mintedNfts}/>
             </div>
             <div className='p-2 h-[90vh] overflow-y-auto'>
               <EventFeed data={eventDetails} tabsData={tabsData} activeTab={activeTab} setActiveTab={setActiveTab} />

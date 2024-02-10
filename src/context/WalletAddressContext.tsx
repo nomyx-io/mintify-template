@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { LenderLabAPI } from '@/services/api';
+import { LenderLabService } from '@/services/LenderLabService';
 
 // Create the context with a default empty value
 const WalletAddressContext = createContext({
@@ -9,7 +9,7 @@ const WalletAddressContext = createContext({
 
 // Create a provider component that encapsulates the state logic
 export const WalletAddressProvider = ({ children }: { children: React.ReactNode }) => {
-  const api = LenderLabAPI();
+  const api = LenderLabService();
   const [walletAddress, setWalletAddress] = useState('');
 
   const getSettings = async () => {

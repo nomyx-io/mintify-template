@@ -19,6 +19,7 @@ export default class ParseClient {
     static async get(collectionName: string, id: string) {
         const Collection = Parse.Object.extend(collectionName);
         const query = new Parse.Query(Collection);
+        query.include(["*"]);
         query.equalTo('objectId', id);
         return query.first();
     }
@@ -115,7 +116,7 @@ export default class ParseClient {
      */
     static async getRecords(
         className: string,
-        whereFields: string[] = [],
+        whereFields: string[]|string = [],
         whereValues: any[] = [],
         include: any[] = [],
         limit: number = 1000,
@@ -125,14 +126,21 @@ export default class ParseClient {
         nonNullFields: string[] = []
     ) {
         try {
-            if (whereFields.length !== whereValues.length) {
+            if (typeof whereFields=="object" && whereFields.length !== whereValues.length) {
                 throw new Error('The number of whereFields and whereValues must match');
             }
             const query = new Parse.Query(className);
-            for (let i = 0; i < whereFields.length; i++) {
-                // filter out any undefined values
-                query.equalTo(whereFields[i], whereValues[i]);
+
+            if(typeof whereFields == "string"){
+                query.containedIn(whereFields, whereValues);
+            }else{
+                for (let i = 0; i < whereFields.length; i++) {
+                    // filter out any undefined values
+                    query.equalTo(whereFields[i], whereValues[i]);
+                }
             }
+
+
             include.forEach((i: any) => query.include(i));
 
             nonNullFields.forEach((field: string) => {

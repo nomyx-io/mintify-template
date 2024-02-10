@@ -11,7 +11,7 @@ import Compliance from '@/components/molecules/Compliance';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import ImageComp from '@/components/molecules/ImageBox';
-import { LenderLabAPI } from '@/services/api';
+import { LenderLabService } from '@/services/LenderLabService';
 import { toast } from 'react-toastify';
 import { useWalletAddress } from '@/context/WalletAddressContext';
 
@@ -25,7 +25,7 @@ const Setting = () => {
   const router = useRouter();
   const [form] = Form.useForm();
   const { walletAddress, setWalletAddress } = useWalletAddress();
-  const api = LenderLabAPI();
+  const api = LenderLabService();
   const { isConnected } = useAccount();
   const [claimTopics, setClaimTopics] = useState<any[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<any[]>([]);

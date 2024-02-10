@@ -1,331 +1,280 @@
-import { getDashboardLayout } from "@/Layouts";
-import { CustomTable } from "@/components/molecules/Table";
-import { Button } from "antd";
-import React, { useState } from "react";
-import { CloseIcon } from "@/assets";
+import {getDashboardLayout} from "@/Layouts";
+import { Table, Card, Modal} from "antd";
+import React, {useEffect, useState} from "react";
 import Papa from "papaparse";
 import * as XLSX from 'xlsx'
 import moment from "moment";
-import { FileUploader } from "react-drag-drop-files";
-
-export const PopupDeposit = ({columns, rows, close, handleAddMakeDeposite,setSelectedDeposite}:any) => {
-  return (
-    <div className="absolute inset-0 m-auto w-full h-full min-w-lg max-w-3xl max-h-[calc(100vh-20%)] shadow-md bg-white">
-      <div className="w-full h-full p-5">
-        <div className="flex flex-col justify-between h-full">
-                <div className="flex flex-row justify-between items-center">
-                    <h1 className="capitalize font-bold text-lg">deposit</h1>
-                    <CloseIcon onClick={close} className="w-8 h-fit rounded-full cursor-pointer" />
-                </div>
-                <p>Are you sure you want to deposit to 57 token balances an amount totalling $696,696?</p>
-                <div className="overflow-y-auto h-[300px]">
-                    <CustomTable columns={columns as any} data={rows as any} />
-                </div>
-                <div className="flex flex-row justify-between items-center">
-                    <Button
-                    onClick={()=>{
-                        setSelectedDeposite([])
-                        close()
-                    }}
-                    className="bg-[#637eab] text-white w-fit self-end rounded-none text-2xl h-fit"
-                >
-                    Cancel
-                </Button>
-                <Button
-                    onClick={()=>{ 
-                        handleAddMakeDeposite()
-                        setSelectedDeposite([])
-                        close()
-                    }}
-                    className="bg-[#637eab] text-white w-fit self-end rounded-none text-2xl h-fit"
-                >
-                    Deposit
-                </Button>
-                </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+import {FileUploader} from "react-drag-drop-files";
+import {toast} from "react-toastify";
+import {LenderLabService} from "@/services/LenderLabService";
+import styles from "./Treasury.module.scss";
+import {formatUnits} from "ethers";
 
 const Treasury = () => {
 
-  const [depositeModal, setDepositModal] = useState(false);
-  const [makeDeposite,setMakeDeposit] = useState<any[]>([])
-  const [selectedDeposit,setSelectedDeposite] = useState<any[]>([])
-  const [fileRowData, setFileRowData] = useState<any>([])
-  const [fileColumnData, setFileColumnData] = useState<any>([])
-  const DateColumn = "Deposit Date"
-  const DateFormat = "DD-MM-YYYY"
+    const [depositModal, setDepositModal] = useState(false);
+    const [makeDeposit, setMakeDeposit] = useState<any[]>([]);
+    const [depositHistory, setDepositHistory] = useState<any[]>([]);
+    const [hudData, setHudData] = useState<any>({});
+    const [selectedDeposit, setSelectedDeposit] = useState<any[]>([]);
+    const [fileRowData, setFileRowData] = useState<any>([]);
+    const [fileColumnData, setFileColumnData] = useState<any>([]);
+    const DateColumn = "Deposit Date"
+    const DateFormat = "DD-MM-YYYY";
+    const api = LenderLabService();
 
-  function handleAddMakeDeposite(){
-    setMakeDeposit([...makeDeposite, ...selectedDeposit])
-  }
+    function handleSendDeposit() {
+        toast.promise(
+            async () => {
+                try {
 
-  const columns = [   
-    {       
-      key: "_depositDate",
-      label: "Deposit date",
-      align: "center",
-      // render:  ((row: any) => (
-      //   <>
-      //   <input type="checkBox" name="check" onChange={(e:any)=>{
-      //       const {checked} = e.target
-      //       let find = selectedDeposit.find((item)=>item.id === row.id)
-      //       if(checked && !find){
-      //           setSelectedDeposite([...selectedDeposit, row])
-      //       }
-      //       else{
-      //           let modify = selectedDeposit.filter((item:any)=> item.id !== row.id)
-      //           setSelectedDeposite(modify)
-      //       }
-      //   }}  /> {row._depositDate}
-      //   </>
-      // ))
-    },
-    { key: "_TokenIds", label: "Token Ids", align: "center" },
-    { key: "_amount", label: "Amounts", align: "center" },
-    { key: "_total", label: "Total", align: "right" },
-  ];
+                    let result = await api.deposit(fileRowData);
 
+                } catch (e) {
+                    console.log(e);
+                    throw e;
+                }
 
-  const rows = [
-    {
-       id : 1,
-      _depositDate: `row item`,
-      _TokenIds: "saddwad",
-      _amount: 234,
-      _total: 2344,
-      attributes: {
-        _createdAt: '2023-11-16T16:08:26.684Z'
-      }
-    },
-    {
-        id : 2,
-      _depositDate: "row item",
-      _TokenIds: "saddwad",
-      _amount: 234,
-      _total: 2344,
-      attributes: {
-        _createdAt: '2023-11-16T16:08:26.684Z'
-      }
-    },
-    {
-        id : 3,
-      _depositDate: "row item",
-      _TokenIds: "saddwad",
-      _amount: 234,
-      _total: 2344,
-      attributes: {
-        _createdAt: '2023-11-16T16:08:26.684Z'
-      }
-    },
-    {
-        id : 4,
-      _depositDate: "row item",
-      _TokenIds: "saddwad",
-      _amount: 234,
-      _total: 2344,
-      attributes: {
-        _createdAt: '2023-11-16T16:08:26.684Z'
-      }
-    },
-    {
-        id : 5,
-      _depositDate: "row item",
-      _TokenIds: "saddwad",
-      _amount: 234,
-      _total: 2344,
-      attributes: {
-        _createdAt: '2023-11-16T16:08:26.684Z'
-      }
-    },
-    {
-        id : 6,
-      _depositDate: "row item",
-      _TokenIds: "saddwad",
-      _amount: 234,
-      _total: 2344,
-      attributes: {
-        _createdAt: '2023-11-16T16:08:26.684Z'
-      }
-    },
-    {
-        id : 7,
-      _depositDate: "row item",
-      _TokenIds: "saddwad",
-      _amount: 234,
-      _total: 2344,
-      attributes: {
-        _createdAt: '2023-11-16T16:08:26.684Z'
-      }
-    },
-  ];
+            },
+            {
+                pending: 'Sending deposit...',
+                success: 'Successfully made deposit',
+                error: {
+                    render({data}: any) {
+                        return <div>{data?.reason || 'An error occurred while making the deposit'}</div>
+                    }
+                }
+            });
+    }
 
-  function handleOpenModal(){
-    setDepositModal(true)
-  }
+    const depositHistoryColumns: any = [
+        {dataIndex: "id", title: "Id", width:150},
+        {dataIndex: ["attributes", "transactionHash"], title: "Tx Hash", width:500, ellipsis: true},
+        {dataIndex: "createdAt", title: "Created Date", render:(text:any, record:any, index:any)=>moment(text).format("DD-MM-YYYY h:mm:ss a"), width:125},
+        {dataIndex: ["attributes", "totalAmount"], title: "Total", render:(amount:any, record:any, index:any)=>formatUnits(amount, 6), align: "right"}
+    ];
 
-  function handleCloseModal(){
-    setDepositModal(false)
-  }
+    const tokenDepositColumns:any = [
+        {dataIndex: "id", title: "Id", width:150},
+        {dataIndex: ["attributes", "token", "attributes", "tokenId"], title: "Token", width:100},
+        {dataIndex: ["attributes", "amount"], title: "Amount", render:(amount:any, record:any, index:any)=>formatUnits(amount, 6), align: "right"}
+    ];
 
-  function handleSetDataInTable(data:any){
-    let columnData = Object.keys(data[0] as { [key: string]: any })
-    let columnModifyData = ["check" , ...columnData].map((keyname:any)=>{
-      let _keyname = "_"+keyname.split(" ").join("")      
-      if(keyname === "check"){
-        return {key: _keyname, label: ``, align: "center", render:  ((row: any) =>
-        {          
-         return <>
-          <input type="checkBox" 
-          name="check"          
-          onChange={(e:any)=>{            
-              const {checked} = e.target
-              if(checked){
-                setSelectedDeposite(prev => [...prev, row])
-              }
-              else{                
-                setSelectedDeposite(prev => prev.filter((item:any)=>item.__rowNum__ !== row.__rowNum__))
-              }
-          }}  />
-          </>
-        })}
-      }
+    function handleOpenModal() {
+        setDepositModal(true);
+    }
 
-      return {key: _keyname, label: keyname, align: "center"}
-  })
-  setFileColumnData(columnModifyData);
+    function handleCloseModal() {
+        setDepositModal(false);
+    }
 
-  let rowdata = Object.keys(data[0] as { [key: string]: any })
-  rowdata= data.map((objdata:any,idx:any)=>{
-    let obj = rowdata.reduce((acc:any,ob:any)=>{
-      let _keyname = "_"+ob.split(" ").join("")
-      if(ob === DateColumn){
-        if(typeof objdata[ob] === "number"){
-          let excelDateNumber = objdata[ob];      
-          let date = new Date(Date.UTC(1900, 0, excelDateNumber - 1));
-          let stringDate = moment(date).format(DateFormat)        
-          acc[_keyname] = stringDate
-        }
-        else{
-          acc[_keyname] =  moment(objdata[ob], "DD/MM/YYYY").format(DateFormat)
-        }
-      }
-      else{
-        acc[_keyname] = objdata[ob]  
-      }          
-      return acc
-    },{})
-    obj["__rowNum__"]  = objdata["__rowNum__"]    
-    return obj
-  })
-    setFileRowData(rowdata)
-  }
+    function handleSetDataInTable(data: any) {
+        let columnData = Object.values(data[0] as { [key: string]: any })
+        let columnModifyData = ["check", ...columnData].map((keyname: any) => {
+            let _keyname = "_" + keyname.split(" ").join("")
+            if (keyname === "check") {
+                return {
+                    key: _keyname, title: ``, align: "center", render: ((row: any, index: number) => {
+                        return <>
+                            <input
+                                key={`input-${index}`}
+                                type="checkBox"
+                                   name="check"
+                                   onChange={(e: any) => {
+                                       const {checked} = e.target
+                                       if (checked) {
+                                           setSelectedDeposit(prev => [...prev, row])
+                                       } else {
+                                           setSelectedDeposit(prev => prev.filter((item: any) => item.__rowNum__ !== row.__rowNum__))
+                                       }
+                                   }}/>
+                        </>
+                    })
+                }
+            }
 
-  const parseXLSX = (file:any) => {   
-    const reader = new FileReader();
-    reader.onload = (event:any) => {
-      const data = event?.target?.result;
-      const workbook = XLSX.read(data, { type: 'binary' });
-      const sheetName = workbook.SheetNames[0];
-      const sheet = workbook.Sheets[sheetName];      
-      const jsonData = XLSX.utils.sheet_to_json(sheet);
+            return {key: keyname, dataIndex:keyname, title: keyname, align: "center"}
+        });
 
-      handleSetDataInTable(jsonData)
+        setFileColumnData(columnModifyData);
+
+        let columns = Object.values(data[0] as { [key: string]: any });
+
+        data = data.slice(1).map((r:any) => {
+            let isEmpty = true;
+            let obj:any = {};
+            for (let i=0; i<columns.length; i++) {
+                const key = columns[i];
+
+                if (!r[i]) {
+                    obj[key] = null;  // or a default value
+                } else if (r[i] !== '' && r[i] !==  null && r[i] !== undefined) {
+                    obj[key] = parseInt(r[i]);
+                    isEmpty = false;
+                }
+            }
+            return isEmpty ? null : obj;
+        })
+            .filter((r:any) => r !== null);
+
+        /*rowData = data.map((objdata: any, idx: any) => {
+            let obj = rowData.reduce((row: any, key: any) => {
+                let _keyname = "_" + key.split(" ").join("")
+                if (key === DateColumn) {
+                    if (typeof objdata[key] === "number") {
+                        let excelDateNumber = objdata[key];
+                        let date = new Date(Date.UTC(1900, 0, excelDateNumber - 1));
+                        let stringDate = moment(date).format(DateFormat)
+                        row[_keyname] = stringDate
+                    } else {
+                        row[_keyname] = moment(objdata[key], "DD/MM/YYYY").format(DateFormat)
+                    }
+                } else {
+                    row[_keyname] = objdata[key]
+                }
+                return row;
+            }, {})
+            obj["__rowNum__"] = objdata["__rowNum__"]
+            return obj
+        });*/
+
+        setFileRowData(data);
+    }
+
+    const parseXLSX = (file: any) => {
+        const reader = new FileReader();
+        reader.onload = (event: any) => {
+            const data = event?.target?.result;
+            const workbook = XLSX.read(data, {type: 'binary'});
+            const sheetName = workbook.SheetNames[0];
+            const sheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            handleSetDataInTable(jsonData)
+        };
+
+        reader.readAsBinaryString(file);
     };
-    
-    reader.readAsBinaryString(file);
-  };
-  
 
-  const parseCSV = (file:any) => {   
-    Papa.parse(file, {
-      complete: function (results) {
-        handleSetDataInTable(results.data);
-      },
-    });
-  };
 
-  function handleCscFile(file:any){
-    if(makeDeposite.length > 0){
-      setMakeDeposit([])
-    }    
-    if(file?.name.endsWith('.csv')){
-      parseCSV(file)
-      handleOpenModal()
-    }
-    else if(file?.name.endsWith('.xlsx')){
-      parseXLSX(file)
-      handleOpenModal()
-    }
-    else{
-      alert('Please select a valid XLSX file.');
-    }
-  
-  }
+    const parseCSV = (file: any) => {
+        Papa.parse(file, {
+            complete: function (results) {
+                handleSetDataInTable(results.data);
+            },
+        });
+    };
 
-  return (
-    <>
-      <div className="w-full grid grid-cols-4 p-5 gap-x-4">        
-        <div className="col-span-3 py-2">
-          <div className="w-full bg-[#f0f0f0] flex flex-col p-5">
-            <div className="flex flex-col gap-5 h-full ">
-              <h1 className="capitalize font-extrabold">make a deposit</h1>
-              <div className="w-full flex justify-center">
-                <FileUploader
-                  handleChange={(file: any) => {
-                    handleCscFile(file)
-                  }}
-                  classes="!w-full"
-                  name="file"
-                  types={["csv", "xlsx", "xls"]}
-                />
-              </div>
-              {makeDeposite.length > 0 && <div className="flex-grow bg-white h-[300px] overflow-y-auto">
-                <CustomTable columns={fileColumnData as any} data={makeDeposite} />
-              </div>}
-              <Button
-                onClick={()=>{}}
-                className="bg-[#637eab] text-white w-fit self-end rounded-none"
-              >
-                Deposit
-              </Button>
+    function handleFile(file: any) {
+        if (file?.name.endsWith('.csv')) {
+            parseCSV(file);
+            handleOpenModal();
+        } else if (file?.name.endsWith('.xlsx')) {
+            parseXLSX(file);
+            handleOpenModal();
+        } else {
+            alert('Please select a valid XLSX file.');
+        }
+    }
+
+    const [tokenDeposits, setTokenDeposits] = useState<any[]>([]);
+
+    const depositExpand = (record: any, index: number, indent: number, expanded: boolean)=> {
+
+        if(expanded){
+            if(!record.tokenDeposits){
+                api.getTokenDepositsForDepositId(record.id).then((tokenDeposits:any)=> {
+                    record.tokenDeposits = tokenDeposits;
+                    setTokenDeposits(record.tokenDeposits);
+                });
+            }else{
+                setTokenDeposits(record.tokenDeposits);
+            }
+
+            return (
+                <Table rowKey="id" columns={tokenDepositColumns} dataSource={record.tokenDeposits} pagination={false}></Table>
+            );
+        }
+
+        return null;
+    };
+
+    useEffect(() => {
+        async function getData() {
+
+            let hudData = await api.getTreasuryData();
+            setHudData(hudData);
+            let depositHistory:any = await api.getDeposits();
+            setDepositHistory(depositHistory);
+        }
+
+        getData();
+
+    }, []);
+
+    return (
+        <>
+            <div className="w-full grid grid-cols-4 gap-4">
+
+                <div className="col-span-3 grid gap-3">
+
+                    <Card title="Make a Deposit">
+
+                        <div className="w-full flex justify-center">
+                            <FileUploader
+                                handleChange={(file: any) => {
+                                    handleFile(file)
+                                }}
+                                classes="!w-full"
+                                name="file"
+                                types={["csv", "xlsx", "xls"]}
+                            />
+                        </div>
+
+                        {makeDeposit.length > 0 && <div className="flex-grow bg-white h-[300px] overflow-y-auto">
+                            <Table columns={fileColumnData} dataSource={makeDeposit}/>
+                        </div>}
+
+                    </Card>
+
+                    <Card title="Deposit History" bodyStyle={{padding: "0"}}>
+                        <Table
+                            rowKey="id"
+                            columns={depositHistoryColumns}
+                            dataSource={depositHistory}
+                            style={{borderRadius:0}}
+                            expandable={{expandedRowRender:depositExpand, indentSize:0}}
+                        />
+                    </Card>
+
+                </div>
+                <Card title="Treasury Info" className="col-span-1">
+                    <div className="mt-3">Deposits : {hudData.depositCount}</div>
+                    <div className="mt-3">Total Held: {hudData.depositTotal}</div>
+                    <div className="mt-3">Last Deposit: {hudData.latestDepositDate}</div>
+                    <div className="mt-3">Treasury Address: {hudData.treasuryAddress}</div>
+                </Card>
             </div>
-            <div className="h-full flex flex-col gap-5">
-              <h1 className="capitalize font-extrabold">historical deposits</h1>
-              <div className="flex-grow bg-white h-[300px] overflow-y-auto">
-                <CustomTable columns={columns as any} data={rows} />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="p-3 flex flex-col gap-3">
-          <select className="border-2 w-full py-2">
-            <option>Select Treasury</option>
-          </select>
-          <div className="w-full bg-[#f0f0f0] p-3">
-            <h1 className="font-extrabold text-lg">Treasury: 123</h1>
-            <div className="mt-3 break-words">
-              Tokken Address : 0x0000000000000000000000000
-            </div>
-            <div className="mt-3">Depositors : 69</div>
-            <div className="mt-3">Total Held: $696, 969.00</div>
-            <div className="mt-3">Last Deposit: 1/1/1980</div>
-            <Button  className="w-full bg-white mt-3">Deposits</Button>
-          </div>
-        </div>
-      </div>
-      {depositeModal && 
-      <PopupDeposit 
-      columns={fileColumnData}  
-      rows={fileRowData} 
-      close={handleCloseModal} 
-      handleAddMakeDeposite={handleAddMakeDeposite}
-      setSelectedDeposite={setSelectedDeposite}
-      />}
-    </>
-  );
+
+
+            <Modal title="Create Deposit" open={depositModal} width={1000} bodyStyle={{height: 570, justifyContent:"reset"}}
+                   onCancel={() => {
+                       setSelectedDeposit([]);
+                       handleCloseModal();
+                   }}
+                   onOk={() => {
+                        handleSendDeposit();
+                        setSelectedDeposit([]);//reset value
+                        handleCloseModal();
+                   }}>
+
+                <div className="flex flex-col justify-between h-full">
+                    <p>Are you sure you want to deposit to 57 token balances an amount totalling $696,696?</p>
+                    <Table columns={fileColumnData} dataSource={fileRowData} scroll={{ y: 440 }} className={styles.modalTable} pagination={false}/>
+                </div>
+            </Modal>
+        </>
+    );
 };
 export default Treasury;
 Treasury.getLayout = getDashboardLayout;

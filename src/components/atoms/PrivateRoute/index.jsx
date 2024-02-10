@@ -33,7 +33,7 @@ function PrivateRoute({ children, onConnect, role, forceLogout, handleForecLogou
   }, [])
   
   useEffect(() => {
-    (isConnected && role.length > 0) && router.push(history[1] == '/' || history[1] == '/login' || history[1] == '/detail-view/[id]' ? '/home' : history[1])
+    (isConnected && role.length > 0) && router.push(history[1] == '/' || history[1] == '/login'  ? '/home' : history[1])
   }, [role, isConnected])
 
   const handleDisconnect = () => {

@@ -33,7 +33,7 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
-    "src/services/blockchain.js",
+    "src/services/BlockchainService",
     ".next/types/**/*.ts"
   ],
   "exclude": [

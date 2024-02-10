@@ -41,7 +41,29 @@ const generateRandomString=(length: number)=> {
       result += characters.charAt(randomIndex);
     }
     return result;
-  }  
+  }
+
+/**
+ * calculates the monthly payment for the specified principal amount, loan term, and interest rate. This should be used
+ * for estimaiton purposes only, and does not reflect the actual monthly payment amount.
+ * @param principalAmount
+ * @param loanTerm
+ * @param loanInterestRate
+ */
+const calculateMonthlyLoanPayment = (principalAmount: number, loanTermInMonths: number, loanInterestRate: number): number => {
+    // Convert annual interest rate to monthly rate
+    const monthlyInterestRate: number = loanInterestRate / 12 / 100;
+
+    // Convert loan term from years to months
+    const numberOfPayments: number = loanTermInMonths;
+
+    // Calculate monthly payment using the amortization formula
+    const monthlyPayment: number =
+        (principalAmount * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) /
+        (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
+
+    return monthlyPayment;
+}
 
 export {
     isNumeric,
@@ -50,5 +72,6 @@ export {
     isAlphanumericAndSpace,
     isEthereumAddress,
     generateRandomString,
+    calculateMonthlyLoanPayment,
     Regex
 }

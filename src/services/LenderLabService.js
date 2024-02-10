@@ -1,12 +1,17 @@
 import moment from 'moment';
-import ParseClient from './Parclient';
+import ParseClient from './ParseClient';
+import BlockchainService from "./BlockchainService.ts";
+import Error from "next/error";
+import {error} from "next/dist/build/output/log";
+import config from "@/config.json";
 
 const monthNames = [
     "January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ];
 
-export const LenderLabAPI = () => {
+export const LenderLabService = () => {
+
     ParseClient.initialize()
     const getPortfolioPerformance = async () => {
         let records = await ParseClient.getRecords('AssetPerformance', [], [], ["*"])
@@ -104,12 +109,12 @@ export const LenderLabAPI = () => {
         }
     }
     const getMintedNfts = async () => {
-        let records = await ParseClient.getRecords('Token', undefined, undefined, ["*"])
+        let records = await ParseClient.getRecords('Token', undefined, undefined, ["*"]);
         return records
     }
     const getMintedNftDetails = async (id) => {
-        let records = await ParseClient.getRecords('Token', ['objectId'], [id], ["*"])
-        return records
+        let records = await ParseClient.get('Token', id);
+        return records;
     }
 
     const getSaleTokens = async(tokenId) => {
@@ -124,11 +129,6 @@ export const LenderLabAPI = () => {
 
     const getTreasuryClaims = async (tokenId) => {
         let records = await ParseClient.getRecords('TreasuryClaim', ['tokenId'], [tokenId], ["*"]);
-        return records
-    }
-
-    const getDeposits = async (tokenId) => {
-        let records = await ParseClient.getRecords('Deposit', ['tokenId'], [tokenId], ["*"]);
         return records
     }
 
@@ -229,6 +229,75 @@ export const LenderLabAPI = () => {
         return records;
     }
 
+    const getDeposits = async () => {
+        let records = await ParseClient.getRecords('Deposit', undefined, undefined, ["*"],undefined,
+            undefined,
+            undefined,
+            'desc');
+        return records;
+    }
+
+    const getTokenDepositsForDepositId = async (depositId) => {
+        return getTokenDeposits(["deposit"], [{
+            __type: 'Pointer',
+            className: 'Deposit',
+            objectId: depositId
+        }]);
+    }
+
+    const getTokenDepositsForToken = async (objectId) => {
+        return getTokenDeposits(["token"], [{
+            __type: 'Pointer',
+            className: 'Token',
+            objectId
+        }]);
+    }
+
+    const getTokenDeposits = async (whereColumns, whereValues) => {
+        let records = await ParseClient.getRecords('TokenDeposit', whereColumns, whereValues, ["*"]);
+
+        return records?.sort((a, b) => {
+            return parseInt(a.attributes.token.attributes.tokenId) < parseInt(b.attributes.token.attributes.tokenId) ? -1 : 1;
+        });
+    }
+
+    const deposit = async (depositData) => {
+
+        let loanIds = depositData.map((depositItem)=>depositItem.loan_id.toString());
+        let tokens = await ParseClient.getRecords('Token', "loanId", loanIds, ["*"]);
+
+        if(tokens.length<depositData.length){
+            throw new Error("The file you selected contains entries that do not match any existing loans. Please check the file and try again.");
+        }
+
+        const tokensMap = tokens.reduce((accumulator,token)=>{
+            accumulator[token.attributes.loanId] = token;
+            return accumulator;
+        }, {});
+
+        depositData = depositData.map((depositItem)=>{return {tokenId:parseInt(tokensMap[depositItem.loan_id].attributes.tokenId), amount:depositItem.amount}});
+
+        return BlockchainService.getInstance().deposit(depositData);
+
+    }
+
+    const getTreasuryData = async () => {
+
+        let hudDataUrl = `${config.serverURL}/gemforce/lenderlab-treasury-hud`;
+
+        try {
+            const response = await fetch(hudDataUrl);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Error fetching Treasury data:', error);
+            throw error;
+        }
+
+    }
+
+
+
     return {
         getPortfolioPerformance,
         getEvents,
@@ -238,10 +307,14 @@ export const LenderLabAPI = () => {
         getListings,
         getTreasuryClaims,
         getDeposits,
+        getTokenDepositsForDepositId,
+        getTokenDepositsForToken,
         getKpis,
         saveSettings,
         getSettings,
-        getClaimTopics
+        getClaimTopics,
+        deposit,
+        getTreasuryData
     };
 }
 

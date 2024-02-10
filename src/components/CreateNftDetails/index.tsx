@@ -1,8 +1,7 @@
 "use client"
-import React, { useState } from 'react'
-import type { TransferDirection } from 'antd/es/transfer';
+import React from 'react'
 import { useRouter } from 'next/router'
-import { Form, Button } from 'antd';
+import { Button } from 'antd';
 import NftDetailsForm from '@/components/molecules/NftDetailsForm';
 import Compliance from '@/components/molecules/Compliance';
 
@@ -19,11 +18,12 @@ export default function CreateNftDetails({
   onChange,
   onSelectChange,
   onScroll,
-  handleFreeze
+  handleFreeze,
+    form
  }: any) {
   
   const router = useRouter();
-  const [form] = Form.useForm();
+
 
   const onFinish = (values: any) => {
     // Perform actions with form values, e.g., preview functionality if form has 
@@ -37,29 +37,34 @@ export default function CreateNftDetails({
   };
 
   return (
-    <div className='p-2 w-full flex gap-3'>
-      <div className='flex-grow'>
-        <NftDetailsForm
-          fields={fields}
-          frozen={frozen}
-          handleChange={handleInputValues}
-          handleFreeze={handleFreeze}
-          form = {form}
-          onFinish={onFinish}
-        />
-        <Compliance
-          claimTopics={claimTopics}
-          targetKeys={targetKeys}
-          selectedKeys={selectedKeys}
-          onChange={onChange}
-          onSelectChange={onSelectChange}
-          onScroll={onScroll}
-        />
-      </div>
-      <div className='w-[30%] flex flex-col gap-4'>
-        <Button onClick={() => router.push('/home')} className='bg-[#dedede] text-black rounded-none'>Cancel</Button>
-        <Button onClick={handlePreview} className='bg-[#637eab] rounded-none'>Preview</Button>
-      </div>
+    <div className='w-full grid gap-3'>
+
+            <div className="col-span-1">
+                <NftDetailsForm
+                    fields={fields}
+                    frozen={frozen}
+                    handleChange={handleInputValues}
+                    handleFreeze={handleFreeze}
+                    form = {form}
+                    onFinish={onFinish}
+                />
+            </div>
+            <div className="col-span-1">
+                <Compliance
+                    claimTopics={claimTopics}
+                    targetKeys={targetKeys}
+                    selectedKeys={selectedKeys}
+                    onChange={onChange}
+                    onSelectChange={onSelectChange}
+                    onScroll={onScroll}
+                />
+            </div>
+
+
+        <div className="actions flex gap-3">
+            <Button onClick={() => router.push('/home')}>Cancel</Button>
+            <Button type="primary" onClick={handlePreview}>Preview</Button>
+        </div>
     </div>
   )
 }
