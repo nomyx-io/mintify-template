@@ -15,7 +15,7 @@ const Sidebar = () => {
         </div>
         <div className='flex flex-col gap-2 justify-end mt-auto'>
           <SideTab icon={<UsersIcon />} label="Users" href="/users" />
-          <SideTab icon={<LogoutIcon />} label="Log out" href="" />
+          <SideTab icon={<LogoutIcon />} label="Log out" href="/" />
         </div>
       </div>
     </div>
