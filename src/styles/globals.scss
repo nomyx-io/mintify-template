@@ -8,11 +8,10 @@
     --table-inner-height: 520px;
 }
 
-
-
 .ant-transfer{
     min-width: 60%;
 }
+
 .ant-transfer .ant-transfer-list{
     border-radius: 0px;
     width: 50%;
@@ -36,6 +35,10 @@
 
 .ant-tabs-nav{
     margin: 0!important;
+}
+
+.ant-card.no-padding .ant-card-body{
+    padding: 0;
 }
 
 /*

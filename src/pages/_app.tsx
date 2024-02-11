@@ -21,7 +21,6 @@ import PrivateRoute from '@/components/atoms/PrivateRoute'
 
 import NomyxAppContext from "@/context/NomyxAppContext";
 
-
 const localhost: Chain = {
     id: 31337,
     name: 'Localhost',
@@ -113,11 +112,11 @@ export default function App({Component, pageProps}: any) {
                 toast.error(message)
                 setForceLogout(true);
             }
+
         }else{
             signature = storedSignature.signature;
             message = storedSignature.message;
         }
-
 
         let {token, roles}: any = await getToken({
             "message": message,
@@ -144,7 +143,6 @@ export default function App({Component, pageProps}: any) {
             setStatus(true)
         }
 
-
         const _blockchainService: any = BlockchainService.getInstance();
         setBlockchainService(_blockchainService);
         let jsonConfig: any = await import(`../hardhatConfig.json`);
@@ -161,20 +159,12 @@ export default function App({Component, pageProps}: any) {
                 // setUnsupportedNetworkDialogVisible(true);
                 return;
             }
-
-
-
         });
     };
-
-
-
 
     const handleForceLogout = () => {
         setForceLogout(false)
     }
-
-
 
     const onDisconnect = () => {
         console.log("onDisconnect");
@@ -213,30 +203,40 @@ export default function App({Component, pageProps}: any) {
                         <WalletAddressProvider>
                             <ConfigProvider theme={{
                                 algorithm,
+                                components: {
+                                    Layout: {
+                                        headerBg: isDarkMode ? "#141414" : "#ffffff",
+                                        colorBgBase: isDarkMode ? "#141414" : "#ffffff",
+                                        colorBgContainer: isDarkMode ? "#141414" : "#ffffff",
+                                        siderBg: isDarkMode ? "#141414" : "#ffffff"
+                                    },
+                                    Menu: {
+                                        activeBarBorderWidth: 0
+                                    }
+                                }
                             }}>
-                                <ToastContainer
-                                    position='top-right'
-                                    className='toast-background'
-                                    progressClassName='toast-progress-bar'
-                                    autoClose={4000}
-                                    closeOnClick
-                                    pauseOnHover
-                                />
+                                    <ToastContainer
+                                        position='top-right'
+                                        className='toast-background'
+                                        progressClassName='toast-progress-bar'
+                                        autoClose={4000}
+                                        closeOnClick
+                                        pauseOnHover
+                                    />
 
-                                <PrivateRoute
-                                    handleForecLogout={handleForceLogout}
-                                    forceLogout={forceLogout}
-                                    role={role}
-                                    onConnect={onConnect}>
-                                    {getLayout(<Component
-                                        {...pageProps}
+                                    <PrivateRoute
+                                        handleForecLogout={handleForceLogout}
+                                        forceLogout={forceLogout}
                                         role={role}
-                                        service={blockchainService}
-                                        onConnect={onConnect}
-                                        onDisconnect={onDisconnect}
-                                    />)}
-                                </PrivateRoute>
-
+                                        onConnect={onConnect}>
+                                        {getLayout(<Component
+                                            {...pageProps}
+                                            role={role}
+                                            service={blockchainService}
+                                            onConnect={onConnect}
+                                            onDisconnect={onDisconnect}
+                                        />)}
+                                    </PrivateRoute>
                             </ConfigProvider>
                         </WalletAddressProvider>
                     </RainbowKitProvider>

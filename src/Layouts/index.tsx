@@ -1,10 +1,11 @@
 import React from 'react'
-import Sidebar from '@/components/molecules/SideNavBar';
+import SideNavBar from '@/components/molecules/SideNavBar';
 import TopNavBar from '@/components/molecules/TopNavBar';
 
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { Layout, Flex } from 'antd';
-const {Footer, Content } = Layout;
+import { Layout, Flex } from 'antd/es';
+
+const {Footer, Content, Sider, Header } = Layout;
 
 const headerStyle: React.CSSProperties = {
     // textAlign: 'center',
@@ -43,11 +44,11 @@ const layoutStyle = {
 export const AppLayout = ({ children }: any) => {
     return (
         <AntdRegistry>
-            <Layout style={layoutStyle}>
+            <Layout>
                 <TopNavBar>Header</TopNavBar>
-                <Layout>
-                    <Sidebar/>
-                    <Content className="p-3" style={contentStyle}>{children}</Content>
+                <Layout hasSider>
+                    <SideNavBar/>
+                    <Content className="p-5" style={contentStyle}>{children}</Content>
                 </Layout>
                 <Footer style={footerStyle}>Footer</Footer>
             </Layout>

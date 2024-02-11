@@ -8,7 +8,7 @@ import BarChart from '@/components/atoms/Graphs/Barchart';
 import moment from 'moment';
 import {useRouter} from 'next/navigation';
 import {useAccount} from 'wagmi';
-import {Spin, Table} from 'antd';
+import {Card, Spin, Table} from 'antd';
 
 export default function Home() {
     const router = useRouter()
@@ -216,9 +216,9 @@ export default function Home() {
                 className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
                 <Spin/>
             </div> :
-            <div className='w-full grid grid-cols-4 p-5 gap-x-2'>
-                <div className="col-span-3 py-2">
-                    <div className="flex items-center gap-4 flex-wrap">
+            <div className='w-full grid grid-cols-4 gap-3'>
+                <div className="grid col-span-3 gap-y-3">
+                    <div className="grid grid-cols-3 items-center gap-3 flex-wrap">
                         {KPIS && KPIS.map((kpi) => (
                             <KPI
                                 key={kpi.title}
@@ -228,25 +228,23 @@ export default function Home() {
                             />
                         ))}
                     </div>
-                    <br/>
 
-                    <div className='w-full'>
+                    <Card className='w-full'>
                         <BarChart data={graphData} title="Net Asset Value & Yield"/>
-                    </div>
-                    <br/>
-                    {/*<CustomTable columns={columns as any} data={mintedNfts} />*/}
-                    <Table columns={columns} dataSource={mintedNfts}/>
+                    </Card>
+                    <Card className="no-padding">
+                        <Table columns={columns} dataSource={mintedNfts}/>
+                    </Card>
                 </div>
-                <div className='p-2 h-[90vh] overflow-y-auto'>
-                    <EventFeed data={eventDetails} tabsData={tabsData} activeTab={activeTab}
-                               setActiveTab={setActiveTab}/>
-                </div>
+                <Card className='no-padding h-[90vh] overflow-y-auto'>
+                    <EventFeed
+                        data={eventDetails}
+                        tabsData={tabsData}
+                        activeTab={activeTab}
+                        setActiveTab={setActiveTab}/>
+                </Card>
             </div>
     );
-
-    /*return (<div
-        className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
-      <Spin/>
-    </div>);*/
 }
+
 Home.getLayout = getDashboardLayout;

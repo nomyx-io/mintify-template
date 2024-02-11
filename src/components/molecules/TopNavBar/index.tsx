@@ -1,16 +1,16 @@
+import React, { useContext } from 'react'
+import Image from 'next/image'
+import { Layout } from "antd/es"
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useAccount } from 'wagmi'
-import Image from 'next/image'
-import React, { useContext } from 'react'
-import { Layout, Input } from "antd"
-const { Header} = Layout;
-
-import Profile from "../../../assets/image.png"
-
-import { NotificationIcon, SearchIcon } from '@/assets'
 import { UserContext } from '@/pages/_app'
 import Link from "next/link";
+import logo from "@/assets/LenderLabLogo.svg";
 
+import Profile from "../../../assets/image.png"
+import { NotificationIcon, SearchIcon } from '@/assets'
+
+const { Header} = Layout;
 
 const TopNavBar = (props:any) => {
 
@@ -24,18 +24,18 @@ const TopNavBar = (props:any) => {
 
   return (
       <Header className='w-full p-5 flex items-center justify-between'>
-          <div className='w-1/4  flex items-center gap-5'>
-              <p><Link href={'/home'}>LenderLab</Link></p>
+          <div>
+              <Link href={'/home'}><Image alt="" src={logo} /></Link>
           </div>
           <div className='w-1/2'>
-              <Input
+              {/*<Input
                   placeholder='Enter details to mint NFTs'
                   prefix={<SearchIcon/>}
-                  crossOrigin={undefined}/>
+                  crossOrigin={undefined}/>*/}
           </div>
           <div className='w-1/4  flex items-center justify-end gap-5'>
               <ConnectButton chainStatus={'none'}/>
-              <Image className='rounded-full' height={40} src={Profile} alt=""/>
+              {/*<Image className='rounded-full' height={40} src={Profile} alt=""/>*/}
           </div>
       </Header>
   )
