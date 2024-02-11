@@ -11,6 +11,7 @@ import logo from '../../assets/LenderLabLogo.svg'
 import styles from './login.module.scss';
 
 export default function Login() {
+
     return (
         <div className='relative h-screen w-screen flex overflow-hidden p-0'>
             <div className='bg-black max-[550px]:hidden w-1/2 flex flex-col justify-center items-center gap-10'  style={{ backgroundImage: `url(${bg.src})`, backgroundSize: 'cover', backgroundPosition:'center'}}>

@@ -25,7 +25,7 @@ const TopNavBar = (props:any) => {
   return (
       <Header className='w-full p-5 flex items-center justify-between'>
           <div className='w-1/4  flex items-center gap-5'>
-              {/*<p><Link href={'/home'}>LenderLab</Link></p>*/}
+              <p><Link href={'/home'}>LenderLab</Link></p>
           </div>
           <div className='w-1/2'>
               <Input

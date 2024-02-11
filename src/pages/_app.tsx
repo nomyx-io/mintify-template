@@ -97,7 +97,6 @@ export default function App({Component, pageProps}: any) {
 
         console.log('connected!');
         console.log("provider = ", provider);
-        console.log("chainId = ", provider?.getNetwork().chainId);
 
         const RandomString = generateRandomString(10);
         let message = `Sign this message to validate that you are the owner of the account. Random string: ${RandomString}`;
@@ -148,7 +147,6 @@ export default function App({Component, pageProps}: any) {
 
         const _blockchainService: any = BlockchainService.getInstance();
         setBlockchainService(_blockchainService);
-        /*
         let jsonConfig: any = await import(`../hardhatConfig.json`);
 
         const network = provider.getNetwork().then(async (network: any) => {
@@ -166,7 +164,7 @@ export default function App({Component, pageProps}: any) {
 
 
 
-        });*/
+        });
     };
 
 
@@ -224,6 +222,7 @@ export default function App({Component, pageProps}: any) {
                                     closeOnClick
                                     pauseOnHover
                                 />
+
                                 <PrivateRoute
                                     handleForecLogout={handleForceLogout}
                                     forceLogout={forceLogout}
@@ -237,6 +236,7 @@ export default function App({Component, pageProps}: any) {
                                         onDisconnect={onDisconnect}
                                     />)}
                                 </PrivateRoute>
+
                             </ConfigProvider>
                         </WalletAddressProvider>
                     </RainbowKitProvider>
