@@ -18,14 +18,14 @@ const topFields: any = [
 const fields: any = [
     {name: 'nftTitle', label: 'Name', align: 'center', sortable: true },
     {name: 'loanId', label: 'Loan Id', align: 'center', sortable: true },
+    { name: 'originationDate', label: 'Origination Date', align: 'center' },
     { name: 'currentValue', label: 'Current Value', align: 'center', sortable: true },
     { name: 'loanAmount', label: 'Origination Amount', align: 'center', sortable: true },
-    { name: 'originationDate', label: 'Origination Date', align: 'center' },
-    { name: 'term', label: 'Term', align: 'center' },
-    { name: 'ficoScore', label: 'Fico', align: 'center' },
-    { name: 'yields', label: 'Interest Rate', align: 'center' },
     { name: 'monthly', label: 'Monthly Amount', align: 'center' },
+    { name: 'term', label: 'Term', align: 'center' },
+    { name: 'yields', label: 'Interest Rate', align: 'center' },
     { name: 'discount', label: 'Discount', align: 'center' },
+    { name: 'ficoScore', label: 'Fico', align: 'center' },
     { name: 'location', label: 'Location of Issuance', align: 'center' },
     { name: 'freeze', label: 'Frozen', align: 'center' }
 ];
@@ -59,8 +59,6 @@ const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, de
             ))}
         </Card>
     );
-
-    console.log("TablesData: ", TablesData)
 
     return (<>
 

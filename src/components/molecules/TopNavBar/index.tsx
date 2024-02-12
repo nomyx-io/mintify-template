@@ -34,7 +34,7 @@ const TopNavBar = (props:any) => {
                   crossOrigin={undefined}/>*/}
           </div>
           <div className='w-1/4  flex items-center justify-end gap-5'>
-              <ConnectButton chainStatus={'none'}/>
+              <ConnectButton />
               {/*<Image className='rounded-full' height={40} src={Profile} alt=""/>*/}
           </div>
       </Header>

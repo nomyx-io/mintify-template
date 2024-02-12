@@ -48,16 +48,16 @@ const Treasury = () => {
     }
 
     const depositHistoryColumns: any = [
-        {dataIndex: "id", title: "Id", width:150},
-        {dataIndex: ["attributes", "transactionHash"], title: "Tx Hash", width:500, ellipsis: true},
-        {dataIndex: "createdAt", title: "Created Date", render:(text:any, record:any, index:any)=>moment(text).format("DD-MM-YYYY h:mm:ss a"), width:125},
-        {dataIndex: ["attributes", "totalAmount"], title: "Total", render:(amount:any, record:any, index:any)=>formatUnits(amount, 6), align: "right"}
+        {dataIndex: "objectId", title: "Id", width:150},
+        {dataIndex: ["transactionHash"], title: "Tx Hash", width:500, ellipsis: true},
+        {dataIndex: "createdAt", title: "Created Date", width:230},
+        {dataIndex: ["totalAmount"], title: "Total", align: "right"}
     ];
 
     const tokenDepositColumns:any = [
-        {dataIndex: "id", title: "Id", width:150},
-        {dataIndex: ["attributes", "token", "attributes", "tokenId"], title: "Token", width:100},
-        {dataIndex: ["attributes", "amount"], title: "Amount", render:(amount:any, record:any, index:any)=>formatUnits(amount, 6), align: "right"}
+        {dataIndex: "objectId", title: "Id", width:150},
+        {dataIndex: ["token", "tokenId"], title: "Token", width:100},
+        {dataIndex: ["amount"], title: "Amount", align: "right"}
     ];
 
     function handleOpenModal() {
@@ -183,7 +183,7 @@ const Treasury = () => {
 
         if(expanded){
             if(!record.tokenDeposits){
-                api.getTokenDepositsForDepositId(record.id).then((tokenDeposits:any)=> {
+                api.getTokenDepositsForDepositId(record.objectId).then((tokenDeposits:any)=> {
                     record.tokenDeposits = tokenDeposits;
                     setTokenDeposits(record.tokenDeposits);
                 });
@@ -192,7 +192,7 @@ const Treasury = () => {
             }
 
             return (
-                <Table rowKey="id" columns={tokenDepositColumns} dataSource={record.tokenDeposits} pagination={false}></Table>
+                <Table rowKey="objectId" columns={tokenDepositColumns} dataSource={record.tokenDeposits} pagination={false}></Table>
             );
         }
 
@@ -239,7 +239,7 @@ const Treasury = () => {
 
                     <Card title="Deposit History" bodyStyle={{padding: "0"}}>
                         <Table
-                            rowKey="id"
+                            rowKey="objectId"
                             columns={depositHistoryColumns}
                             dataSource={depositHistory}
                             style={{borderRadius:0}}

@@ -93,6 +93,7 @@ export default class BlockchainService {
         try{
 
             if(this.signer){
+                //fixme: sending all metadata values as strings for now until contract accepts other datatypes
                 const contractWithSigner: any = this.llMintService?.connect(this.signer);
                 const tx = await contractWithSigner.llMint(metaData);
                 return await tx.wait();

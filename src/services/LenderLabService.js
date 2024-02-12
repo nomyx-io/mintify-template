@@ -4,6 +4,7 @@ import BlockchainService from "./BlockchainService.ts";
 import Error from "next/error";
 import {error} from "next/dist/build/output/log";
 import config from "@/config.json";
+import {formatUnits} from "ethers";
 
 const monthNames = [
     "January", "February", "March", "April", "May", "June",
@@ -114,7 +115,7 @@ export const LenderLabService = () => {
     }
     const getMintedNftDetails = async (id) => {
         let records = await ParseClient.get('Token', id);
-        return records;
+        return JSON.parse(JSON.stringify(records));
     }
 
     const getSaleTokens = async(tokenId) => {
@@ -148,12 +149,14 @@ export const LenderLabService = () => {
                 numberOfFrozen += 1
             }
         })
-        let performanceKpis = records?.[0]?.attributes
+
+        let performanceKpis = records?.[0]?.attributes;
+
         let kpis = {
             totalAssets:tokenRecords?.length,
             totalDeliquent:numberOfFrozen,
             totalAccruedValue:parseInt(performanceKpis?.accruedValue),
-            totalAssetValue:parseInt(performanceKpis?.assetValue),
+            totalAssetValue:parseInt(String(performanceKpis?.assetValue||0), 10),
             totalInitialValue:parseInt(performanceKpis?.initialValue),
             totalYieldClaimed:totalYieldClaimed
 
@@ -234,7 +237,10 @@ export const LenderLabService = () => {
             undefined,
             undefined,
             'desc');
-        return records;
+
+        const sanitizedRecords = JSON.parse(JSON.stringify(records));
+        sanitizedRecords.forEach(record => {record.totalAmount = formatUnits(record.totalAmount, 6)});
+        return sanitizedRecords;
     }
 
     const getTokenDepositsForDepositId = async (depositId) => {
@@ -255,9 +261,14 @@ export const LenderLabService = () => {
 
     const getTokenDeposits = async (whereColumns, whereValues) => {
         let records = await ParseClient.getRecords('TokenDeposit', whereColumns, whereValues, ["*"]);
+        const sanitizedRecords = JSON.parse(JSON.stringify(records));
 
-        return records?.sort((a, b) => {
-            return parseInt(a.attributes.token.attributes.tokenId) < parseInt(b.attributes.token.attributes.tokenId) ? -1 : 1;
+        sanitizedRecords.forEach(record => {
+            record.amount = formatUnits(record.amount, 6);
+        });
+
+        return sanitizedRecords?.sort((a, b) => {
+            return parseInt(a.token.tokenId) < parseInt(b.token.tokenId) ? -1 : 1;
         });
     }
 
