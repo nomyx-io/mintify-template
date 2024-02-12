@@ -17,8 +17,8 @@ export const EventFeed = ({ data, activeTab, setActiveTab, tabsData }: any) => {
                             Object.entries(data).map(([key, value]: any) => {
 
                                 return (
-                                    <div className='border-b' key={key}>
-                                        <div>{key}</div>
+                                    <div key={key}>
+                                        <h3 className="px-4 pt-4">{key}</h3>
                                         {
                                             value.data.map((item: any, index: any) => (
                                                 <IconCard

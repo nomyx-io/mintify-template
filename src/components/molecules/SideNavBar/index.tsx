@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import Link from "next/link";
 import {Layout, Menu, theme} from "antd/es"
+import type { MenuProps } from 'antd';
 
 import {
   BankOutlined,
@@ -8,11 +9,10 @@ import {
   MoneyCollectOutlined,
   SettingOutlined
 } from "@ant-design/icons";
+
 import {DetailsIcon, LogoutIcon, SettingsIcon, TreasuryIcon, UsersIcon} from "@/assets";
 
 const { Sider} = Layout;
-
-import type { MenuProps } from 'antd';
 
 type MenuItem = Required<MenuProps>['items'][number];
 

@@ -195,6 +195,12 @@ export default function App({Component, pageProps}: any) {
     const { defaultAlgorithm, darkAlgorithm } = theme;
     const algorithm = isDarkMode ? darkAlgorithm : defaultAlgorithm;
 
+    let handleLoad = (Component as any).handleLoad;
+
+    if(!handleLoad){
+        PubSub.publish("PageLoad");
+    }
+
     return (
         <NomyxAppContext.Provider value={{blockchainService, setBlockchainService}}>
             <UserContext.Provider value={onDisconnect}>

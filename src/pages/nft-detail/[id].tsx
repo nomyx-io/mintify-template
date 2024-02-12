@@ -5,9 +5,9 @@ import { LenderLabService } from '@/services/LenderLabService'
 import NftRecordDetail from '../../components/NftRecordDetail'
 import MockImage from '../../assets/loginimg.png'
 import { useRouter } from 'next/router'
-import { Spin } from 'antd'
 import moment from 'moment'
 import {MoneyCollectOutlined} from "@ant-design/icons";
+import LenderLabSpin from "@/components/LenderLabSpin/LenderLabSpin";
 
 export default function NftDetail () {
     const router = useRouter()
@@ -91,7 +91,7 @@ export default function NftDetail () {
     return (
         <div className="grid gap-3">
             {loading ? <div className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center'>
-                <Spin />
+                <LenderLabSpin />
             </div> :
             nftData && <NftRecordDetail id={id} TablesData={tablesData} detailView data={nftData} />}
         </div>

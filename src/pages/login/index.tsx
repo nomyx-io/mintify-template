@@ -1,5 +1,4 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { Spin } from 'antd';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';

@@ -7,8 +7,7 @@ import {getDashboardLayout} from '@/Layouts';
 import BarChart from '@/components/atoms/Graphs/Barchart';
 import moment from 'moment';
 import {useRouter} from 'next/navigation';
-import {useAccount} from 'wagmi';
-import {Card, Spin, Table} from 'antd';
+import {Card, Table, Tabs} from 'antd';
 
 export default function Home() {
     const router = useRouter()
@@ -206,16 +205,14 @@ export default function Home() {
             setGraphValues(data);
 
             setLoading(false);
+            PubSub.publish("PageLoad");
         }
 
         getData();
     }, []);
 
     return (
-        loading ? <div
-                className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]'>
-                <Spin/>
-            </div> :
+
             <div className='w-full grid grid-cols-4 gap-3'>
                 <div className="grid col-span-3 gap-y-3">
                     <div className="grid grid-cols-3 items-center gap-3 flex-wrap">
@@ -229,11 +226,17 @@ export default function Home() {
                         ))}
                     </div>
 
-                    <Card className='w-full'>
-                        <BarChart data={graphData} title="Net Asset Value & Yield"/>
-                    </Card>
-                    <Card className="no-padding">
-                        <Table columns={columns} dataSource={mintedNfts}/>
+                    <Card className='w-full no-padding'>
+
+                        <Tabs>
+                            <Tabs.TabPane tab="Performance" key="1">
+                                <BarChart data={graphData} title="Net Asset Value & Yield"/>
+                            </Tabs.TabPane>
+                            <Tabs.TabPane tab="Assets" key="2">
+                                <Table columns={columns} dataSource={mintedNfts}/>
+                            </Tabs.TabPane>
+                        </Tabs>
+
                     </Card>
                 </div>
                 <Card className='no-padding h-[90vh] overflow-y-auto'>
@@ -248,3 +251,4 @@ export default function Home() {
 }
 
 Home.getLayout = getDashboardLayout;
+Home.handleLoad = true;
