@@ -109,7 +109,8 @@ const Treasury = () => {
                 if (!r[i]) {
                     obj[key] = null;  // or a default value
                 } else if (r[i] !== '' && r[i] !==  null && r[i] !== undefined) {
-                    obj[key] = parseInt(r[i]);
+                    // obj[key] = parseInt(r[i]);
+                    obj[key] = r[i];
                     isEmpty = false;
                 }
             }
