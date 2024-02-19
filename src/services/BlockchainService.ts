@@ -1,5 +1,4 @@
 import {parseEther, ethers, parseUnits} from "ethers";
-import PubSub from 'pubsub-js';
 import * as LLMintedRegistry from "../abi/ILenderLabMinterFacet.json";
 import * as TreasuryRegistry from "../abi/ITreasury.json";
 import * as USDCRegistry from "../abi/USDC.json";
@@ -67,22 +66,6 @@ export default class BlockchainService {
         this.llMintService = new ethers.Contract(this.contractAddress, this.llMintedAbi, this.provider);
         this.treasuryService = new ethers.Contract(this.treasuryAddress, this.treasuryAbi, this.provider);
         this.usdcService = new ethers.Contract(this.usdcAddress, this.usdcAbi, this.provider);
-    }
-
-
-
-
-    // Event listeners
-    publish(event:any, data:any) {
-        PubSub.publish(event, data);
-    }
-
-    subscribe(event:any, handler:any) {
-        return PubSub.subscribe(event, handler);
-    }
-
-    unsubscribe(token:any) {
-        return PubSub.unsubscribe(token);
     }
 
     async getClaimTopics() {

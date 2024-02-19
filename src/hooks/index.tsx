@@ -11,7 +11,7 @@ interface GuardEventListener {
     onBeforeUnload: () => boolean;
 }
 
-export function usePageUnloadGuard() {
+export const usePageUnloadGuard = function () {
     const router = useRouter();
 
     // const t = useTranslations('studio');

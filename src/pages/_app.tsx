@@ -8,7 +8,7 @@ import axios from 'axios';
 import {createContext, useEffect, useState} from 'react';
 import {ethers} from 'ethers';
 import {getDefaultWallets, RainbowKitProvider} from '@rainbow-me/rainbowkit';
-import {Chain, configureChains, createConfig, sepolia, useAccount, WagmiConfig} from 'wagmi';
+import {Chain, configureChains, createConfig, sepolia, WagmiConfig} from 'wagmi';
 import {alchemyProvider} from 'wagmi/providers/alchemy';
 import {publicProvider} from 'wagmi/providers/public'
 import {toast, ToastContainer} from 'react-toastify';
@@ -18,6 +18,7 @@ import {generateRandomString} from '@/utils';
 import BlockchainService from '@/services/BlockchainService';
 import {WalletAddressProvider} from '@/context/WalletAddressContext';
 import PrivateRoute from '@/components/atoms/PrivateRoute'
+import PubSub from 'pubsub-js';
 
 import NomyxAppContext from "@/context/NomyxAppContext";
 

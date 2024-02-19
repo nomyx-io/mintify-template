@@ -1,8 +1,9 @@
 import React, {useEffect} from 'react'
+import PubSub from 'pubsub-js';
 import SideNavBar from '@/components/molecules/SideNavBar';
 import TopNavBar from '@/components/molecules/TopNavBar';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
-import { Layout, Flex } from 'antd/es';
+import { Layout } from 'antd/es';
 import LenderLabSpin from "@/components/LenderLabSpin/LenderLabSpin";
 import {usePageUnloadGuard} from "@/hooks";
 

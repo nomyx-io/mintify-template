@@ -1,9 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import {getDashboardLayout} from '@/Layouts'
-import {useSearchParams} from 'next/navigation'
 import {LenderLabService} from '@/services/LenderLabService'
 import NftRecordDetail from '../../components/NftRecordDetail'
-import MockImage from '../../assets/loginimg.png'
 import {useRouter} from 'next/router'
 import moment from 'moment'
 import {MoneyCollectOutlined} from "@ant-design/icons";

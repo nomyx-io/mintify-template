@@ -43,7 +43,7 @@ export const SearchIcon = () => {
 export const LeftArrowIcon = () => {
     return (
         <svg fill="#000000" height="30px" width="30px" version="1.1" id="Capa_1"
-            viewBox="0 0 100 489.3" space="preserve">
+            viewBox="0 0 100 489.3">
             <g>
                 <g>
                     <path d="M476.9,232.45H147.2l55.9-55.9c4.8-4.8,4.8-12.5,0-17.3s-12.5-4.8-17.3,0l-76.8,76.8c-4.8,4.8-4.8,12.5,0,17.3l76.8,76.8

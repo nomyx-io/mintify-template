@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react'
-import { Tabs, TabsProps } from "antd";
+import { Tabs } from "antd";
 import IconCard from '@/components/atoms/IconCard';
 
 export const EventFeed = ({ data, activeTab, setActiveTab, tabsData }: any) => {

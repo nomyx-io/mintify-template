@@ -1,6 +1,5 @@
-import React, {useState} from "react";
-import Link from "next/link";
-import {Layout, Menu, theme} from "antd/es"
+import React from "react";
+import {Layout, Menu} from "antd/es"
 import type { MenuProps } from 'antd';
 
 import {
@@ -9,8 +8,7 @@ import {
   MoneyCollectOutlined,
   SettingOutlined
 } from "@ant-design/icons";
-
-import {DetailsIcon, LogoutIcon, SettingsIcon, TreasuryIcon, UsersIcon} from "@/assets";
+import Link from "next/link";
 
 const { Sider} = Layout;
 

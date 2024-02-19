@@ -7,9 +7,6 @@ import { UserContext } from '@/pages/_app'
 import Link from "next/link";
 import logo from "@/assets/LenderLabLogo.svg";
 
-import Profile from "../../../assets/image.png"
-import { NotificationIcon, SearchIcon } from '@/assets'
-
 const { Header} = Layout;
 
 const TopNavBar = (props:any) => {

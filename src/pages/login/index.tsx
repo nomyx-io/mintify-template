@@ -1,12 +1,7 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { useAccount, useDisconnect } from 'wagmi'
-
 import bg from '../../assets/LenderLabSplashMetal.png'
 import logo from '../../assets/LenderLabLogo.svg'
-
 import styles from './login.module.scss';
 
 export default function Login() {

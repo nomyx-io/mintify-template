@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useState} from 'react';
+import React from 'react';
 import {Card, Input} from "antd";
 
 const ImageBox = ({file, handleChange, previewPage = false}: any) => {

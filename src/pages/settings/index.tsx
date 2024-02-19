@@ -4,10 +4,7 @@ import React, { useEffect, useState } from 'react'
 import type { TransferDirection } from 'antd/es/transfer';
 import { Form, Input, Button, Transfer } from 'antd';
 import * as Yup from 'yup';
-import { ErrorMessage } from '@/components/atoms/Message/ErrorMessage';
 import { getDashboardLayout } from '@/Layouts';
-import TextInput from '@/components/atoms/TextInput';
-import Compliance from '@/components/molecules/Compliance';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import ImageComp from '@/components/molecules/ImageBox';

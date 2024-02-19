@@ -8,8 +8,12 @@ import BarChart from '@/components/atoms/Graphs/Barchart';
 import moment from 'moment';
 import {useRouter} from 'next/navigation';
 import {Card, Table, Tabs} from 'antd';
+import PubSub from 'pubsub-js';
 
 export default function Home() {
+
+    console.log("Home");
+
     const router = useRouter()
     const api = LenderLabService()
     const [graphValues, setGraphValues] = useState<any>([])

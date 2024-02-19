@@ -2,11 +2,10 @@ import React from 'react'
 import {Button, Card, Table, Tabs} from 'antd';
 
 import { useRouter } from 'next/router'
-import { LeftArrowIcon, ShareIcon } from '@/assets'
+import { ShareIcon } from '@/assets'
 import {LeftOutlined} from "@ant-design/icons";
 import ReadOnlyField from "@/components/ReadOnlyField";
 import Image from "next/image";
-import {CustomTable} from "@/components/molecules/Table";
 
 const TabPane = Tabs.TabPane;
 

@@ -2,7 +2,6 @@ import moment from 'moment';
 import ParseClient from './ParseClient';
 import BlockchainService from "./BlockchainService.ts";
 import Error from "next/error";
-import {error} from "next/dist/build/output/log";
 import config from "@/config.json";
 import {formatUnits} from "ethers";
 
@@ -73,6 +72,8 @@ export const LenderLabService = () => {
 
             records && records.forEach((entry) => {
                 let record = entry.attributes;
+
+                // console.log("record.updatedAt = ", record.updatedAt);
                 const eventDate = record.updatedAt.toISOString().split('T')[0] == moment().format('yyyy-MM-DD') ? 'Today' : record.updatedAt.toISOString().split('T')[0];
 
                 const eventData = {
@@ -190,6 +191,8 @@ export const LenderLabService = () => {
         for (let k in settingsObj) {
 
             let setting = settingsObj[k];
+
+            console.log("k = ", k);
 
             if (k == 'defaultTokenImage') continue;
             
