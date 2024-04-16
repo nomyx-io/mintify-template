@@ -1,5 +1,5 @@
 {
-    "applicationId": "lenderLabDev",
-    "masterKey": "lenderLabDevMasterKey",
+    "applicationId": "appId",
+    "masterKey": "appMasterKey",
     "serverURL": "https://gemforce-dev.lenderlab.nomyx.io"
 }
