@@ -58,7 +58,7 @@ const NftDetailsForm = ({ fields, frozen, handleChange, handleFreeze, form, onFi
                             </div>)
                     })}
                     <Form.Item>
-                        <Checkbox onChange={handleFreeze} checked={frozen}>Freeze</Checkbox>
+                        <Checkbox onChange={handleFreeze} checked={frozen} className='text-gray-400'>Freeze</Checkbox>
                     </Form.Item>
                 </div>
             </Form>

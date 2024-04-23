@@ -46,6 +46,10 @@
     100% {  transform: rotate(359deg); }
 }
 
+::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
 /*
 
 
