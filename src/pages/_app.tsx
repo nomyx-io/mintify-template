@@ -43,8 +43,27 @@ const localhost: Chain = {
 };
 export const UserContext = createContext(() => {});
 
+const baseSep: Chain = {
+    id: 84532,
+    name: 'Base Sepolia',
+    network: 'basesep',
+    nativeCurrency: {
+        decimals: 18,
+        name: 'Ethereum',
+        symbol: 'bETH',
+    },
+    rpcUrls: {
+        default: {
+            http: ['https://base-sepolia.g.alchemy.com/v2/hS_lVzkyS3Uio080pGgNiC0pdagf5iM1']
+        },
+        public: {
+            http: ['https://base-sepolia.g.alchemy.com/v2/hS_lVzkyS3Uio080pGgNiC0pdagf5iM1']
+        }
+    },
+    testnet: true,
+};
 const {chains, publicClient} = configureChains(
-    [sepolia, localhost],
+    [baseSep, localhost],
     [
         alchemyProvider({apiKey: 'CSgNtTJ6_Clrf1zNjVp2j1ppfLE2-aVX'}),
         publicProvider()
