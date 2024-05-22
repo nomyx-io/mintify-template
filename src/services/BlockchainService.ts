@@ -93,7 +93,8 @@ export default class BlockchainService {
 
             const totalAmount = depositData.reduce((accumulator:any, depositEntry:any)=>accumulator += parseInt(depositEntry.amount), 0);
             const usdcContractWithSinger : any = this.usdcService?.connect(this.signer);
-            const parsedTotalAmount =   parseEther(totalAmount.toString());
+            //const parsedTotalAmount =   parseEther(totalAmount.toString());
+            const parsedTotalAmount = parseUnits(totalAmount.toString(), 6); // Assuming 6 decimal places for USDC
             let tx = await usdcContractWithSinger.approve(this.treasuryAddress, parsedTotalAmount);
             await tx.wait();
 
