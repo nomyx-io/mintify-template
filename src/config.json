@@ -1,5 +1,5 @@
 {
     "applicationId": "appId",
     "masterKey": "appMasterKey",
-    "serverURL": "https://lenderlab-uat.gemforce.host"
+    "serverURL": "http://127.0.0.1:8337"
 }
