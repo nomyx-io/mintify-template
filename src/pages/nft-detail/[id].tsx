@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react'
 import {getDashboardLayout} from '@/Layouts'
-import {LenderLabService} from '@/services/LenderLabService'
+import {KronosService} from '@/services/KronosService'
 import NftRecordDetail from '../../components/NftRecordDetail'
 import {useRouter} from 'next/router'
 import moment from 'moment'
 import {MoneyCollectOutlined} from "@ant-design/icons";
-import LenderLabSpin from "@/components/LenderLabSpin/LenderLabSpin";
+import KronosSpin from "@/components/KronosSpin/KronosSpin";
 
 export default function NftDetail() {
     const router = useRouter()
-    const api = LenderLabService()
+    const api = KronosService()
     const [nftData, setNftData] = useState<any>()
     const [tablesData, setTablesData] = useState<any>([])
     const [loading, setLoading] = useState(false)
@@ -123,7 +123,7 @@ export default function NftDetail() {
         <div className="grid gap-3">
             {loading ? <div
                     className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center'>
-                    <LenderLabSpin/>
+                    <KronosSpin/>
                 </div> :
                 nftData && <NftRecordDetail id={id} TablesData={tablesData} detailView data={nftData}/>}
         </div>

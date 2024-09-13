@@ -115,8 +115,8 @@ const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, de
 
         </Card>
 
-        <Card title="About LenderLab Tokens">
-            <p>LenderLab Yield Generating NBT</p>
+        <Card title="About Kronos Tokens">
+            <p>Kronos Yield Generating NBT</p>
             <p className='text-[#871212]'>{`This ra-NBTI asset (Note-Backed Token) entitles you to participation rights in Loan#${data?.loanId || ""} with an origination value of $${data?.loanAmount || ""} with lender qualifier of ${data?.ficoScore || ""} FICO ranking. generating an annual yield ${data?.yield || ""}.It provides a total payout of $${data?.loanAmount || ""} over a term of ${data?.term || ""} months.`}</p>
         </Card>
 

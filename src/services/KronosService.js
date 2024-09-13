@@ -1,5 +1,5 @@
 import moment from 'moment';
-import ParseClient from './ParseClient';
+import ParseClient from './ParseClient.ts';
 import BlockchainService from "./BlockchainService.ts";
 import Error from "next/error";
 import config from "@/config.json";
@@ -10,7 +10,7 @@ const monthNames = [
     "July", "August", "September", "October", "November", "December"
 ];
 
-export const LenderLabService = () => {
+export const KronosService = () => {
 
     ParseClient.initialize()
     const getPortfolioPerformance = async () => {
@@ -184,7 +184,7 @@ export const LenderLabService = () => {
         //save other settings by iterating through settingsObj key/value pairs, skipping the defaultTokenImage key
             //for each prop on settingsObj
                 //skip defaultTokenImage prop
-                //create new LenderLabSetting record for key/value pair
+                //create new KronosSetting record for key/value pair
             //save settings to Parse
             //parseSaveRequestPromises.push(saveSettingsRecordsPromise);
 
@@ -197,7 +197,7 @@ export const LenderLabService = () => {
             if (k == 'defaultTokenImage') continue;
             
             parseSaveRequestPromises.push(ParseClient.createOrUpdateRecord(
-                'LenderLabSetting', 
+                'KronosSetting', 
                 ['key'], 
                 [k], 
                 {key:k, value: typeof setting == 'object' ? JSON.stringify(setting) : setting} 
@@ -210,7 +210,7 @@ export const LenderLabService = () => {
     }
 
     const getSettings = async () => {   
-        let records = await ParseClient.getRecords('LenderLabSetting', [], [], ["*"]);
+        let records = await ParseClient.getRecords('KronosSetting', [], [], ["*"]);
         let settingsObj = {};
 
         if(records && records.length > 0){

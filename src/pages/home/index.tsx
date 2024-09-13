@@ -1,6 +1,6 @@
 'use client'
 import KPI from '@/components/atoms/KPI'
-import {LenderLabService} from '@/services/LenderLabService'
+import {KronosService} from '@/services/KronosService'
 import {EventFeed} from '@/components/molecules/EventFeed'
 import React, {useEffect, useState} from 'react'
 import {getDashboardLayout} from '@/Layouts';
@@ -15,7 +15,7 @@ export default function Home() {
     console.log("Home");
 
     const router = useRouter()
-    const api = LenderLabService()
+    const api = KronosService()
     const [graphValues, setGraphValues] = useState<any>([])
     const [eventDetails, setEventDetails] = useState<any>({})
     const [mintedNfts, setMintedNfts] = useState<any>([])

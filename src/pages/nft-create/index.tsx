@@ -8,7 +8,7 @@ import { TransferDirection } from "antd/es/transfer";
 import { Regex } from "@/utils";
 import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
-import { LenderLabService } from "@/services/LenderLabService";
+import { KronosService } from "@/services/KronosService";
 import { useWalletAddress } from "@/context/WalletAddressContext";
 import { calculateMonthlyLoanPayment } from "@/utils";
 import { Form } from "antd";
@@ -17,7 +17,7 @@ export default function Details({ service }: any) {
   const { isConnected } = useAccount();
   const router = useRouter();
   const { walletAddress } = useWalletAddress();
-  const api = LenderLabService();
+  const api = KronosService();
   const [preview, setPreview] = useState(false);
   const [nftData, setNftData] = useState();
   const [claimTopics, setClaimTopics] = useState<any[]>([]);
