@@ -5,9 +5,18 @@ export default class ParseClient {
     static createdSchemas: any = [];
 
     public static initialize() {
-        Parse.initialize(config.applicationId, config.applicationId, config.masterKey);
+        Parse.initialize(config.applicationId, config.applicationId, config.javascriptKey);
         Parse.serverURL = config.serverURL + "/parse";
-        Parse.masterKey = config.masterKey;
+        Parse.javaScriptKey = config.javascriptKey;
+
+        // Middleware: Automatically use the session token (JWT) for all requests
+        const sessionToken = localStorage.getItem('sessionToken');
+        console.log('sessionToken from local storage: ', sessionToken);
+        if (sessionToken) {
+            Parse.User.become(sessionToken).catch((error) => {
+                console.error("Error becoming user with sessionToken:", error);
+            });
+        }
     }
 
     /**
