@@ -148,6 +148,8 @@ export default function App({Component, pageProps}: any) {
             setRole([...roles])
             setStatus(false);
 
+            localStorage.setItem('sessionToken', token);
+
             localStorage.setItem('signature', JSON.stringify({
                 "message": message,
                 "signature": signature
