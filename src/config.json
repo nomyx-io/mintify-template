@@ -1,6 +1,5 @@
 {
     "applicationId": "appId",
-    "masterKey": "appMasterKey",
     "javascriptKey": "appJavascriptKey",
     "serverURL": "http://127.0.0.1:8337"
 }

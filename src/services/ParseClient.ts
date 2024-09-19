@@ -5,7 +5,7 @@ export default class ParseClient {
     static createdSchemas: any = [];
 
     public static initialize() {
-        Parse.initialize(config.applicationId, config.applicationId, config.javascriptKey);
+        Parse.initialize(config.applicationId, config.javascriptKey);
         Parse.serverURL = config.serverURL + "/parse";
         Parse.javaScriptKey = config.javascriptKey;
 
