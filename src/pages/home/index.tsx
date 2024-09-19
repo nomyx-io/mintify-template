@@ -61,28 +61,28 @@ export default function Home() {
                 <line x1="8" y1="12" x2="12" y2="12"/>
             </svg>
             ,
-            title: "Total Initial Value",
+            title: "Total Issued Value",
             value: kpisData?.totalInitialValue
         },
         {
             icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
                 <text x="50%" y="50%" textAnchor="middle" fontSize="20" dy=".3em" fill="#fff">$</text>
             </svg>,
-            title: "Total Asset Value",
+            title: "Total Redeemed Value",
             value: kpisData?.totalAssetValue
         },
         {
             icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
                 <text x="50%" y="50%" textAnchor="middle" fontSize="20" dy=".3em" fill="#fff">$</text>
             </svg>,
-            title: "Total Yield Generated",
+            title: "Total Carbon Issued",
             value: kpisData?.totalAccruedValue
         },
         {
             icon: <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
                 <text x="50%" y="50%" textAnchor="middle" fontSize="20" dy=".3em" fill="#fff">$</text>
             </svg>,
-            title: "Total Yield Claimed",
+            title: "Total Carbon Redeemed",
             value: kpisData?.totalYieldClaimed
         },
         {
@@ -103,7 +103,7 @@ export default function Home() {
                     strokeLinejoin="round"
                 />
             </svg>,
-            title: "Total Delinquent NBTs",
+            title: "Total Redeemed Credits",
             value: kpisData?.totalDeliquent
         }];
 
@@ -216,41 +216,38 @@ export default function Home() {
     }, []);
 
     return (
+      <div className='w-full grid grid-cols-4 gap-3'>
+        <div className='flex flex-col max-h-[90vh] col-span-3 gap-5'>
+          <div className='grid grid-cols-3 h-fit items-center gap-3 flex-wrap'>
+            {KPIS &&
+              KPIS.map((kpi) => (
+                <KPI
+                  className='h-fit'
+                  key={kpi.title}
+                  icon={kpi.icon}
+                  title={kpi.title}
+                  value={kpi.value}
+                />
+              ))}
+          </div>
 
-            <div className='w-full grid grid-cols-4 gap-3'>
-                <div className="grid col-span-3 gap-y-3">
-                    <div className="grid grid-cols-3 items-center gap-3 flex-wrap">
-                        {KPIS && KPIS.map((kpi) => (
-                            <KPI
-                                key={kpi.title}
-                                icon={kpi.icon}
-                                title={kpi.title}
-                                value={kpi.value}
-                            />
-                        ))}
-                    </div>
-
-                    <Card className='w-full no-padding'>
-
-                        <Tabs>
-                            <Tabs.TabPane tab="Performance" key="1">
-                                <BarChart data={graphData} title="Net Asset Value & Yield"/>
-                            </Tabs.TabPane>
-                            <Tabs.TabPane tab="Assets" key="2">
-                                <Table columns={columns} dataSource={mintedNfts}/>
-                            </Tabs.TabPane>
-                        </Tabs>
-
-                    </Card>
-                </div>
-                <Card className='no-padding h-[90vh] overflow-y-auto'>
-                    <EventFeed
-                        data={eventDetails}
-                        tabsData={tabsData}
-                        activeTab={activeTab}
-                        setActiveTab={setActiveTab}/>
-                </Card>
-            </div>
+          <Card className='w-full flex-grow no-padding'>
+            <Tabs>
+              <Tabs.TabPane tab='Token Insights' key='1'>
+                <BarChart data={graphData} title='Net Asset Value & Yield' />
+              </Tabs.TabPane>
+              <Tabs.TabPane tab='Carbon Insights' key='2'>
+                <Table columns={columns} dataSource={mintedNfts} />
+              </Tabs.TabPane>
+            </Tabs>
+          </Card>
+        </div>
+        <Card className='no-padding h-[90vh] lg:max-w-sm overflow-y-auto'>
+          <EventFeed
+            data={eventDetails}
+          />
+        </Card>
+      </div>
     );
 }
 

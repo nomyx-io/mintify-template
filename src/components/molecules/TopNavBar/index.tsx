@@ -30,7 +30,7 @@ const TopNavBar = (props:any) => {
                   prefix={<SearchIcon/>}
                   crossOrigin={undefined}/>*/}
           </div>
-          <div className='w-1/4  flex items-center justify-end gap-5'>
+          <div className='flex items-center justify-end gap-5'>
               <ConnectButton />
               {/*<Image className='rounded-full' height={40} src={Profile} alt=""/>*/}
           </div>

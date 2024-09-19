@@ -7,7 +7,7 @@ import Compliance from '@/components/molecules/Compliance';
 
 export default function CreateNftDetails({ 
   claimTopics,
-  fields,
+  fieldGroups,
   frozen,
   image,
   targetKeys,
@@ -18,7 +18,6 @@ export default function CreateNftDetails({
   onChange,
   onSelectChange,
   onScroll,
-  handleFreeze,
     form
  }: any) {
   
@@ -41,10 +40,8 @@ export default function CreateNftDetails({
 
             <div className="col-span-1">
                 <NftDetailsForm
-                    fields={fields}
-                    frozen={frozen}
+                    fieldGroups={fieldGroups}
                     handleChange={handleInputValues}
-                    handleFreeze={handleFreeze}
                     form = {form}
                     onFinish={onFinish}
                 />

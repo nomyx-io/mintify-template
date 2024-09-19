@@ -75,7 +75,7 @@ export const AppLayout = ({children, onLoad}: any) => {
 
                     </Content>
                 </Layout>
-                <Footer style={footerStyle}>Footer</Footer>
+                {/* <Footer style={footerStyle}>Footer</Footer> */}
             </Layout>
         </AntdRegistry>
     );
