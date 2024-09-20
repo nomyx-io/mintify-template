@@ -11,7 +11,7 @@ interface IndicatorProps {
 const KPI: React.FC<IndicatorProps> = ({ icon, title, value, className }) => {
 
   return (
-    <Card className={`flex justify-center ${className} min-w-[200px]`}>
+    <Card className={`flex-1 text-center`}>
 
         <Statistic
             title={title}

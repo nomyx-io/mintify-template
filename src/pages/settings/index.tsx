@@ -8,7 +8,7 @@ import { getDashboardLayout } from '@/Layouts';
 import { useRouter } from 'next/router';
 import { useAccount } from 'wagmi';
 import ImageComp from '@/components/molecules/ImageBox';
-import { LenderLabService } from '@/services/LenderLabService';
+import { KronosService } from '@/services/KronosService';
 import { toast } from 'react-toastify';
 import { useWalletAddress } from '@/context/WalletAddressContext';
 
@@ -22,7 +22,7 @@ const Setting = () => {
   const router = useRouter();
   const [form] = Form.useForm();
   const { walletAddress, setWalletAddress } = useWalletAddress();
-  const api = LenderLabService();
+  const api = KronosService();
   const { isConnected } = useAccount();
   const [claimTopics, setClaimTopics] = useState<any[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<any[]>([]);
@@ -61,7 +61,7 @@ const Setting = () => {
     // i.e. {setting1:value1, setting2:value2, ...}
     //todo: show a toast message that will disappear once the promise returned by api.saveSettings() is resolved
     //use toast.promise
-    //look for example in this project or lenderlabs-admin-ui
+    //look for example in this project or kronos-admin-ui
     let saveApi = api.saveSettings(settings);
 
     toast.promise(saveApi, {

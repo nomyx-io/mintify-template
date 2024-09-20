@@ -5,7 +5,7 @@ import Papa from "papaparse";
 import * as XLSX from 'xlsx'
 import {FileUploader} from "react-drag-drop-files";
 import {toast} from "react-toastify";
-import {LenderLabService} from "@/services/LenderLabService";
+import {KronosService} from "@/services/KronosService";
 import styles from "./Treasury.module.scss";
 
 const Treasury = () => {
@@ -19,7 +19,7 @@ const Treasury = () => {
     const [fileColumnData, setFileColumnData] = useState<any>([]);
     const DateColumn = "Deposit Date"
     const DateFormat = "DD-MM-YYYY";
-    const api = LenderLabService();
+    const api = KronosService();
 
     function handleSendDeposit() {
         toast.promise(

@@ -1,6 +1,6 @@
 import {Spin} from "antd";
 
-const LenderLabSymbol = (props:any) => (
+const KronosSymbol = (props:any) => (
     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
          viewBox="0 0 57.2 69.6" {...props} style={{animation: "spin 2s linear infinite"}}>
         <path style={{fill: "#50D890"}} d="M0,33.1L33.1,0l6,6.1l-26.7,27l15.5,15.5l-12.7-0.3L0,33.1z"/>
@@ -8,6 +8,6 @@ const LenderLabSymbol = (props:any) => (
     </svg>
 );
 
-export default function LenderLabSpin(props: any) {
-    return (<Spin indicator={<LenderLabSymbol/>} size="large"/>);
+export default function KronosSpin(props: any) {
+    return (<Spin indicator={<KronosSymbol/>} size="large"/>);
 }

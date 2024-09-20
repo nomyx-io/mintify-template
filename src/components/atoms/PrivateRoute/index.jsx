@@ -1,7 +1,7 @@
 import {useRouter} from 'next/router';
 import {useEffect, useState} from 'react';
 import {useAccount, useDisconnect} from 'wagmi';
-import LenderLabSpin from "../../LenderLabSpin/LenderLabSpin";
+import KronosSpin from "../../KronosSpin/KronosSpin";
 
 function PrivateRoute({children, onConnect, role, forceLogout, handleForecLogout}) {
 
@@ -62,7 +62,7 @@ function PrivateRoute({children, onConnect, role, forceLogout, handleForecLogout
 
     return isConnected && role.length == 0 ? <div
         className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center'>
-        <LenderLabSpin/>
+        <KronosSpin/>
     </div> : children;
 
 }

@@ -4,7 +4,7 @@ import SideNavBar from '@/components/molecules/SideNavBar';
 import TopNavBar from '@/components/molecules/TopNavBar';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { Layout } from 'antd/es';
-import LenderLabSpin from "@/components/LenderLabSpin/LenderLabSpin";
+import KronosSpin from "@/components/KronosSpin/KronosSpin";
 import {usePageUnloadGuard} from "@/hooks";
 
 const {Footer, Content, Sider, Header } = Layout;
@@ -68,14 +68,14 @@ export const AppLayout = ({children, onLoad}: any) => {
                     <Content style={contentStyle}>
                         <div className='w-[100%] h-[100%] overflow-hidden absolute top-0 left-0 flex justify-center items-center z-20'
                              style={{backgroundColor:"rgba(0,0,0,0.8)", visibility:loading?"visible":"hidden"}}>
-                                <LenderLabSpin/>
+                                <KronosSpin/>
                         </div>
 
-                        <div className="p-5">{children}</div>
+                        <div className="p-5 w-full">{children}</div>
 
                     </Content>
                 </Layout>
-                <Footer style={footerStyle}>Footer</Footer>
+                {/* <Footer style={footerStyle}>Footer</Footer> */}
             </Layout>
         </AntdRegistry>
     );

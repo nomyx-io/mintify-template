@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import CreateNftDetails from "@/components/CreateNftDetails";
 import NftRecordDetail from "../../components/NftRecordDetail";
 import { getDashboardLayout } from "@/Layouts";
@@ -8,7 +8,7 @@ import { TransferDirection } from "antd/es/transfer";
 import { Regex } from "@/utils";
 import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
-import { LenderLabService } from "@/services/LenderLabService";
+import { KronosService } from "@/services/KronosService";
 import { useWalletAddress } from "@/context/WalletAddressContext";
 import { calculateMonthlyLoanPayment } from "@/utils";
 import { Form } from "antd";
@@ -17,32 +17,39 @@ export default function Details({ service }: any) {
   const { isConnected } = useAccount();
   const router = useRouter();
   const { walletAddress } = useWalletAddress();
-  const api = LenderLabService();
+  const api = KronosService();
   const [preview, setPreview] = useState(false);
   const [nftData, setNftData] = useState();
   const [claimTopics, setClaimTopics] = useState<any[]>([]);
+
+  // form fields
   const [nftTitle, setNftTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [loanId, setLoanId] = useState("");
-  const [loanAmount, setLoanAmount] = useState("");
-  const [term, setTerm] = useState("");
-  const [ficoScore, setFicoScore] = useState("");
-  const [yields, setYields] = useState("");
-  const [monthly, setMonthly] = useState("");
-  const [discount, setDiscount] = useState("");
-  const [location, setLocation] = useState("");
-  const [price, setPrice] = useState("");
+  const [registerId, setRegisterId] = useState("");
+  const [trancheCutoff, setTrancheCutoff] = useState("");
+  const [carbonAmount, setCarbonAmount] = useState("");
   const [mintAddress, setMintAddress] = useState(walletAddress);
-  const [currentValue, setCurrentValue] = useState("");
-  const [originationDate, setOriginationDate] = useState("");
   const [frozen, setFrozen] = useState(false);
+  
+  const [issuanceDate, setIssuanceDate] = useState("");
+  const [issuingEntity, setIssuingEntity] = useState("");
+  const [projectName, setProjectName] = useState("");
+  const [auditor, setAuditor] = useState("");
+  const [useLocation, setUseLocation] = useState(false);
+  const [location, setLocation] = useState("");
+
+  const [price, setPrice] = useState("");
+  const [useDiscount, setUseDiscount] = useState(false);
+  const [discount, setDiscount] = useState("");
+  const [finalPrice, setFinalPrice] = useState("");
+
   const [defaultTokenImageUrl, setDefaultTokenImageUrl] = useState("");
 
   const [form] = Form.useForm();
 
-  const handleInputValues = (e: any) => {
+  const handleInputValues = (e: any, inputName: string) => {
     // Set state for all fields normally
-    const name = e.target.name;
+    const name = inputName || e.target.name;
     const value = e.target.value;
     switch (name) {
       case "nftTitle":
@@ -51,107 +58,61 @@ export default function Details({ service }: any) {
       case "description":
         setDescription(value);
         break;
-      case "loanId":
-        setLoanId(value);
+      case "registerId":
+        setRegisterId(value);
         break;
-      case "loanAmount":
-        setLoanAmount(value);
+      case "trancheCutoff":
+        setTrancheCutoff(value);
         break;
-      case "term":
-        setTerm(value);
-        break;
-      case "fico":
-        setFicoScore(value);
-        break;
-      case "yields":
-        setYields(value);
-        break;
-      case "monthly":
-        setMonthly(value);
-        break;
-      case "discount":
-        setDiscount(value);
-        break;
-      case "location":
-        setLocation(value);
-        break;
-      case "price":
-        setPrice(value);
+      case "carbonAmount":
+        setCarbonAmount(value);
         break;
       case "mintAddress":
         setMintAddress(value);
         break;
-      case "currentValue":
-        setCurrentValue(value);
+      case "freeze":
+        setFrozen(!frozen);
         break;
-      case "originationDate":
-        setOriginationDate(value);
+      
+      case "issuanceDate":
+        setIssuanceDate(value);
+        break;
+      case "issuingEntity":
+        setIssuingEntity(value);
+        break;
+      case "projectName":
+        setProjectName(value);
+        break;
+      case "auditor":
+        setAuditor(value);
+        break;
+      case "useLocation":
+        setUseLocation(!useLocation);
+        break;
+      case "location":
+        setLocation(value);
+        break;
+
+      case "price":
+        setPrice(value);
+        break;
+      case "useDiscount":
+        setUseDiscount(!useDiscount);
+        break;
+      case "discount":
+        setDiscount(value);
         break;
 
       default:
         break;
-    }
 
-    if (name === "loanAmount" || name === "term" || name === "yields") {
-      const loanAmountValue =
-        name === "loanAmount" ? parseFloat(value) : parseFloat(loanAmount);
-      const termValue = name === "term" ? parseFloat(value) : parseFloat(term);
-      // assuming yields field relates to the annual interest rate
-      const interestRateValue =
-        name === "yields" ? parseFloat(value) : parseFloat(yields);
-
-      if (
-        !isNaN(loanAmountValue) &&
-        !isNaN(termValue) &&
-        !isNaN(interestRateValue)
-      ) {
-        try {
-          const monthlyPayment = calculateMonthlyLoanPayment(
-            loanAmountValue,
-            termValue,
-            interestRateValue
-          );
-          setMonthly(monthlyPayment.toFixed(2));
-          form.setFieldValue("monthly", monthlyPayment.toFixed(2));
-        } catch (error) {
-          console.error("Error calculating monthly payment", error);
-        }
       }
-    }
-
-    if (name == "loanId" || name == "loanAmount" || name == "yield") {
-      // setNftTitle(`${loanId}${loanAmount}(${yields})`);
-      const loanIdValue = name === "loanId" ? value : loanId || "";
-      const loanAmountValue =
-        name === "loanAmount"
-          ? parseFloat(value)
-          : loanAmount
-          ? parseFloat(loanAmount)
-          : "";
-      const interestRateValue =
-        name === "yields"
-          ? parseFloat(value)
-          : yields
-          ? parseFloat(yields)
-          : "";
-
-      // const nftTitle = `${loanIdValue}.${loanAmountValue}(${interestRateValue})`;
-      const nftTitle = `${loanIdValue}${loanAmountValue}${interestRateValue}`;
-      setNftTitle(nftTitle);
-      form.setFieldValue("nftTitle", nftTitle);
-    }
   };
 
   // Update the mintAddress state when the walletAddress context value changes
   useEffect(() => {
     setMintAddress(walletAddress);
   }, [walletAddress]);
-
-  interface RecordType {
-    key: string;
-    title: string;
-    description: string;
-  }
 
   const [targetKeys, setTargetKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
@@ -184,21 +145,20 @@ export default function Details({ service }: any) {
     handlePreview({
       nftTitle,
       description,
-      loanId,
-      loanAmount,
-      term,
-      ficoScore,
-      yields,
-      monthly,
-      discount,
+      registerId,
+      trancheCutoff,
+      carbonAmount,
+      mintAddress,
+      freeze,
+      issuanceDate,
+      issuingEntity,
+      projectName,
+      auditor,      
       location,
       price,
-      mintAddress,
+      discount,
       targetKeys,
       defaultTokenImageUrl,
-      originationDate,
-      currentValue,
-      freeze,
     });
   };
 
@@ -212,197 +172,220 @@ export default function Details({ service }: any) {
     message: `This field must be numeric only.`,
   };
 
-  const fields = [
+  const fieldGroups = [
     {
-      label: "NFT Title",
-      name: "nftTitle",
-      dataType: "text",
-      placeHolder: "Enter Loan ID.Total Amount(Yield)",
-      defaultValue: nftTitle,
-      value: nftTitle,
-      rules: [requiredRule, alphaNumericRule, { max: 30 }],
-      gridSpan: 2,
-    },
-    {
-      label: "Description",
-      name: "description",
-      dataType: "text",
-      placeHolder: "Add a description for the NFT",
-      defaultValue: description,
-      value: description,
-      rules: [{ ...requiredRule, max: 256 }],
-      gridSpan: 2,
-    },
-
-    {
-      label: "",
-      name: "loanId",
-      dataType: "text",
-      placeHolder: "Enter Loan ID",
-      defaultValue: loanId,
-      value: loanId,
-      rules: [requiredRule, alphaNumericRule],
-    },
-    {
-      label: "",
-      name: "currentValue",
-      dataType: "text",
-      placeHolder: "Enter Current Value",
-      defaultValue: currentValue,
-      value: currentValue,
-      prefix: "$",
-      rules: [
-        requiredRule,
+      name: '',
+      fields: [
         {
-          pattern: Regex.maxCharWithDecimal(10, 2),
-          message:
-            "Please enter a value with up to 10 digits and 2 decimal places.",
+          label: 'NFT Title',
+          name: 'nftTitle',
+          dataType: 'text',
+          placeHolder: 'Enter Loan ID.Total Amount(Yield)',
+          defaultValue: nftTitle,
+          value: nftTitle,
+          rules: [requiredRule, alphaNumericRule, { max: 30 }],
+          gridSpan: 2,
         },
-      ],
-    },
-
-    {
-      label: "",
-      name: "originationDate",
-      dataType: "date",
-      placeHolder: "Enter Loan Origination Date",
-      defaultValue: originationDate,
-      value: originationDate,
-      rules: [requiredRule],
-    },
-    {
-      label: "",
-      name: "loanAmount",
-      dataType: "text",
-      placeHolder: "Enter Loan Origination Amount",
-      defaultValue: loanAmount,
-      value: loanAmount,
-      prefix: "$",
-      rules: [
-        requiredRule,
         {
-          pattern: Regex.maxCharWithDecimal(9, 2),
-          message:
-            "Please enter a value with up to 9 digits and 2 decimal places.",
+          label: 'Description',
+          name: 'description',
+          dataType: 'text',
+          placeHolder: 'Add a description for the NFT',
+          defaultValue: description,
+          value: description,
+          rules: [{ ...requiredRule, max: 256 }],
+          gridSpan: 2,
         },
-      ],
-    },
-
-    {
-      label: "",
-      name: "term",
-      dataType: "text",
-      placeHolder: "Enter Term",
-      defaultValue: term,
-      value: term,
-      prefix: "M",
-      rules: [requiredRule, numericRule, { max: 3 }],
-    },
-    {
-      label: "",
-      name: "fico",
-      dataType: "text",
-      placeHolder: "Enter FICO Score",
-      defaultValue: ficoScore,
-      value: ficoScore,
-      rules: [requiredRule, numericRule, { max: 3 }],
-    },
-
-    {
-      label: "",
-      name: "yields",
-      dataType: "text",
-      placeHolder: "Enter Interest Rate",
-      defaultValue: yields,
-      value: yields,
-      prefix: "%",
-      rules: [
-        requiredRule,
         {
-          pattern: Regex.maxCharWithDecimal(2, 3),
-          message:
-            "Please enter a value with up to 2 digits and 3 decimal places.",
+          label: 'Registry ID',
+          name: 'registerId',
+          dataType: 'text',
+          placeHolder: 'Enter Registry ID',
+          defaultValue: registerId,
+          value: registerId,
+          rules: [requiredRule, alphaNumericRule],
+        },
+        {
+          label: 'Tranche Cutoff',
+          name: 'trancheCutoff',
+          dataType: 'text',
+          placeHolder: 'Enter Tranche Cutoff',
+          defaultValue: trancheCutoff,
+          value: trancheCutoff,
+          rules: [requiredRule],
+        },
+        {
+          label: 'Carbon Amount',
+          name: 'carbonAmount',
+          dataType: 'text',
+          placeHolder: 'Enter Total Carbon Issued Amount',
+          defaultValue: carbonAmount,
+          value: carbonAmount,
+          prefix: '$',
+          rules: [
+            requiredRule,
+            {
+              pattern: Regex.maxCharWithDecimal(9, 2),
+              message:
+                'Please enter a value with up to 9 digits and 2 decimal places.',
+            },
+          ],
+        },
+        {
+          label: 'Mint to',
+          name: 'mintAddress',
+          dataType: 'text',
+          placeHolder: 'Enter Wallet Address',
+          defaultValue: mintAddress,
+          value: mintAddress,
+          rules: [
+            {
+              required: true,
+              pattern: Regex.ethereumAddress,
+              message: 'This field must be an ethereum address.',
+            },
+          ],
+          gridSpan: 2,
+        },
+        {
+          label: 'Freeze',
+          name: 'freeze',
+          dataType: 'checkbox',
+          placeHolder: 'Freeze',
+          defaultValue: frozen,
+          value: frozen,
+          rules: [requiredRule],
+          className: 'col-span-2',
         },
       ],
     },
     {
-      label: "",
-      name: "monthly",
-      dataType: "text",
-      placeHolder: "Enter Monthly Payment",
-      defaultValue: monthly,
-      value: monthly,
-      prefix: "$",
-      rules: [
-        requiredRule,
+      name: 'Issuance Information',
+      fields: [
         {
-          pattern: Regex.maxCharWithDecimal(9, 2),
-          message:
-            "Please enter a value with up to 9 digits and 2 decimal places.",
+          label: 'Issuance Date',
+          name: 'issuanceDate',
+          dataType: 'date',
+          placeHolder: 'mm/dd/yyyy',
+          defaultValue: issuanceDate,
+          value: issuanceDate,
+          rules: [requiredRule],
+        },
+        {
+          label: 'Issuing Entity',
+          name: 'issuingEntity',
+          dataType: 'text',
+          placeHolder: 'Enter Issuing Entity',
+          defaultValue: issuingEntity,
+          value: issuingEntity,
+          rules: [requiredRule],
+        },
+        {
+          label: 'Project/Site Name',
+          name: 'projectName',
+          dataType: 'text',
+          placeHolder: 'Enter Project/Site Name',
+          defaultValue: projectName,
+          value: projectName,
+          rules: [requiredRule],
+        },
+        {
+          label: 'Auditor',
+          name: 'auditor',
+          dataType: 'text',
+          placeHolder: 'Enter Auditor',
+          defaultValue: auditor,
+          value: auditor,
+          rules: [requiredRule],
+        },
+        {
+          label: 'Use Location of Issuance',
+          name: 'useLocation',
+          dataType: 'checkbox',
+          placeHolder: 'Use Location',
+          defaultValue: useLocation,
+          value: useLocation,
+          className: 'col-span-2',
+        },
+        {
+          label: 'Location of Issuance',
+          name: 'location',
+          dataType: 'text',
+          placeHolder: 'Location of Issuance (first three letters of zip)',
+          defaultValue: location,
+          value: location,
+          rules: useLocation ? [requiredRule, numericRule, { max: 3 }] : [],
+          className: `${useLocation ? '' : 'hidden'}`,
         },
       ],
     },
-
     {
-      label: "",
-      name: "discount",
-      dataType: "text",
-      placeHolder: "Enter Discount Coupan (%age off)",
-      defaultValue: discount,
-      value: discount,
-      prefix: "%",
-      rules: [
-        requiredRule,
+      name: 'Pricing Information',
+      fields: [
         {
-          pattern: Regex.maxCharWithDecimal(2, 2),
-          message:
-            "Please enter a value with up to 2 digits and 2 decimal places.",
+          label: 'Price',
+          name: 'price',
+          dataType: 'text',
+          placeHolder: 'Price',
+          defaultValue: price,
+          value: price,
+          prefix: '$',
+          rules: [
+            requiredRule,
+            {
+              pattern: Regex.maxCharWithDecimal(9, 2),
+              message:
+                'Please enter a value with up to 9 digits and 2 decimal places.',
+            },
+          ],
+          gridSpan: 2,
+        },
+        {
+          label: 'Use Discount',
+          name: 'useDiscount',
+          dataType: 'checkbox',
+          placeHolder: 'Use Discount',
+          defaultValue: useDiscount,
+          value: useDiscount,
+          className: 'col-span-2',
+        },
+        {
+          label: 'Discount',
+          name: 'discount',
+          dataType: 'text',
+          placeHolder: 'Enter Percent Discount',
+          defaultValue: discount,
+          value: discount,
+          prefix: '%',
+          rules: [
+            {
+              pattern: Regex.maxCharWithDecimal(2, 2),
+              message:
+                'Please enter a value with up to 2 digits and 2 decimal places.',
+            },
+          ],
+          className: `${useDiscount ? '' : 'hidden'}`,
+        },
+        {
+          label: 'Final Price',
+          name: 'finalPrice',
+          dataType: 'text',
+          placeHolder: 'Final Price',
+          defaultValue: finalPrice,
+          value: finalPrice,
+          prefix: '$',
+          rules: useDiscount ? [
+            requiredRule,
+            {
+              pattern: Regex.maxCharWithDecimal(9, 2),
+              message:
+                'Please enter a value with up to 9 digits and 2 decimal places.',
+            },
+          ] : [],
+          className: `${useDiscount ? '' : 'hidden'}`,
+          disabled: true,
         },
       ],
-    },
-    {
-      label: "",
-      name: "location",
-      dataType: "text",
-      placeHolder: "Location of Issuance (first three letters of zip)",
-      defaultValue: location,
-      value: location,
-      rules: [requiredRule, numericRule, { max: 3 }],
-    },
-
-    {
-      label: "Mint to",
-      name: "mintAddress",
-      dataType: "text",
-      placeHolder: "Enter Wallet Address",
-      defaultValue: mintAddress,
-      value: mintAddress,
-      rules: [
-        {
-          required: true,
-          pattern: Regex.ethereumAddress,
-          message: "This field must be an ethereum address.",
-        },
-      ],
-      gridSpan: 2,
-    },
-    {
-      label: "Pricing",
-      name: "price",
-      dataType: "text",
-      placeHolder: "Price",
-      defaultValue: price,
-      value: price,
-      prefix: "$",
-      rules: [
-        requiredRule,
-        {
-          pattern: Regex.maxCharWithDecimal(9, 2),
-          message:
-            "Please enter a value with up to 9 digits and 2 decimal places.",
-        },
-      ],
-      gridSpan: 2,
     },
   ];
 
@@ -414,6 +397,15 @@ export default function Details({ service }: any) {
   useEffect(() => {
     !isConnected && router.push("/login");
   }, []);
+
+  useEffect(() => {
+    console.log('price:', price);
+    const finalDiscount = useDiscount ? Number(discount) : 0;
+    const finalPrice = Number(price) - (Number(price) * Number(finalDiscount)) / 100;
+    setFinalPrice(`${finalPrice}`);
+    form.setFieldValue('finalPrice', finalPrice);
+    console.log('finalPrice:', finalPrice);
+  }, [price, discount, useDiscount, form]);
 
   const getClaimTopics = async () => {
     const claims = service && (await service.getClaimTopics());
@@ -443,100 +435,91 @@ export default function Details({ service }: any) {
     setNftData(data);
     setPreview(true);
   };
+  
   const handleBack = () => {
     setPreview(false);
   };
 
-  const handleFreeze = () => {
-    setFrozen(!frozen);
-  };
-
   const metadata = [
     {
-      key: "nftTitle",
+      key: 'nftTitle',
       attributeType: 1,
       value: nftTitle,
     },
     {
-      key: "description",
+      key: 'description',
       attributeType: 1,
       value: description,
     },
     {
-      key: "loanId",
+      key: 'registerId',
       attributeType: 1,
-      value: loanId,
+      value: registerId,
     },
     {
-      key: "currentValue",
+      key: 'trancheCutoff',
       attributeType: 1,
-      value: currentValue,
+      value: trancheCutoff,
     },
     {
-      key: "loanAmount",
+      key: 'carbonAmount',
       attributeType: 1,
-      value: loanAmount,
+      value: carbonAmount,
     },
     {
-      key: "originationDate",
-      attributeType: 1,
-      value: originationDate,
-    },
-    {
-      key: "term",
-      attributeType: 1,
-      value: term,
-    },
-
-    {
-      key: "ficoScore",
-      attributeType: 1,
-      value: ficoScore,
-    },
-    {
-      key: "monthly",
-      attributeType: 1,
-      value: monthly,
-    },
-    {
-      key: "discount",
-      attributeType: 1,
-      value: discount,
-    },
-    {
-      key: "location",
-      attributeType: 1,
-      value: location,
-    },
-    {
-      key: "price",
-      attributeType: 1,
-      value: price,
-    },
-    {
-      key: "image",
-      attributeType: 1,
-      value: defaultTokenImageUrl || "",
-    },
-    {
-      key: "yields",
-      attributeType: 1,
-      value: yields,
-    },
-    {
-      key: "claimTopics",
-      attributeType: 0,
-      value: targetKeys ? targetKeys.join(",") : targetKeys,
-    },
-    {
-      key: "mintAddress",
+      key: 'mintAddress',
       attributeType: 1,
       value: mintAddress,
     },
     {
-      key: "frozen",
+      key: 'frozen',
       attributeType: 1,
       value: frozen,
+    },
+    {
+      key: 'issuanceDate',
+      attributeType: 1,
+      value: issuanceDate,
+    },
+    {
+      key: 'issuingEntity',
+      attributeType: 1,
+      value: issuingEntity,
+    },
+    {
+      key: 'projectName',
+      attributeType: 1,
+      value: projectName,
+    },
+    {
+      key: 'auditor',
+      attributeType: 1,
+      value: auditor,
+    },
+    {
+      key: 'location',
+      attributeType: 1,
+      value: location,
+    },
+    {
+      key: 'price',
+      attributeType: 1,
+      value: price,
+    },
+    {
+      key: 'discount',
+      attributeType: 1,
+      value: discount,
+    },
+    {
+      key: 'image',
+      attributeType: 1,
+      value: defaultTokenImageUrl || '',
+    },
+    {
+      key: 'claimTopics',
+      attributeType: 0,
+      value: targetKeys ? targetKeys.join(',') : targetKeys,
     },
   ];
   const handleMint = async () => {
@@ -546,17 +529,17 @@ export default function Details({ service }: any) {
           await service.llmint(metadata).then(() => {
             setNftTitle("");
             setDescription("");
-            setLoanId("");
-            setLoanAmount("");
-            setTerm("");
-            setFicoScore("");
-            setYields("");
-            setMonthly("");
-            setDiscount("");
+            setRegisterId("");
+            setTrancheCutoff("");
+            setCarbonAmount("");
+            setMintAddress("");
+            setIssuanceDate("");
+            setIssuingEntity("");
+            setProjectName("");
+            setAuditor("");
             setLocation("");
             setPrice("");
-            setOriginationDate("");
-            setCurrentValue("");
+            setDiscount("");
             setTargetKeys([]);
             setPreview(false);
             setFrozen(false);
@@ -594,8 +577,7 @@ export default function Details({ service }: any) {
       ) : (
         <CreateNftDetails
           claimTopics={claimTopics}
-          fields={fields}
-          frozen={frozen}
+          fieldGroups={fieldGroups}
           form={form}
           image={defaultTokenImageUrl}
           targetKeys={targetKeys}
@@ -605,7 +587,6 @@ export default function Details({ service }: any) {
           onChange={onChange}
           onSelectChange={onSelectChange}
           onScroll={onScroll}
-          handleFreeze={handleFreeze}
         />
       )}
     </>

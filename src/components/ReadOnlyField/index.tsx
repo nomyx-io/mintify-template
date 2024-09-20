@@ -7,7 +7,7 @@ const ReadOnlyField = ({ image, label, children }: any) => {
                 {image && image}
                 {label && label}
             </p>
-            <div>
+            <div className='truncate'>
                 {children}
             </div>
         </div>

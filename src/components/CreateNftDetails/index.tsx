@@ -7,7 +7,7 @@ import Compliance from '@/components/molecules/Compliance';
 
 export default function CreateNftDetails({ 
   claimTopics,
-  fields,
+  fieldGroups,
   frozen,
   image,
   targetKeys,
@@ -18,7 +18,6 @@ export default function CreateNftDetails({
   onChange,
   onSelectChange,
   onScroll,
-  handleFreeze,
     form
  }: any) {
   
@@ -37,19 +36,14 @@ export default function CreateNftDetails({
   };
 
   return (
-    <div className='w-full grid gap-3'>
+    <div className='w-full flex flex-col gap-3'>
 
-            <div className="col-span-1">
                 <NftDetailsForm
-                    fields={fields}
-                    frozen={frozen}
+                    fieldGroups={fieldGroups}
                     handleChange={handleInputValues}
-                    handleFreeze={handleFreeze}
                     form = {form}
                     onFinish={onFinish}
                 />
-            </div>
-            <div className="col-span-1">
                 <Compliance
                     claimTopics={claimTopics}
                     targetKeys={targetKeys}
@@ -58,7 +52,6 @@ export default function CreateNftDetails({
                     onSelectChange={onSelectChange}
                     onScroll={onScroll}
                 />
-            </div>
 
 
         <div className="actions flex gap-3">

@@ -15,18 +15,18 @@ const topFields: any = [
 ];
 
 const fields: any = [
-    {name: 'nftTitle', label: 'Name', align: 'center', sortable: true },
-    {name: 'loanId', label: 'Loan Id', align: 'center', sortable: true },
-    { name: 'originationDate', label: 'Origination Date', align: 'center' },
-    { name: 'currentValue', label: 'Current Value', align: 'center', sortable: true },
-    { name: 'loanAmount', label: 'Origination Amount', align: 'center', sortable: true },
-    { name: 'monthly', label: 'Monthly Amount', align: 'center' },
-    { name: 'term', label: 'Term', align: 'center' },
-    { name: 'yields', label: 'Interest Rate', align: 'center' },
-    { name: 'discount', label: 'Discount', align: 'center' },
-    { name: 'ficoScore', label: 'Fico', align: 'center' },
-    { name: 'location', label: 'Location of Issuance', align: 'center' },
-    { name: 'freeze', label: 'Frozen', align: 'center' }
+    { name: 'nftTitle', label: 'Name', align: 'center', sortable: true },
+    { name: 'trancheCutoff', label: 'Tranche Cutoff', align: 'center' },
+    { name: 'projectName', label: 'Project/Site Name', align: 'center' },
+    { name: 'registerId', label: 'Registry Id', align: 'center', sortable: true },
+    { name: 'mintAddress', label: 'Mint to', align: 'center' },
+    { name: 'auditor', label: 'Auditor', align: 'center' },
+    { name: 'carbonAmount', label: 'Carbon Amount', align: 'center', sortable: true },
+    { name: 'issuanceDate', label: 'Issuance Date', align: 'center' },
+    { name: 'description', label: 'Description', align: 'center' },
+    { name: 'carbonAmount', label: 'Carbon Amount', align: 'center' },
+    { name: 'issuingEntity', label: 'Issuing Entity', align: 'center' },
+    { name: 'description', label: 'Description', align: 'center' },
 ];
 
 const gridStyle: React.CSSProperties = {
@@ -49,10 +49,10 @@ const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, de
                 <Card.Grid
                     key={`field-${index}`}
 
-                    className="grid-cols-1"
+                    className="grid-cols-1 overflow-hidden text-ellipsis"
                 >
                     <div className="card-label">{field.label}</div>
-                    <div className="card-value text-lg">{data[field.name]}</div>
+                    <div className="card-value truncate">{data[field.name]}</div>
 
                 </Card.Grid>
             ))}
@@ -72,10 +72,10 @@ const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, de
                             <ReadOnlyField
                                 key={`field-${index}`}
                                 label={(<span className="card-label">{field.label}</span>)}
-                                className="grid-cols-1"
+                                className="grid-cols-1 overflow-hidden text-ellipsis"
                             >
 
-                                <span className="card-value">{data[field.name]}</span>
+                                <span className="card-value text-sm">{data[field.name]}</span>
 
                             </ReadOnlyField>
                         ))}
@@ -115,14 +115,14 @@ const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, de
 
         </Card>
 
-        <Card title="About LenderLab Tokens">
-            <p>LenderLab Yield Generating NBT</p>
+        <Card title="About Kronos Tokens">
+            <p>Kronos Yield Generating NBT</p>
             <p className='text-[#871212]'>{`This ra-NBTI asset (Note-Backed Token) entitles you to participation rights in Loan#${data?.loanId || ""} with an origination value of $${data?.loanAmount || ""} with lender qualifier of ${data?.ficoScore || ""} FICO ranking. generating an annual yield ${data?.yield || ""}.It provides a total payout of $${data?.loanAmount || ""} over a term of ${data?.term || ""} months.`}</p>
         </Card>
 
         {!detailView && <>
 
-            <div className='w-[30%] flex flex-col gap-4'>
+            <div className='w-full flex justify-end gap-4 pt-2'>
                 <Button onClick={handleBack}>Back</Button>
                 <Button onClick={handleMint}>Mint</Button>
             </div>
