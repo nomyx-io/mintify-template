@@ -4,8 +4,8 @@ import SideNavBar from '@/components/molecules/SideNavBar';
 import TopNavBar from '@/components/molecules/TopNavBar';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { Layout } from 'antd/es';
-import KronosSpin from "@/components/KronosSpin/KronosSpin";
-import {usePageUnloadGuard} from "@/hooks";
+import KronosSpin from "@/components/KronosSpin";
+import {usePageUnloadGuard} from "@/hooks/usePageUnloadGuard";
 
 const {Footer, Content, Sider, Header } = Layout;
 
