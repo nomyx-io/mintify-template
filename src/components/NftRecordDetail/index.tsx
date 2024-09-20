@@ -49,10 +49,10 @@ const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, de
                 <Card.Grid
                     key={`field-${index}`}
 
-                    className="grid-cols-1"
+                    className="grid-cols-1 overflow-hidden text-ellipsis"
                 >
                     <div className="card-label">{field.label}</div>
-                    <div className="card-value">{data[field.name]}</div>
+                    <div className="card-value truncate">{data[field.name]}</div>
 
                 </Card.Grid>
             ))}
@@ -72,7 +72,7 @@ const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, de
                             <ReadOnlyField
                                 key={`field-${index}`}
                                 label={(<span className="card-label">{field.label}</span>)}
-                                className="grid-cols-1"
+                                className="grid-cols-1 overflow-hidden text-ellipsis"
                             >
 
                                 <span className="card-value text-sm">{data[field.name]}</span>

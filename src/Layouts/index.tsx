@@ -71,7 +71,7 @@ export const AppLayout = ({children, onLoad}: any) => {
                                 <KronosSpin/>
                         </div>
 
-                        <div className="p-5">{children}</div>
+                        <div className="p-5 w-full">{children}</div>
 
                     </Content>
                 </Layout>

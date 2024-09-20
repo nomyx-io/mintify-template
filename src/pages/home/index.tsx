@@ -217,12 +217,11 @@ export default function Home() {
 
     return (
       <div className='w-full grid grid-cols-4 gap-3'>
-        <div className='flex flex-col max-h-[90vh] col-span-3 gap-5'>
-          <div className='grid grid-cols-3 h-fit items-center gap-3 flex-wrap'>
+        <div className='col-span-3'>
+          <div className='flex lg:grid grid-cols-3 gap-3 pb-3 flex-wrap'>
             {KPIS &&
               KPIS.map((kpi) => (
                 <KPI
-                  className='h-fit'
                   key={kpi.title}
                   icon={kpi.icon}
                   title={kpi.title}

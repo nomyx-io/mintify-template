@@ -314,7 +314,7 @@ export default function Details({ service }: any) {
           placeHolder: 'Location of Issuance (first three letters of zip)',
           defaultValue: location,
           value: location,
-          rules: [requiredRule, numericRule, { max: 3 }],
+          rules: useLocation ? [requiredRule, numericRule, { max: 3 }] : [],
           className: `${useLocation ? '' : 'hidden'}`,
         },
       ],
@@ -374,14 +374,14 @@ export default function Details({ service }: any) {
           defaultValue: finalPrice,
           value: finalPrice,
           prefix: '$',
-          rules: [
+          rules: useDiscount ? [
             requiredRule,
             {
               pattern: Regex.maxCharWithDecimal(9, 2),
               message:
                 'Please enter a value with up to 9 digits and 2 decimal places.',
             },
-          ],
+          ] : [],
           className: `${useDiscount ? '' : 'hidden'}`,
           disabled: true,
         },

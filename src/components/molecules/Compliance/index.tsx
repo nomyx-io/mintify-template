@@ -23,7 +23,7 @@ const Compliance = ({
   onSelectChange, 
   onScroll}: ComplianceType) => {
   return (
-    <Card title="Compliance Features">
+    <Card title="Compliance Features" className='overflow-hidden'>
       <Transfer
           dataSource={claimTopics}
           titles={['Available Claims', 'Selected Claims']}
@@ -34,6 +34,7 @@ const Compliance = ({
           onSelectChange={onSelectChange}
           onScroll={onScroll}
           render={(item) => <div>{item?.displayName}({item.topic})</div>}
+          className='overflow-x-scroll'
       />
     </Card>
   );

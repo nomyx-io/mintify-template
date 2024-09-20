@@ -36,17 +36,14 @@ export default function CreateNftDetails({
   };
 
   return (
-    <div className='w-full grid gap-3'>
+    <div className='w-full flex flex-col gap-3'>
 
-            <div className="col-span-1">
                 <NftDetailsForm
                     fieldGroups={fieldGroups}
                     handleChange={handleInputValues}
                     form = {form}
                     onFinish={onFinish}
                 />
-            </div>
-            <div className="col-span-1">
                 <Compliance
                     claimTopics={claimTopics}
                     targetKeys={targetKeys}
@@ -55,7 +52,6 @@ export default function CreateNftDetails({
                     onSelectChange={onSelectChange}
                     onScroll={onScroll}
                 />
-            </div>
 
 
         <div className="actions flex gap-3">
