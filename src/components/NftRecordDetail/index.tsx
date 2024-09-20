@@ -122,7 +122,7 @@ const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, de
 
         {!detailView && <>
 
-            <div className='w-full flex justify-end gap-4'>
+            <div className='w-full flex justify-end gap-4 pt-2'>
                 <Button onClick={handleBack}>Back</Button>
                 <Button onClick={handleMint}>Mint</Button>
             </div>
