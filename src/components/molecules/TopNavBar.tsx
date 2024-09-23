@@ -24,7 +24,7 @@ const TopNavBar = () => {
           <div>
               <Link href={'/home'}><Image alt="" src={logo} /></Link>
           </div>
-          <div className='flex items-center justify-end gap-5'>
+          <div className='hidden sm:flex items-center justify-end gap-5'>
               <ConnectButton />
           </div>
       </Header>
