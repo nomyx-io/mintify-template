@@ -19,7 +19,6 @@ const KPI: React.FC<IndicatorProps> = ({ icon, title, value, className }) => {
             valueStyle={{ color: !isNaN(Number(value))&&Number(value)>0 ? '#3f8600' : !isNaN(Number(value))&&Number(value)<0 ? '#cf1322' : "#fff"}}
             prefix={icon}
             style={{textAlign: "center"}}
-            /*suffix="%"*/
         />
 
     </Card>

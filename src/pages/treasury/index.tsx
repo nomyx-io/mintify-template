@@ -17,8 +17,7 @@ const Treasury = () => {
     const [selectedDeposit, setSelectedDeposit] = useState<any[]>([]);
     const [fileRowData, setFileRowData] = useState<any>([]);
     const [fileColumnData, setFileColumnData] = useState<any>([]);
-    const DateColumn = "Deposit Date"
-    const DateFormat = "DD-MM-YYYY";
+
     const api = KronosService();
 
     function handleSendDeposit() {
@@ -115,27 +114,6 @@ const Treasury = () => {
             return isEmpty ? null : obj;
         })
             .filter((r:any) => r !== null);
-
-        /*rowData = data.map((objdata: any, idx: any) => {
-            let obj = rowData.reduce((row: any, key: any) => {
-                let _keyname = "_" + key.split(" ").join("")
-                if (key === DateColumn) {
-                    if (typeof objdata[key] === "number") {
-                        let excelDateNumber = objdata[key];
-                        let date = new Date(Date.UTC(1900, 0, excelDateNumber - 1));
-                        let stringDate = moment(date).format(DateFormat)
-                        row[_keyname] = stringDate
-                    } else {
-                        row[_keyname] = moment(objdata[key], "DD/MM/YYYY").format(DateFormat)
-                    }
-                } else {
-                    row[_keyname] = objdata[key]
-                }
-                return row;
-            }, {})
-            obj["__rowNum__"] = objdata["__rowNum__"]
-            return obj
-        });*/
 
         setFileRowData(data);
     }

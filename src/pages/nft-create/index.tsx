@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import CreateNftDetails from "@/components/CreateNftDetails";
 import NftRecordDetail from "../../components/NftRecordDetail";
 import { getDashboardLayout } from "@/Layouts";
@@ -10,7 +10,6 @@ import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
 import { KronosService } from "@/services/KronosService";
 import { useWalletAddress } from "@/context/WalletAddressContext";
-import { calculateMonthlyLoanPayment } from "@/utils";
 import { Form } from "antd";
 
 export default function Details({ service }: any) {
