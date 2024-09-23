@@ -1,7 +1,7 @@
 import {useRouter} from 'next/router';
 import {useEffect, useState} from 'react';
 import {useAccount, useDisconnect} from 'wagmi';
-import KronosSpin from "../../KronosSpin/KronosSpin";
+import KronosSpin from "@/components/KronosSpin";
 
 function PrivateRoute({children, onConnect, role, forceLogout, handleForecLogout}) {
 

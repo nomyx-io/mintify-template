@@ -13,8 +13,6 @@ export default function Login() {
                 <Image alt="" src={logo} />
 
                 <div className='text-white text-center'>
-                    {/*<p className='font-bold text-xl mb-2'>Mintify</p>*/}
-                    {/* <p className='font-semibold text-xs'>All your ID information in one place</p> */}
                 </div>
             </div>
                 <div className='max-[550px]:hidden w-1/2 flex flex-col justify-center items-center p-2'>

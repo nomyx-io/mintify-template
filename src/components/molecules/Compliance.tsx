@@ -1,11 +1,6 @@
 import React from 'react';
 import { Transfer, Card } from 'antd';
 
-interface RecordType {
-  key: string;
-  title: string;
-  description: string;
-}
  interface ComplianceType {
   claimTopics: any,
   targetKeys: any, 
@@ -34,7 +29,7 @@ const Compliance = ({
           onSelectChange={onSelectChange}
           onScroll={onScroll}
           render={(item) => <div>{item?.displayName}({item.topic})</div>}
-          className='overflow-x-scroll'
+          className='overflow-x-scroll md:overflow-auto'
       />
     </Card>
   );

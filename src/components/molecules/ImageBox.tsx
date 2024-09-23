@@ -2,6 +2,7 @@
 
 import React from 'react';
 import {Card, Input} from "antd";
+import Image from 'next/image';
 
 const ImageBox = ({file, handleChange, previewPage = false}: any) => {
     return (
@@ -21,7 +22,7 @@ const ImageBox = ({file, handleChange, previewPage = false}: any) => {
 
                 <div
                     className={`relative ${previewPage ? 'h-[320px]' : 'h-[230px]'} p-2 flex flex-col justify-center items-center mt-1 min-w-[100px]`}>
-                        {file && <img src={file} alt="" style={{objectFit: "contain", maxHeight: "100%"}}/>}
+                        {file && <Image src={file} alt="" style={{objectFit: "contain", maxHeight: "100%"}} fill/>}
                 </div>
             </div>
         </Card>

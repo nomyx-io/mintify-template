@@ -37,7 +37,7 @@ const gridStyle: React.CSSProperties = {
 const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, detailView = false }: any) => {
 
     const router = useRouter()
-    const { nftTitle, transactionHash, image } = data;
+    const { transactionHash } = data;
     const title = detailView ? `NBT - ${data["nftTitle"]}` : 'Preview NBT</>';
     const backButton = (<Button onClick={() => router.back()} type="text" icon={<LeftOutlined/>} />);
 

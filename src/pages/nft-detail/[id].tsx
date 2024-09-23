@@ -5,7 +5,7 @@ import NftRecordDetail from '../../components/NftRecordDetail'
 import {useRouter} from 'next/router'
 import moment from 'moment'
 import {MoneyCollectOutlined} from "@ant-design/icons";
-import KronosSpin from "@/components/KronosSpin/KronosSpin";
+import KronosSpin from "@/components/KronosSpin";
 
 export default function NftDetail() {
     const router = useRouter()
