@@ -25,7 +25,12 @@ ChartJS.register(
   LineController
 );
 
-const BarChart = ({ data, title, height, width }: any) => {
+interface BarChartProps {
+  data: any;
+  title: string;
+}
+
+const BarChart = ({ data, title }: BarChartProps) => {
 
   const options = {
     responsive: true,

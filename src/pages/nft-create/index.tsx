@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, useEffect, useState } from "react";
 import CreateNftDetails from "@/components/CreateNftDetails";
 import NftRecordDetail from "../../components/NftRecordDetail";
 import { getDashboardLayout } from "@/Layouts";
@@ -12,15 +12,17 @@ import { KronosService } from "@/services/KronosService";
 import { useWalletAddress } from "@/context/WalletAddressContext";
 import { Form } from "antd";
 import { usePageUnloadGuard } from "@/hooks/usePageUnloadGuard";
+import BlockchainService from "@/services/BlockchainService";
+import { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 
-export default function Details({ service }: any) {
+export default function Details({ service }: {service: BlockchainService}) {
   const { isConnected } = useAccount();
   const router = useRouter();
   const { walletAddress } = useWalletAddress();
   const api = KronosService();
   const [preview, setPreview] = useState(false);
-  const [nftData, setNftData] = useState();
-  const [claimTopics, setClaimTopics] = useState<any[]>([]);
+  const [nftData, setNftData] = useState({});
+  const [claimTopics, setClaimTopics] = useState<ClaimTopic[]>([]);
 
   // form fields
   const [nftTitle, setNftTitle] = useState("");
@@ -54,7 +56,10 @@ export default function Details({ service }: any) {
     return true;
   };
 
-  const handleInputValues = (e: any, inputName: string) => {
+  const handleInputValues = (
+    inputName: string,
+    e: ChangeEvent<HTMLInputElement> | CheckboxChangeEvent
+  ) => {
     // Set state for all fields normally
     const name = inputName || e.target.name;
     const value = e.target.value;
@@ -80,7 +85,7 @@ export default function Details({ service }: any) {
       case "freeze":
         setFrozen(!frozen);
         break;
-      
+
       case "issuanceDate":
         setIssuanceDate(value);
         break;
@@ -113,7 +118,7 @@ export default function Details({ service }: any) {
       default:
         break;
 
-      }
+    }
   };
 
   // Update the mintAddress state when the walletAddress context value changes
@@ -124,7 +129,7 @@ export default function Details({ service }: any) {
   const [targetKeys, setTargetKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
-  const onChange = (
+  const onChange: TransferOnChange = (
     nextTargetKeys: string[],
     direction: TransferDirection,
     moveKeys: string[]
@@ -132,14 +137,14 @@ export default function Details({ service }: any) {
     setTargetKeys(nextTargetKeys);
   };
 
-  const onSelectChange = (
+  const onSelectChange: TransferOnSelectChange = (
     sourceSelectedKeys: string[],
     targetSelectedKeys: string[]
   ) => {
     setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
   };
 
-  const onScroll = (
+  const onScroll: TransferOnScroll = (
     direction: TransferDirection,
     e: React.SyntheticEvent<HTMLUListElement>
   ) => {
@@ -147,9 +152,9 @@ export default function Details({ service }: any) {
     console.log("target:", e.target);
   };
 
-  const handlePreviewFunc = () => {
+  const handlePreview = () => { 
     const freeze = JSON.stringify(frozen);
-    handlePreview({
+    setNftData({
       nftTitle,
       description,
       registerId,
@@ -167,6 +172,7 @@ export default function Details({ service }: any) {
       targetKeys,
       defaultTokenImageUrl,
     });
+    setPreview(true);
   };
 
   const requiredRule = { required: true, message: `This field is required.` };
@@ -179,7 +185,7 @@ export default function Details({ service }: any) {
     message: `This field must be numeric only.`,
   };
 
-  const fieldGroups = [
+  const fieldGroups: NftDetailsInputFieldGroup[] = [
     {
       name: '',
       fields: [
@@ -415,15 +421,15 @@ export default function Details({ service }: any) {
   }, [price, discount, useDiscount, form]);
 
   const getClaimTopics = async () => {
-    const claims = service && (await service.getClaimTopics());
-    let data: any = [];
+    const claims: Parse.Object[] | undefined = service && (await service.getClaimTopics());
+    let data: ClaimTopic[] = [];
     if (claims) {
-      claims.forEach((item: any) => {
+      claims.forEach((item: Parse.Object) => {
         data.push({
-          key: parseInt(item.attributes.topic),
-          displayName: item.attributes.displayName,
-          id: item.id,
-          topic: item.attributes.topic,
+          key: `${parseInt(item.attributes.topic)}`,
+          displayName: item.attributes.displayName as string,
+          id: item.id as string,
+          topic: item.attributes.topic as string,
         });
       });
       setClaimTopics(data);
@@ -438,10 +444,6 @@ export default function Details({ service }: any) {
     }
   };
 
-  const handlePreview = (data: any) => {
-    setNftData(data);
-    setPreview(true);
-  };
   
   const handleBack = () => {
     setPreview(false);
@@ -586,11 +588,10 @@ export default function Details({ service }: any) {
           claimTopics={claimTopics}
           fieldGroups={fieldGroups}
           form={form}
-          image={defaultTokenImageUrl}
           targetKeys={targetKeys}
           selectedKeys={selectedKeys}
           handleInputValues={handleInputValues}
-          handlePreviewFunc={handlePreviewFunc}
+          handlePreview={handlePreview}
           onChange={onChange}
           onSelectChange={onSelectChange}
           onScroll={onScroll}

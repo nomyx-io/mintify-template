@@ -125,7 +125,7 @@ export default function NftDetail() {
                     className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center'>
                     <KronosSpin/>
                 </div> :
-                nftData && <NftRecordDetail id={id} TablesData={tablesData} detailView data={nftData}/>}
+                nftData && <NftRecordDetail TablesData={tablesData} detailView data={nftData}/>}
         </div>
     )
 }

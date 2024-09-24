@@ -1,39 +1,41 @@
 "use client"
-import React from 'react'
+import React, { ChangeEvent } from 'react'
 import { useRouter } from 'next/router'
-import { Button } from 'antd';
+import { Button, FormInstance } from 'antd';
 import NftDetailsForm from '@/components/molecules/NftDetailsForm';
 import Compliance from '@/components/molecules/Compliance';
+import { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox';
+
+interface CreateNftDetailsProps {
+  claimTopics: ClaimTopic[];
+  fieldGroups: NftDetailsInputFieldGroup[];
+  targetKeys: string[];
+  selectedKeys: string[];
+  handleInputValues: (
+    inputName: string,
+    e: ChangeEvent<HTMLInputElement> | CheckboxChangeEvent
+  ) => void;
+  handlePreview: () => void; 
+  onChange: TransferOnChange;
+  onSelectChange: TransferOnSelectChange;
+  onScroll: TransferOnScroll;
+  form: FormInstance;
+}
 
 export default function CreateNftDetails({ 
   claimTopics,
   fieldGroups,
-  frozen,
-  image,
   targetKeys,
   selectedKeys,
   handleInputValues,
-  handlePreviewFunc,
-  handleImage,
+  handlePreview,
   onChange,
   onSelectChange,
   onScroll,
     form
- }: any) {
+ }: CreateNftDetailsProps) {
   
   const router = useRouter();
-
-
-  const onFinish = (values: any) => {
-    // Perform actions with form values, e.g., preview functionality if form has 
-    // been submitted all fields are valid and filled out
-      handlePreviewFunc(values);
-  };
-
-  const handlePreview = (e: any) => {
-    // trigger submit on NFT Details Form, only continue if form validation passes
-    form.submit();
-  };
 
   return (
     <div className='w-full flex flex-col gap-3'>
@@ -42,7 +44,7 @@ export default function CreateNftDetails({
                     fieldGroups={fieldGroups}
                     handleChange={handleInputValues}
                     form = {form}
-                    onFinish={onFinish}
+                    onFinish={handlePreview}
                 />
                 <Compliance
                     claimTopics={claimTopics}
@@ -56,7 +58,7 @@ export default function CreateNftDetails({
 
         <div className="actions flex gap-3">
             <Button onClick={() => router.push('/home')}>Cancel</Button>
-            <Button type="primary" onClick={handlePreview}>Preview</Button>
+            <Button type="primary" onClick={form.submit}>Preview</Button>
         </div>
     </div>
   )

@@ -9,32 +9,35 @@ import Image from "next/image";
 
 const TabPane = Tabs.TabPane;
 
-const topFields: any = [
+const topFields: NftRecordDetailField[] = [
     {name: 'mintAddress', label: 'Mint Address'},
     {name: 'description', label: 'Description'}
 ];
 
-const fields: any = [
-    { name: 'nftTitle', label: 'Name', align: 'center', sortable: true },
-    { name: 'trancheCutoff', label: 'Tranche Cutoff', align: 'center' },
-    { name: 'projectName', label: 'Project/Site Name', align: 'center' },
-    { name: 'registerId', label: 'Registry Id', align: 'center', sortable: true },
-    { name: 'mintAddress', label: 'Mint to', align: 'center' },
-    { name: 'auditor', label: 'Auditor', align: 'center' },
-    { name: 'carbonAmount', label: 'Carbon Amount', align: 'center', sortable: true },
-    { name: 'issuanceDate', label: 'Issuance Date', align: 'center' },
-    { name: 'description', label: 'Description', align: 'center' },
-    { name: 'carbonAmount', label: 'Carbon Amount', align: 'center' },
-    { name: 'issuingEntity', label: 'Issuing Entity', align: 'center' },
-    { name: 'description', label: 'Description', align: 'center' },
+const fields: NftRecordDetailField[] = [
+    { name: 'nftTitle', label: 'Name' },
+    { name: 'trancheCutoff', label: 'Tranche Cutoff' },
+    { name: 'projectName', label: 'Project/Site Name' },
+    { name: 'registerId', label: 'Registry Id' },
+    { name: 'mintAddress', label: 'Mint to' },
+    { name: 'auditor', label: 'Auditor' },
+    { name: 'carbonAmount', label: 'Carbon Amount' },
+    { name: 'issuanceDate', label: 'Issuance Date' },
+    { name: 'description', label: 'Description' },
+    { name: 'carbonAmount', label: 'Carbon Amount' },
+    { name: 'issuingEntity', label: 'Issuing Entity' },
+    { name: 'description', label: 'Description' },
 ];
 
-const gridStyle: React.CSSProperties = {
-    textAlign: 'center'
+interface NftRecordDetailProps {
+    TablesData?: any;
+    handleMint?: () => void;
+    handleBack?: () => void;
+    data: any;
+    detailView?: boolean;
+}
 
-};
-
-const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, detailView = false }: any) => {
+const NftRecordDetail = ({ TablesData = [], handleMint, handleBack, data, detailView = false }: NftRecordDetailProps) => {
 
     const router = useRouter()
     const { transactionHash } = data;
@@ -45,7 +48,7 @@ const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, de
 
     const tokenDetails = (
         <Card>
-            {fields.map((field: any, index: number) => (
+            {fields.map((field: NftRecordDetailField, index: number) => (
                 <Card.Grid
                     key={`field-${index}`}
 
@@ -68,7 +71,7 @@ const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, de
 
                     <div className="grid grid-cols-3 gap-4">
 
-                        {topFields.map((field: any, index: number) => (
+                        {topFields.map((field: NftRecordDetailField, index: number) => (
                             <ReadOnlyField
                                 key={`field-${index}`}
                                 label={(<span className="card-label">{field.label}</span>)}
@@ -82,7 +85,7 @@ const NftRecordDetail = ({ id, TablesData = [], handleMint, handleBack, data, de
 
                     </div>
         </Card>
-        <Card bodyStyle={{padding: "0"}}>
+        <Card styles={{ body: {padding: "0"}}}>
 
             {detailView && <>
                 <Tabs defaultActiveKey="1">

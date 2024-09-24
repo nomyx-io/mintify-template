@@ -16,7 +16,7 @@ export const usePageUnloadGuard = function () {
 
     // const t = useTranslations('studio');
     const pathname = usePathname();
-    const searchParams: any = useSearchParams();
+    const searchParams = useSearchParams();
 
     const listener: GuardEventListener = {
         onBeforeUnload: () => false,
