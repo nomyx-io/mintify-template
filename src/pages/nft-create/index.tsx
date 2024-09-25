@@ -11,6 +11,7 @@ import { useAccount } from "wagmi";
 import { KronosService } from "@/services/KronosService";
 import { useWalletAddress } from "@/context/WalletAddressContext";
 import { Form } from "antd";
+import { usePageUnloadGuard } from "@/hooks/usePageUnloadGuard";
 
 export default function Details({ service }: any) {
   const { isConnected } = useAccount();
@@ -45,6 +46,13 @@ export default function Details({ service }: any) {
   const [defaultTokenImageUrl, setDefaultTokenImageUrl] = useState("");
 
   const [form] = Form.useForm();
+
+  const listener = usePageUnloadGuard();
+
+  listener.onBeforeUnload = () => {
+    console.log('onBeforeUnload');
+    return true;
+  };
 
   const handleInputValues = (e: any, inputName: string) => {
     // Set state for all fields normally

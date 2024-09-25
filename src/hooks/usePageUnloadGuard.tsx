@@ -28,8 +28,6 @@ export const usePageUnloadGuard = function () {
 
     const clickHandler = (event: MouseEvent | TouchEvent) => {
 
-        console.log("clickHandler");
-
         if ((event as MouseEvent).button || event.which !== 1) return;
         if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
 
