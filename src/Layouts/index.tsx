@@ -14,11 +14,15 @@ export const AppLayout = ({children, onLoad}: any) => {
     const [loading, setLoading] = React.useState(false);
 
     useEffect(() => {
-      const handleStart = (url: string) =>
-        url !== router.asPath && setLoading(true);
-      const handleComplete = (url: string) =>
-        url === router.asPath && setLoading(false);
-
+      const handleStart = (url: string) => {
+        const path = url.split('?')[0];
+        path !== router.pathname && setLoading(true);
+      }
+      const handleComplete = (url: string) => {
+        const path = url.split('?')[0];
+        path === router.pathname && setLoading(false);
+      }
+      
       router.events.on('routeChangeStart', handleStart);
       router.events.on('routeChangeComplete', handleComplete);
       router.events.on('routeChangeError', handleComplete);
