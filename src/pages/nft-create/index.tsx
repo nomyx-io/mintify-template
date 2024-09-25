@@ -30,7 +30,7 @@ export default function Details({ service }: {service: BlockchainService}) {
   const [registerId, setRegisterId] = useState("");
   const [trancheCutoff, setTrancheCutoff] = useState("");
   const [carbonAmount, setCarbonAmount] = useState("");
-  const [mintAddress, setMintAddress] = useState(walletAddress);
+  const [mintAddress, setMintAddress] = useState<string>(walletAddress);
   const [frozen, setFrozen] = useState(false);
   
   const [issuanceDate, setIssuanceDate] = useState("");
@@ -438,7 +438,8 @@ export default function Details({ service }: {service: BlockchainService}) {
 
   const getSettings = async () => {
     if (api && api.getSettings) {
-      const settings: any = await api.getSettings();
+      const settings: any =
+        await api.getSettings();
       setDefaultTokenImageUrl(settings.defaultTokenImage?.url() || "");
       setMintAddress(settings.walletAddress);
     }
@@ -565,7 +566,7 @@ export default function Details({ service }: {service: BlockchainService}) {
         pending: "Minting Nft...",
         success: "Successfully minted Nft to " + mintAddress,
         error: {
-          render({ data }: any) {
+          render({ data }: {data?: {reason: string}}) {
             return (
               <div>{data?.reason || "An error occurred while minting Nft"}</div>
             );

@@ -1,10 +1,9 @@
-import React from 'react'
-import {Button, Card, Table, Tabs} from 'antd';
+import React, { ReactElement } from 'react'
+import {Button, Card, Table, TableColumnsType, TableColumnType, Tabs} from 'antd';
 
 import { useRouter } from 'next/router'
 import { ShareIcon } from '@/assets'
 import {LeftOutlined} from "@ant-design/icons";
-import ReadOnlyField from "@/components/ReadOnlyField";
 import Image from "next/image";
 
 const TabPane = Tabs.TabPane;
@@ -29,12 +28,27 @@ const fields: NftRecordDetailField[] = [
     { name: 'description', label: 'Description' },
 ];
 
+interface DataSource {
+  id: string;
+  createdAt: string;
+  active?: boolean;
+}
+
+interface TableData {
+  headerImage: ReactElement | string;
+  label: string;
+  tableData: DataSource[];
+  columns: TableColumnType<DataSource>[];
+}
+
 interface NftRecordDetailProps {
-    TablesData?: any;
-    handleMint?: () => void;
-    handleBack?: () => void;
-    data: any;
-    detailView?: boolean;
+  TablesData?: TableData[];
+  handleMint?: () => void;
+  handleBack?: () => void;
+  data: {
+    [key: string]: string | string[];
+  }
+  detailView?: boolean;
 }
 
 const NftRecordDetail = ({ TablesData = [], handleMint, handleBack, data, detailView = false }: NftRecordDetailProps) => {
@@ -72,15 +86,15 @@ const NftRecordDetail = ({ TablesData = [], handleMint, handleBack, data, detail
                     <div className="grid grid-cols-3 gap-4">
 
                         {topFields.map((field: NftRecordDetailField, index: number) => (
-                            <ReadOnlyField
-                                key={`field-${index}`}
-                                label={(<span className="card-label">{field.label}</span>)}
-                                className="grid-cols-1 overflow-hidden text-ellipsis"
-                            >
 
+                              <div key={`field-${index}`} className="grid-cols-1 overflow-hidden text-ellipsis font-[1.3em]">
+                                  <p className='text-xs'>
+                                      <span className="card-label">{field.label}</span>
+                                  </p>
+                                  <div className='truncate'>
                                 <span className="card-value text-sm">{data[field.name]}</span>
-
-                            </ReadOnlyField>
+                                  </div>
+                              </div>
                         ))}
 
                     </div>
@@ -91,21 +105,21 @@ const NftRecordDetail = ({ TablesData = [], handleMint, handleBack, data, detail
                 <Tabs defaultActiveKey="1">
                     <TabPane tab="Token Details" key="1">{tokenDetails}</TabPane>
 
-                    {TablesData.map((relatedList: any, index: any) => {
+                    {TablesData.map((tableData: TableData, index: number) => {
                         return (
                             <TabPane key={index + 2}
                                      tab={(
                                          <>
 
                                             <div className="mr-2 inline-block">
-                                                {React.isValidElement(relatedList.headerImage) ? (relatedList.headerImage) : (<Image alt="" src={relatedList.headerImage} height={10} width={20} className="inline-block"/>)}
+                                                {React.isValidElement(tableData.headerImage) ? (tableData.headerImage) : (<Image alt="" src={tableData.headerImage as string} height={10} width={20} className="inline-block"/>)}
                                             </div>
 
-                                             {relatedList.label}
+                                             {tableData.label}
                                          </>
                                      )}>
 
-                                <Table rowKey="id" dataSource={relatedList.tableData} columns={relatedList.columns}/>
+                                <Table rowKey="id" dataSource={tableData.tableData} columns={tableData.columns}/>
 
                             </TabPane>)
                     })}

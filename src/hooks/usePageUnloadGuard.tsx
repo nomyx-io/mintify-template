@@ -2,7 +2,7 @@
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
 
-// TODO: Implement this hook properly if we have any other option like router events
+// TODO: Implement this hook properly if we have another option like router events
 // or interceptors
 
 const clickType = typeof document !== 'undefined' && document.ontouchstart ? 'touchstart' : 'click';

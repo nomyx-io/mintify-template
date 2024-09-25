@@ -16,24 +16,14 @@ const NftDetailsForm = ({
   onFinish,
 }: NftDetailsFormProps) => {
   //build initialValues object
-  const initialValues: any = {};
+  const initialValues: { [key:string ] : object | unknown } = {};
 
   //iterate over field definitions and create a key on the initialValues
   // object with the field name as the key and the value of the field as the value
-  fieldGroups.map((group: any) => {
-    group.fields.map((field: any) => {
-      //some of fields are nested in arrays, so we need to handle them differently
-      if (typeof field.value == 'object') {
-        //for each nested field
-        field.value.map((field: any) => {
-          //add the field name as the key and the field value as the value to the initialValues object
-          initialValues[field.name] = field.value;
-        });
-        //for fields that are NOT nested in arrays
-      } else {
+  fieldGroups.map((group: NftDetailsInputFieldGroup) => {
+    group.fields.map((field: NftDetailsInputField) => {
         //add the field name as the key and the field value as the value to the initialValues object
         initialValues[field.name] = field.value;
-      }
     });
   });
 
