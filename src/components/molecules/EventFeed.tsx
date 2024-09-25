@@ -62,7 +62,7 @@ export const EventFeed = ({ data }: any) => {
     }
 
     return (
-      <div className='w-full overflow-visible'>
+      <div className='w-full'>
         <div className='flex items-center justify-between relative border-b border-[#303030] py-4 px-6'>
           <h2>Events</h2>
           <div ref={filterMenu} className='flex relative'>
