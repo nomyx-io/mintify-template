@@ -10,8 +10,8 @@ import KronosSpin from "@/components/KronosSpin";
 export default function NftDetail() {
     const router = useRouter()
     const api = KronosService()
-    const [nftData, setNftData] = useState<any>()
-    const [tablesData, setTablesData] = useState<any>([])
+    const [nftData, setNftData] = useState()
+    const [tablesData, setTablesData] = useState<TableData[]>([])
     const [loading, setLoading] = useState(false)
 
     const depositColumns = [
@@ -45,49 +45,50 @@ export default function NftDetail() {
     useEffect(() => {
         const getData = async () => {
             setLoading(true);
-            let nft: any = await api.getMintedNftDetails(id);
+            let nft = await api.getMintedNftDetails(id);
             setNftData(nft);
             setLoading(false);
         }
         getData();
     }, [])
 
-    let newTokenData: any = []
-    let newDepositData: any = []
-    let newClaimData: any = []
-    let newListData: any = []
+    let newTokenData: DataSource[] = []
+    let newClaimData: DataSource[] = []
+    let newListData: DataSource[] = []
     useEffect(() => {
 
         // debugger;
         const getNewData = async () => {
-            let token: any = await api.getMintedNftDetails(id);
+            let token = await api.getMintedNftDetails(id);
 
-            const tokenDepositData: any = await api.getTokenDepositsForToken(id);
+            const tokenDepositData = await api.getTokenDepositsForToken(id);
             const tokenId = token && token?.attributes?.tokenId;
 
-            let claimData: any = await api.getTreasuryClaims(tokenId)
-            claimData?.map((item: any) => {
+            let claimData = await api.getTreasuryClaims(tokenId)
+            claimData?.map((item) => {
                 newClaimData.push({
+                    id: item.id,
                     ...item.attributes,
-                    "createdAt": moment(item?.attributes?.createdAt).format('YYYY-MM-DD')
+                    createdAt: moment(item?.attributes?.createdAt).format('YYYY-MM-DD')
                 })
             })
-            let listingData: any = await api.getListings(tokenId)
-            listingData?.map((item: any) => {
+            let listingData = await api.getListings(tokenId)
+            listingData?.map((item) => {
                 newListData.push({
+                    id: item.id,
                     ...item.attributes,
-                    "createdAt": moment(item?.attributes?.createdAt).format('YYYY-MM-DD'),
-                    active: JSON.stringify(item?.attributes?.active)
+                    createdAt: moment(item?.attributes?.createdAt).format('YYYY-MM-DD'),
                 })
             })
-            let tokenSaleData: any = await api.getSaleTokens(tokenId)
-            tokenSaleData?.map((item: any) => {
+            let tokenSaleData = await api.getSaleTokens(tokenId)
+            tokenSaleData?.map((item) => {
                 newTokenData.push({
+                    id: item.id,
                     ...item.attributes,
-                    "createdAt": moment(item?.attributes?.createdAt).format('YYYY-MM-DD')
+                    createdAt: moment(item?.attributes?.createdAt).format('YYYY-MM-DD')
                 })
             })
-            let TablesData = [
+            let TablesData: TableData[] = [
                 {
                     columns: tokenSaleColumns,
                     tableData: newTokenData,

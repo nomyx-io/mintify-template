@@ -14,6 +14,7 @@ import { Form } from "antd";
 import { usePageUnloadGuard } from "@/hooks/usePageUnloadGuard";
 import BlockchainService from "@/services/BlockchainService";
 import { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
+import { File } from "parse";
 
 export default function Details({ service }: {service: BlockchainService}) {
   const { isConnected } = useAccount();
@@ -30,7 +31,7 @@ export default function Details({ service }: {service: BlockchainService}) {
   const [registerId, setRegisterId] = useState("");
   const [trancheCutoff, setTrancheCutoff] = useState("");
   const [carbonAmount, setCarbonAmount] = useState("");
-  const [mintAddress, setMintAddress] = useState<string>(walletAddress);
+  const [mintAddress, setMintAddress] = useState<string | undefined>(walletAddress);
   const [frozen, setFrozen] = useState(false);
   
   const [issuanceDate, setIssuanceDate] = useState("");
@@ -249,8 +250,8 @@ export default function Details({ service }: {service: BlockchainService}) {
           name: 'mintAddress',
           dataType: 'text',
           placeHolder: 'Enter Wallet Address',
-          defaultValue: mintAddress,
-          value: mintAddress,
+          defaultValue: mintAddress || "",
+          value: mintAddress || "",
           rules: [
             {
               required: true,
@@ -438,7 +439,7 @@ export default function Details({ service }: {service: BlockchainService}) {
 
   const getSettings = async () => {
     if (api && api.getSettings) {
-      const settings: any =
+      const settings: { defaultTokenImage: File; walletAddress?: string} =
         await api.getSettings();
       setDefaultTokenImageUrl(settings.defaultTokenImage?.url() || "");
       setMintAddress(settings.walletAddress);

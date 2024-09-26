@@ -5,10 +5,10 @@ import '@rainbow-me/rainbowkit/styles.css';
 import "react-toastify/dist/ReactToastify.css";
 
 import axios from 'axios';
-import {createContext, useEffect, useState} from 'react';
-import {ethers} from 'ethers';
+import {createContext, ReactElement, ReactNode, useEffect, useState} from 'react';
+import {BrowserProvider, ethers, Network} from 'ethers';
 import {getDefaultWallets, RainbowKitProvider} from '@rainbow-me/rainbowkit';
-import {Chain, configureChains, createConfig, sepolia, WagmiConfig} from 'wagmi';
+import {Chain, configureChains, createConfig, WagmiConfig} from 'wagmi';
 import {alchemyProvider} from 'wagmi/providers/alchemy';
 import {publicProvider} from 'wagmi/providers/public'
 import {toast, ToastContainer} from 'react-toastify';
@@ -21,6 +21,16 @@ import PrivateRoute from '@/components/atoms/PrivateRoute'
 import PubSub from 'pubsub-js';
 
 import NomyxAppContext from "@/context/NomyxAppContext";
+import { NextPage } from "next";
+import { AppProps } from "next/app";
+
+export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
+  getLayout?: (page: ReactElement) => ReactNode;
+};
+
+type AppPropsWithLayout = AppProps & {
+  Component: NextPageWithLayout;
+};
 
 const localhost: Chain = {
     id: 31337,
@@ -83,21 +93,20 @@ const wagmiConfig = createConfig({
     publicClient
 });
 
-let provider:any;
+let provider: BrowserProvider;
 
-export default function App({Component, pageProps}: any) {
+export default function App({Component, pageProps}: AppPropsWithLayout) {
 
     const [mounted, setMounted] = useState(false);
-    const [blockchainService, setBlockchainService] = useState(null);
-    const [role, setRole] = useState<any[]>([]);
+    const [blockchainService, setBlockchainService] = useState<BlockchainService | null>(null);
+    const [role, setRole] = useState<string[]>([]);
     const [forceLogout, setForceLogout] = useState(false);
     const [status, setStatus] = useState(true);
 
-    const getToken = async (request: any) => {
+    const getToken = async (request: object): Promise<{ token: string; roles: string[] }> => {
 
         try {
-            let data: any = await axios.post(`${config.serverURL}/auth/login`, request)
-            data = data.data
+            const { data } = await axios.post(`${config.serverURL}/auth/login`, request)
 
             return {
                 token: data?.access_token || '',
@@ -138,7 +147,7 @@ export default function App({Component, pageProps}: any) {
             message = storedSignature.message;
         }
 
-        let {token, roles}: any = await getToken({
+        let {token, roles} = await getToken({
             "message": message,
             "signature": signature
         });
@@ -165,13 +174,13 @@ export default function App({Component, pageProps}: any) {
             setStatus(true)
         }
 
-        const _blockchainService: any = BlockchainService.getInstance();
+        const _blockchainService = BlockchainService.getInstance();
         setBlockchainService(_blockchainService);
-        let jsonConfig: any = await import(`../hardhatConfig.json`);
+        let jsonConfig: { [key: string]: object } = await import(`../hardhatConfig.json`);
 
-        const network = provider.getNetwork().then(async (network: any) => {
+        const network = provider.getNetwork().then(async (network: Network) => {
 
-            const chainId = network.chainId;
+            const chainId: string = `${network.chainId}`;
 
             console.log('chainId = ' + chainId);
 
@@ -195,7 +204,7 @@ export default function App({Component, pageProps}: any) {
         console.log("disconnected");
     }
 
-    const getLayout = (Component as any).getLayout || ((page: React.ReactNode) => page);
+    const getLayout = Component.getLayout || ((page: React.ReactNode) => page);
 
     useEffect(() => {
         (window.location.pathname == '/login' && role.length == 0) || window.location.pathname == '/' ? setStatus(true) : setStatus(false)
@@ -205,7 +214,7 @@ export default function App({Component, pageProps}: any) {
 
         setMounted(true);
 
-        let ethObject = (window as any).ethereum;
+        let ethObject: ethers.Eip1193Provider = window.ethereum;
 
         provider = new ethers.BrowserProvider(ethObject);
 
@@ -216,12 +225,6 @@ export default function App({Component, pageProps}: any) {
     let isDarkMode = true;
     const { defaultAlgorithm, darkAlgorithm } = theme;
     const algorithm = isDarkMode ? darkAlgorithm : defaultAlgorithm;
-
-    let handleLoad = (Component as any).handleLoad;
-
-    if(!handleLoad){
-        PubSub.publish("PageLoad");
-    }
 
     return (
         <NomyxAppContext.Provider value={{blockchainService, setBlockchainService}}>

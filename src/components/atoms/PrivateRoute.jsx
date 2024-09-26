@@ -5,7 +5,7 @@ import KronosSpin from "@/components/KronosSpin";
 
 function PrivateRoute({children, onConnect, role, forceLogout, handleForecLogout}) {
 
-    console.log("PrivateRoute");
+    // console.log("PrivateRoute");
 
     const {disconnect} = useDisconnect();
     const router = useRouter();
@@ -22,7 +22,7 @@ function PrivateRoute({children, onConnect, role, forceLogout, handleForecLogout
             router.push('/login');
         }
 
-        console.log("role = ", role);
+        // console.log("role = ", role);
 
         if (isConnected && role.length == 0) {
             onConnect()
@@ -58,7 +58,7 @@ function PrivateRoute({children, onConnect, role, forceLogout, handleForecLogout
 
     }, []);
 
-    console.log("role = ", role);
+    // console.log("role = ", role);
 
     return isConnected && role.length == 0 ? <div
         className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center'>

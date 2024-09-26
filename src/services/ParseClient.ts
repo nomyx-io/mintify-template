@@ -11,7 +11,7 @@ export default class ParseClient {
 
         // Middleware: Automatically use the session token (JWT) for all requests
         const sessionToken = localStorage.getItem('sessionToken');
-        console.log('sessionToken from local storage: ', sessionToken);
+        // console.log('sessionToken from local storage: ', sessionToken);
         if (sessionToken) {
             Parse.User.become(sessionToken).catch((error) => {
                 console.error("Error becoming user with sessionToken:", error);

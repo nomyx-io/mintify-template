@@ -16,7 +16,7 @@ const NftDetailsForm = ({
   onFinish,
 }: NftDetailsFormProps) => {
   //build initialValues object
-  const initialValues: { [key:string ] : object | unknown } = {};
+  const initialValues: { [key:string] : unknown } = {};
 
   //iterate over field definitions and create a key on the initialValues
   // object with the field name as the key and the value of the field as the value
@@ -56,7 +56,6 @@ const NftDetailsForm = ({
                         <Form.Item
                           name={field.name}
                           label={field.label}
-                          
                           rules={field.rules}>
                           <Input
                             disabled={field.disabled}

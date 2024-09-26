@@ -7,21 +7,21 @@ import {getDashboardLayout} from '@/Layouts';
 import BarChart from '@/components/atoms/Graphs/Barchart';
 import moment from 'moment';
 import {useRouter} from 'next/navigation';
-import {Card, Table, Tabs} from 'antd';
+import {Card, Table, TableColumnType, Tabs} from 'antd';
 import PubSub from 'pubsub-js';
+import { ColumnProps, ColumnsType, ColumnType } from 'antd/es/table'
 
 export default function Home() {
 
-    console.log("Home");
+    // console.log("Home");
 
     const router = useRouter()
     const api = KronosService()
-    const [graphValues, setGraphValues] = useState<any>([])
-    const [eventDetails, setEventDetails] = useState<any>({})
-    const [mintedNfts, setMintedNfts] = useState<any>([])
-    const [kpisData, setkpisData] = useState<any>(null)
+    const [graphValues, setGraphValues] = useState<PortfolioPerformance>()
+    const [eventDetails, setEventDetails] = useState<Events>({})
+    const [mintedNfts, setMintedNfts] = useState<MintedToken[]>([])
+    const [kpisData, setkpisData] = useState<KPIs>()
     const [activeTab, setActiveTab] = useState('all')
-    const [loading, setLoading] = useState(false)
 
     const KPIS = [
         {
@@ -151,9 +151,9 @@ export default function Home() {
         ]
     }
 
-    const columns: any = [
+    const columns: ColumnsType<MintedToken> = [
         {
-            dataIndex: 'id', title: 'Id', align: 'left', unique: true, render: ((recordId: any) => {
+            dataIndex: 'id', title: 'Id', align: 'left', render: ((recordId: string) => {
                 return (
                     <div className='text-light-blue-500 cursor-pointer'
                          onClick={() =>
@@ -165,50 +165,34 @@ export default function Home() {
         {dataIndex: '_tokenId', title: 'Token Id', align: 'center'},
         {dataIndex: '_loanId', title: 'Loan Id', align: 'center'},
         {dataIndex: '_createdAt', title: 'NFT Created', align: 'center'},
-        {dataIndex: '_amount', title: 'Original Value', align: 'center', sortable: true},
-        {dataIndex: '_currentValue', title: 'Current Value', align: 'right', sortable: true},
-    ];
-
-    const tabsData = [
-        {
-            label: "All",
-            value: "all",
-        },
-        {
-            label: "NFTS",
-            value: "nfts",
-        },
-        {
-            label: "Minted",
-            value: "minted",
-        }
+        {dataIndex: '_amount', title: 'Original Value', align: 'center', sorter: true},
+        {dataIndex: '_currentValue', title: 'Current Value', align: 'right', sorter: true},
     ];
 
     useEffect(() => {
         async function getData() {
 
-            setLoading(true);
-
-            let mintedNfts: any = await api.getMintedNfts();
-            let events = await api.getEvents();
-            let data = await api.getPortfolioPerformance();
-            let kpis = await api.getKpis();
-
-            for (let index = 0; index < mintedNfts?.length; index++) {
-                mintedNfts[index]._createdAt = moment(mintedNfts[index].createdAt).format('YYYY-MM-DD');
-                mintedNfts[index]._amount = (mintedNfts[index].attributes.loanAmount || "");
-                mintedNfts[index]._originationDate = (mintedNfts[index].attributes.originationDate || "");
-                mintedNfts[index]._currentValue = (mintedNfts[index].attributes.currentValue || "");
-                mintedNfts[index]._loanId = (mintedNfts[index].attributes.loanId || "");
-                mintedNfts[index]._tokenId = (mintedNfts[index].attributes.tokenId || "");
-            }
+            let mintedNftRecords: Parse.Object[] | undefined = await api.getMintedNfts();
+            const mintedNfts: MintedToken[] = mintedNftRecords?.map((record: Parse.Object) => {
+              return {
+                id: record.id,
+                _createdAt: moment(record.createdAt).format('YYYY-MM-DD'),
+                _amount: record.attributes.loanAmount || '',
+                _originationDate: record.attributes.originationDate || '',
+                _currentValue: record.attributes.currentValue || '',
+                _loanId: record.attributes.loanId || '',
+                _tokenId: record.attributes.tokenId || '',
+              };
+            }) || [];
+            let events: Events | undefined = await api.getEvents();
+            let data: PortfolioPerformance = await api.getPortfolioPerformance();
+            let kpis: KPIs = await api.getKpis();
 
             setkpisData(kpis);
             setMintedNfts(mintedNfts);
-            setEventDetails(events);
+            setEventDetails(events || {});
             setGraphValues(data);
 
-            setLoading(false);
             PubSub.publish("PageLoad");
         }
 
@@ -251,4 +235,3 @@ export default function Home() {
 }
 
 Home.getLayout = getDashboardLayout;
-Home.handleLoad = true;

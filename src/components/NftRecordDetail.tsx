@@ -1,5 +1,5 @@
 import React, { ReactElement } from 'react'
-import {Button, Card, Table, TableColumnsType, TableColumnType, Tabs} from 'antd';
+import {Button, Card, Table, TableColumnType, Tabs} from 'antd';
 
 import { useRouter } from 'next/router'
 import { ShareIcon } from '@/assets'
@@ -27,19 +27,6 @@ const fields: NftRecordDetailField[] = [
     { name: 'issuingEntity', label: 'Issuing Entity' },
     { name: 'description', label: 'Description' },
 ];
-
-interface DataSource {
-  id: string;
-  createdAt: string;
-  active?: boolean;
-}
-
-interface TableData {
-  headerImage: ReactElement | string;
-  label: string;
-  tableData: DataSource[];
-  columns: TableColumnType<DataSource>[];
-}
 
 interface NftRecordDetailProps {
   TablesData?: TableData[];

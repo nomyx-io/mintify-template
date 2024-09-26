@@ -15,7 +15,7 @@ export const WalletAddressProvider = ({ children }: { children: React.ReactNode 
   const getSettings = async () => {
     if (api && api.getSettings) {
       try {
-        const settings: any = await api.getSettings();
+        const settings: { defaultTokenImage: File; walletAddress?: string } = await api.getSettings();
         if (settings && settings.walletAddress) {
           setWalletAddress(settings.walletAddress);
         }
