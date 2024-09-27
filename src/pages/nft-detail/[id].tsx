@@ -6,6 +6,7 @@ import {useRouter} from 'next/router'
 import moment from 'moment'
 import {MoneyCollectOutlined} from "@ant-design/icons";
 import KronosSpin from "@/components/KronosSpin";
+import { NFT_DETAIL_COLUMNS } from '@/utils/constants'
 
 export default function NftDetail() {
     const router = useRouter()
@@ -14,50 +15,24 @@ export default function NftDetail() {
     const [tablesData, setTablesData] = useState<TableData[]>([])
     const [loading, setLoading] = useState(false)
 
-    const depositColumns = [
-        {dataIndex: ['deposit', 'objectId'], title: 'Deposit', sortable: true},
-        // {dataIndex: 'depositDate', title: 'Deposit Date'},
-        {dataIndex: 'createdAt', title: 'Created Date'},
-        {dataIndex: 'amount', title: 'Amount', align: 'right', sortable: true}
-    ];
-
-    const claimColumns = [
-        {dataIndex: 'tokenId', title: 'Token Id', align: 'center', sortable: true},
-        {dataIndex: 'claimAmount', title: 'Claim Amount', align: 'center', sortable: true},
-        {dataIndex: 'createdAt', title: 'Created Date', align: 'center'},
-    ]
-
-    const listingColumns = [
-        {dataIndex: 'tokenId', title: 'Token Id', align: 'center', sortable: true},
-        {dataIndex: 'listPrice', title: 'List Price', align: 'center', sortable: true},
-        {dataIndex: 'createdAt', title: 'Created Date', align: 'center'},
-        {dataIndex: 'active', title: 'Active', align: 'center',},
-    ]
-
-    const tokenSaleColumns = [
-        {dataIndex: 'tokenId', title: 'Token Id', align: 'center', sortable: true},
-        {dataIndex: 'salePrice', title: 'Sale Price', align: 'center', sortable: true},
-        {dataIndex: 'createdAt', title: 'Created Date', align: 'center'},
-        {dataIndex: 'listingId', title: 'Listing ID', align: 'center'},
-    ]
     const id = router.query.id;
 
     useEffect(() => {
-        const getData = async () => {
-            setLoading(true);
-            let nft = await api.getMintedNftDetails(id);
-            setNftData(nft);
-            setLoading(false);
-        }
+      const getData = async () => {
+          setLoading(true);
+          let nft = await api.getMintedNftDetails(id);
+          setNftData(nft);
+          setLoading(false);
+      }
+      if (id) {
         getData();
-    }, [])
+      }
+    }, [api, id])
 
     let newTokenData: DataSource[] = []
     let newClaimData: DataSource[] = []
     let newListData: DataSource[] = []
     useEffect(() => {
-
-        // debugger;
         const getNewData = async () => {
             let token = await api.getMintedNftDetails(id);
 
@@ -90,25 +65,25 @@ export default function NftDetail() {
             })
             let TablesData: TableData[] = [
                 {
-                    columns: tokenSaleColumns,
+                    columns: NFT_DETAIL_COLUMNS.tokenSaleColumns,
                     tableData: newTokenData,
                     label: 'Sales',
                     headerImage: require('../../assets/priceHistoryIcon.png')
                 },
                 {
-                    columns: listingColumns,
+                    columns: NFT_DETAIL_COLUMNS.listingColumns,
                     tableData: newListData,
                     label: 'Listings',
                     headerImage: require('../../assets/listingIcon.png')
                 },
                 {
-                    columns: depositColumns,
+                    columns: NFT_DETAIL_COLUMNS.depositColumns,
                     tableData: tokenDepositData,
                     label: 'Deposits',
                     headerImage: (<MoneyCollectOutlined/>)
                 },
                 {
-                    columns: claimColumns,
+                    columns: NFT_DETAIL_COLUMNS.claimColumns,
                     tableData: newClaimData,
                     label: 'Withdrawals',
                     headerImage: require('../../assets/offerIcon.png')

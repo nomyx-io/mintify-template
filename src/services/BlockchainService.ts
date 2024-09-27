@@ -1,7 +1,7 @@
 import {parseEther, ethers, parseUnits} from "ethers";
-import * as LLMintedRegistry from "../abi/ILenderLabMinterFacet.json";
-import * as TreasuryRegistry from "../abi/ITreasury.json";
-import * as USDCRegistry from "../abi/USDC.json";
+import LLMintedRegistry from "../abi/ILenderLabMinterFacet.json";
+import TreasuryRegistry from "../abi/ITreasury.json";
+import USDCRegistry from "../abi/USDC.json";
 import ParseClient from "./ParseClient";
 
 
