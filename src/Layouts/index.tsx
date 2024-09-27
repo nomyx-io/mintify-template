@@ -15,12 +15,16 @@ export const AppLayout = ({children}: {children: React.ReactElement}) => {
 
     useEffect(() => {
       const handleStart = (url: string) => {
-        const path = url.split('?')[0];
-        path !== router.pathname && setLoading(true);
+        if (typeof url === 'string') {
+          const path = url.split('?')[0];
+          path !== router.pathname && setLoading(true);
+        }
       }
       const handleComplete = (url: string) => {
-        const path = url.split('?')[0];
-        path === router.pathname && setLoading(false);
+        if (typeof url === 'string') {
+          const path = url.split('?')[0];
+          path === router.pathname && setLoading(false);
+        }
       }
       
       router.events.on('routeChangeStart', handleStart);
