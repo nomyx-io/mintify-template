@@ -264,6 +264,9 @@ export const KronosService = () => {
 
     const getTokenDeposits = async (whereColumns, whereValues) => {
         let records = await ParseClient.getRecords('TokenDeposit', whereColumns, whereValues, ["*"]);
+        if (!records) {
+            return [];
+        }
         const sanitizedRecords = JSON.parse(JSON.stringify(records));
 
         sanitizedRecords.forEach(record => {

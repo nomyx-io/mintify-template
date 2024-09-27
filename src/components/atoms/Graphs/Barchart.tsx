@@ -11,7 +11,7 @@ import {
   LineElement,
   LineController,
 } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Chart } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -25,7 +25,30 @@ ChartJS.register(
   LineController
 );
 
-const BarChart = ({ data, title, height, width }: any) => {
+interface BarChartData {
+  labels: string[];
+  datasets: BarChartDataSet[];
+}
+
+interface BarChartDataSet {
+  type?: 'line' | 'bar';
+  label: string;
+  data: number[];
+  backgroundColor: string;
+  borderColor?: string;
+  borderWidth?: number;
+  fill?: boolean;
+  barThickness?: number;
+  categoryPercentage?: number;
+  barPercentage?: number;
+}
+
+interface BarChartProps {
+  data: BarChartData;
+  title: string;
+}
+
+const BarChart = ({ data, title }: BarChartProps) => {
 
   const options = {
     responsive: true,
@@ -42,7 +65,7 @@ const BarChart = ({ data, title, height, width }: any) => {
 
   return (
     <div className='p-2'>
-      <Bar options={options} data={data} />
+      <Chart type='bar' options={options} data={data} />
     </div>
   );
 };

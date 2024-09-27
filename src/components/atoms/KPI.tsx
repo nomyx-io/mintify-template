@@ -4,7 +4,7 @@ import {Card, Statistic} from "antd/es";
 interface IndicatorProps {
   icon: ReactNode;
   title: string;
-  value: string | number;
+  value?: string | number;
   className?: string;
 }
 

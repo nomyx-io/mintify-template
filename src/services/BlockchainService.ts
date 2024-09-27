@@ -68,7 +68,7 @@ export default class BlockchainService {
         this.usdcService = new ethers.Contract(this.usdcAddress, this.usdcAbi, this.provider);
     }
 
-    async getClaimTopics() {
+    async getClaimTopics() : Promise<Parse.Object[] | undefined> {
         return await this.parseClient.getRecords('ClaimTopic', [], [], ["*"]);
     }
 

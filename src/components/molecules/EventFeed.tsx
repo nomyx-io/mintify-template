@@ -1,18 +1,22 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react'
+import React, { RefObject, useEffect, useRef } from 'react'
 import IconCard from '@/components/atoms/IconCard';
 import filterIcon from '@/assets/filterIcon.svg';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
-export const EventFeed = ({ data }: any) => {
+interface EventFeedProps {
+    data: Events;
+}
+
+export const EventFeed = ({ data }: EventFeedProps) => {
     const [filterMenuOpen, setFilterMenuOpen] = React.useState(false);
 
-    function useOutsideDetector(ref: any, callback: (event: any) => void) {
+    function useOutsideDetector(ref: RefObject<HTMLDivElement>, callback: (event: MouseEvent) => void) {
       useEffect(() => {
-        function handleClickOutside(event:any) {
-          if (ref.current && !ref.current.contains(event.target)) {
+        function handleClickOutside(event:MouseEvent) {
+          if (ref?.current && !ref.current.contains(event.target as Node)) {
             callback(event);
           }
         }
@@ -25,21 +29,21 @@ export const EventFeed = ({ data }: any) => {
       }, [ref, callback]);
     }
 
-    const filterMenu = useRef(null);
-    useOutsideDetector(filterMenu, (e:any) => {setFilterMenuOpen(false)});
+    const filterMenu = useRef<HTMLDivElement>(null);
+    useOutsideDetector(filterMenu, (event: MouseEvent) => {setFilterMenuOpen(false)});
   
     const router = useRouter();
     const activeFilters: string[] = router.query.filter ? (router.query.filter as string).split('|') : [];
 
 
-    const eventNames = Object.values(data).flatMap((entry: any) =>
-      entry.data.map((element: any) => element.name)
+    const eventNames = Object.values(data).flatMap((entry: {data: KronosEvent[]}) =>
+      entry.data.map((element: KronosEvent) => element.name)
     );
     const filterOptions = Array.from(new Set(eventNames));
-    const filteredEvents: any = {}
-    Object.entries(data).forEach(([key, value]: any) => {
+    const filteredEvents: Events = {}
+    Object.entries(data).forEach(([key, value]) => {
       const filteredValues = value.data.filter(
-        (item: any) =>
+        (item: KronosEvent) =>
           activeFilters.length === 0 || activeFilters.includes(item.name)
       );
 
@@ -79,7 +83,7 @@ export const EventFeed = ({ data }: any) => {
                     onClick={() => setFilter(name)}>
                       <input
                         type='checkbox'
-                        checked={activeFilters.includes(name)}
+                        defaultChecked={activeFilters.includes(name)}
                         />
                       <span>
                       {name}
@@ -90,11 +94,11 @@ export const EventFeed = ({ data }: any) => {
             </div>
           </div>  
         </div>
-        {Object.entries(filteredEvents).map(([key, value]: any) => {
+        {Object.entries(filteredEvents).map(([key, value]) => {
                 return (
                   <div key={key}>
                     <h3 className='px-4 pt-4'>{key}</h3>
-                    {value.data.map((item: any, index: any) => (
+                    {value.data.map((item: KronosEvent, index: number) => (
                       <IconCard
                         key={`${key}-${index}`}
                         icon={
@@ -114,7 +118,7 @@ export const EventFeed = ({ data }: any) => {
                           </svg>
                         }
                         name={item.name}
-                        description={item.description}
+                        description={item.description || ''}
                         value={item.value}
                       />
                     ))}

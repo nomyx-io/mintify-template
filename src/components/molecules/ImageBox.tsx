@@ -1,10 +1,16 @@
 "use client"
 
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import {Card, Input} from "antd";
 import Image from 'next/image';
 
-const ImageBox = ({file, handleChange, previewPage = false}: any) => {
+interface ImageBoxProps {
+    file?: string;
+    handleChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    previewPage?: boolean;
+}
+
+const ImageBox = ({file, handleChange, previewPage = false}: ImageBoxProps) => {
     return (
 
         <Card title="NFT Image Upload" className="no-padding">

@@ -7,28 +7,28 @@ const Regex = {
   maxCharWithDecimal: (char: number, dec: number) => new RegExp(`^\\d{1,${char}}(\\.\\d{1,${dec}})?$`)
 };
 
-const isAlphanumeric=(input: any)=> {
+const isAlphanumeric=(input: string)=> {
     return Regex.alphaNumeric.test(input);
 }
 
-const isAlphanumericAndSpace=(input: any)=> {
+const isAlphanumericAndSpace=(input: string)=> {
     return Regex.alphaNumericAndSpace.test(input);
 }
 
-const isEthereumAddress=(address: any)=> {
+const isEthereumAddress=(address: string)=> {
     return Regex.ethereumAddress.test(address);
 }
 
-const isNumeric=(input: any) => {
+const isNumeric=(input: string) => {
     return Regex.numeric.test(input);
 }
 
-const maxChar = (input: any, char: number) => {
+const maxChar = (input: string, char: number) => {
     const regex = new RegExp(`^.{1,${char}}$`)
     return regex.test(input)
 }
 
-const maxCharWithDecimal = (input: any, char: number, dec: number) => {
+const maxCharWithDecimal = (input: string, char: number, dec: number) => {
     const regex = new RegExp(`^\\d{1,${char}}(\\.\\d{1,${dec}})?$`)
     return regex.test(input)
 }

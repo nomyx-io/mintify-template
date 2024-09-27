@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 
 const { Content } = Layout;
 
-export const AppLayout = ({children, onLoad}: any) => {
+export const AppLayout = ({children}: {children: React.ReactElement}) => {
     const router = useRouter();
 
     const [loading, setLoading] = React.useState(false);

@@ -1,13 +1,13 @@
 import React from 'react';
 import { Transfer, Card } from 'antd';
 
- interface ComplianceType {
-  claimTopics: any,
-  targetKeys: any, 
-  selectedKeys: any, 
-  onChange: any, 
-  onSelectChange: any, 
-  onScroll: any
+ interface ComplianceProps {
+  claimTopics: ClaimTopic[],
+  targetKeys: string[], 
+  selectedKeys: string[], 
+  onChange: TransferOnChange, 
+  onSelectChange: TransferOnSelectChange, 
+  onScroll: TransferOnScroll
  }
 
 const Compliance = ({
@@ -16,7 +16,8 @@ const Compliance = ({
   selectedKeys, 
   onChange, 
   onSelectChange, 
-  onScroll}: ComplianceType) => {
+  onScroll
+}: ComplianceProps) => {
   return (
     <Card title="Compliance Features" className='overflow-hidden'>
       <Transfer
