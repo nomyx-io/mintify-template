@@ -69,28 +69,30 @@ export const EventFeed = ({ data }: EventFeedProps) => {
       <div className='w-full'>
         <div className='flex items-center justify-between relative border-b border-[#303030] py-4 px-6'>
           <h2>Events</h2>
-          <button onClick={() => setFilterMenuOpen(!filterMenuOpen)}>
-          <Image src={filterIcon} alt='Filter' />
-          </button>
-          <div ref={filterMenu} className={`${filterMenuOpen ? 'flex' : 'hidden'} flex-col items-start p-4 rounded-md border-2 border-[#303030] shadow-lg absolute z-10 right-6 top-10 w-64 bg-black`}>
-            <button className='absolute top-0 right-0 p-2' onClick={() => setFilterMenuOpen(false)}>Close</button>
-            {filterOptions.map((name: string) => {
-              return (
-                <div
-                  className='flex text-base gap-4 w-full p-2 cursor-pointer'
-                  key={name}
-                  onClick={() => setFilter(name)}>
-                    <input
-                      type='checkbox'
-                      defaultChecked={activeFilters.includes(name)}
-                    />
-                    <span>
-                    {name}
-                    </span>
-                </div>
-              );
-            })}
-          </div>
+          <div ref={filterMenu} className='flex relative'>
+            <button onClick={() => setFilterMenuOpen(!filterMenuOpen)}>
+            <Image src={filterIcon} alt='Filter' />
+            </button>
+            <div className={`${filterMenuOpen ? 'flex' : 'hidden'} flex-col items-start py-4 rounded-md border-2 border-[#303030] shadow-lg absolute top-6 -right-5 z-10 max-w-64 bg-black`}>
+              <button className='absolute top-0 right-0 p-2 text-xs' onClick={() => setFilterMenuOpen(false)}>Close</button>
+              {filterOptions.map((name: string) => {
+                return (
+                  <div
+                    className='flex text-xs gap-4 w-full p-2 cursor-pointer'
+                    key={name}
+                    onClick={() => setFilter(name)}>
+                      <input
+                        type='checkbox'
+                        defaultChecked={activeFilters.includes(name)}
+                        />
+                      <span>
+                      {name}
+                      </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>  
         </div>
         {Object.entries(filteredEvents).map(([key, value]) => {
                 return (
