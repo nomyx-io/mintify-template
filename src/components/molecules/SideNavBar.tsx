@@ -28,7 +28,16 @@ const SideNavBar = () => {
       key,
       icon,
       children,
-      label:href?(<Link href={href}>{label}</Link>):label,
+      label:href?(
+        <Link href={href}>
+          <span className="text-nomyx-text-light dark:text-nomyx-text-dark">
+            {label}
+          </span>
+        </Link>):(
+          <span className="text-nomyx-text-light dark:text-nomyx-text-dark">
+            {label}
+          </span>
+        ),
       type,
     } as MenuItem;
   }
@@ -41,8 +50,9 @@ const SideNavBar = () => {
   ];
 
   return (
-    <Sider>
+    <Sider className="!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark">
       <Menu
+          className="!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark"
           mode="inline"
           items={items}
       />
