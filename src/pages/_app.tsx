@@ -7,19 +7,14 @@ import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { createContext, ReactElement, ReactNode, useEffect, useState } from "react";
 import { BrowserProvider, ethers, Network } from "ethers";
-import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { Chain, configureChains, createConfig, WagmiConfig } from "wagmi";
-import { alchemyProvider } from "wagmi/providers/alchemy";
-import { publicProvider } from "wagmi/providers/public";
 import { toast, ToastContainer } from "react-toastify";
 import { ConfigProvider, theme } from "antd";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 import { generateRandomString } from "@/utils";
 import BlockchainService from "@/services/BlockchainService";
-import { WalletAddressProvider } from "@/context/WalletAddressContext";
 import PrivateRoute from "@/components/atoms/PrivateRoute";
-import PubSub from "pubsub-js";
+import Web3Providers from "@/components/Web3Providers";
 
 import NomyxAppContext from "@/context/NomyxAppContext";
 import { NextPage } from "next";
@@ -33,62 +28,7 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
-const localhost: Chain = {
-  id: 31337,
-  name: "Localhost",
-  network: "localhost",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Ethereum",
-    symbol: "lETH",
-  },
-  rpcUrls: {
-    default: {
-      http: ["http://0.0.0.0:8545/"],
-    },
-    public: {
-      http: ["http://0.0.0.0:8545/"],
-    },
-  },
-  testnet: true,
-};
 export const UserContext = createContext(() => {});
-
-const baseSep: Chain = {
-  id: 84532,
-  name: "Base Sepolia",
-  network: "basesep",
-  nativeCurrency: {
-    decimals: 18,
-    name: "Ethereum",
-    symbol: "bETH",
-  },
-  rpcUrls: {
-    default: {
-      http: ["https://base-sepolia.g.alchemy.com/v2/hS_lVzkyS3Uio080pGgNiC0pdagf5iM1"],
-    },
-    public: {
-      http: ["https://base-sepolia.g.alchemy.com/v2/hS_lVzkyS3Uio080pGgNiC0pdagf5iM1"],
-    },
-  },
-  testnet: true,
-};
-const { chains, publicClient } = configureChains(
-  [baseSep, localhost],
-  [alchemyProvider({ apiKey: "CSgNtTJ6_Clrf1zNjVp2j1ppfLE2-aVX" }), publicProvider()]
-);
-
-const { connectors } = getDefaultWallets({
-  appName: "LL Mintify",
-  projectId: "ae575761a72370ab88834655acbba677",
-  chains,
-});
-
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  connectors,
-  publicClient,
-});
 
 let provider: BrowserProvider;
 
@@ -117,9 +57,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   };
 
   const onConnect = async () => {
-    console.log("connected!");
-    console.log("provider = ", provider);
-
     const RandomString = generateRandomString(10);
     let message = `Sign this message to validate that you are the owner of the account. Random string: ${RandomString}`;
     let storedSignature = localStorage.getItem("signature") ? JSON.parse(localStorage.getItem("signature") as string) : null;
@@ -170,7 +107,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     setBlockchainService(_blockchainService);
     let jsonConfig: { [key: string]: object } = await import(`../hardhatConfig.json`);
 
-    const network = provider.getNetwork().then(async (network: Network) => {
+    provider.getNetwork().then(async (network: Network) => {
       const chainId: string = `${network.chainId}`;
 
       console.log("chainId = " + chainId);
@@ -215,41 +152,42 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const { defaultAlgorithm, darkAlgorithm } = theme;
   const algorithm = isDarkMode ? darkAlgorithm : defaultAlgorithm;
 
+  const antTheme = {
+    algorithm,
+    components: {
+      Layout: {
+        headerBg: isDarkMode ? "#141414" : "#ffffff",
+        colorBgBase: isDarkMode ? "#141414" : "#ffffff",
+        colorBgContainer: isDarkMode ? "#141414" : "#ffffff",
+        siderBg: isDarkMode ? "#141414" : "#ffffff",
+      },
+      Menu: {
+        activeBarBorderWidth: 0,
+      },
+    },
+  };
+
   return (
     <NomyxAppContext.Provider value={{ blockchainService, setBlockchainService }}>
       <UserContext.Provider value={onDisconnect}>
-        <WagmiConfig config={wagmiConfig}>
-          <RainbowKitProvider chains={chains} coolMode>
-            <NextThemesProvider attribute="class">
-              <WalletAddressProvider>
-                <ConfigProvider
-                  theme={{
-                    components: {
-                      Menu: {
-                        activeBarBorderWidth: 0,
-                      },
-                    },
-                  }}
-                >
-                  <ToastContainer
-                    position="top-right"
-                    className="toast-background"
-                    progressClassName="toast-progress-bar"
-                    autoClose={4000}
-                    closeOnClick
-                    pauseOnHover
-                  />
+        <Web3Providers>
+          <NextThemesProvider attribute="class">
+            <ConfigProvider theme={antTheme}>
+              <ToastContainer
+                position="top-right"
+                className="toast-background"
+                progressClassName="toast-progress-bar"
+                autoClose={4000}
+                closeOnClick
+                pauseOnHover
+              />
 
-                  <PrivateRoute handleForecLogout={handleForceLogout} forceLogout={forceLogout} role={role} onConnect={onConnect}>
-                    {getLayout(
-                      <Component {...pageProps} role={role} service={blockchainService} onConnect={onConnect} onDisconnect={onDisconnect} />
-                    )}
-                  </PrivateRoute>
-                </ConfigProvider>
-              </WalletAddressProvider>
-            </NextThemesProvider>
-          </RainbowKitProvider>
-        </WagmiConfig>
+              <PrivateRoute handleForecLogout={handleForceLogout} forceLogout={forceLogout} role={role} onConnect={onConnect}>
+                {getLayout(<Component {...pageProps} role={role} service={blockchainService} onConnect={onConnect} onDisconnect={onDisconnect} />)}
+              </PrivateRoute>
+            </ConfigProvider>
+          </NextThemesProvider>
+        </Web3Providers>
       </UserContext.Provider>
     </NomyxAppContext.Provider>
   );

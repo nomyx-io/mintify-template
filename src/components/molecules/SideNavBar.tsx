@@ -3,7 +3,6 @@ import {Layout, Menu} from "antd/es"
 import type { MenuProps } from 'antd';
 
 import {
-  BankOutlined,
   DashboardOutlined,
   MoneyCollectOutlined,
   SettingOutlined
@@ -45,7 +44,6 @@ const SideNavBar = () => {
   const items: MenuProps['items'] = [
     getItem('Dashboard', 'menu-item-1', "/home", <DashboardOutlined />),
     getItem('Mint Tokens', 'menu-item-2', "/nft-create", <MoneyCollectOutlined />),
-    getItem('Treasury', 'menu-item-4', "/treasury", <BankOutlined />),
     getItem('Settings', 'menu-item-3', "/settings", <SettingOutlined />)
   ];
 
