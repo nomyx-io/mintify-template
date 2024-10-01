@@ -15,14 +15,14 @@ interface CreateNftDetailsProps {
     inputName: string,
     e: ChangeEvent<HTMLInputElement> | CheckboxChangeEvent
   ) => void;
-  handlePreview: () => void; 
+  handlePreview: () => void;
   onChange: TransferOnChange;
   onSelectChange: TransferOnSelectChange;
   onScroll: TransferOnScroll;
   form: FormInstance;
 }
 
-export default function CreateNftDetails({ 
+export default function CreateNftDetails({
   claimTopics,
   fieldGroups,
   targetKeys,
@@ -33,7 +33,7 @@ export default function CreateNftDetails({
   onSelectChange,
   onScroll,
     form
- }: CreateNftDetailsProps) {
+}: CreateNftDetailsProps) {
   
   const router = useRouter();
 
@@ -46,20 +46,24 @@ export default function CreateNftDetails({
                     form = {form}
                     onFinish={handlePreview}
                 />
-                <Compliance
-                    claimTopics={claimTopics}
-                    targetKeys={targetKeys}
-                    selectedKeys={selectedKeys}
-                    onChange={onChange}
-                    onSelectChange={onSelectChange}
-                    onScroll={onScroll}
-                />
+      <Compliance
+        claimTopics={claimTopics}
+        targetKeys={targetKeys}
+        selectedKeys={selectedKeys}
+        onChange={onChange}
+        onSelectChange={onSelectChange}
+        onScroll={onScroll}
+      />
 
 
-        <div className="actions flex gap-3">
-            <Button onClick={() => router.push('/home')}>Cancel</Button>
-            <Button type="primary" onClick={form.submit}>Preview</Button>
-        </div>
+      <div className="actions flex gap-3">
+        <Button className="text-nomyx-text-light dark:text-nomyx-text-dark" onClick={() => router.push("/home")}>
+          Cancel
+        </Button>
+        <Button className="text-nomyx-text-light dark:text-nomyx-text-dark" type="primary" onClick={form.submit}>
+          Preview
+        </Button>
+      </div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import config from "../config.json";
 
 import "@/styles/globals.scss";
+import "@/styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import "react-toastify/dist/ReactToastify.css";
 

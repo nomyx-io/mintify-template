@@ -54,6 +54,19 @@ export default function Home() {
     fetchData();
   }, [fetchData]);
 
+  const items = [
+    {
+      label: "Token Insights",
+      key: "1",
+      children: <BarChart data={graphData} title="Net Asset Value & Yield" />,
+    },
+    {
+      label: "Carbon Insights",
+      key: "2",
+      children: <Table columns={columns} dataSource={mintedNfts} className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark" />,
+    },
+  ];
+
   return (
     <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-3">
       <div className="lg:col-span-3">
@@ -64,17 +77,10 @@ export default function Home() {
         </div>
 
         <Card className="w-full flex-grow no-padding bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
-          <Tabs className="border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
-            <Tabs.TabPane tab="Token Insights" key="1">
-              <BarChart data={graphData} title="Net Asset Value & Yield" />
-            </Tabs.TabPane>
-            <Tabs.TabPane tab="Carbon Insights" key="2">
-              <Table columns={columns} dataSource={mintedNfts} />
-            </Tabs.TabPane>
-          </Tabs>
+          <Tabs items={items}></Tabs>
         </Card>
       </div>
-      <Card className="no-padding h-[90vh] lg:max-w-sm overflow-y-auto">
+      <Card className="no-padding h-[90vh] lg:max-w-sm overflow-y-auto border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
         <EventFeed data={eventDetails} />
       </Card>
     </div>

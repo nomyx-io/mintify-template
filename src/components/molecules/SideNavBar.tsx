@@ -2,6 +2,8 @@ import React from "react";
 import {Layout, Menu} from "antd/es"
 import type { MenuProps } from 'antd';
 
+import { ChartSquare, LanguageSquare } from "iconsax-react";
+
 import {
   DashboardOutlined,
   MoneyCollectOutlined,
@@ -42,8 +44,8 @@ const SideNavBar = () => {
   }
 
   const items: MenuProps['items'] = [
-    getItem('Dashboard', 'menu-item-1', "/home", <DashboardOutlined />),
-    getItem('Mint Tokens', 'menu-item-2', "/nft-create", <MoneyCollectOutlined />),
+    getItem('Dashboard', 'menu-item-1', "/home", <ChartSquare className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />),
+    getItem('Mint Tokens', 'menu-item-2', "/nft-create", <LanguageSquare className="!text-nomyx-text-light dark:!text-nomyx-text-dark"  />),
     getItem('Settings', 'menu-item-3', "/settings", <SettingOutlined />)
   ];
 

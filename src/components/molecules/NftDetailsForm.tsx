@@ -6,7 +6,7 @@ interface NftDetailsFormProps {
   fieldGroups: NftDetailsInputFieldGroup[];
   handleChange: (inputName: string, e: ChangeEvent<HTMLInputElement> | CheckboxChangeEvent) => void;
   form: FormInstance;
-  onFinish: () => void; 
+  onFinish: () => void;
 }
 
 const NftDetailsForm = ({
@@ -22,41 +22,40 @@ const NftDetailsForm = ({
   // object with the field name as the key and the value of the field as the value
   fieldGroups.map((group: NftDetailsInputFieldGroup) => {
     group.fields.map((field: NftDetailsInputField) => {
-        //add the field name as the key and the field value as the value to the initialValues object
-        initialValues[field.name] = field.value;
+      //add the field name as the key and the field value as the value to the initialValues object
+      initialValues[field.name] = field.value;
     });
   });
 
   return (
-    <Card title='NBT Details'>
-      <Form
-        form={form}
-        initialValues={initialValues}
-        layout='vertical'
-        onFinish={onFinish}>
-        <div className='flex flex-col divide-y divide-[#484848]'>
+    <Card
+      title={<span className="text-nomyx-text-light dark:text-nomyx-text-dark"> {"NBT Details"}</span>}
+      className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
+    >
+      <Form form={form} initialValues={initialValues} layout="vertical" onFinish={onFinish}>
+        <div className="flex flex-col divide-y divide-[#484848]">
           {fieldGroups.map((group: NftDetailsInputFieldGroup, index: Number) => {
             return (
-              <div
-                key={`group${index}`}
-                className='grid grid-cols-2 first:pt-0 gap-x-4 pt-6'>
+              <div key={`group${index}`} className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
                 {group.fields.map((field: NftDetailsInputField, index: Number) => {
                   return (
-                    <div key={'field-' + index} className={field.className}>
-                      {field.dataType === 'checkbox' ? (
+                    <div key={"field-" + index} className={field.className}>
+                      {field.dataType === "checkbox" ? (
                         <Form.Item>
                           <Checkbox
                             onChange={(e) => handleChange(field.name, e)}
                             checked={!!field.value}
-                            className='text-gray-400'>
+                            className="text-nomyx-text-light dark:text-nomyx-text-dark"
+                          >
                             {field.label}
                           </Checkbox>
                         </Form.Item>
                       ) : (
                         <Form.Item
                           name={field.name}
-                          label={field.label}
-                          rules={field.rules}>
+                          label={<span className="text-nomyx-text-light dark:text-nomyx-text-dark">{field.label}</span>}
+                          rules={field.rules}
+                        >
                           <Input
                             disabled={field.disabled}
                             prefix={field?.prefix || null}
@@ -64,6 +63,11 @@ const NftDetailsForm = ({
                             placeholder={field.placeHolder}
                             onChange={(e) => handleChange(field.name, e)}
                             name={field.name}
+                            className={`${
+                              form.getFieldError(field.name).length > 0
+                                ? "!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark" // Different background on error if we want
+                                : "!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark"
+                            } text-nomyx-text-light dark:text-nomyx-text-dark  placeholder-nomxy-gray3-light dark:placeholder-nomyx-gray3-dark focus:border-nomyx-main1-light dark:focus:border-nomyx-main1-dark hover:border-nomyx-main1-light dark:hover:border-nomyx-main1-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark`}
                           />
                         </Form.Item>
                       )}
