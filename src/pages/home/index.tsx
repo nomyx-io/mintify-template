@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { Card, Table, TableColumnType, Tabs } from "antd";
 import PubSub from "pubsub-js";
 import { ColumnProps, ColumnsType, ColumnType } from "antd/es/table";
+import { Coin, Setting, ArrowUp } from "iconsax-react";
 
 export default function Home() {
   // console.log("Home");
@@ -24,100 +25,32 @@ export default function Home() {
 
   const KPIS = [
     {
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="white"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          height={24}
-          width={24}
-        >
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 8 12 12 16 16" />
-          <line x1="8" y1="12" x2="12" y2="12" />
-        </svg>
-      ),
+      icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Assets",
       value: kpisData?.totalAssets,
     },
     {
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="white"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          height={24}
-          width={24}
-        >
-          <circle cx="12" cy="12" r="10" />
-          <polyline points="12 8 12 12 16 16" />
-          <line x1="8" y1="12" x2="12" y2="12" />
-        </svg>
-      ),
+      icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Issued Value",
       value: kpisData?.totalInitialValue,
     },
     {
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
-          <text x="50%" y="50%" textAnchor="middle" fontSize="20" dy=".3em" fill="#fff">
-            $
-          </text>
-        </svg>
-      ),
+      icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Redeemed Value",
       value: kpisData?.totalAssetValue,
     },
     {
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
-          <text x="50%" y="50%" textAnchor="middle" fontSize="20" dy=".3em" fill="#fff">
-            $
-          </text>
-        </svg>
-      ),
+      icon: <Setting className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Carbon Issued",
       value: kpisData?.totalAccruedValue,
     },
     {
-      icon: (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width={20} height={20}>
-          <text x="50%" y="50%" textAnchor="middle" fontSize="20" dy=".3em" fill="#fff">
-            $
-          </text>
-        </svg>
-      ),
+      icon: <Setting className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Carbon Redeemed",
       value: kpisData?.totalYieldClaimed,
     },
     {
-      icon: (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width={20}
-          height={20}
-          viewBox="0 0 20 20"
-          fill="white"
-          xmlnsXlink="http://www.w3.org/1999/xlink"
-          transform="matrix(-1,1.2246467991473532e-16,-1.2246467991473532e-16,-1,0,0)"
-        >
-          <path
-            d="M10 3.125V16.875M10 16.875L4.375 11.25M10 16.875L15.625 11.25"
-            stroke="white"
-            strokeWidth={2.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ),
+      icon: <ArrowUp className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Redeemed Credits",
       value: kpisData?.totalDeliquent,
     },
@@ -223,14 +156,16 @@ export default function Home() {
           {KPIS && KPIS.map((kpi) => <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />)}
         </div>
 
-        <Card className="w-full flex-grow no-padding">
-          <Tabs>
+        <Card className="w-full flex-grow no-padding bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+          <Tabs className="border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+            {/* <div className="border-t-2 border-red-500"> */}
             <Tabs.TabPane tab="Token Insights" key="1">
               <BarChart data={graphData} title="Net Asset Value & Yield" />
             </Tabs.TabPane>
             <Tabs.TabPane tab="Carbon Insights" key="2">
               <Table columns={columns} dataSource={mintedNfts} />
             </Tabs.TabPane>
+            {/* </div> */}
           </Tabs>
         </Card>
       </div>
