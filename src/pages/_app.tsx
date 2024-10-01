@@ -67,7 +67,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       try {
         const signer = await provider.getSigner();
         signature = await signer.signMessage(message);
-      } catch (error) {
+      } catch (error: any) {
         const message = error.reason ? error.reason : error.message;
         toast.error(message);
         setForceLogout(true);
