@@ -1,0 +1,213 @@
+/* Border between labels and main content */
+.light .ant-tabs-nav-wrap {
+  @apply border-b border-nomyx-gray4-light;
+}
+
+.dark .ant-tabs-nav-wrap {
+  @apply border-b border-nomyx-gray4-dark;
+}
+
+/* Regular label (unselected) - red color */
+.light .ant-tabs-tab {
+  @apply text-nomyx-text-light;
+}
+
+.dark .ant-tabs-tab {
+  @apply text-nomyx-text-dark;
+}
+
+/* Selected label (active) - yellow color */
+.light .ant-tabs-tab-active .ant-tabs-tab-btn {
+  @apply !text-nomyx-main1-light;
+}
+
+.dark .ant-tabs-tab-active .ant-tabs-tab-btn {
+  @apply !text-nomyx-main1-dark;
+}
+
+/* Change the focus and hover state of tabs as well */
+.light .ant-tabs-tab:hover .ant-tabs-tab-btn,
+.light .ant-tabs-tab:focus .ant-tabs-tab-btn {
+  @apply !text-nomyx-main1-light;
+}
+
+.dark .ant-tabs-tab:hover .ant-tabs-tab-btn,
+.ant-tabs-tab:focus .ant-tabs-tab-btn {
+  @apply !text-nomyx-main1-dark;
+}
+
+/* Change the color of the underline bar */
+.light .ant-tabs-ink-bar {
+  @apply bg-nomyx-main1-light;
+}
+
+.dark .ant-tabs-ink-bar {
+  @apply bg-nomyx-main1-dark;
+}
+
+/* Text color for table*/
+.light .ant-table-tbody .ant-table-cell {
+  @apply text-nomyx-text-light;
+}
+
+.dark .ant-table-tbody .ant-table-cell {
+  @apply text-nomyx-text-dark;
+}
+
+/* Ensure other table elements, like the header, also have the correct color */
+.light .ant-table-thead .ant-table-cell {
+  @apply text-nomyx-text-light;
+  @apply bg-nomyx-dark2-light;
+}
+
+.dark .ant-table-thead .ant-table-cell {
+  @apply text-nomyx-text-dark;
+  @apply bg-nomyx-dark2-dark;
+}
+
+/* Border color in light mode */
+.light .ant-table-tbody .ant-table-cell,
+.light .ant-table-thead .ant-table-cell {
+  @apply !border-nomyx-gray4-light;
+}
+
+.dark .ant-table-tbody .ant-table-cell,
+.dark .ant-table-thead .ant-table-cell {
+  @apply !border-nomyx-gray4-dark;
+}
+
+/* Light Mode: Targeting the vertical divider before the header cell content */
+th.ant-table-cell::before {
+  @apply !bg-nomyx-gray4-light;
+}
+
+/* Dark Mode: Targeting the vertical divider for dark mode */
+.dark th.ant-table-cell::before {
+  @apply !bg-nomyx-gray4-dark;
+}
+
+/* Default background color for table */
+.light .ant-table-tbody {
+  @apply bg-nomyx-dark2-light;
+}
+
+.dark .ant-table-tbody {
+  @apply bg-nomyx-dark2-dark;
+}
+
+/* Light Mode: Change sorting arrow colors */
+.ant-table-column-sorters .anticon svg {
+  @apply !text-nomyx-text-light fill-current;
+}
+
+/* Dark Mode: Change sorting arrow colors */
+.dark .ant-table-column-sorters .anticon svg {
+  @apply !text-nomyx-text-dark fill-current;
+}
+
+/* Change the active sorting arrow color */
+.ant-table-column-sorter-up.active svg,
+.ant-table-column-sorter-down.active svg {
+  @apply !text-nomyx-text-light opacity-25 fill-current;
+}
+
+/* Dark Mode: Active sorting arrow */
+.dark .ant-table-column-sorter-up.active svg,
+.dark .ant-table-column-sorter-down.active svg {
+  @apply !text-nomyx-text-dark opacity-25 fill-current;
+}
+
+/* Light Mode: Change hover row color */
+.ant-table-tbody > tr:hover > td {
+  @apply !bg-nomyx-gray3-light opacity-75;
+}
+
+/* Dark Mode: Change hover row color */
+.dark .ant-table-tbody > tr:hover > td {
+  @apply !bg-nomyx-gray3-dark opacity-75;
+}
+
+/* Highlighted (sorted) column background color */
+/* Light Mode */
+.ant-table-column-sort {
+  @apply !bg-nomyx-gray3-light opacity-75;
+}
+
+/* Dark Mode */
+.dark .ant-table-column-sort {
+  @apply !bg-nomyx-gray3-dark opacity-75;
+}
+
+/* Light Mode: Change table header hover color */
+.ant-table-thead th:hover {
+  @apply !bg-nomyx-gray3-light opacity-75;
+}
+
+/* Dark Mode: Change table header hover color */
+.dark .ant-table-thead th:hover {
+  @apply !bg-nomyx-gray3-dark opacity-75;
+}
+
+/* Pagination styling */
+
+/* Light Mode: Pagination button and active page color */
+.ant-pagination-item a {
+  @apply !text-nomyx-text-light;
+}
+
+.ant-pagination-item-active a {
+  @apply !text-nomyx-main1-light;
+}
+
+/* Light Mode: Hover effect for pagination buttons that are not currently selected */
+.ant-pagination-item:not(.ant-pagination-item-active):hover a {
+  @apply bg-nomyx-gray3-light opacity-75 rounded-lg; /* Apply background, opacity, and rounded corners */
+}
+
+/* Dark Mode: Pagination button and active page color */
+.dark .ant-pagination-item a {
+  @apply !text-nomyx-text-dark;
+}
+
+.dark .ant-pagination-item-active a {
+  @apply !text-nomyx-main1-dark rounded-lg;
+}
+
+/* Dark Mode: Hover effect for pagination buttons that are not currently selected */
+.dark .ant-pagination-item:not(.ant-pagination-item-active):hover a {
+  @apply bg-nomyx-gray3-dark opacity-75 rounded-lg;
+}
+
+/* Light Mode: Pagination next/prev button hover color */
+.ant-pagination-prev:hover .ant-pagination-item-link,
+.ant-pagination-next:hover .ant-pagination-item-link {
+  @apply !bg-nomyx-gray3-light opacity-75 text-nomyx-text-light;
+}
+
+/* Light Mode: Pagination next/prev button hover color */
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link {
+  @apply text-nomyx-text-light;
+}
+
+/* Dark Mode: Pagination next/prev button hover color */
+.dark .ant-pagination-prev:hover .ant-pagination-item-link,
+.dark .ant-pagination-next:hover .ant-pagination-item-link {
+  @apply !bg-nomyx-gray3-dark opacity-75 text-nomyx-text-dark;
+}
+
+/* Dark Mode: Pagination next/prev button hover color */
+.dark .ant-pagination-prev .ant-pagination-item-link,
+.dark .ant-pagination-next .ant-pagination-item-link {
+  @apply text-nomyx-text-dark;
+}
+
+/* Light Mode: Active pagination item border */
+.ant-pagination-item-active {
+  @apply border !border-nomyx-main1-light rounded-lg;
+}
+
+/* Dark Mode: Active pagination item border */
+.dark .ant-pagination-item-active {
+  @apply border bg-nomyx-dark2-dark !border-nomyx-text-dark rounded-lg;
+}

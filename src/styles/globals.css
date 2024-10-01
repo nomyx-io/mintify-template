@@ -1,0 +1,7 @@
+@import "./home.css";
+@import "./nftRecordDetail.css";
+@import "./compliance.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

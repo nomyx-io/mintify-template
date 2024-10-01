@@ -1,0 +1,32 @@
+/* Compliance feature section */
+.ant-transfer-list {
+  @apply rounded-lg border border-nomyx-gray4-light;
+}
+
+.dark .ant-transfer-list {
+  @apply rounded-lg border border-nomyx-gray4-dark;
+}
+
+.ant-transfer-list-header {
+  @apply bg-nomyx-dark2-light text-nomyx-text-light border-b border-nomyx-gray4-light;
+}
+
+.dark .ant-transfer-list-header {
+  @apply bg-nomyx-dark2-dark text-nomyx-text-dark border-b border-nomyx-gray4-dark;
+}
+
+.ant-transfer-list-content-item {
+  @apply bg-nomyx-dark2-light text-nomyx-text-light;
+}
+
+.dark .ant-transfer-list-content-item {
+  @apply bg-nomyx-dark2-dark text-nomyx-text-dark;
+}
+
+.ant-transfer-operation .ant-btn {
+  @apply bg-nomyx-dark2-light text-nomyx-text-light;
+}
+
+.dark .ant-transfer-operation .ant-btn {
+  @apply bg-nomyx-dark2-dark text-nomyx-text-dark;
+}
