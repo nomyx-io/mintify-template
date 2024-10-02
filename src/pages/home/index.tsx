@@ -63,7 +63,7 @@ export default function Home() {
     {
       label: "Carbon Insights",
       key: "2",
-      children: <Table columns={columns} dataSource={mintedNfts} className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark" />,
+      children: <Table columns={columns} dataSource={mintedNfts} className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark rounded-lg" />,
     },
   ];
 
