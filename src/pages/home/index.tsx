@@ -1,23 +1,24 @@
-'use client';
-import KPI from '@/components/atoms/KPI';
-import { KronosService } from '@/services/KronosService';
-import { EventFeed } from '@/components/molecules/EventFeed';
-import React, { useCallback, useEffect, useState } from 'react';
-import { getDashboardLayout } from '@/Layouts';
-import BarChart from '@/components/atoms/Graphs/Barchart';
-import moment from 'moment';
-import { Card, Table, Tabs } from 'antd';
-import { DASHBOARD_COLUMNS, getGraphData, getKPIs } from '@/utils/dashboard';
+"use client";
+import KPI from "@/components/atoms/KPI";
+import { KronosService } from "@/services/KronosService";
+import { EventFeed } from "@/components/molecules/EventFeed";
+import React, { useCallback, useEffect, useState } from "react";
+import { getDashboardLayout } from "@/Layouts";
+import BarChart from "@/components/atoms/Graphs/Barchart";
+import moment from "moment";
+import { Card, Table, Tabs } from "antd";
+import { DASHBOARD_COLUMNS, getGraphData, getKPIs } from "@/utils/dashboard";
+import { Coin, Setting, ArrowUp } from "iconsax-react";
 
 const formatMintedNftRecords = (records: Parse.Object[]): MintedToken[] =>
   records.map((record: Parse.Object) => ({
     id: record.id,
-    _createdAt: moment(record.createdAt).format('YYYY-MM-DD'),
-    _amount: record.attributes.loanAmount || '',
-    _originationDate: record.attributes.originationDate || '',
-    _currentValue: record.attributes.currentValue || '',
-    _loanId: record.attributes.loanId || '',
-    _tokenId: record.attributes.tokenId || '',
+    _createdAt: moment(record.createdAt).format("YYYY-MM-DD"),
+    _amount: record.attributes.loanAmount || "",
+    _originationDate: record.attributes.originationDate || "",
+    _currentValue: record.attributes.currentValue || "",
+    _loanId: record.attributes.loanId || "",
+    _tokenId: record.attributes.tokenId || "",
   }));
 
 export default function Home() {
@@ -33,18 +34,17 @@ export default function Home() {
 
   const fetchData = useCallback(async () => {
     try {
-    const [mintedNftRecords, events, portfolioPerformance, kpis] =
-      await Promise.all([
+      const [mintedNftRecords, events, portfolioPerformance, kpis] = await Promise.all([
         api.getMintedNfts(),
         api.getEvents(),
         api.getPortfolioPerformance(),
         api.getKpis(),
       ]);
 
-    setkpisData(kpis);
-    setMintedNfts(formatMintedNftRecords(mintedNftRecords || []));
-    setEventDetails(events || {});
-    setGraphValues(portfolioPerformance);
+      setkpisData(kpis);
+      setMintedNfts(formatMintedNftRecords(mintedNftRecords || []));
+      setEventDetails(events || {});
+      setGraphValues(portfolioPerformance);
     } catch (error) {
       console.error(error);
     }
@@ -54,32 +54,33 @@ export default function Home() {
     fetchData();
   }, [fetchData]);
 
+  const items = [
+    {
+      label: "Token Insights",
+      key: "1",
+      children: <BarChart data={graphData} title="Net Asset Value & Yield" />,
+    },
+    {
+      label: "Carbon Insights",
+      key: "2",
+      children: <Table columns={columns} dataSource={mintedNfts} className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark" />,
+    },
+  ];
+
   return (
-    <div className='w-full grid grid-cols-1 lg:grid-cols-4 gap-3'>
-      <div className='lg:col-span-3'>
-        <div className='flex lg:grid grid-cols-3 gap-3 pb-3 flex-wrap'>
+    <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-3">
+      <div className="lg:col-span-3">
+        <div className="flex lg:grid grid-cols-3 gap-3 pb-3 flex-wrap">
           {kpiList?.map((kpi) => (
-              <KPI
-                key={kpi.title}
-                icon={kpi.icon}
-                title={kpi.title}
-                value={kpi.value}
-              />
-            ))}
+            <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />
+          ))}
         </div>
 
-        <Card className='w-full flex-grow no-padding'>
-          <Tabs>
-            <Tabs.TabPane tab='Token Insights' key='1'>
-              <BarChart data={graphData} title='Net Asset Value & Yield' />
-            </Tabs.TabPane>
-            <Tabs.TabPane tab='Carbon Insights' key='2'>
-              <Table columns={columns} dataSource={mintedNfts} />
-            </Tabs.TabPane>
-          </Tabs>
+        <Card className="w-full flex-grow no-padding bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+          <Tabs items={items}></Tabs>
         </Card>
       </div>
-      <Card className='no-padding h-[90vh] lg:max-w-sm overflow-y-auto'>
+      <Card className="no-padding h-[90vh] lg:max-w-sm overflow-y-auto border-nomyx-gray4-light dark:border-nomyx-gray4-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark">
         <EventFeed data={eventDetails} />
       </Card>
     </div>
