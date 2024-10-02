@@ -79,6 +79,10 @@
   @apply bg-nomyx-dark2-dark
 }
 
+.light .ant-input-outlined.ant-input-disabled {
+  @apply text-nomyx-text-light border-nomyx-gray4-light
+}
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
