@@ -15,7 +15,7 @@
   @apply bg-nomyx-dark2-dark text-nomyx-text-dark border-b border-nomyx-gray4-dark;
 }
 
-.ant-transfer-list-content-item {
+.light .ant-transfer-list-content-item {
   @apply bg-nomyx-dark2-light text-nomyx-text-light;
 }
 
@@ -23,7 +23,7 @@
   @apply bg-nomyx-dark2-dark text-nomyx-text-dark;
 }
 
-.ant-transfer-operation .ant-btn {
+.light .ant-transfer-operation .ant-btn {
   @apply bg-nomyx-dark2-light text-nomyx-text-light;
 }
 

@@ -170,12 +170,12 @@
 }
 
 .dark .ant-pagination-item-active a {
-  @apply !text-nomyx-main1-dark rounded-lg;
+  @apply !text-nomyx-main1-dark rounded-md;
 }
 
 /* Dark Mode: Hover effect for pagination buttons that are not currently selected */
 .dark .ant-pagination-item:not(.ant-pagination-item-active):hover a {
-  @apply bg-nomyx-gray3-dark opacity-75 rounded-lg;
+  @apply bg-nomyx-gray3-dark opacity-75 rounded-md;
 }
 
 /* Light Mode: Pagination next/prev button hover color */
@@ -203,13 +203,13 @@
 }
 
 /* Light Mode: Active pagination item border */
-.ant-pagination-item-active {
-  @apply border !border-nomyx-main1-light rounded-lg;
+.light .ant-pagination-item-active {
+  @apply !border-nomyx-gray3-light rounded-md;
 }
 
 /* Dark Mode: Active pagination item border */
 .dark .ant-pagination-item-active {
-  @apply border bg-nomyx-dark2-dark !border-nomyx-text-dark rounded-lg;
+  @apply border bg-nomyx-dark2-dark !border-nomyx-text-dark rounded-md;
 }
 
 .light .ant-pagination .ant-pagination-item-active {
