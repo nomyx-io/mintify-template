@@ -7,7 +7,7 @@ const MyDocument = () => (
     <Html lang="en">
         <Head />
         <body>
-        <Main />
+        <Main/>
         <NextScript />
         </body>
     </Html>

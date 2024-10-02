@@ -1,0 +1,8 @@
+/* Border between labels and main content */
+.light .ant-card-head {
+  @apply border-b border-nomyx-gray4-light;
+}
+
+.dark .ant-card-head {
+  @apply border-b border-nomyx-gray4-dark;
+}
