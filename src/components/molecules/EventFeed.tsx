@@ -72,9 +72,9 @@ export const EventFeed = ({ data }: EventFeedProps) => {
           <div
             className={`${
               filterMenuOpen ? "flex" : "hidden"
-            } flex-col items-start py-4 rounded-md border-2 border-nomyx-gray4-light dark:border-nomyx-gray4-darkshadow-lg absolute top-6 -right-5 z-10 max-w-64 bg-black`}
+            } flex-col items-start py-4 rounded-md border-2 border-nomyx-gray4-light dark:border-nomyx-gray4-darkshadow-lg absolute top-6 -right-5 z-10 max-w-64 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark`}
           >
-            <button className="absolute top-0 right-0 p-2 text-xs" onClick={() => setFilterMenuOpen(false)}>
+            <button className="text-nomyx-text-light dark:text-nomyx-text-dark absolute top-0 right-0 p-2 text-xs" onClick={() => setFilterMenuOpen(false)}>
               Close
             </button>
             {filterOptions.map((name: string) => {

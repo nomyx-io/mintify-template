@@ -67,11 +67,16 @@ module.exports = {
             light: "#EB5757",
             dark: "#EB5757",
           },
+          blue: {
+            light: "#3396ff",
+            dark: "#3396ff",
+          },
         },
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
       },
     },
   },

@@ -57,10 +57,10 @@ export default function CreateNftDetails({
 
 
       <div className="actions flex gap-3">
-        <Button className="text-nomyx-text-light dark:text-nomyx-text-dark" onClick={() => router.push("/home")}>
+        <Button className="text-nomyx-text-light dark:text-nomyx-text-dark hover:!bg-transparent" onClick={() => router.push("/home")}>
           Cancel
         </Button>
-        <Button className="text-nomyx-text-light dark:text-nomyx-text-dark" type="primary" onClick={form.submit}>
+        <Button className="text-nomyx-text-light dark:text-nomyx-text-dark hover:!bg-transparent" onClick={form.submit}>
           Preview
         </Button>
       </div>

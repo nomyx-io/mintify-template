@@ -46,6 +46,10 @@
   color: #1568db !important; /* Ensure link text color in selected item for light mode */
 }
 
+.light .ant-menu-item-active {
+  background-color: rgb(228,231,231) !important; /* Custom background color for selected item in light mode */
+}
+
 /* Dark Mode */
 .dark .ant-menu-item-selected {
   background-color: rgba(17, 26, 44, 1) !important; /* Custom background color for selected item in dark mode */
@@ -54,6 +58,25 @@
 
 .dark .ant-menu-item-selected a span {
   color: #1568db !important; /* Ensure link text color in selected item for dark mode */
+}
+
+.light .ant-card .ant-card-head-title {
+  @apply text-nomyx-text-light
+}
+.light .ant-card-bordered {
+  border-color: rgb(187 187 187);
+}
+
+.light .ant-card .ant-card-grid {
+  box-shadow: 1px 0 0 0 #BBBBBB, 0 1px 0 0 #BBBBBB, 1px 1px 0 0 #BBBBBB, 1px 0 0 0 #BBBBBB inset, 0 1px 0 0 #BBBBBB inset;
+}
+
+.light .ant-layout-content {
+  @apply bg-nomyx-dark2-light
+}
+
+.dark .ant-layout-content {
+  @apply bg-nomyx-dark2-dark
 }
 
 @keyframes spin {
@@ -68,11 +91,7 @@
 ::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
-
 /*
-
-
-
 .ant-form-item {
   margin: 0;
 }

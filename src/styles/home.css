@@ -32,7 +32,7 @@
 }
 
 .dark .ant-tabs-tab:hover .ant-tabs-tab-btn,
-.ant-tabs-tab:focus .ant-tabs-tab-btn {
+.dark .ant-tabs-tab:focus .ant-tabs-tab-btn {
   @apply !text-nomyx-main1-dark;
 }
 
@@ -77,7 +77,7 @@
 }
 
 /* Light Mode: Targeting the vertical divider before the header cell content */
-th.ant-table-cell::before {
+.light th.ant-table-cell::before {
   @apply !bg-nomyx-gray4-light;
 }
 
@@ -96,7 +96,7 @@ th.ant-table-cell::before {
 }
 
 /* Light Mode: Change sorting arrow colors */
-.ant-table-column-sorters .anticon svg {
+.light .ant-table-column-sorters .anticon svg {
   @apply !text-nomyx-text-light fill-current;
 }
 
@@ -106,8 +106,8 @@ th.ant-table-cell::before {
 }
 
 /* Change the active sorting arrow color */
-.ant-table-column-sorter-up.active svg,
-.ant-table-column-sorter-down.active svg {
+.light .ant-table-column-sorter-up.active svg,
+.light .ant-table-column-sorter-down.active svg {
   @apply !text-nomyx-text-light opacity-25 fill-current;
 }
 
@@ -118,7 +118,7 @@ th.ant-table-cell::before {
 }
 
 /* Light Mode: Change hover row color */
-.ant-table-tbody > tr:hover > td {
+.light .ant-table-tbody > tr:hover > td {
   @apply !bg-nomyx-gray3-light opacity-75;
 }
 
@@ -129,7 +129,7 @@ th.ant-table-cell::before {
 
 /* Highlighted (sorted) column background color */
 /* Light Mode */
-.ant-table-column-sort {
+.light .ant-table-column-sort {
   @apply !bg-nomyx-gray3-light opacity-75;
 }
 
@@ -139,7 +139,7 @@ th.ant-table-cell::before {
 }
 
 /* Light Mode: Change table header hover color */
-.ant-table-thead th:hover {
+.light .ant-table-thead th:hover {
   @apply !bg-nomyx-gray3-light opacity-75;
 }
 
@@ -151,16 +151,16 @@ th.ant-table-cell::before {
 /* Pagination styling */
 
 /* Light Mode: Pagination button and active page color */
-.ant-pagination-item a {
+.light .ant-pagination-item a {
   @apply !text-nomyx-text-light;
 }
 
-.ant-pagination-item-active a {
+.light .ant-pagination-item-active a {
   @apply !text-nomyx-main1-light;
 }
 
 /* Light Mode: Hover effect for pagination buttons that are not currently selected */
-.ant-pagination-item:not(.ant-pagination-item-active):hover a {
+.light .ant-pagination-item:not(.ant-pagination-item-active):hover a {
   @apply bg-nomyx-gray3-light opacity-75 rounded-lg; /* Apply background, opacity, and rounded corners */
 }
 
@@ -179,14 +179,14 @@ th.ant-table-cell::before {
 }
 
 /* Light Mode: Pagination next/prev button hover color */
-.ant-pagination-prev:hover .ant-pagination-item-link,
-.ant-pagination-next:hover .ant-pagination-item-link {
+.light .ant-pagination-prev:hover .ant-pagination-item-link,
+.light .ant-pagination-next:hover .ant-pagination-item-link {
   @apply !bg-nomyx-gray3-light opacity-75 text-nomyx-text-light;
 }
 
 /* Light Mode: Pagination next/prev button hover color */
-.ant-pagination-prev .ant-pagination-item-link,
-.ant-pagination-next .ant-pagination-item-link {
+.light .ant-pagination-prev .ant-pagination-item-link,
+.light .ant-pagination-next .ant-pagination-item-link {
   @apply text-nomyx-text-light;
 }
 
@@ -210,4 +210,8 @@ th.ant-table-cell::before {
 /* Dark Mode: Active pagination item border */
 .dark .ant-pagination-item-active {
   @apply border bg-nomyx-dark2-dark !border-nomyx-text-dark rounded-lg;
+}
+
+.light .ant-pagination .ant-pagination-item-active {
+  @apply bg-transparent;
 }

@@ -1,5 +1,5 @@
 /* Compliance feature section */
-.ant-transfer-list {
+.light .ant-transfer-list {
   @apply rounded-lg border border-nomyx-gray4-light;
 }
 
@@ -7,7 +7,7 @@
   @apply rounded-lg border border-nomyx-gray4-dark;
 }
 
-.ant-transfer-list-header {
+.light .ant-transfer-list-header {
   @apply bg-nomyx-dark2-light text-nomyx-text-light border-b border-nomyx-gray4-light;
 }
 
@@ -29,4 +29,25 @@
 
 .dark .ant-transfer-operation .ant-btn {
   @apply bg-nomyx-dark2-dark text-nomyx-text-dark;
+}
+
+.ant-transfer .ant-transfer-operation .ant-btn:not(:disabled) {
+  @apply border-nomyx-blue-light;
+}
+
+.light .ant-transfer .ant-transfer-list-content-item-checked {
+  @apply bg-transparent;
+}
+.light .ant-checkbox .ant-checkbox-inner {
+  @apply bg-transparent;
+}
+.light .ant-checkbox .ant-checkbox-inner:after {
+  @apply border-nomyx-blue-light;
+}
+.light
+  .ant-transfer
+  .ant-transfer-list-content-item:not(
+    .ant-transfer-list-content-item-disabled
+  ).ant-transfer-list-content-item-checked:hover {
+  @apply !bg-nomyx-gray4-light;
 }

@@ -80,7 +80,7 @@ export default function Home() {
           <Tabs items={items}></Tabs>
         </Card>
       </div>
-      <Card className="no-padding h-[90vh] lg:max-w-sm overflow-y-auto border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+      <Card className="no-padding h-[90vh] lg:max-w-sm overflow-y-auto border-nomyx-gray4-light dark:border-nomyx-gray4-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark">
         <EventFeed data={eventDetails} />
       </Card>
     </div>
