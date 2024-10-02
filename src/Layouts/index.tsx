@@ -59,7 +59,7 @@ export const AppLayout = ({children}: {children: React.ReactElement}) => {
                 <KronosSpin />
               </div>
 
-              <div className='p-5 w-full hidden sm:block'>{children}</div>
+              <div className='p-5 w-full h-full hidden sm:block'>{children}</div>
             </Content>
           </Layout>
         </Layout>

@@ -612,7 +612,7 @@ export default class ParseClient {
         type?: string
     ) {
         const parseFile = new Parse.File(name, data, type);
-        await parseFile.save({ useMasterKey: true });
+        await parseFile.save();
         return parseFile;
     }
 
