@@ -16,11 +16,11 @@
 }
 
 .light .ant-transfer-list-content-item {
-  @apply bg-nomyx-dark2-light text-nomyx-text-light;
+  @apply bg-nomyx-dark2-light text-nomyx-text-light rounded-lg;
 }
 
 .dark .ant-transfer-list-content-item {
-  @apply bg-nomyx-dark2-dark text-nomyx-text-dark;
+  @apply bg-nomyx-dark2-dark text-nomyx-text-dark rounded-lg;
 }
 
 .light .ant-transfer-operation .ant-btn {
@@ -44,10 +44,6 @@
 .light .ant-checkbox .ant-checkbox-inner:after {
   @apply border-nomyx-blue-light;
 }
-.light
-  .ant-transfer
-  .ant-transfer-list-content-item:not(
-    .ant-transfer-list-content-item-disabled
-  ).ant-transfer-list-content-item-checked:hover {
+.light .ant-transfer .ant-transfer-list-content-item:not(.ant-transfer-list-content-item-disabled).ant-transfer-list-content-item-checked:hover {
   @apply !bg-nomyx-gray4-light;
 }
