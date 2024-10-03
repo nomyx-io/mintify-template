@@ -226,6 +226,10 @@
   @apply placeholder:!text-nomyx-gray3-light placeholder:dark:!text-nomyx-gray3-dark;
 }
 
+.ant-upload-list-item-container, .ant-upload-icon span, .anticon {
+  @apply !text-nomyx-text-light dark:!text-nomyx-text-dark;
+}
+
 label, p, h1, h2, h3, h4, h5, h6, input {
   @apply !text-nomyx-text-light dark:!text-nomyx-text-dark;
 }

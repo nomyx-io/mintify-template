@@ -12,7 +12,7 @@ export const projectColumns: any = [
   {
     title: 'Title',
     align: 'left',
-    sorter: true,
+    sorter: {compare: (a:Project, b:Project) => a.title.localeCompare(b.title), multiple: 1},
     sortIcon: () => <ArrowSwapVertical size={20} />,
     render: (project: Project) => {
       return (
@@ -48,7 +48,7 @@ export const projectColumns: any = [
     dataIndex: 'registryURL',
     title: 'Registry URL',
     align: 'left',
-    sorter: true,
+    sorter: { compare: (a:any, b:any) => a.registryURL.localeCompare(b.registryURL), multiple: 2},
     sortIcon: () => <ArrowSwapVertical size={20} />,
     render: (registryURL: string) => {
       return (

@@ -1,4 +1,4 @@
-import { Button, Card, message } from 'antd';
+import { Card, message } from 'antd';
 import { Copy } from 'iconsax-react';
 import Image from 'next/image';
 import Link from 'next/link';

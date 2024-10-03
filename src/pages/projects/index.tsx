@@ -64,14 +64,14 @@ export default function Projects() {
         onCreateSuccess={onCreateSuccess}
       />
       <ProjectsHeader setOpen={setOpen} />
-      {projectList.length > 0 ? (
+      {filteredProjects.length > 0 ? (
         <>
           {viewMode === 'table' && (
-            <ProjectListView projects={projectList} className='mt-5' />
+            <ProjectListView projects={filteredProjects} className='mt-5' />
           )}
           {viewMode === 'card' && (
             <div className='gap-5 grid grid-cols-2 xl:grid-cols-3 mt-5'>
-              {projectList.map((project) => (
+              {filteredProjects.map((project) => (
                 <ProjectCard key={project.id} project={project}></ProjectCard>
               ))}
             </div>

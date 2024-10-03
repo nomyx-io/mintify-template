@@ -8,7 +8,6 @@ import BarChart from "@/components/atoms/Graphs/Barchart";
 import moment from "moment";
 import { Card, Table, Tabs } from "antd";
 import { DASHBOARD_COLUMNS, getGraphData, getKPIs } from "@/utils/dashboard";
-import { Coin, Setting, ArrowUp } from "iconsax-react";
 
 const formatMintedNftRecords = (records: Parse.Object[]): MintedToken[] =>
   records.map((record: Parse.Object) => ({
