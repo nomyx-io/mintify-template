@@ -3,13 +3,13 @@ import { getDashboardLayout } from '@/Layouts';
 import { TelescopeIcon } from '@/assets';
 import { Button } from 'antd';
 import CreateProjectModal from '@/components/CreateProjectModal';
-import { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { KronosService } from '@/services/KronosService';
-
+import ProjectListView from '@/components/ProjectListView';
 
 export default function Projects() {
   const [open, setOpen] = useState(false);
-  const [projectList, setProjectList] = useState<Parse.Object<Parse.Attributes>[]>([]);
+  const [projectList, setProjectList] = useState<Project[]>([]);
 
   const api = KronosService();
 
@@ -17,33 +17,44 @@ export default function Projects() {
     setOpen(true);
   };
 
-  function fetchProjects() {
+  const fetchProjects = useCallback(() => {
     api.getProjects().then((projects) => {
-      setProjectList(projects || []);
+      setProjectList(
+        projects?.map((project) => {
+          return {
+            id: project.id,
+            title: project.attributes.title,
+            description: project.attributes.description,
+            logo: project.attributes.logo,
+            coverImage: project.attributes.coverImage,
+            registryURL: project.attributes.registryURL,
+          };
+        }) || []
+      );
     });
-  };
+  }, []);
 
   useEffect(() => {
     fetchProjects();
-    console.log(projectList);
-  }, [])
-
+  }, []);
 
   return (
     <>
       <CreateProjectModal open={open} setOpen={setOpen} />
       <ProjectsHeader setOpen={setOpen} />
-      { projectList.length > 0 ? (projectList.map((project) => (
-        <div className='text-white' key={project.id}>{project.attributes.title} {project.attributes.description}</div>))) : (
-      <div className='flex flex-col text-white h-[80%] items-center justify-center w-full grow'>
-        <TelescopeIcon />
-        <p>The Sky Is Clear Today!</p>
-        <p>Spread your sails and let&apos;s set sail</p>
-        <br />
-        <Button className='bg-[#3c89e8]' onClick={handleCreateProject}>
-          Create New Project
-        </Button>
-      </div>)}
+      {projectList.length > 0 ? (
+        <ProjectListView projects={projectList} className="mt-5" />
+      ) : (
+        <div className='flex flex-col text-nomyx-text-light dark:text-nomyx-text-dark h-[80%] items-center justify-center w-full grow'>
+          <TelescopeIcon />
+          <p>The Sky Is Clear Today!</p>
+          <p>Spread your sails and let&apos;s set sail</p>
+          <br />
+          <Button className='bg-[#3c89e8]' onClick={handleCreateProject}>
+            Create New Project
+          </Button>
+        </div>
+      )}
     </>
   );
 }

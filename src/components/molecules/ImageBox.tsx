@@ -87,12 +87,10 @@ const ImageBoxFormItem = ({
   const rules = [{ required: true, message: 'This is required' }];
 
   return (
-    <Form.Item
-      rules={rules}
-      label={label}
-      name={name}
-      className={className}>
-      <Upload.Dragger {...UploadProps}>
+    <Form.Item rules={rules} label={label} name={name} className={className}>
+      <Upload.Dragger
+        {...UploadProps}
+        className=''>
         {previewImage ? (
           <Image
             src={previewImage}
@@ -101,7 +99,7 @@ const ImageBoxFormItem = ({
             className='object-contain rounded-lg'
           />
         ) : (
-          <div className='text-[#878787] text-xs flex flex-col items-center justify-center'>
+          <div className='text-xs flex flex-col items-center justify-center'>
             <div className=' mb-2 space-y-2'>
               <p>Drop Image here , or</p>
               <Button className='flex cursor-pointer z-[100] gap-1 text-white items-center justify-center w-full'>

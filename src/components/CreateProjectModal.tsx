@@ -117,14 +117,18 @@ export default function CreateProjectModal({
           {dom}
         </Form>
       )}>
-      <div className='flex flex-col'>
+      <div className='flex flex-col '>
         <div className='flex w-full gap-5'>
           <ImageBoxFormItem
             label='Logo'
             name='logoUpload'
             className='min-w-40'
           />
-          <ImageBoxFormItem label='Cover Image' name='coverImageUpload' className='w-full'/>
+          <ImageBoxFormItem
+            label='Cover Image'
+            name='coverImageUpload'
+            className='w-full'
+          />
         </div>
         <Form.Item rules={[requiredRule]} label='Title' name='title'>
           <Input placeholder='Add Project Title' />
