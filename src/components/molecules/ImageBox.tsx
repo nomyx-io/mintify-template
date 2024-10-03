@@ -87,10 +87,14 @@ const ImageBoxFormItem = ({
   const rules = [{ required: true, message: 'This is required' }];
 
   return (
-    <Form.Item rules={rules} label={label} name={name} className={className}>
-      <Upload.Dragger
-        {...UploadProps}
-        className=''>
+    <Form.Item
+      rules={rules}
+      label={label}
+      name={name}
+      className={`${
+        className || ''
+      } text-nomyx-text-light dark:text-nomyx-text-dark`}>
+      <Upload.Dragger {...UploadProps} className=''>
         {previewImage ? (
           <Image
             src={previewImage}
@@ -100,15 +104,23 @@ const ImageBoxFormItem = ({
           />
         ) : (
           <div className='text-xs flex flex-col items-center justify-center'>
-            <div className=' mb-2 space-y-2'>
-              <p>Drop Image here , or</p>
-              <Button className='flex cursor-pointer z-[100] gap-1 text-white items-center justify-center w-full'>
+            <div className='mb-3'>
+              <p className='!text-nomyx-gray3-light dark:!text-nomyx-gray3-dark '>
+                Drop Image here , or
+              </p>
+              <Button
+                type='text'
+                className='flex cursor-pointer z-[100] gap-1 items-center justify-center w-full text-nomyx-text-light dark:text-nomyx-text-dark hover:!text-nomyx-blue-light'>
                 <DocumentUpload size='24' />
                 <span>Select File</span>
               </Button>
             </div>
-            <p>PNG, JPEG only</p>
-            <p>Max file size is 1 MB</p>
+            <p className='!text-nomyx-gray3-light dark:!text-nomyx-gray3-dark '>
+              PNG, JPEG only
+            </p>
+            <p className='!text-nomyx-gray3-light dark:!text-nomyx-gray3-dark '>
+              Max file size is 1 MB
+            </p>
           </div>
         )}
       </Upload.Dragger>

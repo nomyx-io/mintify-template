@@ -4,11 +4,11 @@ import { Button } from 'antd';
 import { Category, RowVertical } from 'iconsax-react';
 import { useRouter } from 'next/router';
 
-export default function ProjectsHeader({
-  setOpen,
-}: {
+interface ProjectsHeaderProps {
   setOpen: (open: boolean) => void;
-}) {
+}
+
+export default function ProjectsHeader({ setOpen }: ProjectsHeaderProps) {
   const router = useRouter();
   const { query, pathname } = router;
 
@@ -31,7 +31,7 @@ export default function ProjectsHeader({
       <div className='flex justify-between items-center p-2 rounded-lg bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark'>
         <SearchBar />
         <div className='flex items-center'>
-          <Button className='bg-[#3c89e8] mr-4' onClick={handleCreateProject}>
+          <Button className='bg-nomyx-blue-light mr-4 hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark' onClick={handleCreateProject}>
             Create Project
           </Button>
           <div className='flex items-center p-1 gap-1'>
@@ -39,7 +39,7 @@ export default function ProjectsHeader({
               onClick={() => toggleView('card')}
               className={`p-0.5 rounded-sm ${
                 viewMode === 'card'
-                  ? 'bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-[#3c89e8]'
+                  ? 'bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-blue-light'
                   : ''
               }`}>
               <Category
@@ -51,7 +51,7 @@ export default function ProjectsHeader({
               onClick={() => toggleView('table')}
               className={`p-0.5 rounded-sm ${
                 viewMode === 'table'
-                  ? 'bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-[#3c89e8]'
+                  ? 'bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-blue-light'
                   : ''
               }`}>
               <RowVertical

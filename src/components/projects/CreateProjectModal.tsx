@@ -10,7 +10,7 @@ import {
   UploadProps,
 } from 'antd';
 import { useState } from 'react';
-import ImageBoxFormItem from './molecules/ImageBox';
+import ImageBoxFormItem from '../molecules/ImageBox';
 import { KronosService } from '@/services/KronosService';
 import { toast } from 'react-toastify';
 import { RcFile } from 'antd/es/upload';
@@ -19,6 +19,7 @@ import { useWalletAddress } from '@/context/WalletAddressContext';
 interface CreateProjectModalProps {
   open: boolean;
   setOpen: (open: boolean) => void;
+  onCreateSuccess?: () => void;
 }
 
 interface FormValues {
@@ -42,6 +43,7 @@ const getBase64 = (file: FileType): Promise<string> =>
 export default function CreateProjectModal({
   open,
   setOpen,
+  onCreateSuccess,
 }: CreateProjectModalProps) {
   const [form] = Form.useForm();
   const requiredRule = { required: true, message: 'This field is required.' };
@@ -77,12 +79,15 @@ export default function CreateProjectModal({
     };
 
     const saveApi = api.createProject(project);
-    console.log('saveApi', await saveApi);
 
     toast.promise(saveApi, {
       success: 'Project saved successfully!', // Display this message when the promise is resolved
       error: 'Failed to save project!', // Display this message when the promise is rejected
     });
+
+    if (await saveApi) {
+      onCreateSuccess && onCreateSuccess();
+    }
 
     // Submit form with the existing settings values
     form.setFieldsValue({});
@@ -96,14 +101,16 @@ export default function CreateProjectModal({
       onCancel={handleModalCancel}
       width={640}
       footer={[
-        <Button key='back' className='w-[292px]' onClick={handleModalCancel}>
+        <Button
+          key='back'
+          className='w-[292px] text-nomyx-text-light dark:text-nomyx-text-dark hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark'
+          onClick={handleModalCancel}>
           Cancel
         </Button>,
         <Button
           key='submit'
-          className='w-[292px] bg-[#3c89e8]'
-          htmlType='submit'
-          type='primary'>
+          className='w-[292px] bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark'
+          htmlType='submit'>
           Create Project
         </Button>,
       ]}
@@ -117,7 +124,7 @@ export default function CreateProjectModal({
           {dom}
         </Form>
       )}>
-      <div className='flex flex-col '>
+      <div className='flex flex-col'>
         <div className='flex w-full gap-5'>
           <ImageBoxFormItem
             label='Logo'
@@ -142,10 +149,7 @@ export default function CreateProjectModal({
             autoSize={{ minRows: 3, maxRows: 5 }}
           />
         </Form.Item>
-        <Form.Item
-          rules={[requiredRule]}
-          label='Registry URL'
-          name='registryURL'>
+        <Form.Item label='Registry URL' name='registryURL'>
           <Input placeholder='Add Registry URL' />
         </Form.Item>
       </div>

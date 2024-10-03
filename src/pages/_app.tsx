@@ -10,7 +10,7 @@ import { createContext, ReactElement, ReactNode, useEffect, useState } from "rea
 import { BrowserProvider, ethers, Network } from "ethers";
 import { toast, ToastContainer } from "react-toastify";
 import { ConfigProvider, theme } from "antd";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes";
 
 import { generateRandomString } from "@/utils";
 import BlockchainService from "@/services/BlockchainService";
@@ -18,7 +18,7 @@ import PrivateRoute from "@/components/atoms/PrivateRoute";
 import Web3Providers from "@/components/Web3Providers";
 
 import NomyxAppContext from "@/context/NomyxAppContext";
-import { NextPage } from "next";
+import next, { NextPage } from "next";
 import { AppProps } from "next/app";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
@@ -34,6 +34,7 @@ export const UserContext = createContext(() => {});
 let provider: BrowserProvider;
 
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
+  const { theme: nextTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [blockchainService, setBlockchainService] = useState<BlockchainService | null>(null);
   const [role, setRole] = useState<string[]>([]);
@@ -157,10 +158,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     algorithm,
     components: {
       Layout: {
-        headerBg: isDarkMode ? "#141414" : "#ffffff",
-        colorBgBase: isDarkMode ? "#141414" : "#ffffff",
-        colorBgContainer: isDarkMode ? "#141414" : "#ffffff",
-        siderBg: isDarkMode ? "#141414" : "#ffffff",
+        headerBg: isDarkMode ? '#141414' : '#ffffff',
+        colorBgBase: isDarkMode ? '#141414' : '#ffffff',
+        colorBgContainer: isDarkMode ? '#141414' : '#ffffff',
+        siderBg: isDarkMode ? '#141414' : '#ffffff',
       },
       Menu: {
         activeBarBorderWidth: 0,

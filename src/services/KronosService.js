@@ -324,11 +324,7 @@ export const KronosService = () => {
         projectData.coverImage = cover;
 
 
-        ParseClient.createRecord('KronosProject', [], [], projectData).catch((error) => {
-          console.error('Error creating project:', error);
-          throw error;
-        })
-        return true;
+        return ParseClient.createRecord('KronosProject', [], [], projectData)
     }
 
     const getProjects = async () => {

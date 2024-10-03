@@ -1,5 +1,4 @@
 import React from "react";
-import { SearchIcon } from "@/assets";
 import { SearchNormal1 } from "iconsax-react";
 import { useRouter } from "next/router";
 import { useDebouncedCallback } from "use-debounce";
