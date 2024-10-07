@@ -314,6 +314,25 @@ export const KronosService = () => {
     }
 
 
+    const createProject = async (projectData) => {
+        console.log("projectData = ", projectData);
+        const [logo, cover] = await Promise.all([
+          ParseClient.saveFile('project-logo', { base64: projectData.logo }),
+          ParseClient.saveFile('project-cover', { base64: projectData.coverImage }),
+        ]);
+        projectData.logo = logo;
+        projectData.coverImage = cover;
+
+
+        return ParseClient.createRecord('KronosProject', [], [], projectData)
+    }
+
+    const getProjects = async () => {
+        let records = await ParseClient.getRecords('KronosProject', [], [], ["*"]);
+        return records;
+    }
+
+
 
     return {
         getPortfolioPerformance,
@@ -331,7 +350,9 @@ export const KronosService = () => {
         getSettings,
         getClaimTopics,
         deposit,
-        getTreasuryData
+        getTreasuryData,
+        createProject,
+        getProjects
     };
 }
 

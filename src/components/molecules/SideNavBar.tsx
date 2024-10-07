@@ -2,8 +2,7 @@ import React from "react";
 import { Layout, Menu } from "antd/es";
 import type { MenuProps } from "antd";
 
-import { ChartSquare, LanguageSquare, Setting2 } from "iconsax-react";
-
+import { ChartSquare, LanguageSquare, Briefcase } from "iconsax-react";
 import Link from "next/link";
 
 const { Sider } = Layout;
@@ -38,24 +37,27 @@ const SideNavBar = () => {
     } as MenuItem;
   }
 
-  const items: MenuProps["items"] = [
+  const items: MenuProps['items'] = [
     getItem(
-      "Dashboard",
-      "menu-item-1",
-      "/home",
-      <ChartSquare className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />
+      'Dashboard',
+      'menu-item-1',
+      '/home',
+      <ChartSquare className='!text-nomyx-text-light dark:!text-nomyx-text-dark' />
     ),
     getItem(
-      "Mint Tokens",
-      "menu-item-2",
-      "/nft-create",
-      <LanguageSquare className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />
+      'Mint Tokens',
+      'menu-item-2',
+      '/nft-create',
+      <LanguageSquare className='!text-nomyx-text-light dark:!text-nomyx-text-dark' />
     ),
     getItem(
-      "Settings",
-      "menu-item-3",
-      "/settings",
-      <Setting2 className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />
+      'Projects',
+      'menu-item-3',
+      '/projects',
+      <Briefcase
+        size='20'
+        className='!text-nomyx-text-light dark:!text-nomyx-text-dark'
+      />
     ),
   ];
 

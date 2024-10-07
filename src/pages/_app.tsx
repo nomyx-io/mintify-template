@@ -157,10 +157,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     algorithm,
     components: {
       Layout: {
-        headerBg: isDarkMode ? "#141414" : "#ffffff",
-        colorBgBase: isDarkMode ? "#141414" : "#ffffff",
-        colorBgContainer: isDarkMode ? "#141414" : "#ffffff",
-        siderBg: isDarkMode ? "#141414" : "#ffffff",
+        headerBg: isDarkMode ? '#141414' : '#ffffff',
+        colorBgBase: isDarkMode ? '#141414' : '#ffffff',
+        colorBgContainer: isDarkMode ? '#141414' : '#ffffff',
+        siderBg: isDarkMode ? '#141414' : '#ffffff',
       },
       Menu: {
         activeBarBorderWidth: 0,

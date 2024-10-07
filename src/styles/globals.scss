@@ -2,6 +2,9 @@
   --table-height: 530px;
   --table-inner-height: 520px;
 }
+* {
+    box-sizing: border-box;
+}
 
 .ant-transfer {
   min-width: 60%;
