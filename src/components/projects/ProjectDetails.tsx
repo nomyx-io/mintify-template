@@ -256,13 +256,13 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
               {/* View Toggle and Purchase Selected Button */}
               <div className="flex items-center">
-                <Button
-                  type="primary"
-                  className="mr-4 bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark'"
-                  onClick={() => router.push('/nft-create')}
-                >
-                  Mint Token
-                </Button>
+              <Button
+                type="primary"
+                className="mr-4 bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark'"
+                onClick={() => router.push(`/nft-create?projectId=${project.id}`)}
+              >
+                Mint Token
+              </Button>
 
                 {/* View Toggle Buttons */}
                 <button
