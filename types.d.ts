@@ -18,14 +18,15 @@ interface NftDetailsInputField {
   label: string;
   name: string;
   dataType: string;
-  placeHolder: string;
-  defaultValue: string | number | boolean;
-  value: string | number | boolean;
+  placeHolder?: string;
+  defaultValue?: string | number | boolean;
+  value?: string | number | boolean;
   rules?: import('antd').FormRule[];
-  gridSpan?: number;
   className?: string;
   disabled?: boolean;
   prefix?: string;
+  onSearch?: (value: string) => void;
+  options?: { label: string; value: string }[];
 }
 
 interface DataSource {
@@ -39,6 +40,11 @@ interface TableData {
   label: string;
   tableData: DataSource[];
   columns: TableColumnType<DataSource>[];
+}
+
+interface NftRecordDetailFieldGroup {
+  name: string;
+  fields: NftRecordDetailField[];
 }
 
 interface NftRecordDetailField {

@@ -1,12 +1,13 @@
-import React, { ChangeEvent } from "react";
-import { Card, Form, FormInstance, Input } from "antd";
-import Checkbox, { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
+import React, { ChangeEvent } from 'react';
+import { Card, Form, FormInstance, Input, Select } from 'antd';
+import Checkbox, { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox';
 
 interface NftDetailsFormProps {
   fieldGroups: NftDetailsInputFieldGroup[];
   handleChange: (
     inputName: string,
-    e: ChangeEvent<HTMLInputElement> | CheckboxChangeEvent
+    e: ChangeEvent<HTMLInputElement> | CheckboxChangeEvent,
+    inputValue?: string
   ) => void;
   form: FormInstance;
   onFinish: () => void;
@@ -33,38 +34,34 @@ const NftDetailsForm = ({
   return (
     <Card
       title={
-        <span className="text-nomyx-text-light dark:text-nomyx-text-dark">
-          {" "}
-          {"NBT Details"}
+        <span className='text-nomyx-text-light dark:text-nomyx-text-dark'>
+          Carbon Credit Token Details
         </span>
       }
-      className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
-    >
+      className='bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
       <Form
         form={form}
         initialValues={initialValues}
-        layout="vertical"
-        onFinish={onFinish}
-      >
-        <div className="flex flex-col divide-y divide-[#484848]">
+        layout='vertical'
+        onFinish={onFinish}>
+        <div className='flex flex-col divide-y divide-[#484848]'>
           {fieldGroups.map(
             (group: NftDetailsInputFieldGroup, index: Number) => {
               return (
                 <div
                   key={`group${index}`}
-                  className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6"
-                >
+                  className='grid grid-cols-2 first:pt-0 gap-x-4 pt-6'>
+                  <p className='col-span-2 font-bold pb-6'>{group.name}</p>
                   {group.fields.map(
                     (field: NftDetailsInputField, index: Number) => {
                       return (
-                        <div key={"field-" + index} className={field.className}>
-                          {field.dataType === "checkbox" ? (
+                        <div key={'field-' + index} className={field.className}>
+                          {field.dataType === 'checkbox' ? (
                             <Form.Item>
                               <Checkbox
                                 onChange={(e) => handleChange(field.name, e)}
                                 checked={!!field.value}
-                                className="text-nomyx-text-light dark:text-nomyx-text-dark"
-                              >
+                                className='text-nomyx-text-light dark:text-nomyx-text-dark'>
                                 {field.label}
                               </Checkbox>
                             </Form.Item>
@@ -72,35 +69,44 @@ const NftDetailsForm = ({
                             <Form.Item
                               name={field.name}
                               label={
-                                <span className="text-nomyx-text-light dark:text-nomyx-text-dark">
+                                <span className='text-nomyx-text-light dark:text-nomyx-text-dark'>
                                   {field.label}
                                 </span>
                               }
-                              rules={field.rules}
-                            >
-                              <Input
-                                disabled={field.disabled}
-                                prefix={field?.prefix || null}
-                                type={field.dataType}
-                                placeholder={field.placeHolder}
-                                onChange={(e) => handleChange(field.name, e)}
-                                name={field.name}
-                                style={{
-                                  colorScheme:
-                                    field.dataType === "date"
-                                      ? "dark"
-                                      : undefined, // Default for other types
-                                }}
-                                className={`${
-                                  form.getFieldError(field.name).length > 0
-                                    ? "!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark" // Different background on error if we want
-                                    : "!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark"
-                                } text-nomyx-text-light dark:text-nomyx-text-dark placeholder-nomyx-gray3-light dark:placeholder-nomyx-gray3-dark focus:border-nomyx-main1-light dark:focus:border-nomyx-main1-dark hover:border-nomyx-main1-light dark:hover:border-nomyx-main1-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark ${
-                                  field.dataType == "date"
-                                    ? "dark:![color-scheme:auto]" // Tailwind class for color-scheme handling
-                                    : ""
-                                }`}
-                              />
+                              rules={field.rules}>
+                              {field.dataType === 'select' ? (
+                                <Select
+                                  showSearch
+                                  placeholder={field.placeHolder}
+                                  optionFilterProp='label'
+                                  onChange={(e) => handleChange(field.name, e, e)}
+                                  options={field.options}
+                                />
+                              ) : (
+                                <Input
+                                  disabled={field.disabled}
+                                  prefix={field?.prefix || null}
+                                  type={field.dataType}
+                                  placeholder={field.placeHolder}
+                                  onChange={(e) => handleChange(field.name, e)}
+                                  name={field.name}
+                                  style={{
+                                    colorScheme:
+                                      field.dataType === 'date'
+                                        ? 'dark'
+                                        : undefined, // Default for other types
+                                  }}
+                                  className={`${
+                                    form.getFieldError(field.name).length > 0
+                                      ? '!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark' // Different background on error if we want
+                                      : '!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark'
+                                  } text-nomyx-text-light dark:text-nomyx-text-dark placeholder-nomyx-gray3-light dark:placeholder-nomyx-gray3-dark focus:border-nomyx-main1-light dark:focus:border-nomyx-main1-dark hover:border-nomyx-main1-light dark:hover:border-nomyx-main1-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark ${
+                                    field.dataType == 'date'
+                                      ? 'dark:![color-scheme:auto]' // Tailwind class for color-scheme handling
+                                      : ''
+                                  }`}
+                                />
+                              )}
                             </Form.Item>
                           )}
                         </div>
