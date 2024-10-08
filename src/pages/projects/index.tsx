@@ -17,7 +17,7 @@ export default function Projects() {
 
   const router = useRouter();
   const { query } = router;
-  const queryString = query?.query as string;
+  const queryString = query?.query as string || '';
   const viewMode = query?.viewMode || 'card';
   const filteredProjects = projectList.filter(
     (project) =>
