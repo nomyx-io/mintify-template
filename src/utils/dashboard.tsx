@@ -87,14 +87,6 @@ export const DASHBOARD_COLUMNS: ColumnsType<MintedToken> = [
     dataIndex: "id",
     title: "Id",
     align: "left",
-    render: (recordId: string) => {
-      return (
-        <Link href={`/nft-detail/${recordId}`} className="text-light-blue-500 cursor-pointer">
-          {" "}
-          {recordId}{" "}
-        </Link>
-      );
-    },
   },
   { dataIndex: "_tokenId", title: "Token Id", align: "center" },
   { dataIndex: "_loanId", title: "Loan Id", align: "center" },

@@ -1,5 +1,6 @@
 import {parseEther, ethers, parseUnits} from "ethers";
-import LLMintedRegistry from "../abi/ILenderLabMinterFacet.json";
+import GemforceMinterFacet from "../abi/GemforceMinterFacet.json"
+import CarbonCreditRegistry from "../abi/CarbonCreditFacet.json";
 import TreasuryRegistry from "../abi/ITreasury.json";
 import USDCRegistry from "../abi/USDC.json";
 import ParseClient from "./ParseClient";
@@ -7,14 +8,16 @@ import ParseClient from "./ParseClient";
 
 export default class BlockchainService {
 
-    private llMintedAbi = LLMintedRegistry.abi;
+    private gemforceMintedAbi = GemforceMinterFacet.abi;
+    private carbonCreditAbi = CarbonCreditRegistry.abi;
     private treasuryAbi = TreasuryRegistry.abi;
     private usdcAbi = USDCRegistry.abi;
     private parseClient = ParseClient;
     private provider: ethers.BrowserProvider;
     // private signer: ethers.JsonRpcSigner|undefined;
     private signer: any;
-    private llMintService: ethers.Contract|undefined;
+    private gemforceMintService: ethers.Contract|undefined;
+    private carbonCreditService: ethers.Contract|undefined;
     private treasuryService: ethers.Contract|undefined;
     private usdcService: ethers.Contract|undefined;
 
@@ -36,7 +39,7 @@ export default class BlockchainService {
         this.provider = new ethers.BrowserProvider(ethObject);
         this.provider.getSigner().then(signer=>this.signer = signer);
 
-        this.llmint = this.llmint.bind(this)
+        this.gemforceMint = this.gemforceMint.bind(this)
         this.getClaimTopics = this.getClaimTopics.bind(this)
 
         this.parseClient.initialize();
@@ -63,8 +66,9 @@ export default class BlockchainService {
         this.treasuryAddress = chainConfig.treasury;
         this.usdcAddress = chainConfig.usdc;
 
-        this.llMintService = new ethers.Contract(this.contractAddress, this.llMintedAbi, this.provider);
+        this.gemforceMintService = new ethers.Contract(this.contractAddress, this.gemforceMintedAbi, this.provider);
         this.treasuryService = new ethers.Contract(this.treasuryAddress, this.treasuryAbi, this.provider);
+        this.carbonCreditService = new ethers.Contract(this.contractAddress, this.carbonCreditAbi, this.provider);
         this.usdcService = new ethers.Contract(this.usdcAddress, this.usdcAbi, this.provider);
     }
 
@@ -72,16 +76,27 @@ export default class BlockchainService {
         return await this.parseClient.getRecords('ClaimTopic', [], [], ["*"]);
     }
 
-    async llmint(metaData:any) {
+    async gemforceMint(metaData:any) {
         try{
 
             if(this.signer){
                 //fixme: sending all metadata values as strings for now until contract accepts other datatypes
-                const contractWithSigner: any = this.llMintService?.connect(this.signer);
-                const tx = await contractWithSigner.llMint(metaData);
+                const contractWithSigner: any = this.gemforceMintService?.connect(this.signer);
+                const tx = await contractWithSigner.gemforceMint(metaData);
                 return await tx.wait();
             }
 
+        }catch(e){
+            console.log(e);
+            throw e;
+        }
+    }
+
+  async initializeCarbonCredit(tokenId: number, initialBalance: number) {
+        try{
+            const contractWithSigner: any = this.carbonCreditService?.connect(this.signer);
+            const tx = await contractWithSigner.initializeCarbonCredit(tokenId, initialBalance);
+            return await tx.wait();
         }catch(e){
             console.log(e);
             throw e;

@@ -1,8 +1,22 @@
 {
-  "_format": "hh-sol-artifact-1",
-  "contractName": "ILenderLabMinterFacet",
-  "sourceName": "contracts/interfaces/ILenderLabMinterFacet.sol",
+  "contractName": "GemforceMinterFacet",
+  "sourceName": "contracts/facets/GemforceMinterFacet.sol",
   "abi": [
+    {
+      "inputs": [],
+      "name": "MintToZeroAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MintZeroQuantity",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TransferToNonERC721ReceiverImplementer",
+      "type": "error"
+    },
     {
       "anonymous": false,
       "inputs": [
@@ -42,7 +56,7 @@
           "type": "tuple[]"
         }
       ],
-      "name": "LlMinted",
+      "name": "GemforceMinted",
       "type": "event"
     },
     {
@@ -70,20 +84,16 @@
           "type": "tuple[]"
         }
       ],
-      "name": "llMint",
+      "name": "gemforceMint",
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "tokenId",
+          "name": "",
           "type": "uint256"
         }
       ],
       "stateMutability": "nonpayable",
       "type": "function"
     }
-  ],
-  "bytecode": "0x",
-  "deployedBytecode": "0x",
-  "linkReferences": {},
-  "deployedLinkReferences": {}
+  ]
 }

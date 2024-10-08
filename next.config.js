@@ -36,6 +36,11 @@ const nextConfig = {
         port: '',
         pathname: '/parse/files/**',
       },
+      {
+        hostname: 'localhost',
+        port: '8337',
+        pathname: '/parse/files/**',
+      }
     ],
   },
 };

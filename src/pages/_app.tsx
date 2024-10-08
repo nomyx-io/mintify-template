@@ -6,13 +6,13 @@ import "@rainbow-me/rainbowkit/styles.css";
 import "react-toastify/dist/ReactToastify.css";
 
 import axios from "axios";
-import { createContext, ReactElement, ReactNode, useEffect, useState } from "react";
+import React, { createContext, ReactElement, ReactNode, useEffect, useState } from "react";
 import { BrowserProvider, ethers, Network } from "ethers";
 import { toast, ToastContainer } from "react-toastify";
 import { ConfigProvider, theme } from "antd";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
-import { generateRandomString } from "@/utils";
+import { generateRandomString } from "@/utils/regex";
 import BlockchainService from "@/services/BlockchainService";
 import PrivateRoute from "@/components/atoms/PrivateRoute";
 import Web3Providers from "@/components/Web3Providers";
@@ -111,7 +111,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     provider.getNetwork().then(async (network: Network) => {
       const chainId: string = `${network.chainId}`;
 
-      console.log("chainId = " + chainId);
+      // console.log("chainId = " + chainId);
 
       const config = jsonConfig[chainId];
 
@@ -127,10 +127,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   };
 
   const onDisconnect = () => {
-    console.log("onDisconnect");
+    // console.log("onDisconnect");
     setRole([]);
     setForceLogout(true);
-    console.log("disconnected");
+    // console.log("disconnected");
   };
 
   const getLayout = Component.getLayout || ((page: React.ReactNode) => page);

@@ -50,8 +50,6 @@ export default function CreateProjectModal({
   }
 
   const onFinish = async (values: FormValues) => {
-    console.log('Received values:', values);
-    // setOpen(false);
     if (!values?.logoUpload?.fileList) {
       message.error('Please upload a logo');
       return;

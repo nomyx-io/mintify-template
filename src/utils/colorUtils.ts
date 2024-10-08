@@ -34,7 +34,7 @@ export const hslToHex = (h: number, s: number, l: number): string => {
   
     // Generate and return the hex color from HSL values
     const color = hslToHex(hue, saturation, lightness);
-    console.log(`Generated color for string "${str}":`, color);
+    // console.log(`Generated color for string "${str}":`, color);
   
     return color;
   };

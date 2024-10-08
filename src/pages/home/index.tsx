@@ -8,6 +8,7 @@ import BarChart from "@/components/atoms/Graphs/Barchart";
 import moment from "moment";
 import { Card, Table, Tabs } from "antd";
 import { DASHBOARD_COLUMNS, getGraphData, getKPIs } from "@/utils/dashboard";
+import { useRouter } from "next/router";
 
 const formatMintedNftRecords = (records: Parse.Object[]): MintedToken[] =>
   records.map((record: Parse.Object) => ({
@@ -26,6 +27,7 @@ export default function Home() {
   const [eventDetails, setEventDetails] = useState<Events>({});
   const [mintedNfts, setMintedNfts] = useState<MintedToken[]>([]);
   const [kpisData, setkpisData] = useState<KPIs>();
+  const router = useRouter();
 
   const kpiList = getKPIs(kpisData);
   const graphData = getGraphData(graphValues);
@@ -62,7 +64,13 @@ export default function Home() {
     {
       label: "Carbon Insights",
       key: "2",
-      children: <Table columns={columns} dataSource={mintedNfts} className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark rounded-lg" />,
+      children: <Table onRow={(record, rowIndex) => {
+        return {
+          onClick: (event) => {
+            router.push({pathname: 'nft-detail/[id]', query: { id: record.id } });
+          },
+        };
+      }} columns={columns} dataSource={mintedNfts} className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark rounded-lg" />,
     },
   ];
 
