@@ -124,6 +124,10 @@ export const KronosService = () => {
         return records
     }
 
+    const getListings = async (tokenId) => {
+        let records = await ParseClient.getRecords('Listing', ['tokenId'], [tokenId], ["*"]);
+        return records
+
     const getListings = async () => {
         const records = await ParseClient.getRecords('TokenListing', ["sold"], [false], ["*"], undefined, undefined, undefined, "desc");
         let sanitizedRecords = [];
