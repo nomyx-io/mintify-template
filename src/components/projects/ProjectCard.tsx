@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 interface ProjectCardProps {
   project: Project;
+  onProjectClick: (project: Project) => void;
 }
 
 function DataRow({ children }: { children?: React.ReactNode }) {
@@ -32,7 +33,7 @@ function DataValue({
   );
 }
 
-export default function ProjectCard({ project }: ProjectCardProps) {
+export default function ProjectCard({ project, onProjectClick }: ProjectCardProps) {
   const themeStyle =
     'bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark text-nomyx-text-light dark:text-nomyx-text-dark';
 
@@ -54,12 +55,11 @@ export default function ProjectCard({ project }: ProjectCardProps) {
       <div className='gap-2 mt-2'>
         <div className='flex items-center justify-between gap-2'>
           <h2 className='text-lg font-bold'>{project.title}</h2>
-          <Link
-            href={`/projects/${project.id}`}
+          <span
             className='text-nomyx-blue-light hover:!text-nomyx-main1-light'
-            type='text'>
+            onClick={() => onProjectClick(project)}>
             View Details
-          </Link>
+          </span>
         </div>
         <p className='text-sm line-clamp-2'>{project.description}</p>
       </div>

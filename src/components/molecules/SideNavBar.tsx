@@ -4,22 +4,24 @@ import type { MenuProps } from "antd";
 
 import { ChartSquare, LanguageSquare, Briefcase } from "iconsax-react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 const { Sider } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
 
 const SideNavBar = () => {
+  const router = useRouter();
+
   function getItem(
     label: React.ReactNode,
-    key: React.Key,
     href?: string,
     icon?: React.ReactNode,
     children?: MenuItem[],
     type?: "group"
   ): MenuItem {
     return {
-      key,
+      key: href || "",
       icon,
       children,
       label: href ? (
@@ -40,19 +42,16 @@ const SideNavBar = () => {
   const items: MenuProps['items'] = [
     getItem(
       'Dashboard',
-      'menu-item-1',
       '/home',
       <ChartSquare className='!text-nomyx-text-light dark:!text-nomyx-text-dark' />
     ),
     getItem(
       'Mint Tokens',
-      'menu-item-2',
       '/nft-create',
       <LanguageSquare className='!text-nomyx-text-light dark:!text-nomyx-text-dark' />
     ),
     getItem(
       'Projects',
-      'menu-item-3',
       '/projects',
       <Briefcase
         size='20'
@@ -67,6 +66,7 @@ const SideNavBar = () => {
         className="!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark"
         mode="inline"
         items={items}
+        selectedKeys={[router.pathname]}
       />
     </Sider>
   );

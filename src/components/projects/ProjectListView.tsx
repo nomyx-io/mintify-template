@@ -5,17 +5,22 @@ import { projectColumns } from '@/utils/projects';
 interface ProjectListViewProps {
   projects: Project[];
   className?: string;
+  onProjectClick: (project: Project) => void;
 }
 
 export default function ProjectListView({
   projects,
   className,
+  onProjectClick,
 }: ProjectListViewProps) {
+
+  console.log('projects:', projects);
+  
   return (
     <div
       className={`pt-2 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark rounded-lg ${className}`}>
       <Table
-        columns={projectColumns}
+        columns={projectColumns(onProjectClick)}
         dataSource={projects}
         className={`bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark rounded-lg`}
         pagination={{

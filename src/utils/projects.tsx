@@ -1,5 +1,5 @@
 import { message } from 'antd';
-import { ArrowSwapVertical, Copy } from 'iconsax-react';
+import { ArrowSwapVertical, Copy, Eye } from 'iconsax-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -8,7 +8,7 @@ const copyURL = (text: string) => {
   message.success('Copied to clipboard!');
 };
 
-export const projectColumns: any = [
+export const projectColumns: any = (onProjectClick: (project: Project) => void) => [
   {
     title: 'Title',
     align: 'left',
@@ -16,15 +16,23 @@ export const projectColumns: any = [
     sortIcon: () => <ArrowSwapVertical size={20} />,
     render: (project: Project) => {
       return (
-        <div className='flex items-center gap-1'>
-          <Image
-            src={project.logo?.url()}
-            alt={project.title}
-            width={42}
-            height={42}
-            className='rounded-md'
-          />
-          <Link href={`/projects/${project.id}`}>{project.title}</Link>
+        <div className='w-5/12 flex items-center'>
+          <div className='flex justify-center items-center pr-4 border-r'>
+            {/* Eye Icon triggers onProjectClick */}
+            <Eye
+              className='text-xl cursor-pointer hover:text-blue-500'
+              onClick={() => onProjectClick(project)}
+            />
+          </div>
+          <div className='w-12 h-12 relative rounded overflow-hidden flex-shrink-0 ml-4'>
+            <Image
+              src={project.coverImage?.url() || '/default-image.png'}
+              alt={project.title}
+              fill
+              className='object-cover'
+            />
+          </div>
+          <h2 className='ml-4 text-lg font-semibold'>{project.title}</h2>
         </div>
       );
     },
