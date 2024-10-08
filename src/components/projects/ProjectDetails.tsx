@@ -108,6 +108,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
   const fetchListings = async () => {
     const newListingData = await api.getListings();
+    console.log('newListingData', newListingData);
     setListings(newListingData || []);
   };
 
