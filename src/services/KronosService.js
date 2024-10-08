@@ -124,10 +124,39 @@ export const KronosService = () => {
         return records
     }
 
-    const getListings = async (tokenId) => {
+    const getListingsById = async (tokenId) => {
         let records = await ParseClient.getRecords('Listing', ['tokenId'], [tokenId], ["*"]);
         return records
     }
+
+    const getListings = async () => {
+        const records = await ParseClient.getRecords('TokenListing', ["sold"], [false], ["*"], undefined, undefined, undefined, "desc");
+        let sanitizedRecords = [];
+    
+        if(records && records.length>0){
+          sanitizedRecords = JSON.parse(JSON.stringify(records||[]));
+        }
+    
+        return sanitizedRecords;
+    }
+
+    const getSales = async (walletAddress) => {
+        const records = await ParseClient.getRecords('TokenSale', [], [], ['*'], undefined, undefined, undefined, "desc");
+        let sanitizedRecords = [];
+
+        if(records && records.length>0){
+            sanitizedRecords = JSON.parse(JSON.stringify(records||[]));
+        }
+
+        return sanitizedRecords;
+    }
+
+    const purchaseTokens = async (listings) => {
+        for(let listing of listings){
+          console.log('listings: ', listings);
+          await BlockchainService.purchase(listing.tokenId, listing.price);
+        }
+      }
 
     const getTreasuryClaims = async (tokenId) => {
         let records = await ParseClient.getRecords('TreasuryClaim', ['tokenId'], [tokenId], ["*"]);
@@ -340,7 +369,10 @@ export const KronosService = () => {
         getMintedNfts,
         getMintedNftDetails,
         getSaleTokens,
+        getListingsById,
         getListings,
+        getSales,
+        purchaseTokens,
         getTreasuryClaims,
         getDeposits,
         getTokenDepositsForDepositId,

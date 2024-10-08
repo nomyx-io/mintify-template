@@ -47,7 +47,7 @@ export default function NftDetail() {
                     createdAt: moment(item?.attributes?.createdAt).format('YYYY-MM-DD')
                 })
             })
-            let listingData = await api.getListings(tokenId)
+            let listingData = await api.getListingsById(tokenId)
             listingData?.map((item) => {
                 newListData.push({
                     id: item.id,

@@ -91,6 +91,15 @@
   @apply bg-nomyx-dark2-light;
 }
 
+/* Background for talbe placeholder */
+.ant-table-placeholder{
+  @apply !bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark;
+}
+
+.ant-empty-description {
+  @apply !text-nomyx-text-light dark:!text-nomyx-text-dark;
+}
+
 .dark .ant-table-tbody {
   @apply bg-nomyx-dark2-dark;
 }
