@@ -1,5 +1,5 @@
 "use client";
-import React, { ChangeEvent, useEffect, useState } from "react";
+import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import CreateNftDetails from "@/components/CreateNftDetails";
 import NftRecordDetail from "../../components/NftRecordDetail";
 import { getDashboardLayout } from "@/Layouts";
@@ -20,37 +20,70 @@ export default function Details({ service }: {service: BlockchainService}) {
   const { isConnected } = useAccount();
   const router = useRouter();
   const { walletAddress } = useWalletAddress();
-  const api = KronosService();
+  const api = useMemo(() => KronosService(), []);
   const [preview, setPreview] = useState(false);
   const [nftData, setNftData] = useState({});
+  const [projectList, setProjectList] = useState<Project[]>([]);
   const [claimTopics, setClaimTopics] = useState<ClaimTopic[]>([]);
 
   // form fields
+  // Details Group
   const [nftTitle, setNftTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [registerId, setRegisterId] = useState("");
-  const [trancheCutoff, setTrancheCutoff] = useState("");
-  const [carbonAmount, setCarbonAmount] = useState("");
+  const [description, setDescription] = useState("")
+
+  // Project Info Group
+  const [projectId, setProjectId] = useState('');
+  const [auditor, setAuditor] = useState(''); // what does this need to be? maybe don't need
+  const [projectStartDate, setProjectStartDate] = useState("");
   const [mintAddress, setMintAddress] = useState<string | undefined>(walletAddress);
-  const [frozen, setFrozen] = useState(false);
-  
+  const [country, setCountry] = useState(''); // maybe later
+  const [state, setState] = useState(''); // maybe later
+  const [registerId, setRegisterId] = useState("");
+  const [registryURL, setRegistryURL] = useState(""); // come from the project?
   const [issuanceDate, setIssuanceDate] = useState("");
-  const [issuingEntity, setIssuingEntity] = useState("");
-  const [projectName, setProjectName] = useState("");
-  const [auditor, setAuditor] = useState("");
-  const [useLocation, setUseLocation] = useState(false);
-  const [location, setLocation] = useState("");
+  const [ghgReduction, setGhgReduction] = useState("");
+  const [useTranche, setUseTranche] = useState(false);
+  const [trancheCutoff, setTrancheCutoff] = useState("");
 
+  // Credit Info Group
+  const [creditsPre2020, setCreditsPre2020] = useState(""); 
+  const [credits2020, setCredits2020] = useState(""); 
+  const [credits2021, setCredits2021] = useState(""); 
+  const [credits2022, setCredits2022] = useState(""); 
+  const [credits2023, setCredits2023] = useState(""); 
+  const [credits2024, setCredits2024] = useState(""); 
+  const [existingCredits, setExistingCredits] = useState(""); 
+  const [estimatedEmissionsReduction, setEstimatedEmissionsReduction] = useState(""); // maybe don't need
+
+  // Pricing Info Group
   const [price, setPrice] = useState("");
-  const [useDiscount, setUseDiscount] = useState(false);
-  const [discount, setDiscount] = useState("");
-  const [finalPrice, setFinalPrice] = useState("");
-
-  const [defaultTokenImageUrl, setDefaultTokenImageUrl] = useState("");
+  const [totalPrice, setTotalPrice] = useState("");
 
   const [form] = Form.useForm();
 
   const listener = usePageUnloadGuard();
+
+  const fetchProjects = useCallback(async () => {
+    try {
+      const projects = await api.getProjects();
+      setProjectList(
+        projects?.map((project) => ({
+          id: project.id,
+          title: project.attributes.title,
+          description: project.attributes.description,
+          logo: project.attributes.logo,
+          coverImage: project.attributes.coverImage,
+          registryURL: project.attributes.registryURL,
+        })) || []
+      );
+    } catch (error) {
+      console.error('Failed to fetch projects:', error);
+    }
+  }, [api]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   listener.onBeforeUnload = () => {
     console.log('onBeforeUnload');
@@ -59,63 +92,89 @@ export default function Details({ service }: {service: BlockchainService}) {
 
   const handleInputValues = (
     inputName: string,
-    e: ChangeEvent<HTMLInputElement> | CheckboxChangeEvent
+    e: ChangeEvent<HTMLInputElement> | CheckboxChangeEvent,
+    inputValue?: string
   ) => {
     // Set state for all fields normally
     const name = inputName || e.target.name;
-    const value = e.target.value;
+    const value = e.target?.value || inputValue;
     switch (name) {
+      // Details Group
       case "nftTitle":
         setNftTitle(value);
         break;
       case "description":
         setDescription(value);
         break;
-      case "registerId":
-        setRegisterId(value);
-        break;
-      case "trancheCutoff":
-        setTrancheCutoff(value);
-        break;
-      case "carbonAmount":
-        setCarbonAmount(value);
-        break;
-      case "mintAddress":
-        setMintAddress(value);
-        break;
-      case "freeze":
-        setFrozen(!frozen);
-        break;
 
-      case "issuanceDate":
-        setIssuanceDate(value);
-        break;
-      case "issuingEntity":
-        setIssuingEntity(value);
-        break;
-      case "projectName":
-        setProjectName(value);
+      // Project Info Group
+      case "projectId":
+        setProjectId(value);
         break;
       case "auditor":
         setAuditor(value);
         break;
-      case "useLocation":
-        setUseLocation(!useLocation);
+      case "projectStartDate":
+        setProjectStartDate(value);
         break;
-      case "location":
-        setLocation(value);
+      case "mintAddress":
+        setMintAddress(value);
+        break;
+      case "country":
+        setCountry(value);
+        break;
+      case "state":
+        setState(value);
+        break;
+      case "registerId":
+        setRegisterId(value);
+        break;
+      case "registryURL":
+        setRegistryURL(value);
+        break;
+      case "issuanceDate":
+        setIssuanceDate(value);
+        break;
+      case "ghgReduction":
+        setGhgReduction(value);
+        break;
+      case "useTranche":
+        setUseTranche(!useTranche);
+        break;
+      case "trancheCutoff":
+        setTrancheCutoff(value);
         break;
 
+      // Credit Info Group
+      case "creditsPre2020":
+        setCreditsPre2020(value);
+        break;
+      case "credits2020":
+        setCredits2020(value);
+        break;
+      case "credits2021":
+        setCredits2021(value);
+        break;
+      case "credits2022":
+        setCredits2022(value);
+        break;
+      case "credits2023":
+        setCredits2023(value);
+        break;
+      case "credits2024":
+        setCredits2024(value);
+        break;
+      case "existingCredits":
+        setExistingCredits(value);
+        break;
+      case "estimatedEmissionsReduction":
+        setEstimatedEmissionsReduction(value);
+        break;
+
+      // Pricing Info Group
       case "price":
         setPrice(value);
         break;
-      case "useDiscount":
-        setUseDiscount(!useDiscount);
-        break;
-      case "discount":
-        setDiscount(value);
-        break;
-
       default:
         break;
 
@@ -154,24 +213,42 @@ export default function Details({ service }: {service: BlockchainService}) {
   };
 
   const handlePreview = () => { 
-    const freeze = JSON.stringify(frozen);
+    const projectName = projectList.find((project) => project.id === projectId)?.title;
     setNftData({
+      // details fields
       nftTitle,
       description,
-      registerId,
-      trancheCutoff,
-      carbonAmount,
-      mintAddress,
-      freeze,
-      issuanceDate,
-      issuingEntity,
+
+      // project info fields
+      projectId,
       projectName,
       auditor,      
-      location,
+      projectStartDate,
+      mintAddress,
+      country,
+      state,
+      registerId,
+      registryURL,
+      issuanceDate,
+      ghgReduction,
+      trancheCutoff,
+
+      // credit info fields
+      creditsPre2020,
+      credits2020,
+      credits2021,
+      credits2022,
+      credits2023,
+      credits2024,
+      existingCredits,
+      estimatedEmissionsReduction,
+
+      // pricing info fields
       price,
-      discount,
+
+      // compliance fields
       targetKeys,
-      defaultTokenImageUrl,
+      claimTopics,
     });
     setPreview(true);
   };
@@ -188,17 +265,16 @@ export default function Details({ service }: {service: BlockchainService}) {
 
   const fieldGroups: NftDetailsInputFieldGroup[] = [
     {
-      name: '',
+      name: 'Details',
       fields: [
         {
-          label: 'NFT Title',
+          label: 'Title',
           name: 'nftTitle',
           dataType: 'text',
-          placeHolder: 'Enter Loan ID.Total Amount(Yield)',
+          placeHolder: 'Enter Token Title',
           defaultValue: nftTitle,
           value: nftTitle,
           rules: [requiredRule, alphaNumericRule, { max: 30 }],
-          gridSpan: 2,
         },
         {
           label: 'Description',
@@ -208,100 +284,24 @@ export default function Details({ service }: {service: BlockchainService}) {
           defaultValue: description,
           value: description,
           rules: [{ ...requiredRule, max: 256 }],
-          gridSpan: 2,
-        },
-        {
-          label: 'Registry ID',
-          name: 'registerId',
-          dataType: 'text',
-          placeHolder: 'Enter Registry ID',
-          defaultValue: registerId,
-          value: registerId,
-          rules: [requiredRule, alphaNumericRule],
-        },
-        {
-          label: 'Tranche Cutoff',
-          name: 'trancheCutoff',
-          dataType: 'text',
-          placeHolder: 'Enter Tranche Cutoff',
-          defaultValue: trancheCutoff,
-          value: trancheCutoff,
-          rules: [requiredRule],
-        },
-        {
-          label: 'Carbon Amount',
-          name: 'carbonAmount',
-          dataType: 'text',
-          placeHolder: 'Enter Total Carbon Issued Amount',
-          defaultValue: carbonAmount,
-          value: carbonAmount,
-          prefix: '$',
-          rules: [
-            requiredRule,
-            {
-              pattern: Regex.maxCharWithDecimal(9, 2),
-              message:
-                'Please enter a value with up to 9 digits and 2 decimal places.',
-            },
-          ],
-        },
-        {
-          label: 'Mint to',
-          name: 'mintAddress',
-          dataType: 'text',
-          placeHolder: 'Enter Wallet Address',
-          defaultValue: mintAddress || "",
-          value: mintAddress || "",
-          rules: [
-            {
-              required: true,
-              pattern: Regex.ethereumAddress,
-              message: 'This field must be an ethereum address.',
-            },
-          ],
-          gridSpan: 2,
-        },
-        {
-          label: 'Freeze',
-          name: 'freeze',
-          dataType: 'checkbox',
-          placeHolder: 'Freeze',
-          defaultValue: frozen,
-          value: frozen,
-          rules: [requiredRule],
-          className: 'col-span-2',
         },
       ],
     },
     {
-      name: 'Issuance Information',
+      name: 'Project Information',
       fields: [
         {
-          label: 'Issuance Date',
-          name: 'issuanceDate',
-          dataType: 'date',
-          placeHolder: 'mm/dd/yyyy',
-          defaultValue: issuanceDate,
-          value: issuanceDate,
+          label: 'Project ID',
+          name: 'projectId',
+          dataType: 'select',
+          placeHolder: 'Select Project ID',
+          defaultValue: projectId,
+          value: projectId,
           rules: [requiredRule],
-        },
-        {
-          label: 'Issuing Entity',
-          name: 'issuingEntity',
-          dataType: 'text',
-          placeHolder: 'Enter Issuing Entity',
-          defaultValue: issuingEntity,
-          value: issuingEntity,
-          rules: [requiredRule],
-        },
-        {
-          label: 'Project/Site Name',
-          name: 'projectName',
-          dataType: 'text',
-          placeHolder: 'Enter Project/Site Name',
-          defaultValue: projectName,
-          value: projectName,
-          rules: [requiredRule],
+          options: projectList.map((project) => ({
+            label: project.title,
+            value: project.id,
+          })),
         },
         {
           label: 'Auditor',
@@ -313,23 +313,174 @@ export default function Details({ service }: {service: BlockchainService}) {
           rules: [requiredRule],
         },
         {
-          label: 'Use Location of Issuance',
-          name: 'useLocation',
+          label: 'Project Start Date',
+          name: 'projectStartDate',
+          dataType: 'date',
+          placeHolder: 'mm/dd/yyyy',
+          defaultValue: projectStartDate,
+          value: projectStartDate,
+          rules: [requiredRule],
+        },
+        {
+          label: 'Mint to',
+          name: 'mintAddress',
+          dataType: 'text',
+          placeHolder: 'Enter Wallet Address',
+          defaultValue: mintAddress || '',
+          value: mintAddress || '',
+          rules: [
+            {
+              required: true,
+              pattern: Regex.ethereumAddress,
+              message: 'This field must be an ethereum address.',
+            },
+          ],
+        },
+        {
+          label: 'Country',
+          name: 'country',
+          dataType: 'text',
+          placeHolder: 'Enter Country',
+          defaultValue: country,
+          value: country,
+        },
+        {
+          label: 'State',
+          name: 'state',
+          dataType: 'text',
+          placeHolder: 'Enter State',
+          defaultValue: state,
+          value: state,
+        },
+        {
+          label: 'Registry ID',
+          name: 'registerId',
+          dataType: 'text',
+          placeHolder: 'Enter Registry ID',
+          defaultValue: registerId,
+          value: registerId,
+          rules: [requiredRule, alphaNumericRule],
+        },
+        {
+          label: 'Registry Link',
+          name: 'registryURL',
+          dataType: 'text',
+          placeHolder: 'Enter Registry URL',
+          defaultValue: registryURL,
+          value: registryURL,
+          rules: [requiredRule],
+        },
+        {
+          label: 'Issuance Date',
+          name: 'issuanceDate',
+          dataType: 'date',
+          placeHolder: 'mm/dd/yyyy',
+          defaultValue: issuanceDate,
+          value: issuanceDate,
+          rules: [requiredRule],
+        },
+        {
+          label: 'GHG Reduction Type',
+          name: 'ghgReduction',
+          dataType: 'text',
+          placeHolder: 'Enter GHG Reduction Type',
+          defaultValue: ghgReduction,
+          value: ghgReduction,
+          rules: [requiredRule],
+        },
+        {
+          label: 'Tranche Cutoff',
+          name: 'useTranche',
           dataType: 'checkbox',
-          placeHolder: 'Use Location',
-          defaultValue: useLocation,
-          value: useLocation,
+          defaultValue: useTranche,
+          value: useTranche,
           className: 'col-span-2',
         },
         {
-          label: 'Location of Issuance',
-          name: 'location',
+          label: 'Tranche Cutoff',
+          name: 'trancheCutoff',
           dataType: 'text',
-          placeHolder: 'Location of Issuance (first three letters of zip)',
-          defaultValue: location,
-          value: location,
-          rules: useLocation ? [requiredRule, numericRule, { max: 3 }] : [],
-          className: `${useLocation ? '' : 'hidden'}`,
+          placeHolder: 'Enter Tranche Cutoff',
+          defaultValue: trancheCutoff,
+          value: trancheCutoff,
+          className: `${useTranche ? '' : 'hidden'}`,
+        },
+      ],
+    },
+    {
+      name: 'Credit Info',
+      fields: [
+        {
+          label: 'Pre 2020 Credits',
+          name: 'creditsPre2020',
+          dataType: 'text',
+          placeHolder: 'Enter Pre 2020 carbon Issued Amount',
+          defaultValue: creditsPre2020,
+          value: creditsPre2020,
+          rules: [requiredRule, numericRule],
+        },
+        {
+          label: '2020 Project Credits',
+          name: 'credits2020',
+          dataType: 'text',
+          placeHolder: 'Enter 2020 carbon Issued Amount',
+          defaultValue: credits2020,
+          value: credits2020,
+          rules: [requiredRule, numericRule],
+        },
+        {
+          label: '2021 Project Credits',
+          name: 'credits2021',
+          dataType: 'text',
+          placeHolder: 'Enter 2021 carbon Issued Amount',
+          defaultValue: credits2021,
+          value: credits2021,
+          rules: [requiredRule, numericRule],
+        },
+        {
+          label: '2022 Project Credits',
+          name: 'credits2022',
+          dataType: 'text',
+          placeHolder: 'Enter 2022 carbon Issued Amount',
+          defaultValue: credits2022,
+          value: credits2022,
+          rules: [requiredRule, numericRule],
+        },
+        {
+          label: '2023 Project Credits',
+          name: 'credits2023',
+          dataType: 'text',
+          placeHolder: 'Enter 2023 carbon Issued Amount',
+          defaultValue: credits2023,
+          value: credits2023,
+          rules: [requiredRule, numericRule],
+        },
+        {
+          label: '2024 Project Credits',
+          name: 'credits2024',
+          dataType: 'text',
+          placeHolder: 'Enter 2024 carbon Issued Amount',
+          defaultValue: credits2024,
+          value: credits2024,
+          rules: [requiredRule, numericRule],
+        },
+        {
+          label: 'Existing Credits',
+          name: 'existingCredits',
+          dataType: 'text',
+          placeHolder: 'Enter Existing Carbon Credits Amount',
+          defaultValue: existingCredits,
+          value: existingCredits,
+          rules: [requiredRule, numericRule],
+        },
+        {
+          label: 'Estimated Annual Emissions Reduction',
+          name: 'estimatedEmissionsReduction',
+          dataType: 'text',
+          placeHolder: 'ETA',
+          defaultValue: estimatedEmissionsReduction,
+          value: estimatedEmissionsReduction,
+          rules: [requiredRule, numericRule],
         },
       ],
     },
@@ -337,10 +488,10 @@ export default function Details({ service }: {service: BlockchainService}) {
       name: 'Pricing Information',
       fields: [
         {
-          label: 'Price',
+          label: 'Price per Credit',
           name: 'price',
           dataType: 'text',
-          placeHolder: 'Price',
+          placeHolder: 'Enter Price per Credit',
           defaultValue: price,
           value: price,
           prefix: '$',
@@ -352,51 +503,15 @@ export default function Details({ service }: {service: BlockchainService}) {
                 'Please enter a value with up to 9 digits and 2 decimal places.',
             },
           ],
-          gridSpan: 2,
         },
         {
-          label: 'Use Discount',
-          name: 'useDiscount',
-          dataType: 'checkbox',
-          placeHolder: 'Use Discount',
-          defaultValue: useDiscount,
-          value: useDiscount,
-          className: 'col-span-2',
-        },
-        {
-          label: 'Discount',
-          name: 'discount',
-          dataType: 'text',
-          placeHolder: 'Enter Percent Discount',
-          defaultValue: discount,
-          value: discount,
-          prefix: '%',
-          rules: [
-            {
-              pattern: Regex.maxCharWithDecimal(2, 2),
-              message:
-                'Please enter a value with up to 2 digits and 2 decimal places.',
-            },
-          ],
-          className: `${useDiscount ? '' : 'hidden'}`,
-        },
-        {
-          label: 'Final Price',
-          name: 'finalPrice',
+          label: 'Total Price',
+          name: 'totalPrice',
           dataType: 'text',
           placeHolder: 'Final Price',
-          defaultValue: finalPrice,
-          value: finalPrice,
+          defaultValue: totalPrice,
+          value: totalPrice,
           prefix: '$',
-          rules: useDiscount ? [
-            requiredRule,
-            {
-              pattern: Regex.maxCharWithDecimal(9, 2),
-              message:
-                'Please enter a value with up to 9 digits and 2 decimal places.',
-            },
-          ] : [],
-          className: `${useDiscount ? '' : 'hidden'}`,
           disabled: true,
         },
       ],
@@ -413,13 +528,10 @@ export default function Details({ service }: {service: BlockchainService}) {
   }, []);
 
   useEffect(() => {
-    console.log('price:', price);
-    const finalDiscount = useDiscount ? Number(discount) : 0;
-    const finalPrice = Number(price) - (Number(price) * Number(finalDiscount)) / 100;
-    setFinalPrice(`${finalPrice}`);
-    form.setFieldValue('finalPrice', finalPrice);
-    console.log('finalPrice:', finalPrice);
-  }, [price, discount, useDiscount, form]);
+    const totalPrice = Number(price) * Number(existingCredits);
+    setTotalPrice(`${totalPrice}`);
+    form.setFieldValue('totalPrice', totalPrice);
+  }, [price, existingCredits, form]);
 
   const getClaimTopics = async () => {
     const claims: Parse.Object[] | undefined = service && (await service.getClaimTopics());
@@ -441,7 +553,6 @@ export default function Details({ service }: {service: BlockchainService}) {
     if (api && api.getSettings) {
       const settings: { defaultTokenImage: File; walletAddress?: string} =
         await api.getSettings();
-      setDefaultTokenImageUrl(settings.defaultTokenImage?.url() || "");
       setMintAddress(settings.walletAddress);
     }
   };
@@ -452,6 +563,7 @@ export default function Details({ service }: {service: BlockchainService}) {
   };
 
   const metadata = [
+    // details fields
     {
       key: 'nftTitle',
       attributeType: 1,
@@ -462,45 +574,11 @@ export default function Details({ service }: {service: BlockchainService}) {
       attributeType: 1,
       value: description,
     },
+    // project info fields
     {
-      key: 'registerId',
+      key: 'projectId',
       attributeType: 1,
-      value: registerId,
-    },
-    {
-      key: 'trancheCutoff',
-      attributeType: 1,
-      value: trancheCutoff,
-    },
-    {
-      key: 'carbonAmount',
-      attributeType: 1,
-      value: carbonAmount,
-    },
-    {
-      key: 'mintAddress',
-      attributeType: 1,
-      value: mintAddress,
-    },
-    {
-      key: 'frozen',
-      attributeType: 1,
-      value: frozen,
-    },
-    {
-      key: 'issuanceDate',
-      attributeType: 1,
-      value: issuanceDate,
-    },
-    {
-      key: 'issuingEntity',
-      attributeType: 1,
-      value: issuingEntity,
-    },
-    {
-      key: 'projectName',
-      attributeType: 1,
-      value: projectName,
+      value: projectId,
     },
     {
       key: 'auditor',
@@ -508,25 +586,98 @@ export default function Details({ service }: {service: BlockchainService}) {
       value: auditor,
     },
     {
-      key: 'location',
+      key: 'projectStartDate',
       attributeType: 1,
-      value: location,
+      value: projectStartDate,
     },
+    {
+      key: 'mintAddress',
+      attributeType: 1,
+      value: mintAddress,
+    },
+    {
+      key: 'country',
+      attributeType: 1,
+      value: country,
+    },
+    {
+      key: 'state',
+      attributeType: 1,
+      value: state,
+    },
+    {
+      key: 'registerId',
+      attributeType: 1,
+      value: registerId,
+    },
+    {
+      key: 'registryURL',
+      attributeType: 1,
+      value: registryURL,
+    },
+    {
+      key: 'issuanceDate',
+      attributeType: 1,
+      value: issuanceDate,
+    },
+    {
+      key: 'ghgReduction',
+      attributeType: 1,
+      value: ghgReduction,
+    },
+    {
+      key: 'trancheCutoff',
+      attributeType: 1,
+      value: trancheCutoff,
+    },
+    // credit info fields
+    {
+      key: 'creditsPre2020',
+      attributeType: 1,
+      value: creditsPre2020,
+    },
+    {
+      key: 'credits2020',
+      attributeType: 1,
+      value: credits2020,
+    },
+    {
+      key: 'credits2021',
+      attributeType: 1,
+      value: credits2021,
+    },
+    {
+      key: 'credits2022',
+      attributeType: 1,
+      value: credits2022,
+    },
+    {
+      key: 'credits2023',
+      attributeType: 1,
+      value: credits2023,
+    },
+    {
+      key: 'credits2024',
+      attributeType: 1,
+      value: credits2024,
+    },
+    {
+      key: 'existingCredits',
+      attributeType: 1,
+      value: existingCredits,
+    },
+    {
+      key: 'estimatedEmissionsReduction',
+      attributeType: 1,
+      value: estimatedEmissionsReduction,
+    },
+    // pricing info fields
     {
       key: 'price',
       attributeType: 1,
       value: price,
     },
-    {
-      key: 'discount',
-      attributeType: 1,
-      value: discount,
-    },
-    {
-      key: 'image',
-      attributeType: 1,
-      value: defaultTokenImageUrl || '',
-    },
+    // compliance fields
     {
       key: 'claimTopics',
       attributeType: 0,
@@ -538,22 +689,38 @@ export default function Details({ service }: {service: BlockchainService}) {
       async () => {
         try {
           await service.llmint(metadata).then(() => {
+            // details fields
             setNftTitle("");
             setDescription("");
-            setRegisterId("");
-            setTrancheCutoff("");
-            setCarbonAmount("");
-            setMintAddress("");
-            setIssuanceDate("");
-            setIssuingEntity("");
-            setProjectName("");
+
+            // project info fields
+            setProjectId("");
             setAuditor("");
-            setLocation("");
+            setProjectStartDate("");
+            setMintAddress("");
+            setCountry("");
+            setState("");
+            setRegisterId("");
+            setRegistryURL("");
+            setIssuanceDate("");
+            setGhgReduction("");
+            setTrancheCutoff("");
+            
+            // credit info fields
+            setCreditsPre2020("");
+            setCredits2020("");
+            setCredits2021("");
+            setCredits2022("");
+            setCredits2023("");
+            setCredits2024("");
+            setExistingCredits("");
+            setEstimatedEmissionsReduction("");
             setPrice("");
-            setDiscount("");
+
+            // compliance fields
             setTargetKeys([]);
             setPreview(false);
-            setFrozen(false);
+
             setTimeout(() => {
               form.resetFields();
             }, 500);
