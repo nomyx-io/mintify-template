@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import dayjs, { Dayjs } from "dayjs";
 import isBetween from "dayjs/plugin/isBetween";
 import { hashToColor } from "@/utils/colorUtils";
+import { useMemo } from "react";
 
 dayjs.extend(isBetween);
 
@@ -46,8 +47,6 @@ const redemptionHistoryData = [
   { recordID: "recordrst555", date: "2024-10-01T14:40:50.915Z", amount: 15, treasuryAddress: "0xrst555555555hhh" },
 ];
 
-const api = KronosService();
-
 export default function MarketPlaceTokenDetail({ token, next, prev, currentIndex, totalTokens, onBack }: any) {
   //console.log("token: ", token);
   const [claimDisabled, setClaimDisabled] = React.useState(true);
@@ -55,6 +54,8 @@ export default function MarketPlaceTokenDetail({ token, next, prev, currentIndex
   const [claimError, setClaimError] = React.useState();
   const [yieldGenerated, setYieldGenerated] = React.useState(0);
   const tokenData = token?.token || {};
+
+  const api = useMemo(() => KronosService(), []);
 
   const contentStyle: React.CSSProperties = {
     margin: 0,

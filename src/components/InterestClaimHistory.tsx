@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Table } from "antd";
 import { KronosService } from "@/services/KronosService";
+import { useMemo } from "react";
 
 const columns = [
   { title: "Record Id", dataIndex: "objectId" },
@@ -9,10 +10,11 @@ const columns = [
   { title: "Treasury Address", dataIndex: "treasuryAddress" },
 ];
 
-const api = KronosService();
 
 const InterestClaimHistory = ({ token }: any) => {
   const [withdrawals, setWithdrawals] = useState<any>(token.tokenWithdrawals);
+
+  const api = useMemo(() => KronosService(), []);
 
   useEffect(() => {
     const fetchWithdrawals = async () => {

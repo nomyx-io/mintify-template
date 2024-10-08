@@ -15,8 +15,6 @@ interface ProjectDetailsProps {
   onBack: () => void;
 }
 
-const api = KronosService();
-
 const copyURL = (text: string) => {
   navigator.clipboard.writeText(text);
   message.success('Copied to clipboard!');
@@ -31,6 +29,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const [viewMode, setViewMode] = useState<string>("table");
   const [showStats, setShowStats] = useState(true);
   const [selectedToken, setSelectedToken] = useState<any | null>(null);
+
+  const api = useMemo(() => KronosService(), []);
 
   const searchAllProperties = (item: any, query: string): boolean => {
     const searchInObject = (obj: any): boolean => {
