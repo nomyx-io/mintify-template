@@ -23,11 +23,11 @@ export default function Home() {
       ]);
       
       setTokenGraphValues({
-        labels: ["Net Token Issued", "Net Token Redeemed"],
+        labels: ["Total Tokens Issued", "Total Tokens Retired"],
         values: [kpis.tokens, kpis.retired],
       })
       setCarbonGraphValues({
-        labels: ["Net Carbon Issued", "Net Carbon Redeemed"],
+        labels: ["Total Carbon Issued", "Total Carbon Retired"],
         values: [kpis.carbonIssued, kpis.carbonRetired],
       })
       setkpisData(kpis);
