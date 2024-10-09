@@ -34,16 +34,20 @@ export default function Projects() {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const projects = await api.getProjects();
+      const [tokens, projects] = await Promise.all([api.getMintedNfts(), api.getProjects()]);
       setProjectList(
-        projects?.map((project) => ({
+        projects?.map((project) => {
+        const projectTokens = tokens?.filter((token) => token.attributes.projectId === project.id);
+        return {
           id: project.id,
           title: project.attributes.title,
           description: project.attributes.description,
           logo: project.attributes.logo,
           coverImage: project.attributes.coverImage,
           registryURL: project.attributes.registryURL,
-        })) || []
+          totalCarbon: projectTokens?.reduce((acc, token) => acc + Number(token.attributes.existingCredits), 0) || 0,
+          totalTokens: projectTokens?.length || 0,
+        }}) || []
       );
     } catch (error) {
       console.error('Failed to fetch projects:', error);
@@ -71,7 +75,7 @@ export default function Projects() {
         setOpen={setOpen}
         onCreateSuccess={onCreateSuccess}
       />
-      <ProjectsHeader setOpen={setOpen} />
+      {!selectedProject && <ProjectsHeader setOpen={setOpen} />}
       {selectedProject ? (
         // Render Project Details
         <ProjectDetails

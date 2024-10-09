@@ -45,10 +45,12 @@ export const projectColumns: any = (onProjectClick: (project: Project) => void) 
   },
   {
     title: 'Total Carbon Offset (Tons)',
+    dataIndex: 'totalCarbon',
     sorter: true,
   },
   {
     title: 'Total Tokens',
+    dataIndex: 'totalTokens',
     sorter: true,
     sortIcon: () => <ArrowSwapVertical size={20} />,
   },

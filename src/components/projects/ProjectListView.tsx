@@ -14,7 +14,6 @@ export default function ProjectListView({
   onProjectClick,
 }: ProjectListViewProps) {
 
-  console.log('projects:', projects);
   
   return (
     <div
