@@ -1,33 +1,35 @@
 import {parseEther, ethers, parseUnits} from "ethers";
-import GemforceMinterFacet from "../abi/GemforceMinterFacet.json"
-import CarbonCreditRegistry from "../abi/CarbonCreditFacet.json";
+import GFMintedRegistry from "../abi/IGemForceMinterFacet.json";
 import TreasuryRegistry from "../abi/ITreasury.json";
 import USDCRegistry from "../abi/USDC.json";
+import MarketplaceRegistry from "../abi/IMarketplaceFacet.json";
+import CarbonCreditRegistry from "../abi/ICarbonCreditFacet.json";
 import ParseClient from "./ParseClient";
-
 
 export default class BlockchainService {
 
-    private gemforceMintedAbi = GemforceMinterFacet.abi;
-    private carbonCreditAbi = CarbonCreditRegistry.abi;
+    private gfMintedAbi = GFMintedRegistry.abi;
     private treasuryAbi = TreasuryRegistry.abi;
     private usdcAbi = USDCRegistry.abi;
+    private marketplaceAbi = MarketplaceRegistry.abi;
+    private carbonCreditAbi = CarbonCreditRegistry.abi;
     private parseClient = ParseClient;
     private provider: ethers.BrowserProvider;
     // private signer: ethers.JsonRpcSigner|undefined;
     private signer: any;
-    private gemforceMintService: ethers.Contract|undefined;
-    private carbonCreditService: ethers.Contract|undefined;
+    private gfMintService: ethers.Contract|undefined;
     private treasuryService: ethers.Contract|undefined;
     private usdcService: ethers.Contract|undefined;
+    private marketplaceService: ethers.Contract|undefined;
+    private carbonCreditService: ethers.Contract|undefined;
 
     private contractAddress:any;
     private treasuryAddress:any;
     private usdcAddress:any;
+    private marketplaceAddress:any;
+    private carbonCreditAddress:any;
 
     private static instance: BlockchainService;
-
-
 
     /**
      * The Singleton's constructor should always be private to prevent direct
@@ -65,43 +67,55 @@ export default class BlockchainService {
         this.contractAddress = chainConfig.contract;
         this.treasuryAddress = chainConfig.treasury;
         this.usdcAddress = chainConfig.usdc;
+        this.marketplaceAddress = chainConfig.marketplace;
+        this.carbonCreditAddress = chainConfig.carbonCredit;
 
-        this.gemforceMintService = new ethers.Contract(this.contractAddress, this.gemforceMintedAbi, this.provider);
+        this.gfMintService = new ethers.Contract(this.contractAddress, this.gfMintedAbi, this.provider);
         this.treasuryService = new ethers.Contract(this.treasuryAddress, this.treasuryAbi, this.provider);
         this.carbonCreditService = new ethers.Contract(this.contractAddress, this.carbonCreditAbi, this.provider);
         this.usdcService = new ethers.Contract(this.usdcAddress, this.usdcAbi, this.provider);
+        this.marketplaceService = new ethers.Contract(this.contractAddress, this.marketplaceAbi, this.provider);
+        this.carbonCreditService = new ethers.Contract(this.contractAddress, this.carbonCreditAbi, this.provider);
     }
 
     async getClaimTopics() : Promise<Parse.Object[] | undefined> {
         return await this.parseClient.getRecords('ClaimTopic', [], [], ["*"]);
     }
 
-    async gemforceMint(metaData:any) {
-        try{
-
-            if(this.signer){
-                //fixme: sending all metadata values as strings for now until contract accepts other datatypes
-                const contractWithSigner: any = this.gemforceMintService?.connect(this.signer);
-                const tx = await contractWithSigner.gemforceMint(metaData);
-                return await tx.wait();
+    async gemforceMint(metaData: any): Promise<{ tokenId: number, transactionHash: string }> {
+        try {
+          if (this.signer) {
+            // Get the contract instance with the signer
+            const contractWithSigner: any = this.gfMintService?.connect(this.signer);
+      
+            // Send the transaction and get the transaction object immediately
+            const tx = await contractWithSigner.gemforceMint(metaData);
+            const transactionHash = tx.hash;  // Get the transaction hash here, not from the receipt
+            
+            console.log('transactionHash:', transactionHash);  // Log the transaction hash
+      
+            // Wait for the transaction to be mined and get the receipt
+            const receipt = await tx.wait();
+      
+            // Now, lookup the Parse record using the transaction hash
+            const parseRecord = await ParseClient.getRecords('Token', ['transactionHash'], [transactionHash], ["*"]);
+      
+            if (!parseRecord || parseRecord.length === 0) {
+              throw new Error("Parse record not found for the given transaction hash.");
             }
-
-        }catch(e){
-            console.log(e);
-            throw e;
+      
+            // Retrieve the tokenId from the parseRecord
+            const tokenId = parseRecord[0]?.attributes?.tokenId;
+      
+            return { tokenId, transactionHash };
+          } else {
+            throw new Error("Signer is not available.");
+          }
+        } catch (e) {
+          console.error("Error in gemforceMint:", e);
+          throw e;  // Re-throw the error after logging it
         }
-    }
-
-  async initializeCarbonCredit(tokenId: number, initialBalance: number) {
-        try{
-            const contractWithSigner: any = this.carbonCreditService?.connect(this.signer);
-            const tx = await contractWithSigner.initializeCarbonCredit(tokenId, initialBalance);
-            return await tx.wait();
-        }catch(e){
-            console.log(e);
-            throw e;
-        }
-    }
+      }
 
     async deposit(depositData:any){
         try{
@@ -122,6 +136,86 @@ export default class BlockchainService {
             throw e;
         }
     }
+
+    async listItem(
+        receiver: string,  // Address that will receive the funds
+        tokenId: number,   // The token ID of the NFT to list
+        price: string,     // The price of the NFT in wei
+        transferNFT: boolean  // Whether to transfer the NFT to the marketplace
+      ) {
+        try {
+          if (!this.signer) {
+            throw new Error('Signer is not available.');
+          }
+      
+          const contractWithSigner: any = this.marketplaceService?.connect(this.signer);
+          const tx = await contractWithSigner.listItem(
+            this.contractAddress,  // Hardcoded NFT contract address
+            receiver,              // Address that will receive payment
+            tokenId,               // Token ID of the NFT
+            price,                 // Price in wei
+            transferNFT            // Transfer the NFT or not
+          );
+      
+          // Wait for the transaction to be mined
+          const receipt = await tx.wait();
+          console.log("Listing transaction hash:", receipt.transactionHash);
+          return receipt;
+        } catch (e) {
+          console.log("Error in listItem:", e);
+          throw e;
+        }
+      }
+      
+
+      async delistItem(
+        tokenId: number  
+      ) {
+        try {
+          if (!this.signer) {
+            throw new Error('Signer is not available.');
+          }
+      
+          const contractWithSigner: any = this.marketplaceService?.connect(this.signer);
+          const tx = await contractWithSigner.delistItem(
+            this.contractAddress,  
+            tokenId                
+          );
+      
+          // Wait for the transaction to be mined
+          const receipt = await tx.wait();
+          console.log("Delisting transaction hash:", receipt.transactionHash);
+          return receipt;
+        } catch (e) {
+          console.log("Error in delistItem:", e);
+          throw e;
+        }
+      }
+      
+
+      async initializeCarbonCredit(tokenId: number, initialBalance: string) {
+        try {
+          if (!this.signer) {
+            throw new Error("Signer is not available.");
+          }
+      
+          const contractWithSigner: any = this.carbonCreditService?.connect(this.signer);
+          
+          const tx = await contractWithSigner.initializeCarbonCredit(
+            tokenId,            
+            initialBalance       // Initial balance for carbon credits (in wei format)
+          );
+      
+          // Wait for the transaction to be mined
+          const receipt = await tx.wait();
+          console.log("Initialize Carbon Credit transaction hash:", receipt.transactionHash);
+          return receipt;
+        } catch (e) {
+          console.log("Error in initializeCarbonCredit:", e);
+          throw e;
+        }
+      }
+      
 
     /**
      * The static method that controls the access to the singleton instance.

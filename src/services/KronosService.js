@@ -327,6 +327,14 @@ export const KronosService = () => {
 
     }
 
+    const listItem = async (listingData) => {
+        return BlockchainService.getInstance().listItem(listingData);
+    }
+
+    const delistItem = async (listingId) => {
+        return BlockchainService.getInstance().delistItem(listingId);
+    }
+
     const getTreasuryData = async () => {
 
         let hudDataUrl = `${config.serverURL}/gemforce/lenderlab-treasury-hud`;

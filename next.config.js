@@ -31,8 +31,8 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: 'localhost',
-        port: '8337',
+        hostname: 'kronos-dev.gemforce.host',
+        port: '', 
         pathname: '/parse/files/**',
       },
       {

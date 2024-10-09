@@ -15,6 +15,7 @@ import { usePageUnloadGuard } from "@/hooks/usePageUnloadGuard";
 import BlockchainService from "@/services/BlockchainService";
 import { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import { File } from "parse";
+import { parseUnits } from "ethers";
 
 export default function Details({ service }: {service: BlockchainService}) {
   const { isConnected } = useAccount();
@@ -80,6 +81,13 @@ export default function Details({ service }: {service: BlockchainService}) {
       console.error('Failed to fetch projects:', error);
     }
   }, [api]);
+
+  useEffect(() => {
+    if (router.query.projectId) {
+      setProjectId(router.query.projectId as string);
+      form.setFieldsValue({ projectId: router.query.projectId });
+    }
+  }, [router.query.projectId, form]);
 
   useEffect(() => {
     fetchProjects();
@@ -684,65 +692,112 @@ export default function Details({ service }: {service: BlockchainService}) {
       value: targetKeys ? targetKeys.join(',') : targetKeys,
     },
   ];
+
   const handleMint = async () => {
-    toast.promise(
-      async () => {
-        try {
-          await service.gemforceMint(metadata).then(() => {
-            // details fields
-            setNftTitle("");
-            setDescription("");
-
-            // project info fields
-            setProjectId("");
-            setAuditor("");
-            setProjectStartDate("");
-            setMintAddress("");
-            setCountry("");
-            setState("");
-            setRegisterId("");
-            setRegistryURL("");
-            setIssuanceDate("");
-            setGhgReduction("");
-            setTrancheCutoff("");
-            
-            // credit info fields
-            setCreditsPre2020("");
-            setCredits2020("");
-            setCredits2021("");
-            setCredits2022("");
-            setCredits2023("");
-            setCredits2024("");
-            setExistingCredits("");
-            setEstimatedEmissionsReduction("");
-            setPrice("");
-
-            // compliance fields
-            setTargetKeys([]);
-            setPreview(false);
-
-            setTimeout(() => {
-              form.resetFields();
-            }, 500);
-          });
-        } catch (e) {
-          console.log(e);
-          throw e;
-        }
-      },
-      {
-        pending: "Minting Nft...",
-        success: "Successfully minted Nft to " + mintAddress,
-        error: {
-          render({ data }: {data?: {reason: string}}) {
-            return (
-              <div>{data?.reason || "An error occurred while minting Nft"}</div>
-            );
-          },
-        },
+    if (!mintAddress) {
+      // Handle the case where mintAddress is undefined
+      console.error("Wallet address is not available.");
+      return;
+    }
+  
+    try {
+      // Step 1: Mint the token and show a toast notification
+      const mintingToast = toast.loading("Minting token...");
+      const { tokenId, transactionHash } = await service.gemforceMint(metadata);
+      toast.update(mintingToast, {
+        render: `Token minted successfully. Transaction Hash: ${transactionHash}`,
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+      });
+  
+      // Step 2: Show a toast notification for calculating the price
+      const totalPrice = parseUnits((Number(existingCredits) * Number(price)).toString(), 6);
+      toast.info(`Calculated total price in USDC: ${totalPrice.toString()}`, { autoClose: 3000 });
+  
+      // Step 3: List the token and show a toast notification
+      const listingToast = toast.loading("Listing token on the marketplace...");
+      await service.listItem(
+        mintAddress,           // Receiver of the sale funds (wallet address)
+        tokenId,               // Token ID of the NFT
+        totalPrice.toString(), // Price in wei (USDC with 6 decimals)
+        true                   // Transfer the NFT to the marketplace
+      );
+      toast.update(listingToast, {
+        render: `Token successfully listed with ID: ${tokenId}`,
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+      });
+  
+      // Step 4: Initialize carbon credits (directly passing existingCredits without conversion)
+      const carbonCreditToast = toast.loading("Initializing carbon credits...");
+      await service.initializeCarbonCredit(tokenId, existingCredits || "0");
+      toast.update(carbonCreditToast, {
+        render: `Carbon credits initialized for token ID: ${tokenId}`,
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+      });
+  
+      // Step 5: Reset form and states after success
+      resetFormStates();
+  
+      // Final success notification with token ID
+      toast.success(`Successfully minted NFT with Token ID: ${tokenId} and initialized ${existingCredits} carbon credits.`);
+  
+      return tokenId;
+  
+    } catch (e) {
+      // Handle the error properly by ensuring 'e' is an instance of Error
+      let errorMessage = "An error occurred during the minting/listing process.";
+  
+      if (e instanceof Error) {
+        errorMessage = e.message;
+      } else if (typeof e === "string") {
+        errorMessage = e;
       }
-    );
+  
+      console.error(e);
+  
+      // Error handling toast notification
+      toast.error(errorMessage);
+    }
   };
+  
+  
+  // Helper function to reset form states after successful minting
+  const resetFormStates = () => {
+    setNftTitle("");
+    setDescription("");
+    setProjectId("");
+    setAuditor("");
+    setProjectStartDate("");
+    setMintAddress("");
+    setCountry("");
+    setState("");
+    setRegisterId("");
+    setRegistryURL("");
+    setIssuanceDate("");
+    setGhgReduction("");
+    setTrancheCutoff("");
+    setCreditsPre2020("");
+    setCredits2020("");
+    setCredits2021("");
+    setCredits2022("");
+    setCredits2023("");
+    setCredits2024("");
+    setExistingCredits("");
+    setEstimatedEmissionsReduction("");
+    setPrice("");
+    setTargetKeys([]);
+    setPreview(false);
+  
+    setTimeout(() => {
+      form.resetFields();
+    }, 500);
+  };
+  
 
   return (
     <>
