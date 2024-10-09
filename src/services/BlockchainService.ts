@@ -3,6 +3,7 @@ import GFMintedRegistry from "../abi/IGemForceMinterFacet.json";
 import TreasuryRegistry from "../abi/ITreasury.json";
 import USDCRegistry from "../abi/USDC.json";
 import MarketplaceRegistry from "../abi/IMarketplaceFacet.json";
+import CarbonCreditRegistry from "../abi/ICarbonCreditFacet.json";
 import ParseClient from "./ParseClient";
 
 export default class BlockchainService {
@@ -11,6 +12,7 @@ export default class BlockchainService {
     private treasuryAbi = TreasuryRegistry.abi;
     private usdcAbi = USDCRegistry.abi;
     private marketplaceAbi = MarketplaceRegistry.abi;
+    private carbonCreditAbi = CarbonCreditRegistry.abi;
     private parseClient = ParseClient;
     private provider: ethers.BrowserProvider;
     // private signer: ethers.JsonRpcSigner|undefined;
@@ -19,15 +21,15 @@ export default class BlockchainService {
     private treasuryService: ethers.Contract|undefined;
     private usdcService: ethers.Contract|undefined;
     private marketplaceService: ethers.Contract|undefined;
+    private carbonCreditService: ethers.Contract|undefined;
 
     private contractAddress:any;
     private treasuryAddress:any;
     private usdcAddress:any;
     private marketplaceAddress:any;
+    private carbonCreditAddress:any;
 
     private static instance: BlockchainService;
-
-
 
     /**
      * The Singleton's constructor should always be private to prevent direct
@@ -66,11 +68,13 @@ export default class BlockchainService {
         this.treasuryAddress = chainConfig.treasury;
         this.usdcAddress = chainConfig.usdc;
         this.marketplaceAddress = chainConfig.marketplace;
+        this.carbonCreditAddress = chainConfig.carbonCredit;
 
         this.gfMintService = new ethers.Contract(this.contractAddress, this.gfMintedAbi, this.provider);
         this.treasuryService = new ethers.Contract(this.treasuryAddress, this.treasuryAbi, this.provider);
         this.usdcService = new ethers.Contract(this.usdcAddress, this.usdcAbi, this.provider);
         this.marketplaceService = new ethers.Contract(this.marketplaceAddress, this.marketplaceAbi, this.provider);
+        this.carbonCreditService = new ethers.Contract(this.contractAddress, this.carbonCreditAbi, this.provider);
     }
 
     async getClaimTopics() : Promise<Parse.Object[] | undefined> {
@@ -130,6 +134,18 @@ export default class BlockchainService {
 
             const contractWithSigner : any = this.marketplaceService?.connect(this.signer);
             const tx = await contractWithSigner.delist(delistData);
+            return await tx.wait();
+        }catch(e){
+            console.log(e);
+            throw e;
+        }
+    }
+
+    async initializeCarbonCredit(initalizeDatea:any){
+        try{
+
+            const contractWithSigner : any = this.carbonCreditService?.connect(this.signer);
+            const tx = await contractWithSigner.initializeCarbonCredit(initalizeDatea);
             return await tx.wait();
         }catch(e){
             console.log(e);
