@@ -327,12 +327,12 @@ export const KronosService = () => {
 
     }
 
-    const list = async (listingData) => {
-        return BlockchainService.getInstance().list(listingData);
+    const listItem = async (listingData) => {
+        return BlockchainService.getInstance().listItem(listingData);
     }
 
-    const delist = async (listingId) => {
-        return BlockchainService.getInstance().delist(listingId);
+    const delistItem = async (listingId) => {
+        return BlockchainService.getInstance().delistItem(listingId);
     }
 
     const getTreasuryData = async () => {

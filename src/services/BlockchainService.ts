@@ -117,11 +117,11 @@ export default class BlockchainService {
         }
     }
 
-    async list(listData:any){
+    async listItem(listData:any){
         try{
 
             const contractWithSigner : any = this.marketplaceService?.connect(this.signer);
-            const tx = await contractWithSigner.list(listData);
+            const tx = await contractWithSigner.listItem(listData);
             return await tx.wait();
         }catch(e){
             console.log(e);
@@ -129,11 +129,11 @@ export default class BlockchainService {
         }
     }
 
-    async delist(delistData:any){
+    async delistItem(delistData:any){
         try{
 
             const contractWithSigner : any = this.marketplaceService?.connect(this.signer);
-            const tx = await contractWithSigner.delist(delistData);
+            const tx = await contractWithSigner.delistItem(delistData);
             return await tx.wait();
         }catch(e){
             console.log(e);
