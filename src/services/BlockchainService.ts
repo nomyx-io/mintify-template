@@ -1,14 +1,13 @@
 import {parseEther, ethers, parseUnits} from "ethers";
-import LLMintedRegistry from "../abi/ILenderLabMinterFacet.json";
+import GFMintedRegistry from "../abi/IGemForceMinterFacet.json";
 import TreasuryRegistry from "../abi/ITreasury.json";
 import USDCRegistry from "../abi/USDC.json";
 import MarketplaceRegistry from "../abi/IMarketplaceFacet.json";
 import ParseClient from "./ParseClient";
 
-
 export default class BlockchainService {
 
-    private llMintedAbi = LLMintedRegistry.abi;
+    private gfMintedAbi = GFMintedRegistry.abi;
     private treasuryAbi = TreasuryRegistry.abi;
     private usdcAbi = USDCRegistry.abi;
     private marketplaceAbi = MarketplaceRegistry.abi;
@@ -16,7 +15,7 @@ export default class BlockchainService {
     private provider: ethers.BrowserProvider;
     // private signer: ethers.JsonRpcSigner|undefined;
     private signer: any;
-    private llMintService: ethers.Contract|undefined;
+    private gfMintService: ethers.Contract|undefined;
     private treasuryService: ethers.Contract|undefined;
     private usdcService: ethers.Contract|undefined;
     private marketplaceService: ethers.Contract|undefined;
@@ -40,7 +39,7 @@ export default class BlockchainService {
         this.provider = new ethers.BrowserProvider(ethObject);
         this.provider.getSigner().then(signer=>this.signer = signer);
 
-        this.llmint = this.llmint.bind(this)
+        this.gemforceMint = this.gemforceMint.bind(this)
         this.getClaimTopics = this.getClaimTopics.bind(this)
 
         this.parseClient.initialize();
@@ -68,7 +67,7 @@ export default class BlockchainService {
         this.usdcAddress = chainConfig.usdc;
         this.marketplaceAddress = chainConfig.marketplace;
 
-        this.llMintService = new ethers.Contract(this.contractAddress, this.llMintedAbi, this.provider);
+        this.gfMintService = new ethers.Contract(this.contractAddress, this.gfMintedAbi, this.provider);
         this.treasuryService = new ethers.Contract(this.treasuryAddress, this.treasuryAbi, this.provider);
         this.usdcService = new ethers.Contract(this.usdcAddress, this.usdcAbi, this.provider);
         this.marketplaceService = new ethers.Contract(this.marketplaceAddress, this.marketplaceAbi, this.provider);
@@ -78,13 +77,13 @@ export default class BlockchainService {
         return await this.parseClient.getRecords('ClaimTopic', [], [], ["*"]);
     }
 
-    async llmint(metaData:any) {
+    async gemforceMint(metaData:any) {
         try{
 
             if(this.signer){
                 //fixme: sending all metadata values as strings for now until contract accepts other datatypes
-                const contractWithSigner: any = this.llMintService?.connect(this.signer);
-                const tx = await contractWithSigner.llMint(metaData);
+                const contractWithSigner: any = this.gfMintService?.connect(this.signer);
+                const tx = await contractWithSigner.gemforceMint(metaData);
                 return await tx.wait();
             }
 

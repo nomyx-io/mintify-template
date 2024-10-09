@@ -688,7 +688,7 @@ export default function Details({ service }: {service: BlockchainService}) {
     toast.promise(
       async () => {
         try {
-          await service.llmint(metadata).then(() => {
+          await service.gemforceMint(metadata).then(() => {
             // details fields
             setNftTitle("");
             setDescription("");
