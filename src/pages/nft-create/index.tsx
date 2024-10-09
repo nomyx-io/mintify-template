@@ -82,6 +82,13 @@ export default function Details({ service }: {service: BlockchainService}) {
   }, [api]);
 
   useEffect(() => {
+    if (router.query.projectId) {
+      setProjectId(router.query.projectId as string);
+      form.setFieldsValue({ projectId: router.query.projectId });
+    }
+  }, [router.query.projectId, form]);
+
+  useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
 
