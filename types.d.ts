@@ -56,12 +56,9 @@ type TransferOnChange = (targetKeys: string[], direction: TransferDirection, mov
 type TransferOnSelectChange = (sourceSelectedKeys: string[], targetSelectedKeys: string[]) => void;
 type TransferOnScroll = (direction: TransferDirection, e: React.SyntheticEvent<HTMLUListElement>) => void;
 
-interface PortfolioPerformance {
+interface GraphValues {
   labels: string[],
-  initialValues: number[],
-  assetValues: number[],
-  accruedValues: number[],
-  yieldClaimedTill: number[]
+  values: number[]
 }
 
 interface MintedToken {
@@ -75,12 +72,12 @@ interface MintedToken {
 }
 
 interface KPIs {
-  totalAssets: number | undefined;
-  totalDeliquent: number;
-  totalAccruedValue: number;
-  totalAssetValue: number;
-  totalInitialValue: number;
-  totalYieldClaimed: number;
+  tokens: number;
+  retired: number;
+  carbonIssued: number;
+  carbonRetired: number;
+  issuedValue: number;
+  retiredValue: number;
 }
 
 interface Events {
