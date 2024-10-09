@@ -5,7 +5,7 @@ import NftRecordDetail from "../../components/NftRecordDetail";
 import { getDashboardLayout } from "@/Layouts";
 import { toast } from "react-toastify";
 import { TransferDirection } from "antd/es/transfer";
-import { Regex } from "@/utils";
+import { Regex } from "@/utils/regex";
 import { useRouter } from "next/router";
 import { useAccount } from "wagmi";
 import { KronosService } from "@/services/KronosService";
@@ -255,8 +255,8 @@ export default function Details({ service }: {service: BlockchainService}) {
       price,
 
       // compliance fields
-      targetKeys,
-      claimTopics,
+      claimTopics: targetKeys.join(','),
+      allTopics: claimTopics,
     });
     setPreview(true);
   };
@@ -299,7 +299,7 @@ export default function Details({ service }: {service: BlockchainService}) {
       name: 'Project Information',
       fields: [
         {
-          label: 'Project ID',
+          label: 'Project',
           name: 'projectId',
           dataType: 'select',
           placeHolder: 'Select Project ID',
@@ -528,7 +528,7 @@ export default function Details({ service }: {service: BlockchainService}) {
 
   useEffect(() => {
     getClaimTopics();
-    getSettings();
+    // getSettings();
   }, [service]);
 
   useEffect(() => {
@@ -557,13 +557,13 @@ export default function Details({ service }: {service: BlockchainService}) {
     }
   };
 
-  const getSettings = async () => {
-    if (api && api.getSettings) {
-      const settings: { defaultTokenImage: File; walletAddress?: string} =
-        await api.getSettings();
-      setMintAddress(settings.walletAddress);
-    }
-  };
+  // const getSettings = async () => {
+  //   if (api && api.getSettings) {
+  //     const settings: { defaultTokenImage: File; walletAddress?: string} =
+  //       await api.getSettings();
+  //     setMintAddress(settings.walletAddress);
+  //   }
+  // };
 
   
   const handleBack = () => {

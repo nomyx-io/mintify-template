@@ -28,6 +28,48 @@ export const NFT_DETAIL_COLUMNS = {
   ]
 }
 
+export const NFT_RECORD_FIELD_GROUPS = [
+  {
+    name: 'Project Info',
+    fields: [
+      { name: 'projectName', label: 'Project' },
+      { name: 'auditor', label: 'Auditor' },
+      { name: 'projectStartDate', label: 'Start Date' },
+      { name: 'mintAddress', label: 'Mint to' },
+      { name: 'country', label: 'Country' },
+      { name: 'state', label: 'State' },
+      { name: 'registerId', label: 'Registry Id' },
+      { name: 'registryURL', label: 'Registry Link' },
+      { name: 'issuanceDate', label: 'Issuance Date' },
+      { name: 'ghgReduction', label: 'GHG Reduction' },
+      { name: 'trancheCutoff', label: 'Tranche Cutoff' },
+    ],
+  },
+  {
+    name: 'Credit Info',
+    fields: [
+      { name: 'creditsPre2020', label: 'Pre 2020 Credits' },
+      { name: 'credits2020', label: '2020 Project Credits' },
+      { name: 'credits2021', label: '2021 Project Credits' },
+      { name: 'credits2022', label: '2022 Project Credits' },
+      { name: 'credits2023', label: '2023 Project Credits' },
+      { name: 'credits2024', label: '2024 Project Credits' },
+      { name: 'existingCredits', label: 'Existing Carbon Credits' },
+      {
+        name: 'estimatedEmissionsReduction',
+        label: 'Estimated Annual Emissions Reduction',
+      },
+    ],
+  },
+  {
+    name: 'Pricing Information',
+    fields: [
+      { name: 'price', label: 'Price per Credit' },
+      { name: 'totalPrice', label: 'Total Price' },
+    ],
+  },
+];
+
 export const BASESEP_CHAIN: Chain = {
   id: 84532,
   name: 'Base Sepolia',

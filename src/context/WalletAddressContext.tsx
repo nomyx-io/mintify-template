@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
 import { KronosService } from '@/services/KronosService';
 
 // Create the context with a default empty value
@@ -9,26 +9,26 @@ const WalletAddressContext = createContext({
 
 // Create a provider component that encapsulates the state logic
 export const WalletAddressProvider = ({ children }: { children: React.ReactNode }) => {
-  const api = KronosService();
+  const api = useMemo(() => KronosService(), []);
   const [walletAddress, setWalletAddress] = useState('');
-
-  const getSettings = async () => {
-    if (api && api.getSettings) {
-      try {
-        const settings: { defaultTokenImage: File; walletAddress?: string } = await api.getSettings();
-        if (settings && settings.walletAddress) {
-          setWalletAddress(settings.walletAddress);
-        }
-      } catch (error) {
-        console.error('Error fetching settings:', error);
-      }
-    }
-  };
 
   // Use useEffect with an empty dependency array to ensure it runs only once on mount
   useEffect(() => {
+    const getSettings = async () => {
+      if (api && api.getSettings) {
+        try {
+          const settings: { defaultTokenImage: File; walletAddress?: string } =
+            await api.getSettings();
+          if (settings && settings.walletAddress) {
+            setWalletAddress(settings.walletAddress);
+          }
+        } catch (error) {
+          console.error('Error fetching settings:', error);
+        }
+      }
+    };
     getSettings();
-  }, []);
+  }, [api]);
 
   return (
       <WalletAddressContext.Provider value={{ walletAddress, setWalletAddress }}>
