@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { message } from 'antd';
+import { message } from "antd";
 import { Button, Card, Tabs } from "antd";
 import { KronosService } from "@/services/KronosService";
 import { useRouter } from "next/router";
@@ -17,7 +17,7 @@ interface ProjectDetailsProps {
 
 const copyURL = (text: string) => {
   navigator.clipboard.writeText(text);
-  message.success('Copied to clipboard!');
+  message.success("Copied to clipboard!");
 };
 
 const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
@@ -54,7 +54,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
   // Memoize the filtered listings and sales
   const filteredListings = useMemo(() => {
-    console.log('listings', listings);
+    console.log("listings", listings);
     return listings.filter((listing) => searchAllProperties(listing, searchQuery));
   }, [listings, searchQuery]);
 
@@ -108,8 +108,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
   const fetchListings = async () => {
     const newListingData = await api.getListings();
-    console.log('newListingData', newListingData);
-    setListings(newListingData || []);
+    console.log("newListingData", newListingData);
+    setListings(newListingData.filter((t: { token: { projectId: string } }) => t.token.projectId === project.id) || []);
   };
 
   const fetchSales = async () => {
@@ -232,7 +232,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     <button
                       onClick={() => {
                         copyURL(project.registryURL);
-                      }}>
+                      }}
+                    >
                       <Copy size={20} />
                     </button>
                   </div>
@@ -256,13 +257,13 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
               {/* View Toggle and Purchase Selected Button */}
               <div className="flex items-center">
-              <Button
-                type="primary"
-                className="mr-4 bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark'"
-                onClick={() => router.push(`/nft-create?projectId=${project.id}`)}
-              >
-                Mint Token
-              </Button>
+                <Button
+                  type="primary"
+                  className="mr-4 bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark'"
+                  onClick={() => router.push(`/nft-create?projectId=${project.id}`)}
+                >
+                  Mint Token
+                </Button>
 
                 {/* View Toggle Buttons */}
                 <button
@@ -295,17 +296,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     children: (
                       <>
                         {viewMode === "table" ? (
-                          <TokenListView
-                            projects={filteredListings}
-                            onProjectClick={handleDetailsClick}
-                            isSalesHistory={false}
-                          />
+                          <TokenListView projects={filteredListings} onProjectClick={handleDetailsClick} isSalesHistory={false} />
                         ) : (
-                          <TokenCardView
-                            projects={filteredListings}
-                            onProjectClick={handleDetailsClick}
-                            isSalesHistory={false}
-                          />
+                          <TokenCardView projects={filteredListings} onProjectClick={handleDetailsClick} isSalesHistory={false} />
                         )}
                       </>
                     ),
