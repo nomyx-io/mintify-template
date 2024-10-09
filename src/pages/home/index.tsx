@@ -2,7 +2,7 @@
 import KPI from "@/components/atoms/KPI";
 import { KronosService } from "@/services/KronosService";
 import { EventFeed } from "@/components/molecules/EventFeed";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getDashboardLayout } from "@/Layouts";
 import BarChart from "@/components/atoms/Graphs/Barchart";
 import moment from "moment";
@@ -22,7 +22,7 @@ const formatMintedNftRecords = (records: Parse.Object[]): MintedToken[] =>
   }));
 
 export default function Home() {
-  const api = KronosService();
+  const api = useMemo(() => KronosService(), []);
   const [graphValues, setGraphValues] = useState<PortfolioPerformance>();
   const [eventDetails, setEventDetails] = useState<Events>({});
   const [mintedNfts, setMintedNfts] = useState<MintedToken[]>([]);

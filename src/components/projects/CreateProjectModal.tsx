@@ -10,6 +10,7 @@ import {
 import ImageBoxFormItem from '../molecules/ImageBox';
 import { KronosService } from '@/services/KronosService';
 import { toast } from 'react-toastify';
+import { useMemo } from 'react';
 
 interface CreateProjectModalProps {
   open: boolean;
@@ -43,7 +44,7 @@ export default function CreateProjectModal({
   const [form] = Form.useForm();
   const requiredRule = { required: true, message: 'This field is required.' };
 
-  const api = KronosService();
+  const api = useMemo(() => KronosService(), []);
 
   function handleModalCancel() {
     setOpen(false);

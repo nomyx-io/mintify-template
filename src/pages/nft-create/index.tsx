@@ -299,7 +299,7 @@ export default function Details({ service }: {service: BlockchainService}) {
       name: 'Project Information',
       fields: [
         {
-          label: 'Project ID',
+          label: 'Project',
           name: 'projectId',
           dataType: 'select',
           placeHolder: 'Select Project ID',
