@@ -33,16 +33,9 @@ interface BarChartData {
 }
 
 interface BarChartDataSet {
-  type?: 'line' | 'bar';
   label: string;
   data: number[];
   backgroundColor: string;
-  borderColor?: string;
-  borderWidth?: number;
-  fill?: boolean;
-  barThickness?: number;
-  categoryPercentage?: number;
-  barPercentage?: number;
 }
 
 interface BarChartProps {
@@ -51,6 +44,7 @@ interface BarChartProps {
 }
 
 const BarChart = ({ data, title }: BarChartProps) => {
+  const maxData = Math.max(...data.datasets.map((dataset) => Math.max(...dataset.data)));
 
   const options = {
     responsive: true,
@@ -63,11 +57,23 @@ const BarChart = ({ data, title }: BarChartProps) => {
         text: title,
       },
     },
+    scales: {
+      x: {
+        stacked: true,
+      },
+      y: {
+        stacked: false,
+        ticks: {
+          stepSize: 5,
+        },
+        max: maxData * 1.1,
+      },
+    },
   };
 
   return (
     <div className='p-2'>
-      <Chart type='bar' options={options} data={data} />
+      <Bar options={options} data={data} />
     </div>
   );
 };

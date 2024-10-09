@@ -5,47 +5,33 @@ import { EventFeed } from "@/components/molecules/EventFeed";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getDashboardLayout } from "@/Layouts";
 import BarChart from "@/components/atoms/Graphs/Barchart";
-import moment from "moment";
-import { Card, Table, Tabs } from "antd";
-import { DASHBOARD_COLUMNS, getGraphData, getKPIs } from "@/utils/dashboard";
-import { useRouter } from "next/router";
-
-const formatMintedNftRecords = (records: Parse.Object[]): MintedToken[] =>
-  records.map((record: Parse.Object) => ({
-    id: record.id,
-    _createdAt: moment(record.createdAt).format("YYYY-MM-DD"),
-    _amount: record.attributes.loanAmount || "",
-    _originationDate: record.attributes.originationDate || "",
-    _currentValue: record.attributes.currentValue || "",
-    _loanId: record.attributes.loanId || "",
-    _tokenId: record.attributes.tokenId || "",
-  }));
+import { Card, Tabs } from "antd";
+import { getGraphData, getKPIs } from "@/utils/dashboard";
 
 export default function Home() {
   const api = useMemo(() => KronosService(), []);
-  const [graphValues, setGraphValues] = useState<PortfolioPerformance>();
+  const [tokenGraphValues, setTokenGraphValues] = useState<GraphValues>();
+  const [carbonGraphValues, setCarbonGraphValues] = useState<GraphValues>();
   const [eventDetails, setEventDetails] = useState<Events>({});
-  const [mintedNfts, setMintedNfts] = useState<MintedToken[]>([]);
   const [kpisData, setkpisData] = useState<KPIs>();
-  const router = useRouter();
-
-  const kpiList = getKPIs(kpisData);
-  const graphData = getGraphData(graphValues);
-  const columns = DASHBOARD_COLUMNS;
 
   const fetchData = useCallback(async () => {
     try {
-      const [mintedNftRecords, events, portfolioPerformance, kpis] = await Promise.all([
-        api.getMintedNfts(),
+      const [events, kpis] = await Promise.all([
         api.getEvents(),
-        api.getPortfolioPerformance(),
         api.getKpis(),
       ]);
-
+      
+      setTokenGraphValues({
+        labels: ["Total Tokens Issued", "Total Tokens Retired"],
+        values: [kpis.tokens, kpis.retired],
+      })
+      setCarbonGraphValues({
+        labels: ["Total Carbon Issued", "Total Carbon Retired"],
+        values: [kpis.carbonIssued, kpis.carbonRetired],
+      })
       setkpisData(kpis);
-      setMintedNfts(formatMintedNftRecords(mintedNftRecords || []));
       setEventDetails(events || {});
-      setGraphValues(portfolioPerformance);
     } catch (error) {
       console.error(error);
     }
@@ -57,20 +43,18 @@ export default function Home() {
 
   const items = [
     {
-      label: "Token Insights",
-      key: "1",
-      children: <BarChart data={graphData} title="Net Asset Value & Yield" />,
+      label: 'Token Insights',
+      key: '1',
+      children: (
+        <BarChart data={getGraphData(tokenGraphValues)} title='Net Token Issued & Redeemed' />
+      ),
     },
     {
-      label: "Carbon Insights",
-      key: "2",
-      children: <Table onRow={(record, rowIndex) => {
-        return {
-          onClick: (event) => {
-            router.push({pathname: 'nft-detail/[id]', query: { id: record.id } });
-          },
-        };
-      }} columns={columns} dataSource={mintedNfts} className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark rounded-lg" />,
+      label: 'Carbon Insights',
+      key: '2',
+      children: (
+        <BarChart data={getGraphData(carbonGraphValues)} title='Net Carbon Issued & Redeemed' />
+      ),
     },
   ];
 
@@ -78,7 +62,7 @@ export default function Home() {
     <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-3">
       <div className="lg:col-span-3">
         <div className="flex lg:grid grid-cols-3 gap-3 pb-3 flex-wrap">
-          {kpiList?.map((kpi) => (
+          {getKPIs(kpisData)?.map((kpi) => (
             <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />
           ))}
         </div>

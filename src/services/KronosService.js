@@ -164,34 +164,24 @@ export const KronosService = () => {
     }
 
     const getKpis = async (id) => {
-        let records = await ParseClient.getRecords('AssetPerformance', [], [], ["*"], 1, 0, 'createdAt', 'desc')
-        let tokenRecords = await ParseClient.getRecords('Token', [], [], ["*"])
-        let numberOfFrozen = 0
-        let totalYieldClaimed = 0
-        let queryTreasuryWithdrawnresults = await ParseClient.getRecords('Event', ['event'], ['TreasuryWithdrawn'], ["*"])
-        if (queryTreasuryWithdrawnresults && queryTreasuryWithdrawnresults.length > 0) {
-            queryTreasuryWithdrawnresults.forEach(element => {
-                totalYieldClaimed += Number(element.attributes?.amount);
-            });
+        const tokenRecords = await ParseClient.getRecords('Token', [], [], ["*"]);
+        const retiredCredits = await ParseClient.getRecords('CarbonCreditsRetired__e', [], [], ["*"]);
+        let retiredTokens = [];
+        retiredCredits.forEach((record) => {
+          let token = tokenRecords.find(
+            (token) => token.attributes.tokenId === record.attributes.tokenId
+          );
+          retiredTokens.push(token);
+        });
+
+        return {
+          tokens: tokenRecords.length,
+          retired: retiredTokens.length,
+          issuedValue: tokenRecords.reduce((acc, record) => acc + (Number(record.attributes.price) * Number(record.attributes.existingCredits)), 0),
+          retiredValue: retiredTokens.reduce((acc, record) => acc + (Number(record.attributes.price) * Number(record.attributes.existingCredits)), 0),
+          carbonIssued: tokenRecords.reduce((acc, record) => acc + Number(record.attributes.existingCredits), 0),
+          carbonRetired: retiredCredits.reduce((acc, record) => acc + Number(record.attributes.amount), 0),
         }
-        tokenRecords && tokenRecords.length > 0 && tokenRecords.forEach((data) => {
-            if (data.attributes?.frozen) {
-                numberOfFrozen += 1
-            }
-        })
-
-        let performanceKpis = records?.[0]?.attributes;
-
-        let kpis = {
-            totalAssets:tokenRecords?.length,
-            totalDeliquent:numberOfFrozen,
-            totalAccruedValue:parseInt(performanceKpis?.accruedValue),
-            totalAssetValue:parseInt(String(performanceKpis?.assetValue||0), 10),
-            totalInitialValue:parseInt(performanceKpis?.initialValue),
-            totalYieldClaimed:totalYieldClaimed
-
-        }
-        return kpis
     }
 
     const saveSettings = async (settingsObj) => {

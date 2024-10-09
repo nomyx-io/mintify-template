@@ -1,106 +1,59 @@
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
-import { Coin, Setting, ArrowUp } from "iconsax-react";
+import { Coin, Setting, ArrowUp, DollarSquare } from "iconsax-react";
 
 export function getKPIs(data?: KPIs) {
   return [
     {
       icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Assets",
-      value: data?.totalAssets,
+      value: data?.tokens,
     },
     {
-      icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Issued Value",
-      value: data?.totalInitialValue,
+      value: data?.issuedValue,
     },
     {
-      icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Redeemed Value",
-      value: data?.totalAssetValue,
+      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Total Retired Value",
+      value: data?.retiredValue,
     },
     {
       icon: <Setting className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Carbon Issued",
-      value: data?.totalAccruedValue,
+      value: data?.carbonIssued,
     },
     {
       icon: <Setting className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Carbon Redeemed",
-      value: data?.totalYieldClaimed,
+      title: "Total Carbon Retired",
+      value: data?.carbonRetired,
     },
     {
       icon: <ArrowUp className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Redeemed Credits",
-      value: data?.totalDeliquent,
+      title: "Total Retired Tokens",
+      value: data?.retired,
     },
   ];
 }
 
-export function getGraphData(graphValues?: PortfolioPerformance) {
+export function getGraphData(graphValues?: GraphValues) {
+  const labels = graphValues?.labels || [];
+  const datasets = [
+    {
+      label: graphValues?.labels[0] || '',
+      data: [graphValues?.values[0] || 0, 0],
+      backgroundColor: 'rgba(33, 102, 248, 0.8)',
+    },
+    {
+      label: graphValues?.labels[1] || '',
+      data: [0, graphValues?.values[1] || 0],
+      backgroundColor: 'rgba(255, 130, 0, 0.8)',
+    },
+  ];
+
   return {
-    labels: graphValues?.labels || [],
-    datasets: [
-      {
-        type: "line" as const,
-        label: "Total Accured Value",
-        data: graphValues?.accruedValues || [],
-        backgroundColor: "#fc4103",
-        borderColor: "#fc4103",
-        borderWidth: 3,
-        fill: false,
-      },
-      {
-        type: "line" as const,
-        label: "Total Yield Value",
-        data: graphValues?.yieldClaimedTill || [],
-        backgroundColor: "#fc8c03",
-        borderColor: "#fc8c03",
-        borderWidth: 3,
-        fill: false,
-      },
-      {
-        label: "Total Initial Value",
-        data: graphValues?.initialValues || [],
-        backgroundColor: "#2f59d6",
-        borderWidth: 0,
-        barThickness: 30,
-        categoryPercentage: 0.5,
-        barPercentage: 1,
-      },
-      {
-        label: "Net Asset Value",
-        data: graphValues?.assetValues || [],
-        backgroundColor: "#7a7977",
-        borderColor: "#7a7977",
-        borderWidth: 0,
-        barThickness: 30,
-        categoryPercentage: 0.5,
-        barPercentage: 1,
-      },
-    ],
+    labels,
+    datasets,
   };
 }
-
-export const DASHBOARD_COLUMNS: ColumnsType<MintedToken> = [
-  {
-    dataIndex: "id",
-    title: "Id",
-    align: "left",
-  },
-  { dataIndex: "_tokenId", title: "Token Id", align: "center" },
-  { dataIndex: "_loanId", title: "Loan Id", align: "center" },
-  { dataIndex: "_createdAt", title: "NFT Created", align: "center" },
-  {
-    dataIndex: "_amount",
-    title: "Original Value",
-    align: "center",
-    sorter: true,
-  },
-  {
-    dataIndex: "_currentValue",
-    title: "Current Value",
-    align: "right",
-    sorter: true,
-  },
-];
