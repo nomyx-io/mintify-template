@@ -114,7 +114,7 @@ export default class BlockchainService {
           console.error("Error in gemforceMint:", e);
           throw e;  // Re-throw the error after logging it
         }
-      }       
+      }
 
     async deposit(depositData:any){
         try{
