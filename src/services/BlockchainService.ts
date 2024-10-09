@@ -72,7 +72,6 @@ export default class BlockchainService {
 
         this.gfMintService = new ethers.Contract(this.contractAddress, this.gfMintedAbi, this.provider);
         this.treasuryService = new ethers.Contract(this.treasuryAddress, this.treasuryAbi, this.provider);
-        this.carbonCreditService = new ethers.Contract(this.contractAddress, this.carbonCreditAbi, this.provider);
         this.usdcService = new ethers.Contract(this.usdcAddress, this.usdcAbi, this.provider);
         this.marketplaceService = new ethers.Contract(this.contractAddress, this.marketplaceAbi, this.provider);
         this.carbonCreditService = new ethers.Contract(this.contractAddress, this.carbonCreditAbi, this.provider);
