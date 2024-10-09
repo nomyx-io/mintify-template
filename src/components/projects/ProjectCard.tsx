@@ -66,11 +66,11 @@ export default function ProjectCard({ project, onProjectClick }: ProjectCardProp
       <div className='flex flex-col gap-1 mt-5'>
         <DataRow>
           <DataKey>Total Carbon Offset (Tons)</DataKey>
-          <DataValue>895, 9121,255</DataValue>
+          <DataValue>{project.totalCarbon}</DataValue>
         </DataRow>
         <DataRow>
           <DataKey>Total Tokens</DataKey>
-          <DataValue>4</DataValue>
+          <DataValue>{project.totalTokens}</DataValue>
         </DataRow>
         <DataRow>
           <DataKey>Registry URL</DataKey>

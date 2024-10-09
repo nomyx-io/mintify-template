@@ -99,4 +99,6 @@ interface Project {
   registryURL: string;
   logo: Parse.File;
   coverImage: Parse.File;
+  totalTokens: number;
+  totalCarbon: number;
 }

@@ -24,7 +24,7 @@ export default function Details({ service }: {service: BlockchainService}) {
   const api = useMemo(() => KronosService(), []);
   const [preview, setPreview] = useState(false);
   const [nftData, setNftData] = useState({});
-  const [projectList, setProjectList] = useState<Project[]>([]);
+  const [projectList, setProjectList] = useState<{id:string, title:string}[]>([]);
   const [claimTopics, setClaimTopics] = useState<ClaimTopic[]>([]);
 
   // form fields
@@ -69,13 +69,10 @@ export default function Details({ service }: {service: BlockchainService}) {
       const projects = await api.getProjects();
       setProjectList(
         projects?.map((project) => ({
-          id: project.id,
-          title: project.attributes.title,
-          description: project.attributes.description,
-          logo: project.attributes.logo,
-          coverImage: project.attributes.coverImage,
-          registryURL: project.attributes.registryURL,
-        })) || []
+            id: project.id,
+            title: project.attributes.title,
+          }
+        )) || []
       );
     } catch (error) {
       console.error('Failed to fetch projects:', error);

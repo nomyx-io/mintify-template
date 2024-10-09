@@ -114,7 +114,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
   const fetchSales = async () => {
     const newSalesData = await api.getSales();
-    setSales(newSalesData || []);
+    setSales(newSalesData.map((sale: {token: {price: string, existingCredits: string}}) => {
+      return {
+        ...sale,
+        price: (Number(sale.token.price) * Number(sale.token.existingCredits))
+    }}) || []);
   };
 
   // Function to handle individual token purchase
@@ -182,7 +186,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
               {/* Back Button */}
               <button
                 onClick={onBack} // Use the onBack function to reset the view
-                className="absolute top-4 left-4 text-black bg-white rounded-md flex items-center px-4 py-2 shadow-md"
+                className="absolute top-4 left-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark !text-nomyx-dark2-light dark:nomyx-dark2-dark rounded-md flex items-center px-4 py-2 shadow-md"
               >
                 <ArrowLeft size="24" className="mr-2" />
                 Back
@@ -204,31 +208,31 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
               {/* Project Stats (Hide when screen width is small enough to cause overlap) */}
               <div
-                className={`absolute bottom-4 right-4 flex flex-nowrap space-x-4 bg-white p-4 rounded-lg shadow-md transition-opacity duration-500 ${
+                className={`absolute bottom-4 right-4 flex flex-nowrap space-x-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 ${
                   showStats ? "opacity-100" : "opacity-0 pointer-events-none"
                 }`}
                 style={{ overflow: "hidden" }}
               >
-                <div className="stat-item bg-gray-100 p-3 rounded-lg text-center">
-                  <span className="text-black text-sm">Credit Type</span>
-                  <h2 className="text-black text-lg font-bold">Carbon Credit</h2>
+                <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                  <span className="text-sm">Credit Type</span>
+                  <h2 className="text-lg font-bold">Carbon Credit</h2>
                 </div>
-                <div className="stat-item bg-gray-100 p-3 rounded-lg text-center">
-                  <span className="text-black text-sm">Carbon Offset (Tons)</span>
-                  <h2 className="text-black text-lg font-bold">787,988,450</h2>
+                <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                  <span className="text-sm">Carbon Offset (Tons)</span>
+                  <h2 className="text-lg font-bold">787,988,450</h2>
                 </div>
-                <div className="stat-item bg-gray-100 p-3 rounded-lg text-center">
-                  <span className="text-black text-sm">Tokenization Date</span>
-                  <h2 className="text-black text-lg font-bold">8.21.21</h2>
+                <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                  <span className="text-sm">Project Creation Date</span>
+                  <h2 className="text-lg font-bold">8.21.21</h2>
                 </div>
-                <div className="stat-item bg-gray-100 p-3 rounded-lg text-center">
-                  <span className="text-black text-sm">Total Tokens</span>
-                  <h2 className="text-black text-lg font-bold">{totalTokens}</h2>
+                <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                  <span className="text-sm">Total Tokens</span>
+                  <h2 className="text-lg font-bold">{totalTokens}</h2>
                 </div>
-                <div className="stat-item bg-gray-100 p-3 rounded-lg text-center">
-                  <span className="text-black text-sm">Registry URL</span>
+                <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                  <span className="text-sm">Registry URL</span>
                   <div className="flex justify-between items-center max-w-[150px] mx-auto">
-                    <h2 className="text-black text-lg font-bold truncate">{project.registryURL}</h2>
+                    <h2 className="text-lg font-bold truncate">{project.registryURL}</h2>
                     <button
                       onClick={() => {
                         copyURL(project.registryURL);
@@ -298,7 +302,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                         {viewMode === "table" ? (
                           <TokenListView projects={filteredListings} onProjectClick={handleDetailsClick} isSalesHistory={false} />
                         ) : (
-                          <TokenCardView projects={filteredListings} onProjectClick={handleDetailsClick} isSalesHistory={false} />
+                          <TokenCardView tokens={filteredListings} onTokenClick={handleDetailsClick} isSalesHistory={false} />
                         )}
                       </>
                     ),
@@ -310,7 +314,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       viewMode === "table" ? (
                         <TokenListView projects={filteredSales} onProjectClick={handleDetailsClick} isSalesHistory={true} />
                       ) : (
-                        <TokenCardView projects={filteredSales} onProjectClick={handleDetailsClick} isSalesHistory={true} />
+                        <TokenCardView tokens={filteredSales} onTokenClick={handleDetailsClick} isSalesHistory={true} />
                       ),
                   },
                 ]}

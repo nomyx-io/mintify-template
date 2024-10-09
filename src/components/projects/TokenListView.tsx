@@ -72,102 +72,115 @@ const TokenListView: React.FC<TokenListViewProps> = ({ projects, onProjectClick,
   // Define columns conditionally based on `isSalesHistory`
   const listingColumns = [
     {
-      title: "Title",
-      dataIndex: "tokenId",
+      title: 'Title',
+      dataIndex: 'tokenId',
       render: (tokenId: string, record: any) => {
         const color = hashToColor(tokenId);
         return (
-          <div style={{ display: "flex", alignItems: "center" }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             {!isSalesHistory && (
               <EyeOutlined
-                className="text-xl cursor-pointer hover:text-blue-500"
+                className='text-xl cursor-pointer hover:text-blue-500'
                 onClick={() => onProjectClick(record)}
-                style={{ marginRight: "8px" }}
+                style={{ marginRight: '8px' }}
               />
             )}
             {!isSalesHistory && (
               <div
                 style={{
-                  width: "1px",
-                  height: "24px",
-                  backgroundColor: "#ccc",
-                  marginRight: "8px",
+                  width: '1px',
+                  height: '24px',
+                  backgroundColor: '#ccc',
+                  marginRight: '8px',
                 }}
               />
             )}
             {generateSvgIcon(color)}
-            <span style={{ marginLeft: "10px", fontWeight: "bold" }}>{record.token?.nftTitle}</span>
+            <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>
+              {record.token?.nftTitle}
+            </span>
           </div>
         );
       },
-      sorter: (a: any, b: any) => a.token.nftTitle.localeCompare(b.token.nftTitle),
+      sorter: (a: any, b: any) =>
+        a.token.nftTitle.localeCompare(b.token.nftTitle),
     },
     {
-      title: "Price Per Credit",
-      dataIndex: "price",
+      title: 'Price Per Credit',
+      dataIndex: ['token', 'price'],
+      sorter: (a: any, b: any) => a.token.price - b.token.price,
+    },
+    {
+      title: 'Total Price',
+      dataIndex: 'price',
       sorter: (a: any, b: any) => a.price - b.price,
     },
     {
-      title: "Total Price",
-      dataIndex: "price",
-      sorter: (a: any, b: any) => a.price - b.price,
-    },
-    {
-      title: "Registry ID",
-      dataIndex: ["token", "registerId"],
+      title: 'Registry ID',
+      dataIndex: ['token', 'registerId'],
       render: (registerId: string) => <span>{registerId}</span>,
-      sorter: (a: any, b: any) => a.token.registerId.localeCompare(b.token.registerId),
+      sorter: (a: any, b: any) =>
+        a.token.registerId.localeCompare(b.token.registerId),
+    },
+    // {
+    //   title: "Tranche Cutoff",
+    //   dataIndex: ["token", "trancheCutoff"],
+    //   render: (trancheCutoff: string) => <span>{trancheCutoff}</span>,
+    //   sorter: (a: any, b: any) => a.token.trancheCutoff.localeCompare(b.token.trancheCutoff),
+    // },
+    {
+      title: 'Carbon Offset (Tons)',
+      dataIndex: ['token', 'existingCredits'],
+      render: (existingCredits: number) => <span>{existingCredits}</span>,
+      sorter: (a: any, b: any) =>
+        a.token.existingCredits - b.token.existingCredits,
     },
     {
-      title: "Tranche Cutoff",
-      dataIndex: ["token", "trancheCutoff"],
-      render: (trancheCutoff: string) => <span>{trancheCutoff}</span>,
-      sorter: (a: any, b: any) => a.token.trancheCutoff.localeCompare(b.token.trancheCutoff),
-    },
-    {
-      title: "Carbon Offset (Tons)",
-      dataIndex: ["token", "carbonAmount"],
-      render: (carbonAmount: number) => <span>{carbonAmount}</span>,
-      sorter: (a: any, b: any) => a.token.carbonAmount - b.token.carbonAmount,
-    },
-    {
-      title: "Issuance Date",
-      dataIndex: ["token", "issuanceDate"],
+      title: 'Issuance Date',
+      dataIndex: ['token', 'issuanceDate'],
       render: (issuanceDate: string) => <span>{issuanceDate}</span>,
-      sorter: (a: any, b: any) => a.token.issuanceDate.localeCompare(b.token.issuanceDate),
+      sorter: (a: any, b: any) =>
+        a.token.issuanceDate.localeCompare(b.token.issuanceDate),
     },
     {
-      title: "GHG Reduction Type",
-      dataIndex: ["token", "ghgReduction"],
+      title: 'GHG Reduction Type',
+      dataIndex: ['token', 'ghgReduction'],
       render: (ghgReduction: string) => <span>{ghgReduction}</span>,
-      sorter: (a: any, b: any) => a.token.ghgReduction.localeCompare(b.token.ghgReduction),
+      sorter: (a: any, b: any) =>
+        a.token.ghgReduction.localeCompare(b.token.ghgReduction),
     },
     {
-      title: "Geography",
-      dataIndex: ["token", "geography"],
+      title: 'Geography',
+      dataIndex: ['token', 'country'],
       // render: (country: string, state: string) => <span>{country && state ? `${country}, ${state.}` : country || state}</span>,
       render: (country: string) => <span>{country}</span>,
       // compare country and state
-      sorter: (a: any, b: any) => a.token.country === b.token.country ? a.token.state.localeCompare(b.token.state) : a.token.country.localeCompare(b.token.country),
+      sorter: (a: any, b: any) =>
+        a.token.country === b.token.country
+          ? a.token.state.localeCompare(b.token.state)
+          : a.token.country.localeCompare(b.token.country),
     },
     {
-      title: "Status",
-      dataIndex: ["token", "status"],
+      title: 'Status',
+      dataIndex: ['token', 'status'],
       render: (status: string, record: any) => (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <span className={`py-1 px-2 mr-10 rounded border ${
-              status === "listed"
-                ? "border-nomyx-success-light text-nomyx-success-light"
-                : "border-nomyx-danger-light text-nomyx-danger-light"
-            }`}>{status}</span>
+        <div style={{ display: 'flex', alignItems: 'center', width: '160px' }}>
+          <span
+            className={`py-1 px-2 mr-10 w-20 text-center rounded border ${
+              status === 'listed'
+                ? 'border-nomyx-success-light text-nomyx-success-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark'
+                : 'border-nomyx-danger-light text-nomyx-danger-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark'
+            }`}>
+            {status}
+          </span>
           <Switch
-            checked={status === "listed"}
+            checked={status === 'listed'}
             onChange={(checked) => handleStatusChange(record.tokenId, checked)}
           />
         </div>
       ),
       sorter: (a: any, b: any) => a.token.status.localeCompare(b.token.status),
-    }
+    },
   ];
 
   return (

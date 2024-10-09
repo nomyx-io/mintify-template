@@ -3,12 +3,12 @@ import { Card } from "antd";
 import { hashToColor } from "@/utils/colorUtils";
 
 interface TokenCardViewProps {
-  projects: any[];
-  onProjectClick: (project: any) => void;
+  tokens: any[];
+  onTokenClick: (token: any) => void;
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
 }
 
-const TokenCardView: React.FC<TokenCardViewProps> = ({ projects, onProjectClick, isSalesHistory }) => {
+const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, onTokenClick, isSalesHistory }) => {
 
   const generateSvgIcon = (color: string) => {
     return (
@@ -38,8 +38,8 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ projects, onProjectClick,
 
   return (
     <div className="grid gap-5 grid-cols-2 xl:grid-cols-3 mt-5 p-5">
-      {projects.map((project) => {
-        const tokenId = project.tokenId ?? "default";
+      {tokens.map((token) => {
+        const tokenId = token.tokenId ?? "default";
         const color = hashToColor(tokenId);
 
         return (
@@ -56,7 +56,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ projects, onProjectClick,
               transform: !isSalesHistory ? "translateY(0)" : "translateY(-10px)",
               transition: "transform 0.3s ease-in-out",
             }}
-            onClick={!isSalesHistory ? () => onProjectClick(project) : undefined}
+            onClick={!isSalesHistory ? () => onTokenClick(token) : undefined}
           >
             {/* Logo Section */}
             <div
@@ -70,7 +70,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ projects, onProjectClick,
                 padding: "20px",
                 boxSizing: "border-box",
               }}
-              onClick={!isSalesHistory ? () => onProjectClick(project) : undefined}
+              onClick={!isSalesHistory ? () => onTokenClick(token) : undefined}
             >
               <div
                 style={{
@@ -85,21 +85,21 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ projects, onProjectClick,
             {/* Content Section */}
             <div className="p-4">
               {/* Title and Description */}
-              <h2 className="text-lg font-bold">{project.token?.nftTitle || "Token Title"}</h2>
+              <h2 className="text-lg font-bold">{token.token?.nftTitle || "Token Title"}</h2>
               <p className="text-sm text-gray-600 mt-1 line-clamp-1">
-                {project.token?.description ||
+                {token.token?.description ||
                   "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
               </p>
 
-              {/* Project Details Section */}
+              {/* token Details Section */}
               <div className="mt-4 grid gap-2">
                 {[
-                  { label: "Price", value: project.price },
-                  { label: "Registry ID", value: project.token?.registerId || "-" },
-                  { label: "Tranche Cutoff", value: project.token?.trancheCutoff || "-" },
-                  { label: "Carbon value", value: project.token?.carbonAmount || "-" },
-                  { label: "Auditor", value: project.token?.auditor || "-" },
-                  { label: "Issuance Date", value: project.token?.issuanceDate || "-" },
+                  { label: "Price", value: token.price },
+                  { label: "Registry ID", value: token.token?.registerId || "-" },
+                  { label: "Tranche Cutoff", value: token.token?.trancheCutoff || "-" },
+                  { label: "Carbon value", value: token.token?.existingCredits || "-" },
+                  { label: "Auditor", value: token.token?.auditor || "-" },
+                  { label: "Issuance Date", value: token.token?.issuanceDate || "-" },
                 ].map((item, index) => (
                   <div key={index} className="flex items-center">
                     {/* Label on the left */}
