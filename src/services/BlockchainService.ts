@@ -2,6 +2,7 @@ import {parseEther, ethers, parseUnits} from "ethers";
 import LLMintedRegistry from "../abi/ILenderLabMinterFacet.json";
 import TreasuryRegistry from "../abi/ITreasury.json";
 import USDCRegistry from "../abi/USDC.json";
+import MarketplaceRegistry from "../abi/IMarketplaceFacet.json";
 import ParseClient from "./ParseClient";
 
 
@@ -10,6 +11,7 @@ export default class BlockchainService {
     private llMintedAbi = LLMintedRegistry.abi;
     private treasuryAbi = TreasuryRegistry.abi;
     private usdcAbi = USDCRegistry.abi;
+    private marketplaceAbi = MarketplaceRegistry.abi;
     private parseClient = ParseClient;
     private provider: ethers.BrowserProvider;
     // private signer: ethers.JsonRpcSigner|undefined;
@@ -17,10 +19,12 @@ export default class BlockchainService {
     private llMintService: ethers.Contract|undefined;
     private treasuryService: ethers.Contract|undefined;
     private usdcService: ethers.Contract|undefined;
+    private marketplaceService: ethers.Contract|undefined;
 
     private contractAddress:any;
     private treasuryAddress:any;
     private usdcAddress:any;
+    private marketplaceAddress:any;
 
     private static instance: BlockchainService;
 
@@ -62,10 +66,12 @@ export default class BlockchainService {
         this.contractAddress = chainConfig.contract;
         this.treasuryAddress = chainConfig.treasury;
         this.usdcAddress = chainConfig.usdc;
+        this.marketplaceAddress = chainConfig.marketplace;
 
         this.llMintService = new ethers.Contract(this.contractAddress, this.llMintedAbi, this.provider);
         this.treasuryService = new ethers.Contract(this.treasuryAddress, this.treasuryAbi, this.provider);
         this.usdcService = new ethers.Contract(this.usdcAddress, this.usdcAbi, this.provider);
+        this.marketplaceService = new ethers.Contract(this.marketplaceAddress, this.marketplaceAbi, this.provider);
     }
 
     async getClaimTopics() : Promise<Parse.Object[] | undefined> {
@@ -101,6 +107,30 @@ export default class BlockchainService {
             const contractWithSigner : any = this.treasuryService?.connect(this.signer);
             const contractRequestBody = depositData.map((deposit: any) => [deposit.tokenId, parseUnits(String(deposit.amount), 6)]);
             tx = await contractWithSigner.deposit(contractRequestBody);
+            return await tx.wait();
+        }catch(e){
+            console.log(e);
+            throw e;
+        }
+    }
+
+    async list(listData:any){
+        try{
+
+            const contractWithSigner : any = this.marketplaceService?.connect(this.signer);
+            const tx = await contractWithSigner.list(listData);
+            return await tx.wait();
+        }catch(e){
+            console.log(e);
+            throw e;
+        }
+    }
+
+    async delist(delistData:any){
+        try{
+
+            const contractWithSigner : any = this.marketplaceService?.connect(this.signer);
+            const tx = await contractWithSigner.delist(delistData);
             return await tx.wait();
         }catch(e){
             console.log(e);
