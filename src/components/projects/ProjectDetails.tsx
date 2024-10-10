@@ -125,7 +125,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   };
 
   const fetchSales = async () => {
-    const newSalesData = await api.getSales();
+    const newSalesData = await api.getSales(["projectId"], [project.id]);
     console.log("salesData", newSalesData);
     const filteredSalesData = newSalesData.map((sale: {token: {price: string, existingCredits: string}}) => {
       return {
