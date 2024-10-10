@@ -14,9 +14,10 @@ export const projectColumns: any = (onProjectClick: (project: Project) => void) 
     align: 'left',
     sorter: {compare: (a:Project, b:Project) => a.title.localeCompare(b.title), multiple: 1},
     sortIcon: () => <ArrowSwapVertical size={20} />,
+    width: 300,
     render: (project: Project) => {
       return (
-        <div className='w-5/12 flex items-center'>
+        <div className='flex items-center'>
           <div className='flex justify-center items-center pr-4 border-r'>
             {/* Eye Icon triggers onProjectClick */}
             <Eye
@@ -24,7 +25,7 @@ export const projectColumns: any = (onProjectClick: (project: Project) => void) 
               onClick={() => onProjectClick(project)}
             />
           </div>
-          <div className='w-12 h-12 relative rounded overflow-hidden flex-shrink-0 ml-4'>
+          <div className='w-10 h-10 relative rounded overflow-hidden flex-shrink-0 ml-4'>
             <Image
               src={project.coverImage?.url() || '/default-image.png'}
               alt={project.title}
@@ -32,7 +33,7 @@ export const projectColumns: any = (onProjectClick: (project: Project) => void) 
               className='object-cover'
             />
           </div>
-          <h2 className='ml-4 text-lg font-semibold'>{project.title}</h2>
+          <h2 className='ml-4 font-semibold'>{project.title}</h2>
         </div>
       );
     },
@@ -41,39 +42,28 @@ export const projectColumns: any = (onProjectClick: (project: Project) => void) 
     dataIndex: 'description',
     title: 'Description',
     align: 'left',
+    width: 400,
     ellipsis: true,
   },
   {
     title: 'Total Carbon Offset (Tons)',
     dataIndex: 'totalCarbon',
+    width: 300,
     sorter: true,
   },
   {
     title: 'Total Tokens',
     dataIndex: 'totalTokens',
     sorter: true,
+    width: 150,
     sortIcon: () => <ArrowSwapVertical size={20} />,
   },
   {
-    dataIndex: 'registryURL',
+    dataIndex: 'registryName',
     title: 'Registry URL',
     align: 'left',
-    sorter: { compare: (a:any, b:any) => a.registryURL.localeCompare(b.registryURL), multiple: 2},
+    width: 200,
+    sorter: { compare: (a:any, b:any) => a.registryName.localeCompare(b.registryName), multiple: 2},
     sortIcon: () => <ArrowSwapVertical size={20} />,
-    render: (registryURL: string) => {
-      return (
-        <div className='flex justify-between'>
-          <Link href={registryURL} target='_blank' rel='noreferrer'>
-            {registryURL}
-          </Link>
-          <button
-            onClick={() => {
-              copyURL(registryURL);
-            }}>
-            <Copy size={20} />
-          </button>
-        </div>
-      );
-    },
   },
 ];

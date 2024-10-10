@@ -20,6 +20,7 @@ export default function ProjectListView({
       className={`pt-2 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark rounded-lg ${className}`}>
       <Table
         columns={projectColumns(onProjectClick)}
+        scroll={{ x: '100%' }}
         dataSource={projects}
         className={`bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark rounded-lg`}
         pagination={{

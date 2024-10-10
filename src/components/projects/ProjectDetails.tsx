@@ -219,27 +219,20 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 </div>
                 <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
                   <span className="text-sm">Carbon Offset (Tons)</span>
-                  <h2 className="text-lg font-bold">787,988,450</h2>
+                  <h2 className="text-lg font-bold">{project.totalCarbon}</h2>
                 </div>
                 <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
                   <span className="text-sm">Project Creation Date</span>
-                  <h2 className="text-lg font-bold">8.21.21</h2>
+                  <h2 className="text-lg font-bold">{project.createdAt?.toLocaleDateString()}</h2>
                 </div>
                 <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
                   <span className="text-sm">Total Tokens</span>
                   <h2 className="text-lg font-bold">{totalTokens}</h2>
                 </div>
                 <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                  <span className="text-sm">Registry URL</span>
+                  <span className="text-sm">Registry</span>
                   <div className="flex justify-between items-center max-w-[150px] mx-auto">
-                    <h2 className="text-lg font-bold truncate">{project.registryURL}</h2>
-                    <button
-                      onClick={() => {
-                        copyURL(project.registryURL);
-                      }}
-                    >
-                      <Copy size={20} />
-                    </button>
+                    <h2 className="text-lg font-bold truncate">{project.registryName}</h2>
                   </div>
                 </div>
               </div>

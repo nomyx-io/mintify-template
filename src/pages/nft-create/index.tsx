@@ -24,7 +24,7 @@ export default function Details({ service }: {service: BlockchainService}) {
   const api = useMemo(() => KronosService(), []);
   const [preview, setPreview] = useState(false);
   const [nftData, setNftData] = useState({});
-  const [projectList, setProjectList] = useState<{id:string, title:string}[]>([]);
+  const [projectList, setProjectList] = useState<{id:string, title:string, startDate:string}[]>([]);
   const [claimTopics, setClaimTopics] = useState<ClaimTopic[]>([]);
 
   // form fields
@@ -71,6 +71,7 @@ export default function Details({ service }: {service: BlockchainService}) {
         projects?.map((project) => ({
             id: project.id,
             title: project.attributes.title,
+            startDate: project.createdAt.toLocaleDateString(),
           }
         )) || []
       );
@@ -82,9 +83,10 @@ export default function Details({ service }: {service: BlockchainService}) {
   useEffect(() => {
     if (router.query.projectId) {
       setProjectId(router.query.projectId as string);
+      setProjectStartDate(projectList.find((project) => project.id === router.query.projectId)?.startDate || '');
       form.setFieldsValue({ projectId: router.query.projectId });
     }
-  }, [router.query.projectId, form]);
+  }, [router.query.projectId, projectList, form]);
 
   useEffect(() => {
     fetchProjects();
@@ -320,11 +322,11 @@ export default function Details({ service }: {service: BlockchainService}) {
         {
           label: 'Project Start Date',
           name: 'projectStartDate',
-          dataType: 'date',
+          dataType: 'text',
           placeHolder: 'mm/dd/yyyy',
           defaultValue: projectStartDate,
           value: projectStartDate,
-          rules: [requiredRule],
+          disabled: true,
         },
         {
           label: 'Mint to',
@@ -537,6 +539,14 @@ export default function Details({ service }: {service: BlockchainService}) {
     setTotalPrice(`${totalPrice}`);
     form.setFieldValue('totalPrice', totalPrice);
   }, [price, existingCredits, form]);
+
+  useEffect(() => {
+    console.log('projectId:', projectId);
+    const projectDate = projectList.find((project) => project.id === projectId)?.startDate;
+    console.log('projectDate:', projectDate);
+    setProjectStartDate(projectDate || '');
+    form.setFieldsValue({ projectStartDate: projectDate });
+  }, [projectId, projectList, form]);
 
   const getClaimTopics = async () => {
     const claims: Parse.Object[] | undefined = service && (await service.getClaimTopics());

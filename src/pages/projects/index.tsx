@@ -25,7 +25,7 @@ export default function Projects() {
     (project) =>
       project.title.toLowerCase().includes(queryString?.toLowerCase()) ||
       project.description.toLowerCase().includes(queryString?.toLowerCase()) ||
-      project.registryURL.toLowerCase().includes(queryString?.toLowerCase())
+      project.registryName.toLowerCase().includes(queryString?.toLowerCase())
   );
 
   const handleCreateProject = () => {
@@ -44,9 +44,10 @@ export default function Projects() {
           description: project.attributes.description,
           logo: project.attributes.logo,
           coverImage: project.attributes.coverImage,
-          registryURL: project.attributes.registryURL,
+          registryName: project.attributes.registryName,
           totalCarbon: projectTokens?.reduce((acc, token) => acc + Number(token.attributes.existingCredits), 0) || 0,
           totalTokens: projectTokens?.length || 0,
+          createdAt: project.createdAt,
         }}) || []
       );
     } catch (error) {
