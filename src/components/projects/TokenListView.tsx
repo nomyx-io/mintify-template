@@ -242,30 +242,33 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, onProjectClick, i
           ? a.token.state.localeCompare(b.token.state)
           : a.token.country.localeCompare(b.token.country),
     },
-    !isSalesHistory
-      ? {
-          title: 'Status',
-          dataIndex: ['token', 'status'],
-          render: (status: string, record: any) => (
-            <div style={{ display: 'flex', alignItems: 'center', width: '160px' }}>
-              <span
-                className={`py-1 px-2 mr-10 w-20 text-center rounded border ${
-                  status === 'listed'
-                    ? 'border-nomyx-success-light text-nomyx-success-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark'
-                    : 'border-nomyx-danger-light text-nomyx-danger-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark'
-                }`}>
-                {status}
-              </span>
-              <Switch
-                checked={status === 'listed'}
-                onChange={(checked) => handleStatusChange(record.tokenId, checked)}
-              />
-            </div>
-          ),
-          sorter: (a: any, b: any) => a.token.status.localeCompare(b.token.status),
-        }
-      : undefined,
-  ].filter((column) => column !== undefined); // Filter out undefined columns
+    // Conditionally add the "Status" column only if `isSalesHistory` is false
+    ...(isSalesHistory
+      ? []
+      : [
+          {
+            title: 'Status',
+            dataIndex: ['token', 'status'],
+            render: (status: string, record: any) => (
+              <div style={{ display: 'flex', alignItems: 'center', width: '160px' }}>
+                <span
+                  className={`py-1 px-2 mr-10 w-20 text-center rounded border ${
+                    status === 'listed'
+                      ? 'border-nomyx-success-light text-nomyx-success-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark'
+                      : 'border-nomyx-danger-light text-nomyx-danger-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark'
+                  }`}>
+                  {status}
+                </span>
+                <Switch
+                  checked={status === 'listed'}
+                  onChange={(checked) => handleStatusChange(record.tokenId, checked)}
+                />
+              </div>
+            ),
+            sorter: (a: any, b: any) => a.token.status.localeCompare(b.token.status),
+          },
+        ]),
+  ];
 
   return (
     <Table
