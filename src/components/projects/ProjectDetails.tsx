@@ -115,14 +115,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
       // Filter listings to include only those part of the project and not sold
       const filteredListings = listingData
-        .filter((listing: any) => projectTokenIds.has(listing.tokenId))
-        .map((listing: any) => ({
-          ...listing,
-          token: {
-            ...listing.token,
-            ...listing,
-          },
-        }));
+        .filter((listing: any) => projectTokenIds.has(listing.tokenId));
 
       setListings(filteredListings);
       return filteredListings;
