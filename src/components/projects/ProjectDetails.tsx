@@ -99,13 +99,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   // Fetch listings and sales when component mounts
   useEffect(() => {
     const fetchData = async () => {
-      const filteredListingData = await fetchListings();
-      fetchSales(filteredListingData);
+      const projectTokens = await api.getProjectTokens(["projectId"], [project.id]);
+      fetchListings(projectTokens);
+      fetchSales(projectTokens);
     };
     fetchData();
   }, []);
 
-  const fetchListings = async () => {
+  const fetchListings = async (projectTokens: any) => {
     try {
       const projectTokens = await api.getProjectTokens(["projectId"], [project.id]);
       const listingData = await api.getListings(["sold"], [false]);
@@ -118,19 +119,18 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
         .filter((listing: any) => projectTokenIds.has(listing.tokenId));
 
       setListings(filteredListings);
-      return filteredListings;
     } catch (error) {
       console.error("Error fetching listings:", error);
     }
   };
 
-  const fetchSales = async (fetchedListings: any[]) => {
+  const fetchSales = async (projectTokens: any) => {
     try {
       const salesData = await api.getSales();
 
       // filter sold tokens based off of the fetched listings tokens id
       const projectSalesData = salesData.filter((sale: any) => {
-        return fetchedListings.some((listing: any) => String(listing.tokenId) === String(sale.tokenId));
+        return projectTokens.some((listing: any) => String(listing.tokenId) === String(sale.tokenId));
       });
 
       const filteredSalesData = projectSalesData.map((sale: { token: { price: string; existingCredits: string } }) => {
