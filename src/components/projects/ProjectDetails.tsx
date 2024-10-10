@@ -185,7 +185,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
               {/* Back Button */}
               <button
                 onClick={onBack} // Use the onBack function to reset the view
-                className="absolute top-4 left-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark !text-nomyx-dark2-light dark:nomyx-dark2-dark rounded-md flex items-center px-4 py-2 shadow-md"
+                className="absolute top-4 left-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark rounded-md flex items-center px-4 py-2 shadow-md"
               >
                 <ArrowLeft size="24" className="mr-2" />
                 Back
