@@ -13,7 +13,7 @@ function DataRow({ children }: { children?: React.ReactNode }) {
 }
 
 function DataKey({ children }: { children?: React.ReactNode }) {
-  return <div className='flex items-center w-40 h-10'>{children}</div>;
+  return <div className='flex shrink-0 items-center w-36 h-10'>{children}</div>;
 }
 
 function DataValue({
@@ -36,11 +36,6 @@ function DataValue({
 export default function ProjectCard({ project, onProjectClick }: ProjectCardProps) {
   const themeStyle =
     'bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark text-nomyx-text-light dark:text-nomyx-text-dark';
-
-  const copyURL = () => {
-    navigator.clipboard.writeText(project.registryURL);
-    message.success('Copied to clipboard!');
-  };
 
   return (
     <Card className={themeStyle}>
@@ -73,13 +68,10 @@ export default function ProjectCard({ project, onProjectClick }: ProjectCardProp
           <DataValue>{project.totalTokens}</DataValue>
         </DataRow>
         <DataRow>
-          <DataKey>Registry URL</DataKey>
+          <DataKey>Registry</DataKey>
           <DataValue>
-            <div className='flex w-full justify-between'>
-              {project.registryURL}
-              <button onClick={copyURL}>
-                <Copy size={24} />
-              </button>
+            <div className='truncate'>
+              {project.registryName}
             </div>
           </DataValue>
         </DataRow>

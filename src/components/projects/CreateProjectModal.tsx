@@ -23,7 +23,7 @@ interface FormValues {
   coverImageUpload: UploadProps;
   title: string;
   description: string;
-  registryURL: string;
+  registryName: string;
 }
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
@@ -63,7 +63,7 @@ export default function CreateProjectModal({
     const project = {
       title: values.title,
       description: values.description,
-      registryURL: values.registryURL,
+      registryName: values.registryName,
       logo: await getBase64(
         values.logoUpload.fileList[0].originFileObj as FileType
       ),
@@ -143,8 +143,8 @@ export default function CreateProjectModal({
             autoSize={{ minRows: 3, maxRows: 5 }}
           />
         </Form.Item>
-        <Form.Item label='Registry URL' name='registryURL'>
-          <Input placeholder='Add Registry URL' />
+        <Form.Item label='Registry' name='registryName'>
+          <Input placeholder='Add Registry Name' />
         </Form.Item>
       </div>
     </Modal>
