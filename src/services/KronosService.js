@@ -161,7 +161,6 @@ export const KronosService = () => {
             undefined,
             "desc"
         );
-        console.log('records: ', records);
         let sanitizedRecords = [];
 
         if (records && records.length > 0) {
@@ -171,8 +170,8 @@ export const KronosService = () => {
         return sanitizedRecords;
     };
 
-    const getSales = async (walletAddress) => {
-        const records = await ParseClient.getRecords('TokenSale', [], [], ['*'], undefined, undefined, undefined, "desc");
+    const getSales = async (fieldName, fieldValue) => {
+        const records = await ParseClient.getRecords('TokenSale', fieldName, fieldValue, ['*'], undefined, undefined, undefined, "desc");
         let sanitizedRecords = [];
 
         if(records && records.length>0){
