@@ -196,19 +196,6 @@ export default function MarketPlaceTokenDetail({ token, next, prev, currentIndex
 
   const tabItems = [
     {
-      key: "1",
-      label: "Token Info",
-      children: (
-        <Descriptions
-          items={tokenAttributes.map((attr) => ({
-            key: attr.name,
-            label: attr.label,
-            children: token[attr.name] || attr.defaultValue,
-          }))}
-        />
-      ),
-    },
-    {
       key: "2",
       label: "Activity",
       children: <ItemActivity token={token} />,
