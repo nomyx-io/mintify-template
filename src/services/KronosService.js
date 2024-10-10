@@ -170,8 +170,10 @@ export const KronosService = () => {
         return sanitizedRecords;
     };
 
-    const getSales = async (fieldName, fieldValue) => {
-        const records = await ParseClient.getRecords('TokenSale', fieldName, fieldValue, ['*'], undefined, undefined, undefined, "desc");
+    const getSales = async () => {
+        const records = await ParseClient.getRecords('TokenSale', [], [], ['*'], undefined, undefined, undefined, "desc");
+
+        // filter based off of 
         let sanitizedRecords = [];
 
         if(records && records.length>0){
@@ -180,13 +182,6 @@ export const KronosService = () => {
 
         return sanitizedRecords;
     }
-
-    const purchaseTokens = async (listings) => {
-        for(let listing of listings){
-          console.log('listings: ', listings);
-          await BlockchainService.purchase(listing.tokenId, listing.price);
-        }
-      }
 
     const getTreasuryClaims = async (tokenId) => {
         let records = await ParseClient.getRecords('TreasuryClaim', ['tokenId'], [tokenId], ["*"]);
@@ -401,7 +396,6 @@ export const KronosService = () => {
         getListings,
         getProjectTokens,
         getSales,
-        purchaseTokens,
         getTreasuryClaims,
         getDeposits,
         getTokenDepositsForDepositId,

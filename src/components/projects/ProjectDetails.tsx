@@ -99,8 +99,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   // Fetch listings and sales when component mounts
   useEffect(() => {
     const fetchData = async () => {
-      await fetchListings();
-      await fetchSales();
+      const filteredListingData = await fetchListings();
+      await fetchSales(filteredListingData);
     };
     fetchData();
   }, []);
@@ -119,48 +119,31 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
       }})
       console.log("filteredListingData", filteredListingData);
       setListings(filteredListingData || []);
+      return filteredListingData;
     } catch (error) {
       console.error("Error fetching listings:", error);
     }
   };
 
-  const fetchSales = async () => {
-    const newSalesData = await api.getSales(["projectId"], [project.id]);
-    console.log("salesData", newSalesData);
-    const filteredSalesData = newSalesData.map((sale: {token: {price: string, existingCredits: string}}) => {
-      return {
-        ...sale,
-        price: (Number(sale.token.price) * Number(sale.token.existingCredits))
-    }});
-    console.log("filteredSalesData", filteredSalesData);
-    setSales(filteredSalesData || []);
-    console.log("sales", sales);
-  };
-
-  // Function to handle individual token purchase
-  const handleIndividualPurchase = async (token: any) => {
-    toast.promise(
-      async () => {
-        try {
-          await api.purchaseTokens([token]);
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-          setListings((prevListings) => prevListings.filter((item) => item.tokenId !== token.tokenId));
-          await fetchSales(); // Refresh sales list if needed
-        } catch (e) {
-          console.log(e);
-          throw e;
-        }
-      },
-      {
-        pending: `Purchasing token ${token.tokenId}...`,
-        success: `Successfully purchased token ${token.tokenId}`,
-        error: {
-          render({ data }: { data: any }) {
-            return <div>{data?.reason || `An error occurred while purchasing token ${token.tokenId}`}</div>;
-          },
-        },
-      }
-    );
+  const fetchSales = async (fetchedListings: any[]) => {
+    try {
+      const salesData = await api.getSales();
+  
+      // filter sold tokens based off of the fetched listings tokens id
+      const projectSalesData = salesData.filter((sale: any) => {
+        return fetchedListings.some((listing: any) => String(listing.tokenId) === String(sale.tokenId));
+      });
+  
+      const filteredSalesData = projectSalesData.map((sale: { token: { price: string; existingCredits: string } }) => {
+        return {
+          ...sale,
+          price: Number(sale.token.price) * Number(sale.token.existingCredits),
+        };
+      });
+      setSales(filteredSalesData || []);
+    } catch (error) {
+      console.error("Error fetching sales:", error);
+    }
   };
 
   const handleNextToken = () => {
