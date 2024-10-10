@@ -100,26 +100,32 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   useEffect(() => {
     const fetchData = async () => {
       const filteredListingData = await fetchListings();
-      await fetchSales(filteredListingData);
+      fetchSales(filteredListingData);
     };
     fetchData();
   }, []);
 
   const fetchListings = async () => {
     try {
-      const newListingData = await api.getProjectTokens(["projectId"], [project.id]);
-      console.log("listingData", newListingData);
-      const filteredListingData = newListingData.map((listing: any) => {
-        return {
+      const projectTokens = await api.getProjectTokens(["projectId"], [project.id]);
+      const listingData = await api.getListings(["sold"], [false]);
+
+      // Create a Set of tokenIds for faster lookups
+      const projectTokenIds = new Set(projectTokens.map((token: any) => token.tokenId));
+
+      // Filter listings to include only those part of the project and not sold
+      const filteredListings = listingData
+        .filter((listing: any) => projectTokenIds.has(listing.tokenId))
+        .map((listing: any) => ({
           ...listing,
           token: {
+            ...listing.token,
             ...listing,
-            ...listing.token
-          }
-      }})
-      console.log("filteredListingData", filteredListingData);
-      setListings(filteredListingData || []);
-      return filteredListingData;
+          },
+        }));
+
+      setListings(filteredListings);
+      return filteredListings;
     } catch (error) {
       console.error("Error fetching listings:", error);
     }
@@ -128,12 +134,12 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const fetchSales = async (fetchedListings: any[]) => {
     try {
       const salesData = await api.getSales();
-  
+
       // filter sold tokens based off of the fetched listings tokens id
       const projectSalesData = salesData.filter((sale: any) => {
         return fetchedListings.some((listing: any) => String(listing.tokenId) === String(sale.tokenId));
       });
-  
+
       const filteredSalesData = projectSalesData.map((sale: { token: { price: string; existingCredits: string } }) => {
         return {
           ...sale,
