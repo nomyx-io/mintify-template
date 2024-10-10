@@ -70,10 +70,8 @@ export default function ProjectCard({ project, onProjectClick }: ProjectCardProp
         <DataRow>
           <DataKey>Registry</DataKey>
           <DataValue>
-            <div className='flex w-full justify-between'>
-              <div className='truncate'>
+            <div className='truncate'>
               {project.registryName}
-              </div>
             </div>
           </DataValue>
         </DataRow>
