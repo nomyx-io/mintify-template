@@ -163,7 +163,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     setSelectedToken(filteredListings[prevIndex]);
   };
 
-  const totalTokens = listings.length + sales.length;
+  const totalTokens = listings.length;
   return (
     <div className="project-details">
       {selectedToken ? (
