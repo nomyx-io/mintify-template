@@ -159,23 +159,6 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, onProjectClick, i
         const color = hashToColor(tokenId);
         return (
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            {!isSalesHistory && (
-              <EyeOutlined
-                className='text-xl cursor-pointer hover:text-blue-500'
-                onClick={() => onProjectClick(record)}
-                style={{ marginRight: '8px' }}
-              />
-            )}
-            {!isSalesHistory && (
-              <div
-                style={{
-                  width: '1px',
-                  height: '24px',
-                  backgroundColor: '#ccc',
-                  marginRight: '8px',
-                }}
-              />
-            )}
             {generateSvgIcon(color)}
             <span style={{ marginLeft: '10px', fontWeight: 'bold' }}>
               {record.token?.nftTitle}
