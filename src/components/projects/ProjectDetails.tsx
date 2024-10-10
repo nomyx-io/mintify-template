@@ -54,7 +54,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
   // Memoize the filtered listings and sales
   const filteredListings = useMemo(() => {
-    console.log("listings", listings);
     return listings.filter((listing) => searchAllProperties(listing, searchQuery));
   }, [listings, searchQuery]);
 
@@ -107,9 +106,12 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   }, []);
 
   const fetchListings = async () => {
-    const newListingData = await api.getListings();
-    console.log("newListingData", newListingData);
-    setListings(newListingData.filter((t: { token: { projectId: string } }) => t.token.projectId === project.id) || []);
+    try {
+      const newListingData = await api.getProjectTokens(["projectId"], [project.id]);
+      setListings(newListingData || []);
+    } catch (error) {
+      console.error("Error fetching listings:", error);
+    }
   };
 
   const fetchSales = async () => {
@@ -300,7 +302,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     children: (
                       <>
                         {viewMode === "table" ? (
-                          <TokenListView projects={filteredListings} onProjectClick={handleDetailsClick} isSalesHistory={false} />
+                          <TokenListView tokens={filteredListings} onProjectClick={handleDetailsClick} isSalesHistory={false} />
                         ) : (
                           <TokenCardView tokens={filteredListings} onTokenClick={handleDetailsClick} isSalesHistory={false} />
                         )}
@@ -312,7 +314,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     label: "Sales History",
                     children:
                       viewMode === "table" ? (
-                        <TokenListView projects={filteredSales} onProjectClick={handleDetailsClick} isSalesHistory={true} />
+                        <TokenListView tokens={filteredSales} onProjectClick={handleDetailsClick} isSalesHistory={true} />
                       ) : (
                         <TokenCardView tokens={filteredSales} onTokenClick={handleDetailsClick} isSalesHistory={true} />
                       ),

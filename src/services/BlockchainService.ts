@@ -191,6 +191,22 @@ export default class BlockchainService {
         }
       }
       
+      /// @notice fetch all the items listed in the marketplace
+      /// @return MarketItem[] memory array of all the items listed in the marketplace
+      async fetchItems() {
+        try {
+          if (!this.signer) {
+            throw new Error("Signer is not available.");
+          }
+      
+          const contractWithSigner: any = this.marketplaceService?.connect(this.signer);
+          const items = await contractWithSigner.fetchItems();
+          return items;
+        } catch (e) {
+          console.log("Error in fetchItems:", e);
+          throw e;
+        }
+      }
 
       async initializeCarbonCredit(tokenId: number, initialBalance: string) {
         try {

@@ -64,7 +64,6 @@ export default function Projects() {
 
   // Handle project card or list item click
   const handleProjectClick = (project: Project) => {
-    console.log('Project clicked:', project);
     setSelectedProject(project);
   };
 

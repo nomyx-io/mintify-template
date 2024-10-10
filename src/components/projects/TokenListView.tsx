@@ -1,45 +1,126 @@
 import React, { useState, useEffect } from "react";
 import { EyeOutlined } from "@ant-design/icons";
-import { Table } from "antd";
+import { Table, Switch } from "antd";
 import { hashToColor } from "@/utils/colorUtils";
-import { Switch } from "antd";
+import BlockchainService from "@/services/BlockchainService";
+import { toast } from "react-toastify";
 
 interface TokenListViewProps {
-  projects: any[];
+  tokens: any[];
   onProjectClick: (project: any) => void;
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
 }
 
-const TokenListView: React.FC<TokenListViewProps> = ({ projects, onProjectClick, isSalesHistory }) => {
-  const [filteredProjects, setFilteredProjects] = useState(projects);
+const TokenListView: React.FC<TokenListViewProps> = ({ tokens, onProjectClick, isSalesHistory }) => {
+  const [filteredTokens, setFilteredTokens] = useState(tokens);
   const [filterQuery, setFilterQuery] = useState("");
+  const blockchainService = BlockchainService.getInstance(); 
 
-  // Effect to update filtered projects whenever projects data changes
   useEffect(() => {
-    setFilteredProjects(projects);
-  }, [projects]);
+    const cleanupListedTokens = async () => {
+      try {
+        const listedTokens = await blockchainService?.fetchItems();
+        const listedTokensIds = new Set(listedTokens.map((token: any) => String(token["1"])));
 
-  // Filter handling
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const query = e.target.value.toLowerCase();
-    setFilterQuery(query);
-    setFilteredProjects(
-      projects.filter((project) => project.token?.nftTitle.toLowerCase().includes(query) || project.price.toString().includes(query))
-    );
-  };
+        const updatedTokens = tokens.map((token) => ({
+          ...token,
+          token: {
+            ...token.token,
+            status: listedTokensIds.has(token.tokenId) ? "listed" : "unlisted",
+          },
+        }));
 
-  // Handle status change
-  const handleStatusChange = (tokenId: string, checked: boolean) => {
-    setFilteredProjects((prevProjects) =>
-      prevProjects.map((project) =>
-        project.tokenId === tokenId
-          ? {
-              ...project,
-              token: { ...project.token, status: checked ? "listed" : "unlisted" },
-            }
-          : project
-      )
-    );
+        setFilteredTokens(updatedTokens);
+      } catch (error) {
+        console.error("Error fetching listed tokens:", error);
+      }
+    };
+
+    cleanupListedTokens();
+  }, [tokens, blockchainService]);
+
+  const handleStatusChange = async (tokenId: number, checked: boolean) => {
+    if (!blockchainService) {
+      toast.error("Blockchain service is not available.");
+      return;
+    }
+  
+    try {
+      if (checked) {
+        // Step 1: Start listing process with a loading toast
+        const listingToast = toast.loading("Listing token...");
+  
+        // Get the project details to list
+        const token = filteredTokens.find((t) => t.tokenId === tokenId);
+        const totalPrice = token?.price; // Assuming the price is in USDC or the correct format
+  
+        console.log("token to list", token);
+
+        if (!totalPrice || !token) {
+          throw new Error("Invalid price or token details.");
+        }
+  
+        // Step 2: List the token using the blockchain service
+        await blockchainService?.listItem(
+          token.mintAddress, // Receiver of the sale funds (wallet address)
+          tokenId,                    // Token ID of the NFT
+          totalPrice.toString(),      // Price in wei (USDC with 6 decimals)
+          true                        // Transfer the NFT to the marketplace
+        );
+  
+        // Step 3: Update the listing toast with success
+        toast.update(listingToast, {
+          render: `Token successfully listed with ID: ${tokenId}`,
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
+        });
+      } else {
+        // Step 1: Start delisting process with a loading toast
+        const delistingToast = toast.loading("Delisting token...");
+  
+        // Step 2: Delist the token using the blockchain service
+        await blockchainService?.delistItem(tokenId);
+  
+        // Step 3: Update the delisting toast with success
+        toast.update(delistingToast, {
+          render: `Token with ID ${tokenId} has been delisted.`,
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
+        });
+      }
+
+      // Step 4: Update local state after success
+      const listedTokens = await blockchainService?.fetchItems(); // Get all listed tokens
+      const listedTokensIds = new Set(listedTokens.map((token: any) => String(token["1"])));
+
+      // Update the local state with the latest token status
+      setFilteredTokens((prevTokens) =>
+        prevTokens.map((token) => {
+          const listedToken = listedTokensIds.has(token.tokenId);
+          return {
+            ...token,
+            token: {
+              ...token.token,
+              status: listedToken ? "listed" : "unlisted",
+            },
+          };
+        })
+      );
+      
+    } catch (e) {
+      // Step 5: Handle errors and show an error toast
+      let errorMessage = "Failed to update token status.";
+      if (e instanceof Error) {
+        errorMessage = e.message;
+      } else if (typeof e === "string") {
+        errorMessage = e;
+      }
+  
+      console.error(e);
+      toast.error(errorMessage);
+    }
   };
 
   // Generate SVG Icon
@@ -186,7 +267,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ projects, onProjectClick,
   return (
     <Table
       columns={listingColumns}
-      dataSource={filteredProjects}
+      dataSource={filteredTokens}
       rowKey="tokenId"
       pagination={false}
       scroll={{ x: "max-content" }}

@@ -129,16 +129,47 @@ export const KronosService = () => {
         return records
     }
 
-    const getListings = async () => {
-        const records = await ParseClient.getRecords('TokenListing', ["sold"], [false], ["*"], undefined, undefined, undefined, "desc");
+    const getListings = async (fieldName, fieldValue) => {
+        const records = await ParseClient.getRecords(
+            'TokenListing',
+            fieldName,
+            fieldValue,
+            ["*"],
+            undefined,
+            undefined,
+            undefined,
+            "desc"
+        );
+        console.log('records: ', records);
         let sanitizedRecords = [];
     
-        if(records && records.length>0){
-          sanitizedRecords = JSON.parse(JSON.stringify(records||[]));
+        if (records && records.length > 0) {
+            sanitizedRecords = JSON.parse(JSON.stringify(records || []));
         }
     
         return sanitizedRecords;
-    }
+    };
+
+    const getProjectTokens = async (fieldName, fieldValue) => {
+        const records = await ParseClient.getRecords(
+            'Token',
+            fieldName,
+            fieldValue,
+            ["*"],
+            undefined,
+            undefined,
+            undefined,
+            "desc"
+        );
+        console.log('records: ', records);
+        let sanitizedRecords = [];
+
+        if (records && records.length > 0) {
+            sanitizedRecords = JSON.parse(JSON.stringify(records || []));
+        }
+        
+        return sanitizedRecords;
+    };
 
     const getSales = async (walletAddress) => {
         const records = await ParseClient.getRecords('TokenSale', [], [], ['*'], undefined, undefined, undefined, "desc");
@@ -369,6 +400,7 @@ export const KronosService = () => {
         getSaleTokens,
         getListingsById,
         getListings,
+        getProjectTokens,
         getSales,
         purchaseTokens,
         getTreasuryClaims,
