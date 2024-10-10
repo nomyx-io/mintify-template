@@ -108,19 +108,33 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const fetchListings = async () => {
     try {
       const newListingData = await api.getProjectTokens(["projectId"], [project.id]);
-      setListings(newListingData || []);
+      console.log("listingData", newListingData);
+      const filteredListingData = newListingData.map((listing: any) => {
+        return {
+          ...listing,
+          token: {
+            ...listing,
+            ...listing.token
+          }
+      }})
+      console.log("filteredListingData", filteredListingData);
+      setListings(filteredListingData || []);
     } catch (error) {
       console.error("Error fetching listings:", error);
     }
   };
 
   const fetchSales = async () => {
-    const newSalesData = await api.getSales();
-    setSales(newSalesData.map((sale: {token: {price: string, existingCredits: string}}) => {
+    const newSalesData = await api.getSales(["projectId"], [project.id]);
+    console.log("salesData", newSalesData);
+    const filteredSalesData = newSalesData.map((sale: {token: {price: string, existingCredits: string}}) => {
       return {
         ...sale,
         price: (Number(sale.token.price) * Number(sale.token.existingCredits))
-    }}) || []);
+    }});
+    console.log("filteredSalesData", filteredSalesData);
+    setSales(filteredSalesData || []);
+    console.log("sales", sales);
   };
 
   // Function to handle individual token purchase
@@ -163,7 +177,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     setSelectedToken(filteredListings[prevIndex]);
   };
 
-  const totalTokens = listings.length + sales.length;
+  const totalTokens = listings.length;
   return (
     <div className="project-details">
       {selectedToken ? (

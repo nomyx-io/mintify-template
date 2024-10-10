@@ -51,7 +51,7 @@ export default function ProjectCard({ project, onProjectClick }: ProjectCardProp
         <div className='flex items-center justify-between gap-2'>
           <h2 className='text-lg font-bold'>{project.title}</h2>
           <span
-            className='text-nomyx-blue-light hover:!text-nomyx-main1-light'
+            className='text-nomyx-blue-light hover:!text-nomyx-main1-light cursor-pointer'
             onClick={() => onProjectClick(project)}>
             View Details
           </span>

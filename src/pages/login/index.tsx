@@ -17,7 +17,7 @@ export default function Login() {
             </div>
                 <div className='max-[550px]:hidden w-1/2 flex flex-col justify-center items-center p-2'>
                     <div className='text-right font-bold text-xl w-full'>
-                        NBT MANAGER
+                        CARBON CREDIT MANAGER
                     </div>
                     <div className={styles.btnContainer + " flex flex-grow justify-center items-center align-middle"}>
                         <ConnectButton label='Log in with Wallet' />

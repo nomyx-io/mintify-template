@@ -196,34 +196,10 @@ export default function MarketPlaceTokenDetail({ token, next, prev, currentIndex
 
   const tabItems = [
     {
-      key: "1",
-      label: "Token Info",
-      children: (
-        <Descriptions
-          items={tokenAttributes.map((attr) => ({
-            key: attr.name,
-            label: attr.label,
-            children: token[attr.name] || attr.defaultValue,
-          }))}
-        />
-      ),
-    },
-    {
       key: "2",
       label: "Activity",
       children: <ItemActivity token={token} />,
-    },
-    {
-      key: "3",
-      label: "Yield Deposits",
-      children: <YieldDeposits token={token} />,
-    },
-    {
-      key: "4",
-      label: "Interest Claim History",
-      children: <InterestClaimHistory token={token} />,
-      className: "chart", // Add this class for the Interest Claim History tab
-    },
+    }
   ];
 
   // Adjust next and prev to enable looping
