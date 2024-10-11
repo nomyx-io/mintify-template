@@ -224,12 +224,6 @@ const TokenListView: React.FC<TokenListViewProps> = ({
       sorter: (a: any, b: any) =>
         a.token.registerId.localeCompare(b.token.registerId),
     },
-    // {
-    //   title: "Tranche Cutoff",
-    //   dataIndex: ["token", "trancheCutoff"],
-    //   render: (trancheCutoff: string) => <span>{trancheCutoff}</span>,
-    //   sorter: (a: any, b: any) => a.token.trancheCutoff.localeCompare(b.token.trancheCutoff),
-    // },
     {
       title: "Carbon Offset (Tons)",
       dataIndex: ["token", "existingCredits"],
