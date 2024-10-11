@@ -52,8 +52,10 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, onProjectClick, i
   
         // Get the project details to list
         const token = filteredTokens.find((t) => t.tokenId === tokenId);
+        console.log('token: ', token);
+        console.log('token mint address: ', token.mintAddress);
         const totalPrice = token?.price; // Assuming the price is in USDC or the correct format
-  
+        console.log('total price: ', totalPrice);
         console.log("token to list", token);
 
         if (!totalPrice || !token) {
@@ -62,9 +64,9 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, onProjectClick, i
   
         // Step 2: List the token using the blockchain service
         await blockchainService?.listItem(
-          token.mintAddress, // Receiver of the sale funds (wallet address)
-          tokenId,                    // Token ID of the NFT
-          totalPrice.toString(),      // Price in wei (USDC with 6 decimals)
+          token.receiver,
+          tokenId,                    
+          totalPrice.toString(),
           true                        // Transfer the NFT to the marketplace
         );
   

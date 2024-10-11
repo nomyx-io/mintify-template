@@ -719,7 +719,7 @@ export default function Details({ service }: {service: BlockchainService}) {
       });
   
       // Step 2: Show a toast notification for calculating the price
-      const totalPrice = parseUnits((Number(existingCredits) * Number(price)).toString(), 6);
+      const totalPrice = (Number(existingCredits) * Number(price)).toString();
       toast.info(`Calculated total price in USDC: ${totalPrice.toString()}`, { autoClose: 3000 });
   
       // Step 3: List the token and show a toast notification
