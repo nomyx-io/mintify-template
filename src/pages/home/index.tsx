@@ -59,8 +59,8 @@ export default function Home() {
   ];
 
   return (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-4 gap-3">
-      <div className="lg:col-span-3">
+    <div className="w-full flex gap-3"> {/* Flex container for layout control */}
+      <div className="lg:col-span-3 flex flex-col gap-3 flex-grow"> {/* Chart container */}
         <div className="flex lg:grid grid-cols-3 gap-3 pb-3 flex-wrap">
           {getKPIs(kpisData)?.map((kpi) => (
             <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />
@@ -71,7 +71,8 @@ export default function Home() {
           <Tabs items={items}></Tabs>
         </Card>
       </div>
-      <Card className="no-padding h-[90vh] lg:max-w-sm overflow-y-auto border-nomyx-gray4-light dark:border-nomyx-gray4-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark">
+
+      <Card className="lg:h-auto max-h-[100vh] lg:max-w-sm overflow-y-auto border-nomyx-gray4-light dark:border-nomyx-gray4-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark flex-grow"> {/* Event feed container */}
         <EventFeed data={eventDetails} />
       </Card>
     </div>

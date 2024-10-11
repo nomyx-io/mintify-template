@@ -128,12 +128,12 @@
 
 /* Light Mode: Change hover row color */
 .light .ant-table-tbody > tr:hover > td {
-  @apply !bg-nomyx-gray3-light opacity-75;
+  background-color: rgb(228, 231, 231) !important;
 }
 
 /* Dark Mode: Change hover row color */
 .dark .ant-table-tbody > tr:hover > td {
-  @apply !bg-nomyx-gray3-dark opacity-75;
+  @apply !bg-nomyx-dark1-dark;
 }
 
 /* Highlighted (sorted) column background color */

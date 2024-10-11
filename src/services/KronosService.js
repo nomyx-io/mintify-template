@@ -205,7 +205,7 @@ export const KronosService = () => {
           issuedValue: tokenRecords.reduce((acc, record) => acc + (Number(record.attributes.price) * Number(record.attributes.existingCredits)), 0),
           retiredValue: retiredTokens.reduce((acc, record) => acc + (Number(record.attributes.price) * Number(record.attributes.existingCredits)), 0),
           carbonIssued: tokenRecords.reduce((acc, record) => acc + Number(record.attributes.existingCredits), 0),
-          carbonRetired: retiredCredits.reduce((acc, record) => acc + Number(record.attributes.amount), 0),
+          carbonRetired: retiredTokens.reduce((acc, record) => acc + Number(record.attributes.existingCredits), 0),
         }
     }
 
