@@ -96,7 +96,6 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, onTokenClick, isS
                 {[
                   { label: "Price", value: token.price },
                   { label: "Registry ID", value: token.token?.registerId || "-" },
-                  { label: "Tranche Cutoff", value: token.token?.trancheCutoff || "-" },
                   { label: "Carbon value", value: token.token?.existingCredits || "-" },
                   { label: "Auditor", value: token.token?.auditor || "-" },
                   { label: "Issuance Date", value: token.token?.issuanceDate || "-" },
