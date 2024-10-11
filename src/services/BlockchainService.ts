@@ -82,39 +82,53 @@ export default class BlockchainService {
     }
 
     async gemforceMint(metaData: any): Promise<{ tokenId: number, transactionHash: string }> {
-        try {
-          if (this.signer) {
-            // Get the contract instance with the signer
-            const contractWithSigner: any = this.gfMintService?.connect(this.signer);
-      
-            // Send the transaction and get the transaction object immediately
-            const tx = await contractWithSigner.gemforceMint(metaData);
-            const transactionHash = tx.hash;  // Get the transaction hash here, not from the receipt
-            
-            console.log('transactionHash:', transactionHash);  // Log the transaction hash
-      
-            // Wait for the transaction to be mined and get the receipt
-            const receipt = await tx.wait();
-      
-            // Now, lookup the Parse record using the transaction hash
-            const parseRecord = await ParseClient.getRecords('Token', ['transactionHash'], [transactionHash], ["*"]);
-      
-            if (!parseRecord || parseRecord.length === 0) {
-              throw new Error("Parse record not found for the given transaction hash.");
-            }
-      
-            // Retrieve the tokenId from the parseRecord
-            const tokenId = parseRecord[0]?.attributes?.tokenId;
-      
-            return { tokenId, transactionHash };
-          } else {
-            throw new Error("Signer is not available.");
+      const retryDelay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+    
+      const fetchParseRecord = async (transactionHash: string, attempts: number): Promise<any> => {
+        for (let attempt = 1; attempt <= attempts; attempt++) {
+          const parseRecord = await ParseClient.getRecords('Token', ['transactionHash'], [transactionHash], ["*"]);
+    
+          if (parseRecord && parseRecord.length > 0) {
+            return parseRecord;
           }
-        } catch (e) {
-          console.error("Error in gemforceMint:", e);
-          throw e;  // Re-throw the error after logging it
+    
+          console.log(`Attempt ${attempt} failed. Retrying in 5 seconds...`);
+          await retryDelay(5000); // Wait for 5 seconds before retrying
         }
+    
+        throw new Error("Parse record not found for the given transaction hash after multiple attempts.");
+      };
+    
+      try {
+        if (this.signer) {
+          // Get the contract instance with the signer
+          const contractWithSigner: any = this.gfMintService?.connect(this.signer);
+    
+          // Send the transaction and get the transaction object immediately
+          const tx = await contractWithSigner.gemforceMint(metaData);
+          const transactionHash = tx.hash;  // Get the transaction hash here, not from the receipt
+    
+          console.log('transactionHash:', transactionHash);  // Log the transaction hash
+    
+          // Wait for the transaction to be mined and get the receipt
+          const receipt = await tx.wait();
+    
+          // Retry fetching the Parse record up to 3 times, with a 5-second delay between each
+          const parseRecord = await fetchParseRecord(transactionHash, 3);
+    
+          // Retrieve the tokenId from the parseRecord
+          const tokenId = parseRecord[0]?.attributes?.tokenId;
+    
+          return { tokenId, transactionHash };
+        } else {
+          throw new Error("Signer is not available.");
+        }
+      } catch (e) {
+        console.error("Error in gemforceMint:", e);
+        throw e;  // Re-throw the error after logging it
       }
+    }
+    
 
     async deposit(depositData:any){
         try{
