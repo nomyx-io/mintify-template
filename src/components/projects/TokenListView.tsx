@@ -58,11 +58,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
 
         // Get the project details to list
         const token = filteredTokens.find((t) => t.tokenId === tokenId);
-        console.log("token: ", token);
-        console.log("token mint address: ", token.mintAddress);
-        const totalPrice = token?.price; // Assuming the price is in USDC or the correct format
-        console.log("total price: ", totalPrice);
-        console.log("token to list", token);
+        const totalPrice = (Number(token.token.existingCredits) * Number(token.token.price)).toString();
 
         if (!totalPrice || !token) {
           throw new Error("Invalid price or token details.");
