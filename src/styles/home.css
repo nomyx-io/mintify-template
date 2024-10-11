@@ -149,12 +149,12 @@
 
 /* Light Mode: Change table header hover color */
 .light .ant-table-thead th:hover {
-  @apply !bg-nomyx-gray3-light opacity-75;
+  background-color: rgb(228, 231, 231) !important;
 }
 
 /* Dark Mode: Change table header hover color */
 .dark .ant-table-thead th:hover {
-  @apply !bg-nomyx-gray3-dark opacity-75;
+  @apply !bg-nomyx-dark1-dark;
 }
 
 /* Pagination styling */
