@@ -44,7 +44,7 @@ const NftRecordDetail = ({
         className='bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark text-nomyx-text-light dark:text-nomyx-text-dark'
         title={detailView ? [backButton, title] : title}
         styles={{ body: { padding: '0' } }}
-        extra={
+        /*extra={
           <Button
             onClick={() =>
               window.open(
@@ -57,7 +57,8 @@ const NftRecordDetail = ({
             <ShareIcon />
             View On Block Explorer
           </Button>
-        }>
+        } */
+        > 
         <div className='flex flex-col mb-4'>
           <div className='font-bold p-2'>Details</div>
           <div className='flex gap-4 px-2'>

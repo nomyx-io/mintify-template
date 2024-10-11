@@ -11,7 +11,7 @@ const localhost = LOCALHOST_CHAIN;
 const baseSep = BASESEP_CHAIN;
 
 const { chains, publicClient } = configureChains(
-  [baseSep, localhost],
+  [baseSep],
   [
     alchemyProvider({ apiKey: 'CSgNtTJ6_Clrf1zNjVp2j1ppfLE2-aVX' }),
     publicProvider(),
