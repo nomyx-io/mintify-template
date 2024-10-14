@@ -18,7 +18,6 @@ export const projectColumns: any = (
       compare: (a: Project, b: Project) => a.title.localeCompare(b.title),
       multiple: 1,
     },
-    sortIcon: <ArrowSwapVertical size={20} />, // Static sort icon
     width: 300,
     render: (project: Project) => {
       return (
@@ -55,15 +54,13 @@ export const projectColumns: any = (
     title: "Total Carbon Offset (Tons)",
     dataIndex: "totalCarbon",
     width: 300,
-    sorter: (a: any, b: any) => a.totalCarbon - b.totalCarbon,
-    sortIcon: <ArrowSwapVertical size={20} />,
+    sorter: (a: any, b: any) => a.totalCarbon - b.totalCarbon
   },
   {
     title: "Total Tokens",
     dataIndex: "totalTokens",
     width: 150,
-    sorter: (a: any, b: any) => a.totalTokens - b.totalTokens,
-    sortIcon: <ArrowSwapVertical size={20} />,
+    sorter: (a: any, b: any) => a.totalTokens - b.totalTokens
   },
   {
     dataIndex: "registryName",
@@ -73,7 +70,6 @@ export const projectColumns: any = (
     sorter: {
       compare: (a: any, b: any) => a.registryName.localeCompare(b.registryName),
       multiple: 2,
-    },
-    sortIcon: <ArrowSwapVertical size={20} />,
+    }
   },
 ];
