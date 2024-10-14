@@ -524,7 +524,6 @@ export default function Details({ service }: {service: BlockchainService}) {
 
   useEffect(() => {
     getClaimTopics();
-    // getSettings();
   }, [service]);
 
   useEffect(() => {
@@ -558,15 +557,6 @@ export default function Details({ service }: {service: BlockchainService}) {
       setClaimTopics(data);
     }
   };
-
-  // const getSettings = async () => {
-  //   if (api && api.getSettings) {
-  //     const settings: { defaultTokenImage: File; walletAddress?: string} =
-  //       await api.getSettings();
-  //     setMintAddress(settings.walletAddress);
-  //   }
-  // };
-
   
   const handleBack = () => {
     setPreview(false);
