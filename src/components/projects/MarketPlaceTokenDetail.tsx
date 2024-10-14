@@ -48,7 +48,6 @@ const redemptionHistoryData = [
 ];
 
 export default function MarketPlaceTokenDetail({ token, next, prev, currentIndex, totalTokens, onBack }: any) {
-  //console.log("token: ", token);
   const [claimDisabled, setClaimDisabled] = React.useState(true);
   const [tokenBalance, setTokenBalance] = React.useState(0);
   const [claimError, setClaimError] = React.useState();

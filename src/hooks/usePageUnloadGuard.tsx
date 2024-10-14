@@ -59,7 +59,6 @@ export const usePageUnloadGuard = function () {
             return;
         }
 
-        console.log("popStateHandler");
         // if (listener.onBeforeUnload() && confirm(t('dialogs.unsaved.title'))) {
         // if (listener.onBeforeUnload() && confirm("unsaved!")) {
         if (listener.onBeforeUnload()) {
@@ -81,7 +80,6 @@ export const usePageUnloadGuard = function () {
         window.addEventListener('popstate', popStateHandler);
         window.document.addEventListener(clickType, clickHandler, { capture: true });
         const onload = () => {
-            console.log("loaded!");
             window.removeEventListener('load', onload);
         }
 

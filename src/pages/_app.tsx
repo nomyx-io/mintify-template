@@ -111,7 +111,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     provider.getNetwork().then(async (network: Network) => {
       const chainId: string = `${network.chainId}`;
 
-      // console.log("chainId = " + chainId);
 
       const config = jsonConfig[chainId];
 
@@ -127,10 +126,8 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   };
 
   const onDisconnect = () => {
-    // console.log("onDisconnect");
     setRole([]);
     setForceLogout(true);
-    // console.log("disconnected");
   };
 
   const getLayout = Component.getLayout || ((page: React.ReactNode) => page);

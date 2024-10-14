@@ -73,7 +73,6 @@ export const KronosService = () => {
             records && records.forEach((entry) => {
                 let record = entry.attributes;
 
-                // console.log("record.updatedAt = ", record.updatedAt);
                 const eventDate = record.updatedAt.toISOString().split('T')[0] == moment().format('yyyy-MM-DD') ? 'Today' : record.updatedAt.toISOString().split('T')[0];
 
                 const eventData = {
@@ -140,7 +139,6 @@ export const KronosService = () => {
             undefined,
             "desc"
         );
-        console.log('records: ', records);
         let sanitizedRecords = [];
     
         if (records && records.length > 0) {
@@ -236,7 +234,6 @@ export const KronosService = () => {
 
             let setting = settingsObj[k];
 
-            console.log("k = ", k);
 
             if (k == 'defaultTokenImage') continue;
             
@@ -367,7 +364,6 @@ export const KronosService = () => {
 
 
     const createProject = async (projectData) => {
-        console.log("projectData = ", projectData);
         const [logo, cover] = await Promise.all([
           ParseClient.saveFile('project-logo', { base64: projectData.logo }),
           ParseClient.saveFile('project-cover', { base64: projectData.coverImage }),
