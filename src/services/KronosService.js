@@ -73,7 +73,6 @@ export const KronosService = () => {
             records && records.forEach((entry) => {
                 let record = entry.attributes;
 
-                // console.log("record.updatedAt = ", record.updatedAt);
                 const eventDate = record.updatedAt.toISOString().split('T')[0] == moment().format('yyyy-MM-DD') ? 'Today' : record.updatedAt.toISOString().split('T')[0];
 
                 const eventData = {
@@ -140,7 +139,6 @@ export const KronosService = () => {
             undefined,
             "desc"
         );
-        console.log('records: ', records);
         let sanitizedRecords = [];
     
         if (records && records.length > 0) {
@@ -207,71 +205,6 @@ export const KronosService = () => {
           carbonIssued: tokenRecords.reduce((acc, record) => acc + Number(record.attributes.existingCredits), 0),
           carbonRetired: retiredTokens.reduce((acc, record) => acc + Number(record.attributes.existingCredits), 0),
         }
-    }
-
-    const saveSettings = async (settingsObj) => {
-
-        const parseSaveRequestPromises = [];
-
-        let tokenRecords = await ParseClient.getRecords('ERC721', [], [], ["*"]);
-
-        if (tokenRecords && tokenRecords.length > 0 && settingsObj.defaultTokenImage) {
-            let tokenRecord = tokenRecords[0];
-
-            let parseFile = settingsObj.defaultTokenImage ? 
-                await ParseClient.saveFile('token-image', settingsObj.defaultTokenImage) :
-                null;
-
-            parseSaveRequestPromises.push(ParseClient.updateRecord('ERC721', tokenRecord.id, { 'defaultTokenImage': parseFile }));
-        }
-
-        //save other settings by iterating through settingsObj key/value pairs, skipping the defaultTokenImage key
-            //for each prop on settingsObj
-                //skip defaultTokenImage prop
-                //create new KronosSetting record for key/value pair
-            //save settings to Parse
-            //parseSaveRequestPromises.push(saveSettingsRecordsPromise);
-
-        for (let k in settingsObj) {
-
-            let setting = settingsObj[k];
-
-            console.log("k = ", k);
-
-            if (k == 'defaultTokenImage') continue;
-            
-            parseSaveRequestPromises.push(ParseClient.createOrUpdateRecord(
-                'KronosSetting', 
-                ['key'], 
-                [k], 
-                {key:k, value: typeof setting == 'object' ? JSON.stringify(setting) : setting} 
-            ));
-            
-        }
-
-        return Promise.all(parseSaveRequestPromises);
-
-    }
-
-    const getSettings = async () => {   
-        let records = await ParseClient.getRecords('KronosSetting', [], [], ["*"]);
-        let settingsObj = {};
-
-        if(records && records.length > 0){
-            records.forEach(record => {
-                settingsObj[record.attributes.key] = record.attributes.value;
-            });
-        }
-        
-        let tokenRecords = await ParseClient.getRecords('ERC721', [], [], ["*"]);
-
-        if (tokenRecords && tokenRecords.length > 0) {
-            let tokenRecord = tokenRecords[0];
-            settingsObj.defaultTokenImage = tokenRecord.attributes.defaultTokenImage;
-        }    
-
-        return settingsObj;
-        
     }
 
     const getClaimTopics = async () => {
@@ -367,7 +300,6 @@ export const KronosService = () => {
 
 
     const createProject = async (projectData) => {
-        console.log("projectData = ", projectData);
         const [logo, cover] = await Promise.all([
           ParseClient.saveFile('project-logo', { base64: projectData.logo }),
           ParseClient.saveFile('project-cover', { base64: projectData.coverImage }),
@@ -401,8 +333,6 @@ export const KronosService = () => {
         getTokenDepositsForDepositId,
         getTokenDepositsForToken,
         getKpis,
-        saveSettings,
-        getSettings,
         getClaimTopics,
         deposit,
         getTreasuryData,

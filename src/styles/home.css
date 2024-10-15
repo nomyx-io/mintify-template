@@ -128,7 +128,7 @@
 
 /* Light Mode: Change hover row color */
 .light .ant-table-tbody > tr:hover > td {
-  background-color: rgb(228, 231, 231) !important;
+  @apply !bg-nomyx-gray4-light;
 }
 
 /* Dark Mode: Change hover row color */
@@ -139,7 +139,7 @@
 /* Highlighted (sorted) column background color */
 /* Light Mode */
 .light .ant-table-column-sort {
-  background-color: rgb(228, 231, 231) !important;
+  @apply !bg-nomyx-gray4-light;
 }
 
 /* Dark Mode */
@@ -149,7 +149,7 @@
 
 /* Light Mode: Change table header hover color */
 .light .ant-table-thead th:hover {
-  background-color: rgb(228, 231, 231) !important;
+  @apply !bg-nomyx-gray4-light;
 }
 
 /* Dark Mode: Change table header hover color */

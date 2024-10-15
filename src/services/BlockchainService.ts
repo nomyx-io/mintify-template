@@ -54,8 +54,6 @@ export default class BlockchainService {
         const network = await this.provider.getNetwork();
         const chainId: any = network.chainId;
 
-        console.log('chainId = ' + chainId);
-
         const chainConfig = jsonConfig[chainId];
 
         if (!chainConfig) {
@@ -107,9 +105,7 @@ export default class BlockchainService {
           // Send the transaction and get the transaction object immediately
           const tx = await contractWithSigner.gemforceMint(metaData);
           const transactionHash = tx.hash;  // Get the transaction hash here, not from the receipt
-    
-          console.log('transactionHash:', transactionHash);  // Log the transaction hash
-    
+        
           // Wait for the transaction to be mined and get the receipt
           const receipt = await tx.wait();
     
@@ -172,7 +168,6 @@ export default class BlockchainService {
       
           // Wait for the transaction to be mined
           const receipt = await tx.wait();
-          console.log("Listing transaction hash:", receipt.transactionHash);
           return receipt;
         } catch (e) {
           console.log("Error in listItem:", e);
@@ -197,7 +192,6 @@ export default class BlockchainService {
       
           // Wait for the transaction to be mined
           const receipt = await tx.wait();
-          console.log("Delisting transaction hash:", receipt.transactionHash);
           return receipt;
         } catch (e) {
           console.log("Error in delistItem:", e);
@@ -237,7 +231,6 @@ export default class BlockchainService {
       
           // Wait for the transaction to be mined
           const receipt = await tx.wait();
-          console.log("Initialize Carbon Credit transaction hash:", receipt.transactionHash);
           return receipt;
         } catch (e) {
           console.log("Error in initializeCarbonCredit:", e);

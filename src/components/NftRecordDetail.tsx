@@ -26,7 +26,6 @@ const NftRecordDetail = ({
   data,
   detailView = false,
 }: NftRecordDetailProps) => {
-  console.log(data);
   const colorKey = data['id'] || data['nftTitle'];
   const color = hashToColor(`${colorKey as string}`);
   const router = useRouter();

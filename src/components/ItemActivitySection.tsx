@@ -9,7 +9,6 @@ interface ActivityRecord {
 
 const ItemActivity = ({ token }: any) => {
   const [activityData, setActivityData] = useState<ActivityRecord[]>([]);
-  //console.log("activity data", appState.activity);
   // Filter the activity data based on tokenId
   useEffect(() => {
     // Fetch activity data for the given token
