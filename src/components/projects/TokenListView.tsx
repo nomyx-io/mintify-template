@@ -210,11 +210,13 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     {
       title: "Price Per Credit",
       dataIndex: ["token", "price"],
+      render: (price: number) => `$${price}`,
       sorter: (a: any, b: any) => a.token.price - b.token.price,
     },
     {
       title: "Total Price",
       dataIndex: "price",
+      render: (price: number) => `$${price}`,
       sorter: (a: any, b: any) => a.price - b.price,
     },
     {
