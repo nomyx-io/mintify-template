@@ -163,7 +163,8 @@ export default class BlockchainService {
             receiver,              // Address that will receive payment
             tokenId,               // Token ID of the NFT
             price,                 // Price in wei
-            transferNFT            // Transfer the NFT or not
+            transferNFT,            // Transfer the NFT or not
+            this.usdcAddress
           );
       
           // Wait for the transaction to be mined
@@ -183,7 +184,9 @@ export default class BlockchainService {
           if (!this.signer) {
             throw new Error('Signer is not available.');
           }
-      
+          console.log('tokenId: ', tokenId);
+          console.log('contract address: ', this.contractAddress);
+          console.log('this.signer.address', this.signer.address);
           const contractWithSigner: any = this.marketplaceService?.connect(this.signer);
           const tx = await contractWithSigner.delistItem(
             this.contractAddress,  

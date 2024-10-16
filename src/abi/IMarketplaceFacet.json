@@ -1,7 +1,7 @@
 {
   "_format": "hh-sol-artifact-1",
-  "contractName": "IMarketplace",
-  "sourceName": "contracts/interfaces/IMarketplace.sol",
+  "contractName": "MarketplaceFacet",
+  "sourceName": "contracts/facets/MarketplaceFacet.sol",
   "abi": [
     {
       "anonymous": false,
@@ -85,9 +85,65 @@
           "internalType": "bool",
           "name": "sold",
           "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "paymentToken",
+          "type": "address"
         }
       ],
       "name": "Listings",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address payable",
+              "name": "receiver",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "sharePerMillion",
+              "type": "uint256"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct MarketplaceFacet.FeeReceiver[]",
+          "name": "feeReceivers",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "MarketplaceInitialized",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "PaymentDistributed",
       "type": "event"
     },
     {
@@ -131,6 +187,19 @@
       "name": "delistItem",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "diamondOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -184,6 +253,11 @@
               "internalType": "address",
               "name": "receiver",
               "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "paymentToken",
+              "type": "address"
             }
           ],
           "internalType": "struct MarketItem",
@@ -234,6 +308,11 @@
               "internalType": "address",
               "name": "receiver",
               "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "paymentToken",
+              "type": "address"
             }
           ],
           "internalType": "struct MarketItem[]",
@@ -242,6 +321,56 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getFeeReceivers",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address payable",
+              "name": "receiver",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "sharePerMillion",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct MarketplaceFacet.FeeReceiver[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "address payable",
+              "name": "receiver",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "sharePerMillion",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct MarketplaceFacet.FeeReceiver[]",
+          "name": "_feeReceivers",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "initializeMarketplace",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -270,6 +399,11 @@
           "internalType": "bool",
           "name": "transferNFT",
           "type": "bool"
+        },
+        {
+          "internalType": "address",
+          "name": "paymentToken",
+          "type": "address"
         }
       ],
       "name": "listItem",
@@ -295,9 +429,5 @@
       "stateMutability": "payable",
       "type": "function"
     }
-  ],
-  "bytecode": "0x",
-  "deployedBytecode": "0x",
-  "linkReferences": {},
-  "deployedLinkReferences": {}
+  ]
 }
