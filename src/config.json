@@ -1,5 +1,5 @@
 {
     "applicationId": "appId",
     "javascriptKey": "appJavascriptKey",
-    "serverURL": "http://localhost:8337"
+    "serverURL": "https://kronos-dev.gemforce.host"
 }

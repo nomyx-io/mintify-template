@@ -714,7 +714,7 @@ export default function Details({ service }: {service: BlockchainService}) {
   
       // Step 4: Calculate price and list the token
       const usdcMultiplier = 10 ** 6; // USDC has 6 decimals
-      const usdcPrice = (Number(totalPrice) * usdcMultiplier).toString(); 
+      const usdcPrice = (Number(totalPrice).toString()); 
       toast.info(`Calculated total price in USDC: ${totalPrice}`, { autoClose: 3000 });
   
       const listingToast = toast.loading("Listing token on the marketplace...");
