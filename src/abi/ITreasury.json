@@ -1,7 +1,5 @@
 {
-  "_format": "hh-sol-artifact-1",
-  "contractName": "Treasury",
-  "sourceName": "contracts/utilities/Treasury.sol",
+  "address": "0x7f636fE6e49882c8f844d1dA95A36dDEcFd6E571",
   "abi": [
     {
       "anonymous": false,

@@ -1,7 +1,5 @@
 {
-  "_format": "hh-sol-artifact-1",
-  "contractName": "GemforceMinterFacet",
-  "sourceName": "contracts/facets/GemforceMinterFacet.sol",
+  "address": "0x3282193CdaB82E59514aEEc01CfF5B569E2fB5dc",
   "abi": [
     {
       "inputs": [],

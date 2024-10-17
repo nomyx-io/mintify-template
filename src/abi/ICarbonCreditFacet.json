@@ -1,7 +1,5 @@
 {
-  "_format": "hh-sol-artifact-1",
-  "contractName": "ICarbonCreditFacet",
-  "sourceName": "contracts/interfaces/ICarbonCredit.sol",
+  "address": "0x556c0f2163711c8BdD1072BfA8097aD421821Cb1",
   "abi": [
     {
       "anonymous": false,
@@ -44,6 +42,19 @@
       "name": "batchInitializeCarbonCredits",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "diamondOwner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -139,9 +150,5 @@
       "stateMutability": "nonpayable",
       "type": "function"
     }
-  ],
-  "bytecode": "0x",
-  "deployedBytecode": "0x",
-  "linkReferences": {},
-  "deployedLinkReferences": {}
+  ]
 }
