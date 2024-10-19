@@ -149,7 +149,7 @@ export default class BlockchainService {
     async listItem(
         receiver: string,  // Address that will receive the funds
         tokenId: number,   // The token ID of the NFT to list
-        price: string,     // The price of the NFT in wei
+        price: bigint,     // The price of the NFT in wei
         transferNFT: boolean  // Whether to transfer the NFT to the marketplace
       ) {
         try {

@@ -4,6 +4,7 @@ import { Table, Switch } from "antd";
 import { hashToColor } from "@/utils/colorUtils";
 import BlockchainService from "@/services/BlockchainService";
 import { toast } from "react-toastify";
+import { ethers } from "ethers";
 
 interface TokenListViewProps {
   tokens: any[];
@@ -59,16 +60,19 @@ const TokenListView: React.FC<TokenListViewProps> = ({
         // Get the project details to list
         const token = filteredTokens.find((t) => t.tokenId === tokenId);
         const totalPrice = (Number(token.token.existingCredits) * Number(token.token.price)).toString();
-
+        
         if (!totalPrice || !token) {
           throw new Error("Invalid price or token details.");
         }
+
+        //format for usdc decimals
+        const usdcPrice = ethers.parseUnits(totalPrice, 6)
 
         // Step 2: List the token using the blockchain service
         await blockchainService?.listItem(
           token.receiver,
           tokenId,
-          totalPrice.toString(),
+          usdcPrice,
           true // Transfer the NFT to the marketplace
         );
 
@@ -216,7 +220,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     {
       title: "Total Price",
       dataIndex: "price",
-      render: (price: number) => `$${price}`,
+      render: (price: number) => `$${(price / 1_000_000)}`,  // Convert from small units and format to 2 decimals
       sorter: (a: any, b: any) => a.price - b.price,
     },
     {
