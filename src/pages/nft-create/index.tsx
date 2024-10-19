@@ -15,7 +15,7 @@ import { usePageUnloadGuard } from "@/hooks/usePageUnloadGuard";
 import BlockchainService from "@/services/BlockchainService";
 import { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import { File } from "parse";
-import { parseUnits } from "ethers";
+import { parseUnits, ethers } from "ethers";
 
 export default function Details({ service }: {service: BlockchainService}) {
   const { isConnected } = useAccount();
@@ -685,71 +685,80 @@ export default function Details({ service }: {service: BlockchainService}) {
     },
   ];
 
-  const handleMint = async () => {
+  // Utility function to add a delay
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const handleMint = async () => {
     if (!mintAddress) {
-      console.error("Wallet address is not available.");
-      return;
+        console.error("Wallet address is not available.");
+        return;
     }
-  
+
     try {
-      // Step 1: Mint the token
-      const mintingToast = toast.loading("Minting token...");
-      const { tokenId, transactionHash } = await service.gemforceMint(metadata);
-      toast.update(mintingToast, {
-        render: `Token minted successfully. Transaction Hash: ${transactionHash}`,
-        type: "success",
-        isLoading: false,
-        autoClose: 5000,
-      });
-  
-      // Step 2: Initialize carbon credits
-      const carbonCreditToast = toast.loading("Initializing carbon credits...");
-      await service.initializeCarbonCredit(tokenId, existingCredits || "0");
-      toast.update(carbonCreditToast, {
-        render: `Carbon credits initialized for token ID: ${tokenId}`,
-        type: "success",
-        isLoading: false,
-        autoClose: 5000,
-      });
-  
-      // Step 4: Calculate price and list the token
-      const usdcMultiplier = 10 ** 6; // USDC has 6 decimals
-      const usdcPrice = (Number(totalPrice).toString()); 
-      toast.info(`Calculated total price in USDC: ${totalPrice}`, { autoClose: 3000 });
-  
-      const listingToast = toast.loading("Listing token on the marketplace...");
-      await service.listItem(
-        mintAddress,           // Receiver of the sale funds
-        tokenId,               // Token ID of the NFT
-        usdcPrice,            // Price in wei (USDC with 6 decimals)
-        true                   // Transfer the NFT to the marketplace
-      );
-      toast.update(listingToast, {
-        render: `Token successfully listed with ID: ${tokenId}`,
-        type: "success",
-        isLoading: false,
-        autoClose: 5000,
-      });
-  
-      // Step 5: Reset form and states after success
-      resetFormStates();
-  
-      toast.success(`Successfully minted NFT with Token ID: ${tokenId} and initialized ${existingCredits} carbon credits.`);
-      return tokenId;
-  
+        // Step 1: Mint the token
+        const mintingToast = toast.loading("Minting token...");
+        const { tokenId, transactionHash } = await service.gemforceMint(metadata);
+        toast.update(mintingToast, {
+            render: `Token minted successfully. Transaction Hash: ${transactionHash}`,
+            type: "success",
+            isLoading: false,
+            autoClose: 5000,
+        });
+
+        // Add delay before proceeding to the next step
+        await sleep(3000);  // 3-second delay
+
+        // Step 2: Initialize carbon credits
+        const carbonCreditToast = toast.loading("Initializing carbon credits...");
+        await service.initializeCarbonCredit(tokenId, existingCredits || "0");
+        toast.update(carbonCreditToast, {
+            render: `Carbon credits initialized for token ID: ${tokenId}`,
+            type: "success",
+            isLoading: false,
+            autoClose: 5000,
+        });
+
+        // Add another delay before listing the token
+        await sleep(3000);  // 3-second delay
+
+        // Step 3: Calculate price and list the token
+        const usdcPrice = ethers.parseUnits(totalPrice, 6);
+        toast.info(`Calculated total price in USDC: ${totalPrice}`, { autoClose: 3000 });
+
+        const listingToast = toast.loading("Listing token on the marketplace...");
+        await service.listItem(
+            mintAddress,  // Receiver of the sale funds
+            tokenId,      // Token ID of the NFT
+            usdcPrice,    // Price in wei (USDC with 6 decimals)
+            true          // Transfer the NFT to the marketplace
+        );
+        toast.update(listingToast, {
+            render: `Token successfully listed with ID: ${tokenId}`,
+            type: "success",
+            isLoading: false,
+            autoClose: 5000,
+        });
+
+        // Step 4: Reset form and states after success
+        resetFormStates();
+
+        toast.success(`Successfully minted NFT with Token ID: ${tokenId} and initialized ${existingCredits} carbon credits.`);
+        return tokenId;
+
     } catch (e) {
-      let errorMessage = "An error occurred during the minting/listing process.";
-  
-      if (e instanceof Error) {
-        errorMessage = e.message;
-      } else if (typeof e === "string") {
-        errorMessage = e;
-      }
-  
-      console.error(e);
-      toast.error(errorMessage);
+        let errorMessage = "An error occurred during the minting/listing process.";
+
+        if (e instanceof Error) {
+            errorMessage = e.message;
+        } else if (typeof e === "string") {
+            errorMessage = e;
+        }
+
+        console.error(e);
+        toast.error(errorMessage);
     }
-  };  
+};
+
   
   
   // Helper function to reset form states after successful minting
