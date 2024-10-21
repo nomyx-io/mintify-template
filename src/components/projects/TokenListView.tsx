@@ -59,14 +59,16 @@ const TokenListView: React.FC<TokenListViewProps> = ({
 
         // Get the project details to list
         const token = filteredTokens.find((t) => t.tokenId === tokenId);
-        const totalPrice = (Number(token.token.existingCredits) * Number(token.token.price)).toString();
-        
+        const totalPrice = (
+          Number(token.token.existingCredits) * Number(token.token.price)
+        ).toString();
+
         if (!totalPrice || !token) {
           throw new Error("Invalid price or token details.");
         }
 
         //format for usdc decimals
-        const usdcPrice = ethers.parseUnits(totalPrice, 6)
+        const usdcPrice = ethers.parseUnits(totalPrice, 6);
 
         // Step 2: List the token using the blockchain service
         await blockchainService?.listItem(
@@ -184,14 +186,14 @@ const TokenListView: React.FC<TokenListViewProps> = ({
         const color = hashToColor(tokenId);
         return (
           <div style={{ display: "flex", alignItems: "center" }}>
-          {/* {!isSalesHistory && (
+            {/* {!isSalesHistory && (
             <EyeOutlined
               className="text-xl cursor-pointer hover:text-blue-500"
               onClick={() => onProjectClick(record)}
               style={{ marginRight: "8px" }}
             />
           )} */}
-          {/* {!isSalesHistory && (
+            {/* {!isSalesHistory && (
             <div
               style={{
                 width: "1px",
@@ -220,7 +222,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     {
       title: "Total Price",
       dataIndex: "price",
-      render: (price: number) => `$${(price / 1_000_000)}`,  // Convert from small units and format to 2 decimals
+      render: (price: number) => `$${price / 1_000_000}`, // Convert from small units and format to 2 decimals
       sorter: (a: any, b: any) => a.price - b.price,
     },
     {
@@ -306,8 +308,13 @@ const TokenListView: React.FC<TokenListViewProps> = ({
       dataSource={filteredTokens}
       rowKey="tokenId"
       pagination={false}
-      scroll={{ x: "max-content" }}
-      style={{ wordWrap: "break-word", whiteSpace: "pre-wrap" }}
+      scroll={{ x: "100%" }}
+      style={{
+        wordWrap: "break-word",
+        whiteSpace: "pre-wrap",
+        maxHeight: "350px",
+        overflowY: "auto",
+      }}
     />
   );
 };

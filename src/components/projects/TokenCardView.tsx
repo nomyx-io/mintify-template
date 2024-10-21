@@ -49,14 +49,14 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, onTokenClick, isS
               !isSalesHistory ? "hover:shadow-2xl hover:scale-105" : ""
             }`}
             style={{
-              cursor: !isSalesHistory ? "pointer" : "default",
+              //cursor: !isSalesHistory ? "pointer" : "default",
               padding: "0",
               overflow: "hidden",
               boxSizing: "border-box",
               transform: !isSalesHistory ? "translateY(0)" : "translateY(-10px)",
               transition: "transform 0.3s ease-in-out",
             }}
-            onClick={!isSalesHistory ? () => onTokenClick(token) : undefined}
+            //onClick={!isSalesHistory ? () => onTokenClick(token) : undefined}
           >
             {/* Logo Section */}
             <div
@@ -70,7 +70,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, onTokenClick, isS
                 padding: "20px",
                 boxSizing: "border-box",
               }}
-              onClick={!isSalesHistory ? () => onTokenClick(token) : undefined}
+              //onClick={!isSalesHistory ? () => onTokenClick(token) : undefined}
             >
               <div
                 style={{

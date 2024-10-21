@@ -1,5 +1,11 @@
 "use client";
-import React, { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import CreateNftDetails from "@/components/CreateNftDetails";
 import NftRecordDetail from "../../components/NftRecordDetail";
 import { getDashboardLayout } from "@/Layouts";
@@ -17,28 +23,32 @@ import { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import { File } from "parse";
 import { parseUnits, ethers } from "ethers";
 
-export default function Details({ service }: {service: BlockchainService}) {
+export default function Details({ service }: { service: BlockchainService }) {
   const { isConnected } = useAccount();
   const router = useRouter();
   const { walletAddress } = useWalletAddress();
   const api = useMemo(() => KronosService(), []);
   const [preview, setPreview] = useState(false);
   const [nftData, setNftData] = useState({});
-  const [projectList, setProjectList] = useState<{id:string, title:string, startDate:string}[]>([]);
+  const [projectList, setProjectList] = useState<
+    { id: string; title: string; startDate: string }[]
+  >([]);
   const [claimTopics, setClaimTopics] = useState<ClaimTopic[]>([]);
 
   // form fields
   // Details Group
   const [nftTitle, setNftTitle] = useState("");
-  const [description, setDescription] = useState("")
+  const [description, setDescription] = useState("");
 
   // Project Info Group
-  const [projectId, setProjectId] = useState('');
-  const [auditor, setAuditor] = useState(''); // what does this need to be? maybe don't need
+  const [projectId, setProjectId] = useState("");
+  const [auditor, setAuditor] = useState(""); // what does this need to be? maybe don't need
   const [projectStartDate, setProjectStartDate] = useState("");
-  const [mintAddress, setMintAddress] = useState<string | undefined>(walletAddress);
-  const [country, setCountry] = useState(''); // maybe later
-  const [state, setState] = useState(''); // maybe later
+  const [mintAddress, setMintAddress] = useState<string | undefined>(
+    walletAddress
+  );
+  const [country, setCountry] = useState(""); // maybe later
+  const [state, setState] = useState(""); // maybe later
   const [registerId, setRegisterId] = useState("");
   const [registryURL, setRegistryURL] = useState(""); // come from the project?
   const [issuanceDate, setIssuanceDate] = useState("");
@@ -47,14 +57,15 @@ export default function Details({ service }: {service: BlockchainService}) {
   const [trancheCutoff, setTrancheCutoff] = useState("");
 
   // Credit Info Group
-  const [creditsPre2020, setCreditsPre2020] = useState(""); 
-  const [credits2020, setCredits2020] = useState(""); 
-  const [credits2021, setCredits2021] = useState(""); 
-  const [credits2022, setCredits2022] = useState(""); 
-  const [credits2023, setCredits2023] = useState(""); 
-  const [credits2024, setCredits2024] = useState(""); 
-  const [existingCredits, setExistingCredits] = useState(""); 
-  const [estimatedEmissionsReduction, setEstimatedEmissionsReduction] = useState(""); // maybe don't need
+  const [creditsPre2020, setCreditsPre2020] = useState("");
+  const [credits2020, setCredits2020] = useState("");
+  const [credits2021, setCredits2021] = useState("");
+  const [credits2022, setCredits2022] = useState("");
+  const [credits2023, setCredits2023] = useState("");
+  const [credits2024, setCredits2024] = useState("");
+  const [existingCredits, setExistingCredits] = useState("");
+  const [estimatedEmissionsReduction, setEstimatedEmissionsReduction] =
+    useState(""); // maybe don't need
 
   // Pricing Info Group
   const [price, setPrice] = useState("");
@@ -69,21 +80,23 @@ export default function Details({ service }: {service: BlockchainService}) {
       const projects = await api.getProjects();
       setProjectList(
         projects?.map((project) => ({
-            id: project.id,
-            title: project.attributes.title,
-            startDate: project.createdAt.toLocaleDateString(),
-          }
-        )) || []
+          id: project.id,
+          title: project.attributes.title,
+          startDate: project.createdAt.toLocaleDateString(),
+        })) || []
       );
     } catch (error) {
-      console.error('Failed to fetch projects:', error);
+      console.error("Failed to fetch projects:", error);
     }
   }, [api]);
 
   useEffect(() => {
     if (router.query.projectId) {
       setProjectId(router.query.projectId as string);
-      setProjectStartDate(projectList.find((project) => project.id === router.query.projectId)?.startDate || '');
+      setProjectStartDate(
+        projectList.find((project) => project.id === router.query.projectId)
+          ?.startDate || ""
+      );
       form.setFieldsValue({ projectId: router.query.projectId });
     }
   }, [router.query.projectId, projectList, form]);
@@ -183,7 +196,6 @@ export default function Details({ service }: {service: BlockchainService}) {
         break;
       default:
         break;
-
     }
   };
 
@@ -213,11 +225,12 @@ export default function Details({ service }: {service: BlockchainService}) {
   const onScroll: TransferOnScroll = (
     direction: TransferDirection,
     e: React.SyntheticEvent<HTMLUListElement>
-  ) => {
-  };
+  ) => {};
 
-  const handlePreview = () => { 
-    const projectName = projectList.find((project) => project.id === projectId)?.title;
+  const handlePreview = () => {
+    const projectName = projectList.find(
+      (project) => project.id === projectId
+    )?.title;
     setNftData({
       // details fields
       nftTitle,
@@ -226,7 +239,7 @@ export default function Details({ service }: {service: BlockchainService}) {
       // project info fields
       projectId,
       projectName,
-      auditor,      
+      auditor,
       projectStartDate,
       mintAddress,
       country,
@@ -248,10 +261,10 @@ export default function Details({ service }: {service: BlockchainService}) {
       estimatedEmissionsReduction,
 
       // pricing info fields
-      price,
-
+      price: "$" + price,
+      totalPrice: "$" + totalPrice,
       // compliance fields
-      claimTopics: targetKeys.join(','),
+      claimTopics: targetKeys.join(","),
       allTopics: claimTopics,
     });
     setPreview(true);
@@ -269,22 +282,22 @@ export default function Details({ service }: {service: BlockchainService}) {
 
   const fieldGroups: NftDetailsInputFieldGroup[] = [
     {
-      name: 'Details',
+      name: "Details",
       fields: [
         {
-          label: 'Title',
-          name: 'nftTitle',
-          dataType: 'text',
-          placeHolder: 'Enter Token Title',
+          label: "Title",
+          name: "nftTitle",
+          dataType: "text",
+          placeHolder: "Enter Token Title",
           defaultValue: nftTitle,
           value: nftTitle,
           rules: [requiredRule, alphaNumericRule, { max: 30 }],
         },
         {
-          label: 'Description',
-          name: 'description',
-          dataType: 'text',
-          placeHolder: 'Add a description for the NFT',
+          label: "Description",
+          name: "description",
+          dataType: "text",
+          placeHolder: "Add a description for the NFT",
           defaultValue: description,
           value: description,
           rules: [{ ...requiredRule, max: 256 }],
@@ -292,13 +305,13 @@ export default function Details({ service }: {service: BlockchainService}) {
       ],
     },
     {
-      name: 'Project Information',
+      name: "Project Information",
       fields: [
         {
-          label: 'Project',
-          name: 'projectId',
-          dataType: 'select',
-          placeHolder: 'Select Project ID',
+          label: "Project",
+          name: "projectId",
+          dataType: "select",
+          placeHolder: "Select Project ID",
           defaultValue: projectId,
           value: projectId,
           rules: [requiredRule],
@@ -308,180 +321,180 @@ export default function Details({ service }: {service: BlockchainService}) {
           })),
         },
         {
-          label: 'Auditor',
-          name: 'auditor',
-          dataType: 'text',
-          placeHolder: 'Enter Auditor',
+          label: "Auditor",
+          name: "auditor",
+          dataType: "text",
+          placeHolder: "Enter Auditor",
           defaultValue: auditor,
           value: auditor,
           rules: [requiredRule],
         },
         {
-          label: 'Project Start Date',
-          name: 'projectStartDate',
-          dataType: 'text',
-          placeHolder: 'mm/dd/yyyy',
+          label: "Project Start Date",
+          name: "projectStartDate",
+          dataType: "text",
+          placeHolder: "mm/dd/yyyy",
           defaultValue: projectStartDate,
           value: projectStartDate,
           disabled: true,
         },
         {
-          label: 'Mint to',
-          name: 'mintAddress',
-          dataType: 'text',
-          placeHolder: 'Enter Wallet Address',
-          defaultValue: mintAddress || '',
-          value: mintAddress || '',
+          label: "Mint to",
+          name: "mintAddress",
+          dataType: "text",
+          placeHolder: "Enter Wallet Address",
+          defaultValue: mintAddress || "",
+          value: mintAddress || "",
           rules: [
             {
               required: true,
               pattern: Regex.ethereumAddress,
-              message: 'This field must be an ethereum address.',
+              message: "This field must be an ethereum address.",
             },
           ],
         },
         {
-          label: 'Country',
-          name: 'country',
-          dataType: 'text',
-          placeHolder: 'Enter Country',
+          label: "Country",
+          name: "country",
+          dataType: "text",
+          placeHolder: "Enter Country",
           defaultValue: country,
           value: country,
         },
         {
-          label: 'State',
-          name: 'state',
-          dataType: 'text',
-          placeHolder: 'Enter State',
+          label: "State",
+          name: "state",
+          dataType: "text",
+          placeHolder: "Enter State",
           defaultValue: state,
           value: state,
         },
         {
-          label: 'Registry ID',
-          name: 'registerId',
-          dataType: 'text',
-          placeHolder: 'Enter Registry ID',
+          label: "Registry ID",
+          name: "registerId",
+          dataType: "text",
+          placeHolder: "Enter Registry ID",
           defaultValue: registerId,
           value: registerId,
           rules: [requiredRule, alphaNumericRule],
         },
         {
-          label: 'Registry Link',
-          name: 'registryURL',
-          dataType: 'text',
-          placeHolder: 'Enter Registry URL',
+          label: "Registry Link",
+          name: "registryURL",
+          dataType: "text",
+          placeHolder: "Enter Registry URL",
           defaultValue: registryURL,
           value: registryURL,
           rules: [requiredRule],
         },
         {
-          label: 'Issuance Date',
-          name: 'issuanceDate',
-          dataType: 'date',
-          placeHolder: 'mm/dd/yyyy',
+          label: "Issuance Date",
+          name: "issuanceDate",
+          dataType: "date",
+          placeHolder: "mm/dd/yyyy",
           defaultValue: issuanceDate,
           value: issuanceDate,
           rules: [requiredRule],
         },
         {
-          label: 'GHG Reduction Type',
-          name: 'ghgReduction',
-          dataType: 'text',
-          placeHolder: 'Enter GHG Reduction Type',
+          label: "GHG Reduction Type",
+          name: "ghgReduction",
+          dataType: "text",
+          placeHolder: "Enter GHG Reduction Type",
           defaultValue: ghgReduction,
           value: ghgReduction,
           rules: [requiredRule],
         },
         {
-          label: 'Tranche Cutoff',
-          name: 'useTranche',
-          dataType: 'checkbox',
+          label: "Tranche Cutoff",
+          name: "useTranche",
+          dataType: "checkbox",
           defaultValue: useTranche,
           value: useTranche,
-          className: 'col-span-2',
+          className: "col-span-2",
         },
         {
-          label: 'Tranche Cutoff',
-          name: 'trancheCutoff',
-          dataType: 'text',
-          placeHolder: 'Enter Tranche Cutoff',
+          label: "Tranche Cutoff",
+          name: "trancheCutoff",
+          dataType: "text",
+          placeHolder: "Enter Tranche Cutoff",
           defaultValue: trancheCutoff,
           value: trancheCutoff,
-          className: `${useTranche ? '' : 'hidden'}`,
+          className: `${useTranche ? "" : "hidden"}`,
         },
       ],
     },
     {
-      name: 'Credit Info',
+      name: "Credit Info",
       fields: [
         {
-          label: 'Pre 2020 Credits',
-          name: 'creditsPre2020',
-          dataType: 'text',
-          placeHolder: 'Enter Pre 2020 carbon Issued Amount',
+          label: "Pre 2020 Credits",
+          name: "creditsPre2020",
+          dataType: "text",
+          placeHolder: "Enter Pre 2020 carbon Issued Amount",
           defaultValue: creditsPre2020,
           value: creditsPre2020,
           rules: [requiredRule, numericRule],
         },
         {
-          label: '2020 Project Credits',
-          name: 'credits2020',
-          dataType: 'text',
-          placeHolder: 'Enter 2020 carbon Issued Amount',
+          label: "2020 Project Credits",
+          name: "credits2020",
+          dataType: "text",
+          placeHolder: "Enter 2020 carbon Issued Amount",
           defaultValue: credits2020,
           value: credits2020,
           rules: [requiredRule, numericRule],
         },
         {
-          label: '2021 Project Credits',
-          name: 'credits2021',
-          dataType: 'text',
-          placeHolder: 'Enter 2021 carbon Issued Amount',
+          label: "2021 Project Credits",
+          name: "credits2021",
+          dataType: "text",
+          placeHolder: "Enter 2021 carbon Issued Amount",
           defaultValue: credits2021,
           value: credits2021,
           rules: [requiredRule, numericRule],
         },
         {
-          label: '2022 Project Credits',
-          name: 'credits2022',
-          dataType: 'text',
-          placeHolder: 'Enter 2022 carbon Issued Amount',
+          label: "2022 Project Credits",
+          name: "credits2022",
+          dataType: "text",
+          placeHolder: "Enter 2022 carbon Issued Amount",
           defaultValue: credits2022,
           value: credits2022,
           rules: [requiredRule, numericRule],
         },
         {
-          label: '2023 Project Credits',
-          name: 'credits2023',
-          dataType: 'text',
-          placeHolder: 'Enter 2023 carbon Issued Amount',
+          label: "2023 Project Credits",
+          name: "credits2023",
+          dataType: "text",
+          placeHolder: "Enter 2023 carbon Issued Amount",
           defaultValue: credits2023,
           value: credits2023,
           rules: [requiredRule, numericRule],
         },
         {
-          label: '2024 Project Credits',
-          name: 'credits2024',
-          dataType: 'text',
-          placeHolder: 'Enter 2024 carbon Issued Amount',
+          label: "2024 Project Credits",
+          name: "credits2024",
+          dataType: "text",
+          placeHolder: "Enter 2024 carbon Issued Amount",
           defaultValue: credits2024,
           value: credits2024,
           rules: [requiredRule, numericRule],
         },
         {
-          label: 'Existing Credits',
-          name: 'existingCredits',
-          dataType: 'text',
-          placeHolder: 'Enter Existing Carbon Credits Amount',
+          label: "Existing Credits",
+          name: "existingCredits",
+          dataType: "text",
+          placeHolder: "Enter Existing Carbon Credits Amount",
           defaultValue: existingCredits,
           value: existingCredits,
           rules: [requiredRule, numericRule],
         },
         {
-          label: 'Estimated Annual Emissions Reduction',
-          name: 'estimatedEmissionsReduction',
-          dataType: 'text',
-          placeHolder: 'ETA',
+          label: "Estimated Annual Emissions Reduction",
+          name: "estimatedEmissionsReduction",
+          dataType: "text",
+          placeHolder: "ETA",
           defaultValue: estimatedEmissionsReduction,
           value: estimatedEmissionsReduction,
           rules: [requiredRule, numericRule],
@@ -489,33 +502,33 @@ export default function Details({ service }: {service: BlockchainService}) {
       ],
     },
     {
-      name: 'Pricing Information',
+      name: "Pricing Information",
       fields: [
         {
-          label: 'Price per Credit',
-          name: 'price',
-          dataType: 'text',
-          placeHolder: 'Enter Price per Credit',
+          label: "Price per Credit",
+          name: "price",
+          dataType: "text",
+          placeHolder: "Enter Price per Credit",
           defaultValue: price,
           value: price,
-          prefix: '$',
+          prefix: "$",
           rules: [
             requiredRule,
             {
               pattern: Regex.maxCharWithDecimal(9, 2),
               message:
-                'Please enter a value with up to 9 digits and 2 decimal places.',
+                "Please enter a value with up to 9 digits and 2 decimal places.",
             },
           ],
         },
         {
-          label: 'Total Price',
-          name: 'totalPrice',
-          dataType: 'text',
-          placeHolder: 'Final Price',
+          label: "Total Price",
+          name: "totalPrice",
+          dataType: "text",
+          placeHolder: "Final Price",
           defaultValue: totalPrice,
           value: totalPrice,
-          prefix: '$',
+          prefix: "$",
           disabled: true,
         },
       ],
@@ -533,17 +546,20 @@ export default function Details({ service }: {service: BlockchainService}) {
   useEffect(() => {
     const totalPrice = Number(price) * Number(existingCredits);
     setTotalPrice(`${totalPrice}`);
-    form.setFieldValue('totalPrice', totalPrice);
+    form.setFieldValue("totalPrice", totalPrice);
   }, [price, existingCredits, form]);
 
   useEffect(() => {
-    const projectDate = projectList.find((project) => project.id === projectId)?.startDate;
-    setProjectStartDate(projectDate || '');
+    const projectDate = projectList.find(
+      (project) => project.id === projectId
+    )?.startDate;
+    setProjectStartDate(projectDate || "");
     form.setFieldsValue({ projectStartDate: projectDate });
   }, [projectId, projectList, form]);
 
   const getClaimTopics = async () => {
-    const claims: Parse.Object[] | undefined = service && (await service.getClaimTopics());
+    const claims: Parse.Object[] | undefined =
+      service && (await service.getClaimTopics());
     let data: ClaimTopic[] = [];
     if (claims) {
       claims.forEach((item: Parse.Object) => {
@@ -557,7 +573,7 @@ export default function Details({ service }: {service: BlockchainService}) {
       setClaimTopics(data);
     }
   };
-  
+
   const handleBack = () => {
     setPreview(false);
   };
@@ -565,202 +581,205 @@ export default function Details({ service }: {service: BlockchainService}) {
   const metadata = [
     // details fields
     {
-      key: 'nftTitle',
+      key: "nftTitle",
       attributeType: 1,
       value: nftTitle,
     },
     {
-      key: 'description',
+      key: "description",
       attributeType: 1,
       value: description,
     },
     // project info fields
     {
-      key: 'projectId',
+      key: "projectId",
       attributeType: 1,
       value: projectId,
     },
     {
-      key: 'auditor',
+      key: "auditor",
       attributeType: 1,
       value: auditor,
     },
     {
-      key: 'projectStartDate',
+      key: "projectStartDate",
       attributeType: 1,
       value: projectStartDate,
     },
     {
-      key: 'mintAddress',
+      key: "mintAddress",
       attributeType: 1,
       value: mintAddress,
     },
     {
-      key: 'country',
+      key: "country",
       attributeType: 1,
       value: country,
     },
     {
-      key: 'state',
+      key: "state",
       attributeType: 1,
       value: state,
     },
     {
-      key: 'registerId',
+      key: "registerId",
       attributeType: 1,
       value: registerId,
     },
     {
-      key: 'registryURL',
+      key: "registryURL",
       attributeType: 1,
       value: registryURL,
     },
     {
-      key: 'issuanceDate',
+      key: "issuanceDate",
       attributeType: 1,
       value: issuanceDate,
     },
     {
-      key: 'ghgReduction',
+      key: "ghgReduction",
       attributeType: 1,
       value: ghgReduction,
     },
     {
-      key: 'trancheCutoff',
+      key: "trancheCutoff",
       attributeType: 1,
       value: trancheCutoff,
     },
     // credit info fields
     {
-      key: 'creditsPre2020',
+      key: "creditsPre2020",
       attributeType: 1,
       value: creditsPre2020,
     },
     {
-      key: 'credits2020',
+      key: "credits2020",
       attributeType: 1,
       value: credits2020,
     },
     {
-      key: 'credits2021',
+      key: "credits2021",
       attributeType: 1,
       value: credits2021,
     },
     {
-      key: 'credits2022',
+      key: "credits2022",
       attributeType: 1,
       value: credits2022,
     },
     {
-      key: 'credits2023',
+      key: "credits2023",
       attributeType: 1,
       value: credits2023,
     },
     {
-      key: 'credits2024',
+      key: "credits2024",
       attributeType: 1,
       value: credits2024,
     },
     {
-      key: 'existingCredits',
+      key: "existingCredits",
       attributeType: 1,
       value: existingCredits,
     },
     {
-      key: 'estimatedEmissionsReduction',
+      key: "estimatedEmissionsReduction",
       attributeType: 1,
       value: estimatedEmissionsReduction,
     },
     // pricing info fields
     {
-      key: 'price',
+      key: "price",
       attributeType: 1,
       value: price,
     },
     // compliance fields
     {
-      key: 'claimTopics',
+      key: "claimTopics",
       attributeType: 0,
-      value: targetKeys ? targetKeys.join(',') : targetKeys,
+      value: targetKeys ? targetKeys.join(",") : targetKeys,
     },
   ];
 
   // Utility function to add a delay
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+  const sleep = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
 
-const handleMint = async () => {
+  const handleMint = async () => {
     if (!mintAddress) {
-        console.error("Wallet address is not available.");
-        return;
+      console.error("Wallet address is not available.");
+      return;
     }
 
     try {
-        // Step 1: Mint the token
-        const mintingToast = toast.loading("Minting token...");
-        const { tokenId, transactionHash } = await service.gemforceMint(metadata);
-        toast.update(mintingToast, {
-            render: `Token minted successfully. Transaction Hash: ${transactionHash}`,
-            type: "success",
-            isLoading: false,
-            autoClose: 5000,
-        });
+      // Step 1: Mint the token
+      const mintingToast = toast.loading("Minting token...");
+      const { tokenId, transactionHash } = await service.gemforceMint(metadata);
+      toast.update(mintingToast, {
+        render: `Token minted successfully. Transaction Hash: ${transactionHash}`,
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+      });
 
-        // Add delay before proceeding to the next step
-        await sleep(3000);  // 3-second delay
+      // Add delay before proceeding to the next step
+      await sleep(3000); // 3-second delay
 
-        // Step 2: Initialize carbon credits
-        const carbonCreditToast = toast.loading("Initializing carbon credits...");
-        await service.initializeCarbonCredit(tokenId, existingCredits || "0");
-        toast.update(carbonCreditToast, {
-            render: `Carbon credits initialized for token ID: ${tokenId}`,
-            type: "success",
-            isLoading: false,
-            autoClose: 5000,
-        });
+      // Step 2: Initialize carbon credits
+      const carbonCreditToast = toast.loading("Initializing carbon credits...");
+      await service.initializeCarbonCredit(tokenId, existingCredits || "0");
+      toast.update(carbonCreditToast, {
+        render: `Carbon credits initialized for token ID: ${tokenId}`,
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+      });
 
-        // Add another delay before listing the token
-        await sleep(3000);  // 3-second delay
+      // Add another delay before listing the token
+      await sleep(3000); // 3-second delay
 
-        // Step 3: Calculate price and list the token
-        const usdcPrice = ethers.parseUnits(totalPrice, 6);
-        toast.info(`Calculated total price in USDC: ${totalPrice}`, { autoClose: 3000 });
+      // Step 3: Calculate price and list the token
+      const usdcPrice = ethers.parseUnits(totalPrice, 6);
+      toast.info(`Calculated total price in USDC: ${totalPrice}`, {
+        autoClose: 3000,
+      });
 
-        const listingToast = toast.loading("Listing token on the marketplace...");
-        await service.listItem(
-            mintAddress,  // Receiver of the sale funds
-            tokenId,      // Token ID of the NFT
-            usdcPrice,    // Price in wei (USDC with 6 decimals)
-            true          // Transfer the NFT to the marketplace
-        );
-        toast.update(listingToast, {
-            render: `Token successfully listed with ID: ${tokenId}`,
-            type: "success",
-            isLoading: false,
-            autoClose: 5000,
-        });
+      const listingToast = toast.loading("Listing token on the marketplace...");
+      await service.listItem(
+        mintAddress, // Receiver of the sale funds
+        tokenId, // Token ID of the NFT
+        usdcPrice, // Price in wei (USDC with 6 decimals)
+        true // Transfer the NFT to the marketplace
+      );
+      toast.update(listingToast, {
+        render: `Token successfully listed with ID: ${tokenId}`,
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+      });
 
-        // Step 4: Reset form and states after success
-        resetFormStates();
+      // Step 4: Reset form and states after success
+      resetFormStates();
 
-        toast.success(`Successfully minted NFT with Token ID: ${tokenId} and initialized ${existingCredits} carbon credits.`);
-        return tokenId;
-
+      toast.success(
+        `Successfully minted NFT with Token ID: ${tokenId} and initialized ${existingCredits} carbon credits.`
+      );
+      return tokenId;
     } catch (e) {
-        let errorMessage = "An error occurred during the minting/listing process.";
+      let errorMessage =
+        "An error occurred during the minting/listing process.";
 
-        if (e instanceof Error) {
-            errorMessage = e.message;
-        } else if (typeof e === "string") {
-            errorMessage = e;
-        }
+      if (e instanceof Error) {
+        errorMessage = e.message;
+      } else if (typeof e === "string") {
+        errorMessage = e;
+      }
 
-        console.error(e);
-        toast.error(errorMessage);
+      console.error(e);
+      toast.error(errorMessage);
     }
-};
+  };
 
-  
-  
   // Helper function to reset form states after successful minting
   const resetFormStates = () => {
     setNftTitle("");
@@ -787,12 +806,11 @@ const handleMint = async () => {
     setPrice("");
     setTargetKeys([]);
     setPreview(false);
-  
+
     setTimeout(() => {
       form.resetFields();
     }, 500);
   };
-  
 
   return (
     <>
