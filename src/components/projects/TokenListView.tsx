@@ -306,7 +306,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
       dataSource={filteredTokens}
       rowKey="tokenId"
       pagination={false}
-      scroll={{ x: "max-content" }}
+      scroll={{ y: 400 }}
       style={{ wordWrap: "break-word", whiteSpace: "pre-wrap" }}
     />
   );
