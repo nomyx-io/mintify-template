@@ -5,6 +5,7 @@ import { hashToColor } from "@/utils/colorUtils";
 import BlockchainService from "@/services/BlockchainService";
 import { toast } from "react-toastify";
 import { ethers } from "ethers";
+import { formatPrice } from "@/utils/currencyFormater";
 
 interface TokenListViewProps {
   tokens: any[];
@@ -216,13 +217,14 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     {
       title: "Price Per Credit",
       dataIndex: ["token", "price"],
-      render: (price: number) => `$${price}`,
+      render: (price: number) => `${formatPrice(price, "USD")}`,
       sorter: (a: any, b: any) => a.token.price - b.token.price,
     },
     {
       title: "Total Price",
       dataIndex: "price",
-      render: (price: number) => `$${price / 1_000_000}`, // Convert from small units and format to 2 decimals
+      render: (price: number) => 
+        isSalesHistory ? formatPrice(price, "USD") : formatPrice(price / 1_000_000, "USD"),      
       sorter: (a: any, b: any) => a.price - b.price,
     },
     {

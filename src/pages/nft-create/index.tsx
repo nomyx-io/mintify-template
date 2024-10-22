@@ -22,6 +22,7 @@ import BlockchainService from "@/services/BlockchainService";
 import { CheckboxChangeEvent } from "antd/lib/checkbox/Checkbox";
 import { File } from "parse";
 import { parseUnits, ethers } from "ethers";
+import { formatPrice } from "@/utils/currencyFormater";
 
 export default function Details({ service }: { service: BlockchainService }) {
   const { isConnected } = useAccount();
@@ -261,8 +262,8 @@ export default function Details({ service }: { service: BlockchainService }) {
       estimatedEmissionsReduction,
 
       // pricing info fields
-      price: "$" + price,
-      totalPrice: "$" + totalPrice,
+      price: `${formatPrice(parseFloat(price), "USD")}`,
+      totalPrice: `${formatPrice(parseFloat(totalPrice), "USD")}`,
       // compliance fields
       claimTopics: targetKeys.join(","),
       allTopics: claimTopics,
