@@ -1,6 +1,7 @@
 import React from "react";
 import { Card } from "antd";
 import { hashToColor } from "@/utils/colorUtils";
+import { formatPrice } from "@/utils/currencyFormater";
 
 interface TokenCardViewProps {
   tokens: any[];
@@ -94,7 +95,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, onTokenClick, isS
               {/* token Details Section */}
               <div className="mt-4 grid gap-2">
                 {[
-                  { label: "Price", value: token.price },
+                  { label: "Price", value: `${formatPrice(token.price, "USD")}`  },
                   { label: "Registry ID", value: token.token?.registerId || "-" },
                   { label: "Carbon value", value: token.token?.existingCredits || "-" },
                   { label: "Auditor", value: token.token?.auditor || "-" },
