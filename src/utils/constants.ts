@@ -71,9 +71,9 @@ export const NFT_RECORD_FIELD_GROUPS = [
 ];
 
 export const BASESEP_CHAIN: Chain = {
-  id: 84532,
-  name: 'Base Sepolia',
-  network: 'basesep',
+  id: 8453,
+  name: 'Base',
+  network: 'base',
   nativeCurrency: {
     decimals: 18,
     name: 'Ethereum',
@@ -81,10 +81,10 @@ export const BASESEP_CHAIN: Chain = {
   },
   rpcUrls: {
     default: {
-      http: ['https://base-sepolia.g.alchemy.com/v2/hS_lVzkyS3Uio080pGgNiC0pdagf5iM1']
+      http: ['https://base-mainnet.g.alchemy.com/v2/wKeI-DxtBRopKqsk_pICPIgQH9qGFcBP']
     },
     public: {
-      http: ['https://base-sepolia.g.alchemy.com/v2/hS_lVzkyS3Uio080pGgNiC0pdagf5iM1']
+      http: ['https://base-mainnet.g.alchemy.com/v2/wKeI-DxtBRopKqsk_pICPIgQH9qGFcBP']
     }
   },
   testnet: true,
