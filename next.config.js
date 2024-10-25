@@ -36,8 +36,8 @@ const nextConfig = {
         pathname: '/parse/files/**',
       },
       {
-        hostname: 'localhost',
-        port: '8337',
+        hostname: 'https://kronos-mintify-ui.vercel.app/',
+        port: '',
         pathname: '/parse/files/**',
       }
     ],
