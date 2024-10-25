@@ -31,13 +31,13 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: 'kronos-dev.gemforce.host',
+        hostname: 'kronos-release.gemforce.host',
         port: '', 
         pathname: '/parse/files/**',
       },
       {
-        hostname: 'https://kronos-mintify-ui.vercel.app/',
-        port: '',
+        hostname: 'localhost',
+        port: '8337',
         pathname: '/parse/files/**',
       }
     ],
