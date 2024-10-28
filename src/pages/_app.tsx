@@ -111,7 +111,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     provider.getNetwork().then(async (network: Network) => {
       const chainId: string = `${network.chainId}`;
 
-      const config = process.env.NEXT_PUBLICNEXT_PUBLIC_HARDHAT_CHAIN_ID;
+      const config = process.env.NEXT_PUBLIC_HARDHAT_CHAIN_ID;
 
       if (!config || config !== chainId) {
         // setUnsupportedNetworkDialogVisible(true);
