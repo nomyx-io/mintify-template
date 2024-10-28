@@ -2,7 +2,6 @@ import moment from 'moment';
 import ParseClient from './ParseClient.ts';
 import BlockchainService from "./BlockchainService.ts";
 import Error from "next/error";
-import config from "@/config.json";
 import {formatUnits} from "ethers";
 
 const monthNames = [
@@ -285,7 +284,7 @@ export const KronosService = () => {
 
     const getTreasuryData = async () => {
 
-        let hudDataUrl = `${config.serverURL}/gemforce/lenderlab-treasury-hud`;
+        let hudDataUrl = `${process.env.NEXT_PUBLIC_PARSE_SERVER_URL}/gemforce/lenderlab-treasury-hud`;
 
         try {
             const response = await fetch(hudDataUrl);

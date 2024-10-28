@@ -1,13 +1,12 @@
-import config from "../config.json";
 import Parse from 'parse';
 
 export default class ParseClient {
     static createdSchemas: any = [];
 
     public static initialize() {
-        Parse.initialize(config.applicationId, config.javascriptKey);
-        Parse.serverURL = config.serverURL + "/parse";
-        Parse.javaScriptKey = config.javascriptKey;
+        Parse.initialize(process.env.NEXT_PUBLIC_PARSE_APPLICATION_ID || '', process.env.NEXT_PUBLIC_PARSE_JAVASCRIPT_KEY || '');
+        Parse.serverURL = process.env.NEXT_PUBLIC_PARSE_SERVER_URL + "/parse";
+        Parse.javaScriptKey = process.env.NEXT_PUBLIC_PARSE_JAVASCRIPT_KEY;
 
         // Middleware: Automatically use the session token (JWT) for all requests
         const sessionToken = localStorage.getItem('sessionToken');
