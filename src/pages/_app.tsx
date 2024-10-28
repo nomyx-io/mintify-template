@@ -1,5 +1,3 @@
-import config from "../config.json";
-
 import "@/styles/globals.scss";
 import "@/styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -42,7 +40,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
   const getToken = async (request: object): Promise<{ token: string; roles: string[] }> => {
     try {
-      const { data } = await axios.post(`${config.serverURL}/auth/login`, request);
+      const { data } = await axios.post(
+        `${process.env.NEXT_PUBLIC_PARSE_SERVER_URL}/auth/login`,
+        request
+      );
 
       return {
         token: data?.access_token || "",
@@ -106,15 +107,13 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
     const _blockchainService = BlockchainService.getInstance();
     setBlockchainService(_blockchainService);
-    let jsonConfig: { [key: string]: object } = await import(`../hardhatConfig.json`);
 
     provider.getNetwork().then(async (network: Network) => {
       const chainId: string = `${network.chainId}`;
 
+      const config = process.env.NEXT_PUBLIC_HARDHAT_CHAIN_ID;
 
-      const config = jsonConfig[chainId];
-
-      if (!config) {
+      if (!config || config !== chainId) {
         // setUnsupportedNetworkDialogVisible(true);
         return;
       }
