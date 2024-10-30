@@ -26,8 +26,6 @@ export default class BlockchainService {
     private contractAddress:any;
     private treasuryAddress:any;
     private usdcAddress:any;
-    private marketplaceAddress:any;
-    private carbonCreditAddress:any;
 
     private static instance: BlockchainService;
 
@@ -50,23 +48,20 @@ export default class BlockchainService {
     }
 
     private async init(){
-        const jsonConfig: any = await import(`../hardhatConfig.json`);
         const network = await this.provider.getNetwork();
         const chainId: any = network.chainId;
 
-        const chainConfig = jsonConfig[chainId];
+        const chainConfig = process.env.NEXT_PUBLIC_HARDHAT_CHAIN_ID;
 
-        if (!chainConfig) {
+        if (!chainConfig || chainConfig != chainId) {
             // setUnsupportedNetworkDialogVisible(true);
             // return;
-            throw new Error(`Unable to find ${chainId} in hardhatConfig`);
+            throw new Error(`Unable to find ${chainId} in environment variables`);
         }
 
-        this.contractAddress = chainConfig.contract;
-        this.treasuryAddress = chainConfig.treasury;
-        this.usdcAddress = chainConfig.usdc;
-        this.marketplaceAddress = chainConfig.marketplace;
-        this.carbonCreditAddress = chainConfig.carbonCredit;
+        this.contractAddress = process.env.NEXT_PUBLIC_HARDHAT_CONTRACT_ADDRESS;
+        this.treasuryAddress = process.env.NEXT_PUBLIC_HARDHAT_TREASURY_ADDRESS;
+        this.usdcAddress = process.env.NEXT_PUBLIC_HARDHAT_USDC_ADDRESS;
 
         this.gfMintService = new ethers.Contract(this.contractAddress, this.gfMintedAbi, this.provider);
         this.treasuryService = new ethers.Contract(this.treasuryAddress, this.treasuryAbi, this.provider);
