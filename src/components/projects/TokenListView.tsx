@@ -237,7 +237,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     {
       title: "Carbon Offset (Tons)",
       dataIndex: ["token", "existingCredits"],
-      render: (existingCredits: number) => <span>{existingCredits}</span>,
+      render: (existingCredits: number) => Intl.NumberFormat("en-US").format(existingCredits),
       sorter: (a: any, b: any) =>
         a.token.existingCredits - b.token.existingCredits,
     },

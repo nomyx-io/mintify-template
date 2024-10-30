@@ -54,6 +54,7 @@ export const projectColumns: any = (
     title: "Total Carbon Offset (Tons)",
     dataIndex: "totalCarbon",
     width: 300,
+    render: (totalCarbon: number) => Intl.NumberFormat("en-US").format(totalCarbon),
     sorter: (a: any, b: any) => a.totalCarbon - b.totalCarbon
   },
   {

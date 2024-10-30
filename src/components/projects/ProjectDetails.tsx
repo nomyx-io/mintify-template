@@ -159,7 +159,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     setSelectedToken(filteredListings[prevIndex]);
   };
 
-  const totalTokens = listings.length;
+  const totalTokens = listings.length + sales.length;
   return (
     <div className="project-details">
       {selectedToken ? (
@@ -217,7 +217,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 </div>
                 <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
                   <span className="text-sm">Carbon Offset (Tons)</span>
-                  <h2 className="text-lg font-bold">{project.totalCarbon}</h2>
+                  <h2 className="text-lg font-bold">{Intl.NumberFormat("en-US").format(project.totalCarbon)}</h2>
                 </div>
                 <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
                   <span className="text-sm">Project Creation Date</span>

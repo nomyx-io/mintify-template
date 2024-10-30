@@ -9,18 +9,37 @@ interface TokenCardViewProps {
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
 }
 
-const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, onTokenClick, isSalesHistory }) => {
-
+const TokenCardView: React.FC<TokenCardViewProps> = ({
+  tokens,
+  onTokenClick,
+  isSalesHistory,
+}) => {
   const generateSvgIcon = (color: string) => {
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 100 100">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="100%"
+        height="100%"
+        viewBox="0 0 100 100"
+      >
         <defs>
-          <linearGradient id={`gradient-${color}`} x1="0%" y1="0%" x2="0%" y2="100%">
+          <linearGradient
+            id={`gradient-${color}`}
+            x1="0%"
+            y1="0%"
+            x2="0%"
+            y2="100%"
+          >
             <stop offset="0%" stopColor={color} stopOpacity="1" />
             <stop offset="100%" stopColor="#003366" stopOpacity="1" />
           </linearGradient>
         </defs>
-        <rect width="100" height="100" rx="15" fill={`url(#gradient-${color})`} />
+        <rect
+          width="100"
+          height="100"
+          rx="15"
+          fill={`url(#gradient-${color})`}
+        />
         <text
           x="50%"
           y="50%"
@@ -54,7 +73,9 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, onTokenClick, isS
               padding: "0",
               overflow: "hidden",
               boxSizing: "border-box",
-              transform: !isSalesHistory ? "translateY(0)" : "translateY(-10px)",
+              transform: !isSalesHistory
+                ? "translateY(0)"
+                : "translateY(-10px)",
               transition: "transform 0.3s ease-in-out",
             }}
             //onClick={!isSalesHistory ? () => onTokenClick(token) : undefined}
@@ -86,7 +107,9 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, onTokenClick, isS
             {/* Content Section */}
             <div className="p-4">
               {/* Title and Description */}
-              <h2 className="text-lg font-bold">{token.token?.nftTitle || "Token Title"}</h2>
+              <h2 className="text-lg font-bold">
+                {token.token?.nftTitle || "Token Title"}
+              </h2>
               <p className="text-sm text-gray-600 mt-1 line-clamp-1">
                 {token.token?.description ||
                   "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
@@ -95,18 +118,37 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, onTokenClick, isS
               {/* token Details Section */}
               <div className="mt-4 grid gap-2">
                 {[
-                  { label: "Price", value: `${formatPrice(token.price, "USD")}`  },
-                  { label: "Registry ID", value: token.token?.registerId || "-" },
-                  { label: "Carbon value", value: token.token?.existingCredits || "-" },
+                  {
+                    label: "Total Price",
+                    value: isSalesHistory
+                      ? formatPrice(token.price, "USD")
+                      : formatPrice(token.price / 1_000_000, "USD"),
+                  },
+                  {
+                    label: "Registry ID",
+                    value: token.token?.registerId || "-",
+                  },
+                  {
+                    label: "Carbon Offset (Tons)",
+                    value:
+                      Intl.NumberFormat("en-US").format(
+                        token.token?.existingCredits
+                      ) || "-",
+                  },
                   { label: "Auditor", value: token.token?.auditor || "-" },
-                  { label: "Issuance Date", value: token.token?.issuanceDate || "-" },
+                  {
+                    label: "Issuance Date",
+                    value: token.token?.issuanceDate || "-",
+                  },
                 ].map((item, index) => (
                   <div key={index} className="flex items-center">
                     {/* Label on the left */}
                     <span className="font-semibold flex-1">{item.label}</span>
 
                     {/* Value on the right with consistent width */}
-                    <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">{item.value}</span>
+                    <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">
+                      {item.value}
+                    </span>
                   </div>
                 ))}
               </div>
