@@ -90,6 +90,26 @@ export const BASESEP_CHAIN: Chain = {
   testnet: true,
 }
 
+export const BASE_CHAIN: Chain = {
+  id: 8453,
+  name: 'Base',
+  network: 'base',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ethereum',
+    symbol: 'bETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://base-mainnet.g.alchemy.com/v2/wKeI-DxtBRopKqsk_pICPIgQH9qGFcBP']
+    },
+    public: {
+      http: ['https://base-mainnet.g.alchemy.com/v2/wKeI-DxtBRopKqsk_pICPIgQH9qGFcBP']
+    }
+  },
+  testnet: true,
+}
+
 export const LOCALHOST_CHAIN: Chain = {
   id: 31337,
   name: 'Localhost',
