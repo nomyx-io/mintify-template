@@ -1,32 +1,32 @@
-import moment from "moment";
-import ParseClient from "./ParseClient.ts";
-import BlockchainService from "./BlockchainService.ts";
-import Error from "next/error";
-import { formatUnits } from "ethers";
+import moment from 'moment';
+import ParseClient from './ParseClient.ts';
+import BlockchainService from './BlockchainService.ts';
+import Error from 'next/error';
+import { formatUnits } from 'ethers';
 
 const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ];
 
 export const KronosService = () => {
   ParseClient.initialize();
   const getPortfolioPerformance = async () => {
     let records = await ParseClient.getRecords(
-      "AssetPerformance",
+      'AssetPerformance',
       [],
       [],
-      ["*"]
+      ['*']
     );
     // Initialize an object to store monthly balances
     const monthlyBalances = {};
@@ -86,7 +86,7 @@ export const KronosService = () => {
   };
   const getEvents = async () => {
     try {
-      let records = await ParseClient.getRecords("Event", [], [], ["*"]);
+      let records = await ParseClient.getRecords('Event', [], [], ['*']);
       let dateWiseData = {};
       const todayEvents = [];
 
@@ -95,10 +95,10 @@ export const KronosService = () => {
           let record = entry.attributes;
 
           const eventDate =
-            record.updatedAt.toISOString().split("T")[0] ==
-            moment().format("yyyy-MM-DD")
-              ? "Today"
-              : record.updatedAt.toISOString().split("T")[0];
+            record.updatedAt.toISOString().split('T')[0] ==
+            moment().format('yyyy-MM-DD')
+              ? 'Today'
+              : record.updatedAt.toISOString().split('T')[0];
 
           const eventData = {
             name: record?.event,
@@ -118,11 +118,11 @@ export const KronosService = () => {
               dateWiseData[eventDate].data.push(eventData);
             }
           }
-          if (eventDate === "Today") {
+          if (eventDate === 'Today') {
             todayEvents.push(eventData);
           }
         });
-      if (dateWiseData.hasOwnProperty("Today")) {
+      if (dateWiseData.hasOwnProperty('Today')) {
         const todayData = dateWiseData.Today;
         delete dateWiseData.Today;
         dateWiseData = { Today: todayData, ...dateWiseData };
@@ -139,46 +139,46 @@ export const KronosService = () => {
     }
   };
   const getMintedNfts = async () => {
-    let records = await ParseClient.getRecords("Token", undefined, undefined, [
-      "*",
+    let records = await ParseClient.getRecords('Token', undefined, undefined, [
+      '*',
     ]);
     return records;
   };
   const getMintedNftDetails = async (id) => {
-    let records = await ParseClient.get("Token", id);
+    let records = await ParseClient.get('Token', id);
     return JSON.parse(JSON.stringify(records));
   };
 
   const getSaleTokens = async (tokenId) => {
     let records = await ParseClient.getRecords(
-      "TokenSale",
-      ["tokenId"],
+      'TokenSale',
+      ['tokenId'],
       [tokenId],
-      ["*"]
+      ['*']
     );
     return records;
   };
 
   const getListingsById = async (tokenId) => {
     let records = await ParseClient.getRecords(
-      "Listing",
-      ["tokenId"],
+      'Listing',
+      ['tokenId'],
       [tokenId],
-      ["*"]
+      ['*']
     );
     return records;
   };
 
   const getListings = async (fieldName, fieldValue) => {
     const records = await ParseClient.getRecords(
-      "TokenListing",
+      'TokenListing',
       fieldName,
       fieldValue,
-      ["*"],
+      ['*'],
       undefined,
       undefined,
       undefined,
-      "desc"
+      'desc'
     );
     let sanitizedRecords = [];
 
@@ -191,14 +191,14 @@ export const KronosService = () => {
 
   const getProjectTokens = async (fieldName, fieldValue) => {
     const records = await ParseClient.getRecords(
-      "Token",
+      'Token',
       fieldName,
       fieldValue,
-      ["*"],
+      ['*'],
       undefined,
       undefined,
       undefined,
-      "desc"
+      'desc'
     );
     let sanitizedRecords = [];
 
@@ -211,14 +211,14 @@ export const KronosService = () => {
 
   const getSales = async () => {
     const records = await ParseClient.getRecords(
-      "TokenSale",
+      'TokenSale',
       [],
       [],
-      ["*"],
+      ['*'],
       undefined,
       undefined,
       undefined,
-      "desc"
+      'desc'
     );
 
     // filter based off of
@@ -233,21 +233,21 @@ export const KronosService = () => {
 
   const getTreasuryClaims = async (tokenId) => {
     let records = await ParseClient.getRecords(
-      "TreasuryClaim",
-      ["tokenId"],
+      'TreasuryClaim',
+      ['tokenId'],
       [tokenId],
-      ["*"]
+      ['*']
     );
     return records;
   };
 
   const getKpis = async (id) => {
-    const tokenRecords = await ParseClient.getRecords("Token", [], [], ["*"]);
+    const tokenRecords = await ParseClient.getRecords('Token', [], [], ['*']);
     const retiredCredits = await ParseClient.getRecords(
-      "CarbonCreditsRetired__e",
+      'CarbonCreditsRetired__e',
       [],
       [],
-      ["*"]
+      ['*']
     );
     let retiredTokens = [];
     retiredCredits.forEach((record) => {
@@ -287,24 +287,24 @@ export const KronosService = () => {
 
   const getClaimTopics = async () => {
     let records = await ParseClient.getRecords(
-      "ClaimTopic",
-      ["active"],
+      'ClaimTopic',
+      ['active'],
       [true],
-      ["*"]
+      ['*']
     );
     return records;
   };
 
   const getDeposits = async () => {
     let records = await ParseClient.getRecords(
-      "Deposit",
+      'Deposit',
       undefined,
       undefined,
-      ["*"],
+      ['*'],
       undefined,
       undefined,
       undefined,
-      "desc"
+      'desc'
     );
 
     const sanitizedRecords = JSON.parse(JSON.stringify(records));
@@ -316,11 +316,11 @@ export const KronosService = () => {
 
   const getTokenDepositsForDepositId = async (depositId) => {
     return getTokenDeposits(
-      ["deposit"],
+      ['deposit'],
       [
         {
-          __type: "Pointer",
-          className: "Deposit",
+          __type: 'Pointer',
+          className: 'Deposit',
           objectId: depositId,
         },
       ]
@@ -329,11 +329,11 @@ export const KronosService = () => {
 
   const getTokenDepositsForToken = async (objectId) => {
     return getTokenDeposits(
-      ["token"],
+      ['token'],
       [
         {
-          __type: "Pointer",
-          className: "Token",
+          __type: 'Pointer',
+          className: 'Token',
           objectId,
         },
       ]
@@ -342,10 +342,10 @@ export const KronosService = () => {
 
   const getTokenDeposits = async (whereColumns, whereValues) => {
     let records = await ParseClient.getRecords(
-      "TokenDeposit",
+      'TokenDeposit',
       whereColumns,
       whereValues,
-      ["*"]
+      ['*']
     );
     if (!records) {
       return [];
@@ -365,13 +365,13 @@ export const KronosService = () => {
     let loanIds = depositData.map((depositItem) =>
       depositItem.loan_id.toString()
     );
-    let tokens = await ParseClient.getRecords("Token", "loanId", loanIds, [
-      "*",
+    let tokens = await ParseClient.getRecords('Token', 'loanId', loanIds, [
+      '*',
     ]);
 
     if (tokens.length < depositData.length) {
       throw new Error(
-        "The file you selected contains entries that do not match any existing loans. Please check the file and try again."
+        'The file you selected contains entries that do not match any existing loans. Please check the file and try again.'
       );
     }
 
@@ -406,35 +406,41 @@ export const KronosService = () => {
       const data = await response.json();
       return data;
     } catch (error) {
-      console.error("Error fetching Treasury data:", error);
+      console.error('Error fetching Treasury data:', error);
       throw error;
     }
   };
 
   const createProject = async (projectData) => {
     const [logo, cover] = await Promise.all([
-      ParseClient.saveFile("project-logo", { base64: projectData.logo }),
-      ParseClient.saveFile("project-cover", { base64: projectData.coverImage }),
+      ParseClient.saveFile('project-logo', { base64: projectData.logo }),
+      ParseClient.saveFile('project-cover', { base64: projectData.coverImage }),
     ]);
     projectData.logo = logo;
     projectData.coverImage = cover;
 
-    return ParseClient.createRecord("KronosProject", [], [], projectData);
+    return ParseClient.createRecord('KronosProject', [], [], projectData);
   };
 
   const getProjects = async () => {
-    let records = await ParseClient.getRecords("KronosProject", [], [], ["*"]);
+    let records = await ParseClient.getRecords('KronosProject', [], [], ['*']);
     return records;
   };
 
   const getProjectMetadata = async (projectId) => {
     try {
-        const response = await ParseClient.run("getProjectMetadata", { projectId });
-        return response;
-      } catch (error) {
-        console.error("Failed to fetch project metadata", error);
-        throw new Error(`Error fetching project metadata: ${error instanceof Error ? error.message : String(error)}`);
-      }
+      const response = await ParseClient.run('getProjectMetadata', {
+        projectId,
+      });
+      return response;
+    } catch (error) {
+      console.error('Failed to fetch project metadata', error);
+      throw new Error(
+        `Error fetching project metadata: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
   };
 
   return {
@@ -457,6 +463,6 @@ export const KronosService = () => {
     getTreasuryData,
     createProject,
     getProjects,
-    getProjectMetadata
+    getProjectMetadata,
   };
 };
