@@ -24,6 +24,23 @@ import { File } from "parse";
 import { parseUnits, ethers } from "ethers";
 import { formatPrice } from "@/utils/currencyFormater";
 
+const requiredRule = { required: true, message: `This field is required.` };
+const alphaNumericRule = {
+  required: true,
+  pattern: Regex.alphaNumeric,
+  message: "Only alphanumeric characters are allowed.",
+};
+const dateRule = {
+  required: true,
+  pattern: /^\d{2}\/\d{2}\/\d{4}$/,
+  message: "Date must be in mm/dd/yyyy format.",
+};
+const numberRule = {
+  required: true,
+  pattern: Regex.numeric,
+  message: "This field must be a number.",
+};
+
 export default function Details({ service }: { service: BlockchainService }) {
   const { isConnected } = useAccount();
   const router = useRouter();
@@ -35,42 +52,11 @@ export default function Details({ service }: { service: BlockchainService }) {
     { id: string; title: string; startDate: string }[]
   >([]);
   const [claimTopics, setClaimTopics] = useState<ClaimTopic[]>([]);
-
-  // form fields
-  // Details Group
-  const [nftTitle, setNftTitle] = useState("");
-  const [description, setDescription] = useState("");
-
-  // Project Info Group
   const [projectId, setProjectId] = useState("");
-  const [auditor, setAuditor] = useState(""); // what does this need to be? maybe don't need
-  const [projectStartDate, setProjectStartDate] = useState("");
   const [mintAddress, setMintAddress] = useState<string | undefined>(
     walletAddress
   );
-  const [country, setCountry] = useState(""); // maybe later
-  const [state, setState] = useState(""); // maybe later
-  const [registerId, setRegisterId] = useState("");
-  const [registryURL, setRegistryURL] = useState(""); // come from the project?
-  const [issuanceDate, setIssuanceDate] = useState("");
-  const [ghgReduction, setGhgReduction] = useState("");
-  const [useTranche, setUseTranche] = useState(false);
-  const [trancheCutoff, setTrancheCutoff] = useState("");
-
-  // Credit Info Group
-  const [creditsPre2020, setCreditsPre2020] = useState("");
-  const [credits2020, setCredits2020] = useState("");
-  const [credits2021, setCredits2021] = useState("");
-  const [credits2022, setCredits2022] = useState("");
-  const [credits2023, setCredits2023] = useState("");
-  const [credits2024, setCredits2024] = useState("");
-  const [existingCredits, setExistingCredits] = useState("");
-  const [estimatedEmissionsReduction, setEstimatedEmissionsReduction] =
-    useState(""); // maybe don't need
-
-  // Pricing Info Group
-  const [price, setPrice] = useState("");
-  const [totalPrice, setTotalPrice] = useState("");
+  const [formValues, setFormValues] = useState<Record<string, any>>({});
 
   const [form] = Form.useForm();
 
@@ -91,16 +77,178 @@ export default function Details({ service }: { service: BlockchainService }) {
     }
   }, [api]);
 
-  useEffect(() => {
-    if (router.query.projectId) {
-      setProjectId(router.query.projectId as string);
-      setProjectStartDate(
-        projectList.find((project) => project.id === router.query.projectId)
-          ?.startDate || ""
-      );
-      form.setFieldsValue({ projectId: router.query.projectId });
-    }
-  }, [router.query.projectId, projectList, form]);
+  const [fieldGroups, setFieldGroups] = useState<NftDetailsInputFieldGroup[]>([
+    {
+      name: "Details",
+      fields: [
+        {
+          label: "Title",
+          name: "nftTitle",
+          dataType: "text",
+          placeHolder: "Enter Token Title",
+          defaultValue: "",
+          value: "",
+          rules: [requiredRule, alphaNumericRule, { max: 30 }],
+        },
+        {
+          label: "Description",
+          name: "description",
+          dataType: "text",
+          placeHolder: "Add a description for the NFT",
+          defaultValue: "",
+          value: "",
+          rules: [{ ...requiredRule, max: 256 }],
+        },
+        {
+          label: "Project",
+          name: "projectId",
+          dataType: "select",
+          placeHolder: "Select Project ID",
+          defaultValue: "",
+          value: "",
+          rules: [requiredRule],
+          options: projectList.map((project) => ({
+            label: project.title,
+            value: project.id,
+          })),
+        },
+        {
+          label: "Project Start Date",
+          name: "projectStartDate",
+          dataType: "text",
+          placeHolder: "mm/dd/yyyy",
+          value: formValues.projectStartDate,
+          disabled: true,
+        },
+        {
+          label: "Mint to",
+          name: "mintAddress",
+          dataType: "text",
+          placeHolder: "Enter Wallet Address",
+          defaultValue: "",
+          value: "",
+          rules: [
+            {
+              required: true,
+              pattern: Regex.ethereumAddress,
+              message: "This field must be an ethereum address.",
+            },
+          ],
+        },
+        {
+          label: "Price",
+          name: "price",
+          dataType: "text",
+          placeHolder: "Price",
+          defaultValue: "",
+          value: "",
+          prefix: "$",
+        },
+      ],
+    },
+  ]);
+
+  const fetchProjectMetadata = useCallback(
+    async (projectId: string) => {
+      try {
+        const projectsMetadata = await api.getProjectMetadata(projectId);
+
+        // Check if there is valid metadata
+        if (projectsMetadata?.metadata?.length > 0) {
+          const additionalFields = projectsMetadata.metadata.map(
+            (field: any) => {
+              // Define validation rules based on field type
+              let rules = [requiredRule]; // Default rule to make field required
+
+              // switch (field.type) {
+              //   case "string":
+              //     rules.push(alphaNumericRule);
+              //     break;
+              //   case "date":
+              //     rules.push(dateRule);
+              //     break;
+              //   case "number":
+              //     rules.push(numberRule);
+              //     break;
+              //   case "select":
+              //     //rules.push(requiredRule); // Ensure required rule for select fields
+              //     break;
+              //   default:
+              //     break;
+              // }
+
+              return {
+                id: "metadata_" + field.name.replace(/\s+/g, "").toLowerCase(),
+                label: field.name,
+                name: field.name.replace(/\s+/g, "").toLowerCase(),
+                dataType: field.type,
+                placeHolder: `Enter ${field.name}`,
+                defaultValue: "", // Default value for new fields
+                value: "", // Initial empty value
+                rules,
+              };
+            }
+          );
+          // Remove additional fields before concatenating the new fields
+          setFieldGroups((prevFieldGroups) => {
+            return prevFieldGroups.map((group) => {
+              if (group.name === "Details") {
+                return {
+                  ...group,
+                  fields: group.fields.filter(
+                    (field) => !field.id?.startsWith("metadata_") // Remove fields related to metadata
+                  ),
+                };
+              }
+              return group;
+            });
+          });
+
+          // Concatenate additional fields to the existing `Details` fields
+          setFieldGroups((prevFieldGroups) => {
+            return prevFieldGroups.map((group) => {
+              if (group.name === "Details") {
+                return {
+                  ...group,
+                  fields: [...group.fields, ...additionalFields],
+                };
+              }
+              return group;
+            });
+          });
+        } else {
+          // Remove additional fields if no metadata is found
+          setFieldGroups((prevFieldGroups) => {
+            return prevFieldGroups.map((group) => {
+              if (group.name === "Details") {
+                return {
+                  ...group,
+                  fields: group.fields.filter(
+                    (field) => !field.id?.startsWith("metadata_") // Remove fields related to metadata
+                  ),
+                };
+              }
+              return group;
+            });
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch metadata:", error);
+      }
+    },
+    [api]
+  );
+
+  // useEffect(() => {
+  //   if (router.query.projectId) {
+  //     setProjectId(router.query.projectId as string);
+  //     setProjectStartDate(
+  //       projectList.find((project) => project.id === router.query.projectId)
+  //         ?.startDate || ""
+  //     );
+  //     form.setFieldsValue({ projectId: router.query.projectId });
+  //   }
+  // }, [router.query.projectId, projectList, form]);
 
   useEffect(() => {
     fetchProjects();
@@ -115,90 +263,69 @@ export default function Details({ service }: { service: BlockchainService }) {
     e: ChangeEvent<HTMLInputElement> | CheckboxChangeEvent,
     inputValue?: string
   ) => {
-    // Set state for all fields normally
     const name = inputName || e.target.name;
+
+    if (typeof name !== "string") {
+      return; // Prevent further execution if name is not a string
+    }
+
     const value = e.target?.value || inputValue;
-    switch (name) {
-      // Details Group
-      case "nftTitle":
-        setNftTitle(value);
-        break;
-      case "description":
-        setDescription(value);
-        break;
 
-      // Project Info Group
-      case "projectId":
-        setProjectId(value);
-        break;
-      case "auditor":
-        setAuditor(value);
-        break;
-      case "projectStartDate":
-        setProjectStartDate(value);
-        break;
-      case "mintAddress":
-        setMintAddress(value);
-        break;
-      case "country":
-        setCountry(value);
-        break;
-      case "state":
-        setState(value);
-        break;
-      case "registerId":
-        setRegisterId(value);
-        break;
-      case "registryURL":
-        setRegistryURL(value);
-        break;
-      case "issuanceDate":
-        setIssuanceDate(value);
-        break;
-      case "ghgReduction":
-        setGhgReduction(value);
-        break;
-      case "useTranche":
-        setUseTranche(!useTranche);
-        break;
-      case "trancheCutoff":
-        setTrancheCutoff(value);
-        break;
+    // Update the value in the formValues object directly
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: value, // Dynamically update the relevant field
+    }));
 
-      // Credit Info Group
-      case "creditsPre2020":
-        setCreditsPre2020(value);
-        break;
-      case "credits2020":
-        setCredits2020(value);
-        break;
-      case "credits2021":
-        setCredits2021(value);
-        break;
-      case "credits2022":
-        setCredits2022(value);
-        break;
-      case "credits2023":
-        setCredits2023(value);
-        break;
-      case "credits2024":
-        setCredits2024(value);
-        break;
-      case "existingCredits":
-        setExistingCredits(value);
-        break;
-      case "estimatedEmissionsReduction":
-        setEstimatedEmissionsReduction(value);
-        break;
+    // If specific logic is needed, like for projectId
+    if (name === "projectId") {
+      const projectDate = projectList.find(
+        (project) => project.id === value
+      )?.startDate;
 
-      // Pricing Info Group
-      case "price":
-        setPrice(value);
-        break;
-      default:
-        break;
+      setFormValues((prevValues) => {
+        const updatedValues = { ...prevValues, projectStartDate: projectDate };
+        return updatedValues;
+      });
+
+      fetchProjectMetadata(value);
     }
   };
+
+  useEffect(() => {
+    if (projectList.length > 0) {
+      setFieldGroups((prevFieldGroups) =>
+        prevFieldGroups.map((group) => {
+          if (group.name === "Details") {
+            return {
+              ...group,
+              fields: group.fields.map((field) => {
+                // Update options for projectId
+                if (field.name === "projectId") {
+                  return {
+                    ...field,
+                    options: projectList.map((project) => ({
+                      label: project.title,
+                      value: project.id,
+                    })),
+                  };
+                }
+                // Set value for projectStartDate
+                if (field.name === "projectStartDate") {
+                  return {
+                    ...field,
+                    value: formValues.projectStartDate || "", // Use the value from formValues
+                  };
+                }
+                return field;
+              }),
+            };
+          }
+          return group;
+        })
+      );
+    }
+  }, [projectList, formValues.projectStartDate]); // Re-run when projectList or projectStartDate changes
 
   // Update the mintAddress state when the walletAddress context value changes
   useEffect(() => {
@@ -229,312 +356,62 @@ export default function Details({ service }: { service: BlockchainService }) {
   ) => {};
 
   const handlePreview = () => {
+    // Find project name dynamically from the project list
     const projectName = projectList.find(
-      (project) => project.id === projectId
+      (project) => project.id === formValues.projectId
     )?.title;
-    setNftData({
-      // details fields
-      nftTitle,
-      description,
 
-      // project info fields
-      projectId,
-      projectName,
-      auditor,
-      projectStartDate,
-      mintAddress,
-      country,
-      state,
-      registerId,
-      registryURL,
-      issuanceDate,
-      ghgReduction,
-      trancheCutoff,
-
-      // credit info fields
-      creditsPre2020,
-      credits2020,
-      credits2021,
-      credits2022,
-      credits2023,
-      credits2024,
-      existingCredits,
-      estimatedEmissionsReduction,
-
-      // pricing info fields
-      price: `${formatPrice(parseFloat(price), "USD")}`,
-      totalPrice: `${formatPrice(parseFloat(totalPrice), "USD")}`,
-      // compliance fields
-      claimTopics: targetKeys.join(","),
-      allTopics: claimTopics,
+    setFieldGroups((prevFieldGroups) => {
+      return prevFieldGroups.map((group) => {
+        if (group.name === "Details") {
+          return {
+            ...group,
+            fields: group.fields.map((field) => {
+              if (field.name === "projectId") {
+                // Replace projectId with projectName in fieldGroups
+                return {
+                  ...field,
+                  value: projectName || "", // Set the value to projectName
+                  name: "projectName",
+                };
+              }
+              return field;
+            }),
+          };
+        }
+        return group;
+      });
     });
+
+    // Prepare the base structure of nftData
+    const updatedNftData: Record<string, any> = {};
+
+    // Loop through the formValues to dynamically set the fields
+    Object.keys(formValues).forEach((key) => {
+      if (key === "price" || key === "totalPrice") {
+        // Format price and totalPrice
+        updatedNftData[key] = formValues[key]
+          ? `${formatPrice(parseFloat(formValues[key]), "USD")}`
+          : "";
+      } else if (key === "targetKeys") {
+        // Handle targetKeys array (e.g., claimTopics)
+        updatedNftData["claimTopics"] = formValues[key]
+          ? formValues[key].join(",")
+          : "";
+      } else if (key === "projectId") {
+        // Special case for projectId to add projectName dynamically
+        updatedNftData[key] = formValues[key];
+        updatedNftData["projectName"] = projectName;
+      } else {
+        // Default case, just add the field as is
+        updatedNftData[key] = formValues[key];
+      }
+    });
+    // Set the dynamic nftData object
+    setNftData(updatedNftData);
+    // Optionally, set preview state to true
     setPreview(true);
   };
-
-  const requiredRule = { required: true, message: `This field is required.` };
-  const alphaNumericRule = {
-    pattern: Regex.alphaNumeric,
-    message: `This field must be alphanumeric.`,
-  };
-  const numericRule = {
-    pattern: Regex.numeric,
-    message: `This field must be numeric only.`,
-  };
-
-  const fieldGroups: NftDetailsInputFieldGroup[] = [
-    {
-      name: "Details",
-      fields: [
-        {
-          label: "Title",
-          name: "nftTitle",
-          dataType: "text",
-          placeHolder: "Enter Token Title",
-          defaultValue: nftTitle,
-          value: nftTitle,
-          rules: [requiredRule, alphaNumericRule, { max: 30 }],
-        },
-        {
-          label: "Description",
-          name: "description",
-          dataType: "text",
-          placeHolder: "Add a description for the NFT",
-          defaultValue: description,
-          value: description,
-          rules: [{ ...requiredRule, max: 256 }],
-        },
-      ],
-    },
-    {
-      name: "Project Information",
-      fields: [
-        {
-          label: "Project",
-          name: "projectId",
-          dataType: "select",
-          placeHolder: "Select Project ID",
-          defaultValue: projectId,
-          value: projectId,
-          rules: [requiredRule],
-          options: projectList.map((project) => ({
-            label: project.title,
-            value: project.id,
-          })),
-        },
-        {
-          label: "Auditor",
-          name: "auditor",
-          dataType: "text",
-          placeHolder: "Enter Auditor",
-          defaultValue: auditor,
-          value: auditor,
-          rules: [requiredRule],
-        },
-        {
-          label: "Project Start Date",
-          name: "projectStartDate",
-          dataType: "text",
-          placeHolder: "mm/dd/yyyy",
-          defaultValue: projectStartDate,
-          value: projectStartDate,
-          disabled: true,
-        },
-        {
-          label: "Mint to",
-          name: "mintAddress",
-          dataType: "text",
-          placeHolder: "Enter Wallet Address",
-          defaultValue: mintAddress || "",
-          value: mintAddress || "",
-          rules: [
-            {
-              required: true,
-              pattern: Regex.ethereumAddress,
-              message: "This field must be an ethereum address.",
-            },
-          ],
-        },
-        {
-          label: "Country",
-          name: "country",
-          dataType: "text",
-          placeHolder: "Enter Country",
-          defaultValue: country,
-          value: country,
-        },
-        {
-          label: "State",
-          name: "state",
-          dataType: "text",
-          placeHolder: "Enter State",
-          defaultValue: state,
-          value: state,
-        },
-        {
-          label: "Registry ID",
-          name: "registerId",
-          dataType: "text",
-          placeHolder: "Enter Registry ID",
-          defaultValue: registerId,
-          value: registerId,
-          rules: [requiredRule, alphaNumericRule],
-        },
-        {
-          label: "Registry Link",
-          name: "registryURL",
-          dataType: "text",
-          placeHolder: "Enter Registry URL",
-          defaultValue: registryURL,
-          value: registryURL,
-          rules: [requiredRule],
-        },
-        {
-          label: "Issuance Date",
-          name: "issuanceDate",
-          dataType: "date",
-          placeHolder: "mm/dd/yyyy",
-          defaultValue: issuanceDate,
-          value: issuanceDate,
-          rules: [requiredRule],
-        },
-        {
-          label: "GHG Reduction Type",
-          name: "ghgReduction",
-          dataType: "text",
-          placeHolder: "Enter GHG Reduction Type",
-          defaultValue: ghgReduction,
-          value: ghgReduction,
-          rules: [requiredRule],
-        },
-        {
-          label: "Tranche Cutoff",
-          name: "useTranche",
-          dataType: "checkbox",
-          defaultValue: useTranche,
-          value: useTranche,
-          className: "col-span-2",
-        },
-        {
-          label: "Tranche Cutoff",
-          name: "trancheCutoff",
-          dataType: "text",
-          placeHolder: "Enter Tranche Cutoff",
-          defaultValue: trancheCutoff,
-          value: trancheCutoff,
-          className: `${useTranche ? "" : "hidden"}`,
-        },
-      ],
-    },
-    {
-      name: "Credit Info",
-      fields: [
-        {
-          label: "Pre 2020 Credits",
-          name: "creditsPre2020",
-          dataType: "text",
-          placeHolder: "Enter Pre 2020 carbon Issued Amount",
-          defaultValue: creditsPre2020,
-          value: creditsPre2020,
-          rules: [requiredRule, numericRule],
-        },
-        {
-          label: "2020 Project Credits",
-          name: "credits2020",
-          dataType: "text",
-          placeHolder: "Enter 2020 carbon Issued Amount",
-          defaultValue: credits2020,
-          value: credits2020,
-          rules: [requiredRule, numericRule],
-        },
-        {
-          label: "2021 Project Credits",
-          name: "credits2021",
-          dataType: "text",
-          placeHolder: "Enter 2021 carbon Issued Amount",
-          defaultValue: credits2021,
-          value: credits2021,
-          rules: [requiredRule, numericRule],
-        },
-        {
-          label: "2022 Project Credits",
-          name: "credits2022",
-          dataType: "text",
-          placeHolder: "Enter 2022 carbon Issued Amount",
-          defaultValue: credits2022,
-          value: credits2022,
-          rules: [requiredRule, numericRule],
-        },
-        {
-          label: "2023 Project Credits",
-          name: "credits2023",
-          dataType: "text",
-          placeHolder: "Enter 2023 carbon Issued Amount",
-          defaultValue: credits2023,
-          value: credits2023,
-          rules: [requiredRule, numericRule],
-        },
-        {
-          label: "2024 Project Credits",
-          name: "credits2024",
-          dataType: "text",
-          placeHolder: "Enter 2024 carbon Issued Amount",
-          defaultValue: credits2024,
-          value: credits2024,
-          rules: [requiredRule, numericRule],
-        },
-        {
-          label: "Existing Credits",
-          name: "existingCredits",
-          dataType: "text",
-          placeHolder: "Enter Existing Carbon Credits Amount",
-          defaultValue: existingCredits,
-          value: existingCredits,
-          rules: [requiredRule, numericRule],
-        },
-        {
-          label: "Estimated Annual Emissions Reduction",
-          name: "estimatedEmissionsReduction",
-          dataType: "text",
-          placeHolder: "ETA",
-          defaultValue: estimatedEmissionsReduction,
-          value: estimatedEmissionsReduction,
-          rules: [requiredRule, numericRule],
-        },
-      ],
-    },
-    {
-      name: "Pricing Information",
-      fields: [
-        {
-          label: "Price per Credit",
-          name: "price",
-          dataType: "text",
-          placeHolder: "Enter Price per Credit",
-          defaultValue: price,
-          value: price,
-          prefix: "$",
-          rules: [
-            requiredRule,
-            {
-              pattern: Regex.maxCharWithDecimal(9, 2),
-              message:
-                "Please enter a value with up to 9 digits and 2 decimal places.",
-            },
-          ],
-        },
-        {
-          label: "Total Price",
-          name: "totalPrice",
-          dataType: "text",
-          placeHolder: "Final Price",
-          defaultValue: totalPrice,
-          value: totalPrice,
-          prefix: "$",
-          disabled: true,
-        },
-      ],
-    },
-  ];
 
   useEffect(() => {
     getClaimTopics();
@@ -544,19 +421,13 @@ export default function Details({ service }: { service: BlockchainService }) {
     !isConnected && router.push("/login");
   }, []);
 
-  useEffect(() => {
-    const totalPrice = Number(price) * Number(existingCredits);
-    setTotalPrice(`${totalPrice}`);
-    form.setFieldValue("totalPrice", totalPrice);
-  }, [price, existingCredits, form]);
-
-  useEffect(() => {
-    const projectDate = projectList.find(
-      (project) => project.id === projectId
-    )?.startDate;
-    setProjectStartDate(projectDate || "");
-    form.setFieldsValue({ projectStartDate: projectDate });
-  }, [projectId, projectList, form]);
+  // useEffect(() => {
+  //   const projectDate = projectList.find(
+  //     (project) => project.id === projectId
+  //   )?.startDate;
+  //   setProjectStartDate(projectDate || "");
+  //   form.setFieldsValue({ projectStartDate: projectDate });
+  // }, [projectId, projectList, form]);
 
   const getClaimTopics = async () => {
     const claims: Parse.Object[] | undefined =
@@ -576,139 +447,75 @@ export default function Details({ service }: { service: BlockchainService }) {
   };
 
   const handleBack = () => {
+    setFieldGroups((prevFieldGroups) => {
+      return prevFieldGroups.map((group) => {
+        if (group.name === "Details") {
+          return {
+            ...group,
+            fields: group.fields.map((field) => {
+              if (field.name === "projectName") {
+                // Replace projectId with projectName in fieldGroups
+                return {
+                  ...field,
+                  value: formValues.projectId || "", // Set the value to projectId
+                  name: "projectId",
+                };
+              }
+              return field;
+            }),
+          };
+        }
+        return group;
+      });
+    });
     setPreview(false);
   };
 
-  const metadata = [
-    // details fields
-    {
-      key: "nftTitle",
-      attributeType: 1,
-      value: nftTitle,
-    },
-    {
-      key: "description",
-      attributeType: 1,
-      value: description,
-    },
-    // project info fields
-    {
-      key: "projectId",
-      attributeType: 1,
-      value: projectId,
-    },
-    {
-      key: "auditor",
-      attributeType: 1,
-      value: auditor,
-    },
-    {
-      key: "projectStartDate",
-      attributeType: 1,
-      value: projectStartDate,
-    },
-    {
-      key: "mintAddress",
-      attributeType: 1,
-      value: mintAddress,
-    },
-    {
-      key: "country",
-      attributeType: 1,
-      value: country,
-    },
-    {
-      key: "state",
-      attributeType: 1,
-      value: state,
-    },
-    {
-      key: "registerId",
-      attributeType: 1,
-      value: registerId,
-    },
-    {
-      key: "registryURL",
-      attributeType: 1,
-      value: registryURL,
-    },
-    {
-      key: "issuanceDate",
-      attributeType: 1,
-      value: issuanceDate,
-    },
-    {
-      key: "ghgReduction",
-      attributeType: 1,
-      value: ghgReduction,
-    },
-    {
-      key: "trancheCutoff",
-      attributeType: 1,
-      value: trancheCutoff,
-    },
-    // credit info fields
-    {
-      key: "creditsPre2020",
-      attributeType: 1,
-      value: creditsPre2020,
-    },
-    {
-      key: "credits2020",
-      attributeType: 1,
-      value: credits2020,
-    },
-    {
-      key: "credits2021",
-      attributeType: 1,
-      value: credits2021,
-    },
-    {
-      key: "credits2022",
-      attributeType: 1,
-      value: credits2022,
-    },
-    {
-      key: "credits2023",
-      attributeType: 1,
-      value: credits2023,
-    },
-    {
-      key: "credits2024",
-      attributeType: 1,
-      value: credits2024,
-    },
-    {
-      key: "existingCredits",
-      attributeType: 1,
-      value: existingCredits,
-    },
-    {
-      key: "estimatedEmissionsReduction",
-      attributeType: 1,
-      value: estimatedEmissionsReduction,
-    },
-    // pricing info fields
-    {
-      key: "price",
-      attributeType: 1,
-      value: price,
-    },
-    // compliance fields
-    {
+  const generateMetadata = (
+    fieldGroups: NftDetailsInputFieldGroup[],
+    formValues: Record<string, any>
+  ) => {
+    // Create an empty array to store the generated metadata
+    const metadataFields: any = [];
+
+    // Loop through each field group
+    fieldGroups.forEach((group) => {
+      group.fields.forEach((field) => {
+        // Get the field value from the formValues object
+        const value = formValues[field.name];
+
+        // Skip if the value is empty or undefined
+        if (value || value === 0) {
+          const metadataField = {
+            key: field.name,
+            attributeType: 1, // Default attribute type; adjust if needed based on field data type
+            value,
+          };
+
+          // Add the metadata field to the metadata array
+          metadataFields.push(metadataField);
+        }
+      });
+    });
+    const claimsTopics = {
       key: "claimTopics",
       attributeType: 0,
       value: targetKeys ? targetKeys.join(",") : targetKeys,
-    },
-  ];
+    };
+    // push claim topics
+    metadataFields.push(claimsTopics);
+    return metadataFields;
+  };
+
+  const metadata = generateMetadata(fieldGroups, formValues);
 
   // Utility function to add a delay
   const sleep = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
   const handleMint = async () => {
-    if (!mintAddress) {
-      console.error("Wallet address is not available.");
+    if (!formValues.mintAddress) {
+      toast.error("Wallet address is not available.");
       return;
     }
 
@@ -728,7 +535,10 @@ export default function Details({ service }: { service: BlockchainService }) {
 
       // Step 2: Initialize carbon credits
       const carbonCreditToast = toast.loading("Initializing carbon credits...");
-      await service.initializeCarbonCredit(tokenId, existingCredits || "0");
+      await service.initializeCarbonCredit(
+        tokenId,
+        formValues?.existingCredits || "0"
+      );
       toast.update(carbonCreditToast, {
         render: `Carbon credits initialized for token ID: ${tokenId}`,
         type: "success",
@@ -740,14 +550,14 @@ export default function Details({ service }: { service: BlockchainService }) {
       await sleep(3000); // 3-second delay
 
       // Step 3: Calculate price and list the token
-      const usdcPrice = ethers.parseUnits(totalPrice, 6);
-      toast.info(`Calculated total price in USDC: ${totalPrice}`, {
+      const usdcPrice = ethers.parseUnits(formValues?.price, 6);
+      toast.info(`Calculated total price in USDC: ${formValues?.price}`, {
         autoClose: 3000,
       });
 
       const listingToast = toast.loading("Listing token on the marketplace...");
       await service.listItem(
-        mintAddress, // Receiver of the sale funds
+        formValues.mintAddress, // Receiver of the sale funds
         tokenId, // Token ID of the NFT
         usdcPrice, // Price in wei (USDC with 6 decimals)
         true // Transfer the NFT to the marketplace
@@ -763,19 +573,17 @@ export default function Details({ service }: { service: BlockchainService }) {
       resetFormStates();
 
       toast.success(
-        `Successfully minted NFT with Token ID: ${tokenId} and initialized ${existingCredits} carbon credits.`
+        `Successfully minted NFT with Token ID: ${tokenId} and initialized ${formValues?.existingCredits} carbon credits.`
       );
       return tokenId;
     } catch (e) {
       let errorMessage =
         "An error occurred during the minting/listing process.";
-
       if (e instanceof Error) {
         errorMessage = e.message;
       } else if (typeof e === "string") {
         errorMessage = e;
       }
-
       console.error(e);
       toast.error(errorMessage);
     }
@@ -783,30 +591,24 @@ export default function Details({ service }: { service: BlockchainService }) {
 
   // Helper function to reset form states after successful minting
   const resetFormStates = () => {
-    setNftTitle("");
-    setDescription("");
     setProjectId("");
-    setAuditor("");
-    setProjectStartDate("");
     setMintAddress("");
-    setCountry("");
-    setState("");
-    setRegisterId("");
-    setRegistryURL("");
-    setIssuanceDate("");
-    setGhgReduction("");
-    setTrancheCutoff("");
-    setCreditsPre2020("");
-    setCredits2020("");
-    setCredits2021("");
-    setCredits2022("");
-    setCredits2023("");
-    setCredits2024("");
-    setExistingCredits("");
-    setEstimatedEmissionsReduction("");
-    setPrice("");
     setTargetKeys([]);
     setPreview(false);
+    // remove the metadata fields on form reset
+    setFieldGroups((prevFieldGroups) => {
+      return prevFieldGroups.map((group) => {
+        if (group.name === "Details") {
+          return {
+            ...group,
+            fields: group.fields.filter(
+              (field) => !field.id?.startsWith("metadata_") // Remove fields related to metadata
+            ),
+          };
+        }
+        return group;
+      });
+    });
 
     setTimeout(() => {
       form.resetFields();
@@ -820,6 +622,7 @@ export default function Details({ service }: { service: BlockchainService }) {
           data={nftData}
           handleBack={handleBack}
           handleMint={handleMint}
+          fieldGroups={fieldGroups}
         />
       ) : (
         <CreateNftDetails

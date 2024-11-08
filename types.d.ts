@@ -15,6 +15,7 @@ interface NftDetailsInputFieldGroup {
 }
 
 interface NftDetailsInputField {
+  id?: string;
   label: string;
   name: string;
   dataType: string;
