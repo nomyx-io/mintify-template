@@ -307,11 +307,11 @@ export const KronosService = () => {
         projectData.coverImage = cover;
 
 
-        return ParseClient.createRecord('KronosProject', [], [], projectData)
+        return ParseClient.createRecord('TokenProject', [], [], projectData)
     }
 
     const getProjects = async () => {
-        let records = await ParseClient.getRecords('KronosProject', [], [], ["*"]);
+        let records = await ParseClient.getRecords('TokenProject', [], [], ["*"]);
         return records;
     }
 
