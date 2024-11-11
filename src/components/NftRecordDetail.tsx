@@ -17,7 +17,6 @@ interface NftRecordDetailProps {
     [key: string]: string | string[] | ClaimTopic[];
   };
   detailView?: boolean;
-  fieldGroups: NftRecordDetailFieldGroup[];
 }
 
 const NftRecordDetail = ({
@@ -25,15 +24,14 @@ const NftRecordDetail = ({
   handleBack,
   data,
   detailView = false,
-  fieldGroups,
 }: NftRecordDetailProps) => {
   const colorKey = data['id'] || data['nftTitle'];
   const color = hashToColor(`${colorKey as string}`);
   const router = useRouter();
   const { transactionHash, allTopics, claimTopics } = data;
   const title = detailView
-    ? `Carbon Credit - ${data['nftTitle']}`
-    : 'Preview Carbon Credit Token </>';
+    ? `Token - ${data['nftTitle']}`
+    : 'Preview Token </>';
   const backButton = (
     <Button onClick={() => router.back()} type='text' icon={<LeftOutlined />} />
   );
@@ -77,31 +75,20 @@ const NftRecordDetail = ({
         </div>
 
         <div className='space-y-4 mb-2'>
-          {fieldGroups.map((fieldGroup, index) => (
-            <div key={`group-${index}`}>
-              <div className='p-2 font-bold'>{fieldGroup.name}</div>
-              <div className='grid grid-cols-2 border-t border-b border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
-                {fieldGroup.fields.map(
-                  (field: NftRecordDetailField, index: number) => (
-                    <>
-                      {data[field.name] && (
-                        <div
-                          key={`field-${index}`}
-                          className='p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
-                          <div className='text-nomyx-gray3-light dark:text-nomyx-gray3-dark'>
-                            {field.label}
-                          </div>
-                          <div className='card-value truncate'>
-                            {data[field.name] as string}
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )
-                )}
-              </div>
-            </div>
-          ))}
+          <div className='grid grid-cols-2 border-t border-b border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
+            {Object.entries(data).map(([key, value], index) => {
+              return (
+                <div
+                  key={`field-${index}`}
+                  className='p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
+                  <div className='text-nomyx-gray3-light dark:text-nomyx-gray3-dark'>
+                    {key.replace('_', ' ')}
+                  </div>
+                  <div className='card-value truncate'>{value as string}</div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <div className='p-2 font-bold'>Compliance Features</div>
