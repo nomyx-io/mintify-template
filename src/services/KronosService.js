@@ -427,7 +427,6 @@ export const KronosService = () => {
         let records = await ParseClient.getRecords('TokenProject', [], [], ["*"]);
         return records;
     }
-  };
 
   return {
     getPortfolioPerformance,
