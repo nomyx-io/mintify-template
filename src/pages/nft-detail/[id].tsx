@@ -3,9 +3,8 @@ import { getDashboardLayout } from '@/Layouts';
 import { KronosService } from '@/services/KronosService';
 import NftRecordDetail from '../../components/NftRecordDetail';
 import { useRouter } from 'next/router';
-import BlockchainService from '@/services/BlockchainService';
 
-export default function NftDetail({ service }: { service: BlockchainService }) {
+export default function NftDetail() {
   const router = useRouter();
   const api = useMemo(() => KronosService(), []);
   const [nftData, setNftData] = useState();
@@ -15,26 +14,13 @@ export default function NftDetail({ service }: { service: BlockchainService }) {
   useEffect(() => {
     const getData = async () => {
       let nft = await api.getMintedNftDetails(id);
-      const claims: Parse.Object[] | undefined =
-        service && (await service.getClaimTopics());
-      let allTopics: ClaimTopic[] = [];
-      if (claims) {
-        claims.forEach((item: Parse.Object) => {
-          allTopics.push({
-            key: `${parseInt(item.attributes.topic)}`,
-            displayName: item.attributes.displayName as string,
-            id: item.id as string,
-            topic: item.attributes.topic as string,
-          });
-        });
-      }
-      setNftData({ ...nft, id: id, allTopics });
+      setNftData({ ...nft, id: id });
     };
     
     if (id) {
       getData();
     }
-  }, [api, id, service]);
+  }, [api, id]);
 
   
 

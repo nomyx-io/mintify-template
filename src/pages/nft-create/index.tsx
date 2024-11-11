@@ -12,7 +12,6 @@ import { Button, Form } from "antd";
 import { usePageUnloadGuard } from "@/hooks/usePageUnloadGuard";
 import BlockchainService from "@/services/BlockchainService";
 import { ethers } from "ethers";
-import { formatPrice } from "@/utils/currencyFormater";
 import NftDetailsForm from "@/components/molecules/NftDetailsForm";
 import Compliance from "@/components/molecules/Compliance";
 
@@ -48,9 +47,6 @@ export default function Details({ service }: { service: BlockchainService }) {
 
     Object.entries(values).forEach(([key, value]) => {
       if (value || value === 0) {
-        if (key === "price") {
-          value = `${formatPrice(parseFloat(values[key]), "USD")}` || "";
-        }
         const metadataField = {
           key,
           attributeType: 1, 
@@ -89,6 +85,7 @@ export default function Details({ service }: { service: BlockchainService }) {
       });
 
       const price = nftMetadata.find((value) => value.key === "price")?.value || "0";
+      console.log(price);
       const usdcPrice = ethers.parseUnits(price, 6);
       toast.info(`Calculated total price in USDC: ${price || "0"}`, {
         autoClose: 3000,
@@ -138,7 +135,7 @@ export default function Details({ service }: { service: BlockchainService }) {
     <>
       {preview ? (
         <NftPreview
-          data={{...formData, claimTopics: selectedClaims}}
+          data={{...formData, claimTopics: selectedClaims.join(",")}}
           handleBack={handleBack}
           handleMint={handleMint}
         />
