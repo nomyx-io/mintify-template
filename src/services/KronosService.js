@@ -448,6 +448,5 @@ export const KronosService = () => {
     getTreasuryData,
     createProject,
     getProjects,
-    getProjectMetadata,
   };
 };
