@@ -419,27 +419,13 @@ export const KronosService = () => {
     projectData.logo = logo;
     projectData.coverImage = cover;
 
-    return ParseClient.createRecord('TokenProject', [], [], projectData);
-  };
 
-  const getProjects = async () => {
-    let records = await ParseClient.getRecords('TokenProject', [], [], ['*']);
-    return records;
-  };
+        return ParseClient.createRecord('TokenProject', [], [], projectData)
+    }
 
-  const getProjectMetadata = async (projectId) => {
-    try {
-      const response = await ParseClient.run('getProjectMetadata', {
-        projectId,
-      });
-      return response;
-    } catch (error) {
-      console.error('Failed to fetch project metadata', error);
-      throw new Error(
-        `Error fetching project metadata: ${
-          error instanceof Error ? error.message : String(error)
-        }`
-      );
+    const getProjects = async () => {
+        let records = await ParseClient.getRecords('TokenProject', [], [], ["*"]);
+        return records;
     }
   };
 
