@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { getDashboardLayout } from '@/layouts';
 import { CustomerService } from '@/services/CustomerService';
-import NftRecordDetail from '../../components/NftRecordDetail';
+import NftRecordDetail from '../../components/mint/NftRecordDetail';
 import { useRouter } from 'next/router';
 
 export default function NftDetail() {

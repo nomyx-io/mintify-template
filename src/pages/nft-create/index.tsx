@@ -3,7 +3,7 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import NftPreview from "../../components/NftRecordDetail";
+import NftPreview from "../../components/mint/NftRecordDetail";
 import { getDashboardLayout } from "@/layouts";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
@@ -12,7 +12,7 @@ import { Button, Form } from "antd";
 import { usePageUnloadGuard } from "@/hooks/usePageUnloadGuard";
 import BlockchainService from "@/services/BlockchainService";
 import { ethers } from "ethers";
-import NftDetailsForm from "@/components/molecules/NftDetailsForm";
+import NftDetailsForm from "@/components/mint/NftDetailsForm";
 import Compliance from "@/components/molecules/Compliance";
 
 export default function Details({ service }: { service: BlockchainService }) {

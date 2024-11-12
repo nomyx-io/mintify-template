@@ -5,7 +5,7 @@ import React, {
   useState,
 } from 'react';
 import { Card, Form, FormInstance } from 'antd';
-import VariableFormInput from '../VariableFormInput';
+import VariableFormInput from '../atoms/VariableFormInput';
 import { Regex } from '@/utils/regex';
 import { CustomerService } from '@/services/CustomerService';
 import { useRouter } from 'next/router';
