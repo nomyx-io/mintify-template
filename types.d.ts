@@ -65,11 +65,7 @@ interface MintedToken {
 
 interface KPIs {
   tokens: number;
-  retired: number;
-  carbonIssued: number;
-  carbonRetired: number;
   issuedValue: number;
-  retiredValue: number;
 }
 
 interface Events {

@@ -12,26 +12,6 @@ export function getKPIs(data?: KPIs) {
       title: "Total Issued Value",
       value: data?.issuedValue,
     },
-    {
-      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Retired Value",
-      value: data?.retiredValue,
-    },
-    {
-      icon: <Setting className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Carbon Issued",
-      value: data?.carbonIssued,
-    },
-    {
-      icon: <Setting className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Carbon Retired",
-      value: data?.carbonRetired,
-    },
-    {
-      icon: <ArrowUp className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Retired Tokens",
-      value: data?.retired,
-    },
   ];
 }
 

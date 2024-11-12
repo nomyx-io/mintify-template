@@ -131,55 +131,16 @@ export const CustomerService = () => {
     return sanitizedRecords;
   };
 
-  const getTreasuryClaims = async (tokenId:string) => {
-    let records = await ParseClient.getRecords(
-      'TreasuryClaim',
-      ['tokenId'],
-      [tokenId],
-      ['*']
-    );
-    return records;
-  };
-
   const getKpis = async () => {
     const tokenRecords = await ParseClient.getRecords('Token', [], [], ['*']);
-    const retiredCredits = await ParseClient.getRecords(
-      'CarbonCreditsRetired__e',
-      [],
-      [],
-      ['*']
-    );
-    const retiredTokens: Parse.Object[] = [];
-    retiredCredits?.forEach((record) => {
-      const token = tokenRecords?.find(
-        (token) => token.attributes.tokenId === record.attributes.tokenId
-      );
-      token && retiredTokens.push(token);
-    });
 
     return {
       tokens: tokenRecords?.length || 0,
-      retired: retiredTokens.length || 0,
       issuedValue: tokenRecords?.reduce(
         (acc, record) =>
           acc +
           Number(record.attributes.price) *
             Number(record.attributes.existingCredits),
-        0
-      ) || 0,
-      retiredValue: retiredTokens.reduce(
-        (acc, record) =>
-          acc +
-          Number(record.attributes.price) *
-            Number(record.attributes.existingCredits),
-        0
-      ) || 0,
-      carbonIssued: tokenRecords?.reduce(
-        (acc, record) => acc + Number(record.attributes.existingCredits),
-        0
-      ) || 0,
-      carbonRetired: retiredTokens.reduce(
-        (acc, record) => acc + Number(record.attributes.existingCredits),
         0
       ) || 0,
     };
@@ -193,19 +154,6 @@ export const CustomerService = () => {
       ['*']
     );
     return records;
-  };
-
-  const getTreasuryData = async () => {
-    let hudDataUrl = `${process.env.NEXT_PUBLIC_PARSE_SERVER_URL}/gemforce/lenderlab-treasury-hud`;
-
-    try {
-      const response = await fetch(hudDataUrl);
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching Treasury data:', error);
-      throw error;
-    }
   };
 
   const createProject = async (projectData: ProjectSaveData) => {
@@ -229,10 +177,8 @@ export const CustomerService = () => {
     getListings,
     getProjectTokens,
     getSales,
-    getTreasuryClaims,
     getKpis,
     getClaimTopics,
-    getTreasuryData,
     createProject,
     getProjects,
   };
