@@ -82,13 +82,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     };
   }, []);
 
-  const handleDetailsClick = (token: any) => {
-    setSelectedToken(token);
-  };
-
-  const handleBackToListings = () => {
-    setSelectedToken(null);
-  };
 
   // Fetch listings and sales when component mounts
   useEffect(() => {
@@ -260,9 +253,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     children: (
                       <>
                         {viewMode === "table" ? (
-                          <TokenListView tokens={filteredListings} onProjectClick={handleDetailsClick} isSalesHistory={false} />
+                          <TokenListView tokens={filteredListings} isSalesHistory={false} />
                         ) : (
-                          <TokenCardView tokens={filteredListings} onTokenClick={handleDetailsClick} isSalesHistory={false} />
+                          <TokenCardView tokens={filteredListings} isSalesHistory={false} />
                         )}
                       </>
                     ),
@@ -272,9 +265,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     label: "Sales History",
                     children:
                       viewMode === "table" ? (
-                        <TokenListView tokens={filteredSales} onProjectClick={handleDetailsClick} isSalesHistory={true} />
+                        <TokenListView tokens={filteredSales} isSalesHistory={true} />
                       ) : (
-                        <TokenCardView tokens={filteredSales} onTokenClick={handleDetailsClick} isSalesHistory={true} />
+                        <TokenCardView tokens={filteredSales} isSalesHistory={true} />
                       ),
                   },
                 ]}
