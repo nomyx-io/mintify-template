@@ -1,9 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, Form, FormInstance } from 'antd';
 import VariableFormInput from '../atoms/VariableFormInput';
 import { Regex } from '@/utils/regex';
@@ -30,13 +25,13 @@ interface NftDetailsFormProps {
 const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
   const api = useMemo(() => CustomerService(), []);
 
-  const router= useRouter();
+  const router = useRouter();
 
   const [projectId, setProjectId] = useState(router.query.projectId as string);
   const [projectList, setProjectList] = useState<
     { id: string; title: string; startDate: string; fields: string }[]
   >([]);
-  const [additionalFields, setAdditionalFields] = useState([]);
+  const [additionalFields, setAdditionalFields] = useState<NftDetailsInputField[]>([]);
 
   Form.useWatch((values) => {
     if (values.projectId && values.projectId !== projectId) {
@@ -72,7 +67,11 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       if (projectStartDate) {
         form.setFieldsValue({ projectStartDate, projectId });
       }
-      const additionalFields = JSON.parse(projectFields);
+      const additionalFields: NftDetailsInputField[] = JSON.parse(projectFields).map((field: any) => ({
+        label: field.name,
+        name: field.key,
+        type: field.type,
+      }));
 
       setAdditionalFields(additionalFields);
     }
