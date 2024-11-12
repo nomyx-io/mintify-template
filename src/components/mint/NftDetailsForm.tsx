@@ -36,6 +36,9 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
   const [projectList, setProjectList] = useState<
     { id: string; title: string; startDate: string; fields: string }[]
   >([]);
+  const [registeredUserList, setRegisteredUserList] = useState<
+    { walletAddress: string; email: string }[]
+  >([]);
   const [additionalFields, setAdditionalFields] = useState([]);
 
   Form.useWatch((values) => {
@@ -60,9 +63,25 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
     }
   }, [api]);
 
+  const fetchRegisteredUsers = useCallback(async () => {
+    try {
+      const users = await api.getIdentityRegisteredUser();
+      console.log('users', users);
+      setRegisteredUserList(
+        users?.users.map((user: any) => ({
+          walletAddress: user.walletAddress,
+          email: user.email,
+        })) || []
+      );
+    } catch (error) {
+      console.error('Failed to fetch projects:', error);
+    }
+  }, [api]);
+
   useEffect(() => {
     fetchProjects();
-  }, [fetchProjects]);
+    fetchRegisteredUsers();
+  }, [fetchProjects, fetchRegisteredUsers]);
 
   useEffect(() => {
     const project = projectList.find((project) => project.id === projectId);
@@ -72,8 +91,13 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       if (projectStartDate) {
         form.setFieldsValue({ projectStartDate, projectId });
       }
-      const additionalFields = JSON.parse(projectFields);
+      const additionalFields = JSON.parse(projectFields).map((field: any) => ({
+        label: field.name,
+        name: field.key,
+        type: field.type,
+      }));
 
+      console.log('additionalFields', additionalFields);
       setAdditionalFields(additionalFields);
     }
   }, [form, projectId, projectList]);
@@ -125,7 +149,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
               disabled={true}
             />
             <VariableFormInput
-              type='text'
+              type='select'
               name='mintAddress'
               label='Mint To'
               placeholder='Enter Wallet Address'
@@ -136,6 +160,12 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
                   message: 'This field must be an ethereum address.',
                 },
               ]}
+              options={
+                registeredUserList.map((user) => ({
+                  label: user.email,
+                  value: user.walletAddress,
+                })) || []
+              }
             />
             <VariableFormInput
               type='text'
