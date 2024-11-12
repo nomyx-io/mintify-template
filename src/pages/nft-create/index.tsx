@@ -4,7 +4,7 @@ import React, {
   useState,
 } from "react";
 import NftPreview from "../../components/NftRecordDetail";
-import { getDashboardLayout } from "@/Layouts";
+import { getDashboardLayout } from "@/layouts";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 import { useAccount } from "wagmi";

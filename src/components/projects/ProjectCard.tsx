@@ -63,19 +63,13 @@ export default function ProjectCard({
       </div>
       <div className="flex flex-col gap-1 mt-5">
         <DataRow>
-          <DataKey>Total Carbon Offset (Tons)</DataKey>
-          <DataValue>
-            {Intl.NumberFormat("en-US").format(project.totalCarbon)}
-          </DataValue>
-        </DataRow>
-        <DataRow>
           <DataKey>Total Tokens</DataKey>
           <DataValue>{project.totalTokens}</DataValue>
         </DataRow>
         <DataRow>
-          <DataKey>Registry</DataKey>
+          <DataKey>Total Token Value</DataKey>
           <DataValue>
-            <div className="truncate">{project.registryName}</div>
+            $ {Intl.NumberFormat("en-US").format(project.totalValue)}
           </DataValue>
         </DataRow>
       </div>

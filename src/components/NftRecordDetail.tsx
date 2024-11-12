@@ -4,7 +4,7 @@ import { Button, Card, Checkbox } from 'antd';
 import { useRouter } from 'next/router';
 import { LeftOutlined } from '@ant-design/icons';
 import { hashToColor } from '@/utils/colorUtils';
-import { GenerateSvgIcon } from './KronosCreditSVG';
+import { GenerateSvgIcon } from './TokenSVG';
 import BlockchainService from '@/services/BlockchainService';
 import ParseClient from '@/services/ParseClient';
 import { formatPrice } from '@/utils/currencyFormater';

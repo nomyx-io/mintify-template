@@ -1,19 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { getDashboardLayout } from '@/Layouts';
-import { KronosService } from '@/services/KronosService';
+import { getDashboardLayout } from '@/layouts';
+import { CustomerService } from '@/services/CustomerService';
 import NftRecordDetail from '../../components/NftRecordDetail';
 import { useRouter } from 'next/router';
 
 export default function NftDetail() {
   const router = useRouter();
-  const api = useMemo(() => KronosService(), []);
+  const api = useMemo(() => CustomerService(), []);
   const [nftData, setNftData] = useState();
 
   const id = router.query.id;
 
   useEffect(() => {
     const getData = async () => {
-      let nft = await api.getMintedNftDetails(id);
+      let nft = await api.getMintedNftDetails(id as string);
       setNftData({ ...nft, id: id });
     };
     

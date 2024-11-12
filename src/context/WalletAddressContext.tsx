@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect, useMemo } from 'react';
-import { KronosService } from '@/services/KronosService';
+import { CustomerService } from '@/services/CustomerService';
 
 // Create the context with a default empty value
 const WalletAddressContext = createContext({
@@ -9,7 +9,7 @@ const WalletAddressContext = createContext({
 
 // Create a provider component that encapsulates the state logic
 export const WalletAddressProvider = ({ children }: { children: React.ReactNode }) => {
-  const api = useMemo(() => KronosService(), []);
+  const api = useMemo(() => CustomerService(), []);
   const [walletAddress, setWalletAddress] = useState('');
 
   return (

@@ -1,12 +1,5 @@
-import { message } from "antd";
-import { ArrowSwapVertical, Copy, Eye } from "iconsax-react";
+import { Eye } from "iconsax-react";
 import Image from "next/image";
-import Link from "next/link";
-
-const copyURL = (text: string) => {
-  navigator.clipboard.writeText(text);
-  message.success("Copied to clipboard!");
-};
 
 export const projectColumns: any = (
   onProjectClick: (project: Project) => void
@@ -31,7 +24,7 @@ export const projectColumns: any = (
           </div>
           <div className="w-10 h-10 relative rounded overflow-hidden flex-shrink-0 ml-4">
             <Image
-              src={project.coverImage?.url() || "/default-image.png"}
+              src={project.logo?.url() || "/default-image.png"}
               alt={project.title}
               fill
               className="object-cover"
@@ -51,26 +44,17 @@ export const projectColumns: any = (
     // No sorter for Description
   },
   {
-    title: "Total Carbon Offset (Tons)",
-    dataIndex: "totalCarbon",
-    width: 300,
-    render: (totalCarbon: number) => Intl.NumberFormat("en-US").format(totalCarbon),
-    sorter: (a: any, b: any) => a.totalCarbon - b.totalCarbon
-  },
-  {
     title: "Total Tokens",
     dataIndex: "totalTokens",
     width: 150,
-    sorter: (a: any, b: any) => a.totalTokens - b.totalTokens
+    sorter: (a: any, b: any) => a.totalTokens - b.totalTokens,
   },
   {
-    dataIndex: "registryName",
-    title: "Registry URL",
-    align: "left",
-    width: 200,
-    sorter: {
-      compare: (a: any, b: any) => a.registryName.localeCompare(b.registryName),
-      multiple: 2,
-    }
+    title: "Total Token Value",
+    dataIndex: "totalValue",
+    width: 300,
+    render: (totalValue: number) =>
+      "$ " + Intl.NumberFormat("en-US").format(totalValue),
+    sorter: (a: any, b: any) => a.totalValue - b.totalValue,
   },
 ];

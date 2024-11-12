@@ -2,8 +2,6 @@
 
 import React, { RefObject, useEffect, useRef } from "react";
 import IconCard from "@/components/atoms/IconCard";
-import filterIcon from "@/assets/filterIcon.svg";
-import Image from "next/image";
 import { useRouter } from "next/router";
 import { Coin, FilterSquare } from "iconsax-react";
 
@@ -44,14 +42,14 @@ export const EventFeed = ({ data }: EventFeedProps) => {
     : [];
 
   const eventNames = Object.values(data).flatMap(
-    (entry: { data: KronosEvent[] }) =>
-      entry.data.map((element: KronosEvent) => element.name)
+    (entry: { data: TokenEvent[] }) =>
+      entry.data.map((element: TokenEvent) => element.name)
   );
   const filterOptions = Array.from(new Set(eventNames));
   const filteredEvents: Events = {};
   Object.entries(data).forEach(([key, value]) => {
     const filteredValues = value.data.filter(
-      (item: KronosEvent) =>
+      (item: TokenEvent) =>
         activeFilters.length === 0 || activeFilters.includes(item.name)
     );
 
@@ -124,7 +122,7 @@ export const EventFeed = ({ data }: EventFeedProps) => {
               className="text-nomyx-text-light dark:text-nomyx-text-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark"
             >
               <h3 className="px-4 pt-4">{key}</h3>
-              {value.data.map((item: KronosEvent, index: number) => (
+              {value.data.map((item: TokenEvent, index: number) => (
                 <IconCard
                   key={`${key}-${index}`}
                   icon={<Coin />}

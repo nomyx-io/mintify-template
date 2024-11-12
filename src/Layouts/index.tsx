@@ -3,7 +3,6 @@ import SideNavBar from "@/components/molecules/SideNavBar";
 import TopNavBar from "@/components/molecules/TopNavBar";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { Layout } from "antd/es";
-import KronosSpin from "@/components/KronosSpin";
 import { useRouter } from "next/router";
 
 const { Content } = Layout;
@@ -47,7 +46,6 @@ export const AppLayout = ({ children }: { children: React.ReactElement }) => {
                 visibility: loading ? "visible" : "hidden",
               }}
             >
-              <KronosSpin />
             </div>
 
             <div className="p-5 w-full h-full hidden sm:block bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark">{children}</div>

@@ -1,15 +1,15 @@
 "use client";
 import KPI from "@/components/atoms/KPI";
-import { KronosService } from "@/services/KronosService";
+import { CustomerService } from "@/services/CustomerService";
 import { EventFeed } from "@/components/molecules/EventFeed";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { getDashboardLayout } from "@/Layouts";
+import { getDashboardLayout } from "@/layouts";
 import BarChart from "@/components/atoms/Graphs/Barchart";
 import { Card, Tabs } from "antd";
 import { getGraphData, getKPIs } from "@/utils/dashboard";
 
 export default function Home() {
-  const api = useMemo(() => KronosService(), []);
+  const api = useMemo(() => CustomerService(), []);
   const [tokenGraphValues, setTokenGraphValues] = useState<GraphValues>();
   const [carbonGraphValues, setCarbonGraphValues] = useState<GraphValues>();
   const [eventDetails, setEventDetails] = useState<Events>({});

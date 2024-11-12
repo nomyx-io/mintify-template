@@ -1,5 +1,4 @@
 import React, {
-  ChangeEvent,
   useCallback,
   useEffect,
   useMemo,
@@ -8,8 +7,8 @@ import React, {
 import { Card, Form, FormInstance } from 'antd';
 import VariableFormInput from '../VariableFormInput';
 import { Regex } from '@/utils/regex';
-import { KronosService } from '@/services/KronosService';
-import { useWalletAddress } from '@/context/WalletAddressContext';
+import { CustomerService } from '@/services/CustomerService';
+import { useRouter } from 'next/router';
 
 const requiredRule = { required: true, message: `This field is required.` };
 const alphaNumericRule = {
@@ -29,9 +28,11 @@ interface NftDetailsFormProps {
 }
 
 const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
-  const api = useMemo(() => KronosService(), []);
+  const api = useMemo(() => CustomerService(), []);
 
-  const [projectId, setProjectId] = useState('');
+  const router= useRouter();
+
+  const [projectId, setProjectId] = useState(router.query.projectId as string);
   const [projectList, setProjectList] = useState<
     { id: string; title: string; startDate: string; fields: string }[]
   >([]);
@@ -69,13 +70,9 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       const projectFields = project.fields;
       const projectStartDate = project.startDate;
       if (projectStartDate) {
-        form.setFieldsValue({ projectStartDate });
+        form.setFieldsValue({ projectStartDate, projectId });
       }
-      const additionalFields = JSON.parse(projectFields).map((field: any) => ({
-        label: field.name,
-        name: field.key,
-        dataType: field.type,
-      }));
+      const additionalFields = JSON.parse(projectFields);
 
       setAdditionalFields(additionalFields);
     }
@@ -159,7 +156,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
                       key={'field-' + index}
                       name={field.name}
                       label={field.label}
-                      type={field.dataType}
+                      type={field.type}
                       rules={field.rules}
                       disabled={field.disabled}
                       prefix={field?.prefix || ''}
