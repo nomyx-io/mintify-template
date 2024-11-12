@@ -2,6 +2,12 @@ interface Window {
   ethereum?: import('ethers').providers.ExternalProvider;
 }
 
+interface Metadata {
+  key: string;
+  attributeType: number;
+  value: string;
+}
+
 interface ClaimTopic {
   key: string;
   displayName: string;
@@ -15,6 +21,7 @@ interface NftDetailsInputFieldGroup {
 }
 
 interface NftDetailsInputField {
+  id?: string;
   label: string;
   name: string;
   dataType: string;

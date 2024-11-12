@@ -1,121 +1,176 @@
-import React, { ChangeEvent } from 'react';
-import { Card, Form, FormInstance, Input, Select } from 'antd';
-import Checkbox, { CheckboxChangeEvent } from 'antd/lib/checkbox/Checkbox';
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import { Card, Form, FormInstance } from 'antd';
+import VariableFormInput from '../VariableFormInput';
+import { Regex } from '@/utils/regex';
+import { KronosService } from '@/services/KronosService';
+import { useWalletAddress } from '@/context/WalletAddressContext';
+
+const requiredRule = { required: true, message: `This field is required.` };
+const alphaNumericRule = {
+  required: true,
+  pattern: Regex.alphaNumeric,
+  message: 'Only alphanumeric characters are allowed.',
+};
+const numberRule = {
+  required: true,
+  pattern: Regex.numericWithDecimal,
+  message: 'This field must be a number.',
+};
 
 interface NftDetailsFormProps {
-  fieldGroups: NftDetailsInputFieldGroup[];
-  handleChange: (
-    inputName: string,
-    e: ChangeEvent<HTMLInputElement> | CheckboxChangeEvent,
-    inputValue?: string
-  ) => void;
   form: FormInstance;
-  onFinish: () => void;
+  onFinish: (values: any) => void;
 }
 
-const NftDetailsForm = ({
-  fieldGroups,
-  handleChange,
-  form,
-  onFinish,
-}: NftDetailsFormProps) => {
-  //build initialValues object
-  const initialValues: { [key: string]: unknown } = {};
+const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
+  const api = useMemo(() => KronosService(), []);
 
-  //iterate over field definitions and create a key on the initialValues
-  // object with the field name as the key and the value of the field as the value
-  fieldGroups.map((group: NftDetailsInputFieldGroup) => {
-    group.fields.map((field: NftDetailsInputField) => {
-      //add the field name as the key and the field value as the value to the initialValues object
-      initialValues[field.name] = field.value;
-    });
-  });
+  const [projectId, setProjectId] = useState('');
+  const [projectList, setProjectList] = useState<
+    { id: string; title: string; startDate: string; fields: string }[]
+  >([]);
+  const [additionalFields, setAdditionalFields] = useState([]);
+
+  Form.useWatch((values) => {
+    if (values.projectId && values.projectId !== projectId) {
+      setProjectId(values.projectId);
+    }
+  }, form);
+
+  const fetchProjects = useCallback(async () => {
+    try {
+      const projects = await api.getProjects();
+      setProjectList(
+        projects?.map((project) => ({
+          id: project.id,
+          title: project.attributes.title,
+          startDate: project.createdAt.toLocaleDateString(),
+          fields: project.attributes.fields,
+        })) || []
+      );
+    } catch (error) {
+      console.error('Failed to fetch projects:', error);
+    }
+  }, [api]);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  useEffect(() => {
+    const project = projectList.find((project) => project.id === projectId);
+    if (project) {
+      const projectFields = project.fields;
+      const projectStartDate = project.startDate;
+      if (projectStartDate) {
+        form.setFieldsValue({ projectStartDate });
+      }
+      const additionalFields = JSON.parse(projectFields).map((field: any) => ({
+        label: field.name,
+        name: field.key,
+        dataType: field.type,
+      }));
+
+      setAdditionalFields(additionalFields);
+    }
+  }, [form, projectId, projectList]);
 
   return (
     <Card
       title={
         <span className='text-nomyx-text-light dark:text-nomyx-text-dark'>
-          Carbon Credit Token Details
+          Token Details
         </span>
       }
       className='bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
-      <Form
-        form={form}
-        initialValues={initialValues}
-        layout='vertical'
-        onFinish={onFinish}>
+      <Form form={form} layout='vertical' onFinish={onFinish}>
         <div className='flex flex-col divide-y divide-[#484848]'>
-          {fieldGroups.map(
-            (group: NftDetailsInputFieldGroup, index: Number) => {
-              return (
-                <div
-                  key={`group${index}`}
-                  className='grid grid-cols-2 first:pt-0 gap-x-4 pt-6'>
-                  <p className='col-span-2 font-bold pb-6'>{group.name}</p>
-                  {group.fields.map(
-                    (field: NftDetailsInputField, index: Number) => {
-                      return (
-                        <div key={'field-' + index} className={field.className}>
-                          {field.dataType === 'checkbox' ? (
-                            <Form.Item>
-                              <Checkbox
-                                onChange={(e) => handleChange(field.name, e)}
-                                checked={!!field.value}
-                                className='text-nomyx-text-light dark:text-nomyx-text-dark'>
-                                {field.label}
-                              </Checkbox>
-                            </Form.Item>
-                          ) : (
-                            <Form.Item
-                              name={field.name}
-                              label={
-                                <span className='text-nomyx-text-light dark:text-nomyx-text-dark'>
-                                  {field.label}
-                                </span>
-                              }
-                              rules={field.rules}>
-                              {field.dataType === 'select' ? (
-                                <Select
-                                  showSearch
-                                  placeholder={field.placeHolder}
-                                  optionFilterProp='label'
-                                  onChange={(e) => handleChange(field.name, e, e)}
-                                  options={field.options}
-                                />
-                              ) : (
-                                <Input
-                                  disabled={field.disabled}
-                                  prefix={field?.prefix || null}
-                                  type={field.dataType}
-                                  placeholder={field.placeHolder}
-                                  onChange={(e) => handleChange(field.name, e)}
-                                  name={field.name}
-                                  style={{
-                                    colorScheme:
-                                      field.dataType === 'date'
-                                        ? 'dark'
-                                        : undefined, // Default for other types
-                                  }}
-                                  className={`${
-                                    form.getFieldError(field.name).length > 0
-                                      ? '!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark' // Different background on error if we want
-                                      : '!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark'
-                                  } text-nomyx-text-light dark:text-nomyx-text-dark placeholder-nomyx-gray3-light dark:placeholder-nomyx-gray3-dark focus:border-nomyx-main1-light dark:focus:border-nomyx-main1-dark hover:border-nomyx-main1-light dark:hover:border-nomyx-main1-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark ${
-                                    field.dataType == 'date'
-                                      ? 'dark:![color-scheme:auto]' // Tailwind class for color-scheme handling
-                                      : ''
-                                  }`}
-                                />
-                              )}
-                            </Form.Item>
-                          )}
-                        </div>
-                      );
-                    }
-                  )}
-                </div>
-              );
-            }
+          <div className='grid grid-cols-2 first:pt-0 gap-x-4 pt-6'>
+            <p className='col-span-2 font-bold pb-6'>Details</p>
+            <VariableFormInput
+              type='text'
+              name='nftTitle'
+              label='Title'
+              placeholder='Enter Token Title'
+              rules={[requiredRule, alphaNumericRule, { max: 30 }]}
+            />
+            <VariableFormInput
+              type='text'
+              name='description'
+              label='Description'
+              placeholder='Add a description for the NFT'
+              rules={[requiredRule, { max: 256 }]}
+            />
+            <VariableFormInput
+              type='select'
+              name='projectId'
+              label='Project'
+              placeholder='Select Project'
+              rules={[requiredRule]}
+              options={
+                projectList.map((project) => ({
+                  label: project.title,
+                  value: project.id,
+                })) || []
+              }
+            />
+            <VariableFormInput
+              type='text'
+              name='projectStartDate'
+              label='Project Start Date'
+              placeholder='mm/dd/yyyy'
+              disabled={true}
+            />
+            <VariableFormInput
+              type='text'
+              name='mintAddress'
+              label='Mint To'
+              placeholder='Enter Wallet Address'
+              rules={[
+                {
+                  required: true,
+                  pattern: Regex.ethereumAddress,
+                  message: 'This field must be an ethereum address.',
+                },
+              ]}
+            />
+            <VariableFormInput
+              type='text'
+              name='price'
+              label='Price'
+              placeholder='Enter Price'
+              rules={[requiredRule, numberRule]}
+              prefix='$'
+            />
+          </div>
+          {additionalFields.length > 0 && (
+            <div className='grid grid-cols-2 first:pt-0 gap-x-4 pt-6'>
+              <p className='col-span-2 font-bold pb-6'>Token Fields</p>
+              {additionalFields.map(
+                (field: NftDetailsInputField, index: Number) => {
+                  return (
+                    <VariableFormInput
+                      key={'field-' + index}
+                      name={field.name}
+                      label={field.label}
+                      type={field.dataType}
+                      rules={field.rules}
+                      disabled={field.disabled}
+                      prefix={field?.prefix || ''}
+                      placeholder={field.placeHolder}
+                      options={field.options}
+                      className={field.className}
+                    />
+                  );
+                }
+              )}
+            </div>
           )}
         </div>
       </Form>

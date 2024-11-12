@@ -2,6 +2,7 @@ const Regex = {
   alphaNumeric: /^[a-zA-Z0-9]+$/,
   alphaNumericAndSpace: /^[a-zA-Z0-9 ]+$/,
   ethereumAddress: /^0x[a-fA-F0-9]{40}$/,
+  numericWithDecimal: /^\d+(\.\d{1,18})?$/,
   numeric: /^[0-9]+$/,
   maxChar: (char: number) => new RegExp(`^.{1,${char}}$`),
   maxCharWithDecimal: (char: number, dec: number) => new RegExp(`^\\d{1,${char}}(\\.\\d{1,${dec}})?$`)
