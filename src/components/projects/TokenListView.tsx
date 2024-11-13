@@ -13,6 +13,32 @@ interface TokenListViewProps {
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
 }
 
+interface ColumnConfig {
+  title: string;
+  key: string;
+}
+
+const EXCLUDED_COLUMNS = new Set([
+  "address",
+  "createdAt",
+  "updatedAt",
+  "objectId",
+  "token",
+  "owner",
+  "transactionHash",
+  "networkId",
+  "type",
+  "logIndex",
+  "nftTitle",
+  "description",
+  "projectId",
+  "price",
+  "projectStartDate",
+  "__type",
+  "className",
+  "claimTopics",
+]);
+
 const TokenListView: React.FC<TokenListViewProps> = ({
   tokens,
   isSalesHistory,
@@ -134,44 +160,96 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     }
   };
 
+  const getDynamicColumns = (maxColumns = 7): ColumnConfig[] => {
+    const nonNullColumns: Record<string, ColumnConfig> = {};
+
+    tokens.forEach((token) => {
+      Object.entries(token.token).forEach(([key, value]) => {
+        // Check if the column is non-null, non-undefined, not already in nonNullColumns, and not excluded
+        if (
+          value != null &&
+          !(key in nonNullColumns) &&
+          !EXCLUDED_COLUMNS.has(key)
+        ) {
+          nonNullColumns[key] = {
+            title: key
+              .replace(/([A-Z])/g, " $1") // Add a space before uppercase letters
+              .replace(/^./, (str) => str.toUpperCase()), // Capitalize the first letter
+            key,
+          };
+        }
+      });
+    });
+
+    return Object.values(nonNullColumns).slice(0, maxColumns);
+  };
+
+  const createColumns = (nonNullColumns: ColumnConfig[]) => {
+    return nonNullColumns.map(({ title, key }) => ({
+      title,
+      dataIndex: ["token", key] as [string, string],
+      render: (value: any) =>
+        typeof value === "object" ? "N/A" : <span>{value}</span>,
+      sorter: (a: any, b: any) => {
+        const aValue = a.token[key];
+        const bValue = b.token[key];
+        return typeof aValue === "string" && typeof bValue === "string"
+          ? aValue.localeCompare(bValue)
+          : 0;
+      },
+    }));
+  };
+
+  const dynamicColumns = getDynamicColumns(); // This would be your method to get the first 7 non-null columns
+  const additionalColumns = createColumns(dynamicColumns);
+
   // Define columns conditionally based on `isSalesHistory`
   const listingColumns = [
     {
-      title: "Title",
+      title: () => <th style={{ width: "20%" }}>Title</th>,
       dataIndex: "tokenId",
       render: (tokenId: string, record: any) => {
         const color = hashToColor(tokenId);
         return (
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div className="w-6 h-6">
-              <GenerateSvgIcon color={color} />
+          <>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div className="w-6 h-6">
+                <GenerateSvgIcon color={color} />
+              </div>
+              <span style={{ marginLeft: "10px", fontWeight: "bold" }}>
+                {record.token?.nftTitle}
+              </span>{" "}
             </div>
-            <span style={{ marginLeft: "10px", fontWeight: "bold" }}>
-              {record.token?.nftTitle}
-            </span>
-          </div>
+            <p className="text-xs !text-gray-500">
+              {record.token?.description ||
+                "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
+            </p>
+          </>
         );
       },
       sorter: (a: any, b: any) =>
         a.token.nftTitle.localeCompare(b.token.nftTitle),
     },
-    {
-      title: "Description",
-      dataIndex: "token",
-      render: (token: any) => (
-        <p className="text-sm text-gray-600 mt-1 line-clamp-1">
-          {token.description ||
-            "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
-        </p>
-      ),
-    },
+    // {
+    //   title: "Description",
+    //   dataIndex: "token",
+    //   render: (token: any) => (
+    //     <p className="text-sm text-gray-600 mt-1 line-clamp-1">
+    //       {token.description ||
+    //         "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
+    //     </p>
+    //   ),
+    // },
     {
       title: "Price",
       dataIndex: "price",
-      render: (price: number) => 
-        isSalesHistory ? formatPrice(price, "USD") : formatPrice(price / 1_000_000, "USD"),      
+      render: (price: number) =>
+        isSalesHistory
+          ? formatPrice(price, "USD")
+          : formatPrice(price / 1_000_000, "USD"),
       sorter: (a: any, b: any) => a.price - b.price,
     },
+    ...additionalColumns,
     // Conditionally add the "Status" column only if `isSalesHistory` is false
     ...(isSalesHistory
       ? []

@@ -26,6 +26,9 @@
 .ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child {
   border-radius: 0;
 }
+.ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:first-child {
+  width: 20%;
+}
 
 .ant-tabs-nav-wrap .ant-tabs-tab {
   padding: 12px;
