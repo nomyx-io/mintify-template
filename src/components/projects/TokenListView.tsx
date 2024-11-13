@@ -7,37 +7,12 @@ import { toast } from "react-toastify";
 import { ethers } from "ethers";
 import { formatPrice } from "@/utils/currencyFormater";
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
+import { ColumnConfig, EXCLUDED_COLUMNS } from "@/utils/dynamicTableColumn";
 
 interface TokenListViewProps {
   tokens: any[];
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
 }
-
-interface ColumnConfig {
-  title: string;
-  key: string;
-}
-
-const EXCLUDED_COLUMNS = new Set([
-  "address",
-  "createdAt",
-  "updatedAt",
-  "objectId",
-  "token",
-  "owner",
-  "transactionHash",
-  "networkId",
-  "type",
-  "logIndex",
-  "nftTitle",
-  "description",
-  "projectId",
-  "price",
-  "projectStartDate",
-  "__type",
-  "className",
-  "claimTopics",
-]);
 
 const TokenListView: React.FC<TokenListViewProps> = ({
   tokens,
@@ -162,7 +137,6 @@ const TokenListView: React.FC<TokenListViewProps> = ({
 
   const getDynamicColumns = (maxColumns = 7): ColumnConfig[] => {
     const nonNullColumns: Record<string, ColumnConfig> = {};
-
     tokens.forEach((token) => {
       Object.entries(token.token).forEach(([key, value]) => {
         // Check if the column is non-null, non-undefined, not already in nonNullColumns, and not excluded
@@ -180,7 +154,6 @@ const TokenListView: React.FC<TokenListViewProps> = ({
         }
       });
     });
-
     return Object.values(nonNullColumns).slice(0, maxColumns);
   };
 
@@ -275,6 +248,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
                   {status}
                 </span>
                 <Switch
+                  className="status-toggle-switch"
                   checked={status === "listed"}
                   onChange={(checked) =>
                     handleStatusChange(record.tokenId, checked)

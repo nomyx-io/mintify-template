@@ -101,6 +101,12 @@
 ::-webkit-calendar-picker-indicator {
   filter: invert(1);
 }
+.status-toggle-switch {
+  background-color: #9ca3af !important;
+}
+.status-toggle-switch.ant-switch-checked {
+  background: #1668dc !important;
+}
 /*
 .ant-form-item {
   margin: 0;
