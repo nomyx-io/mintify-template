@@ -1,10 +1,10 @@
 import ProjectsHeader from '@/components/projects/ProjectsHeader';
-import { getDashboardLayout } from '@/Layouts';
+import { getDashboardLayout } from '@/layouts';
 import { TelescopeIcon } from '@/assets';
 import { Button } from 'antd';
 import CreateProjectModal from '@/components/projects/CreateProjectModal';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { KronosService } from '@/services/KronosService';
+import { CustomerService } from '@/services/CustomerService';
 import ProjectListView from '@/components/projects/ProjectListView';
 import { useRouter } from 'next/router';
 import ProjectCard from '@/components/projects/ProjectCard';
@@ -14,7 +14,7 @@ export default function Projects() {
   const [open, setOpen] = useState(false);
   const [projectList, setProjectList] = useState<Project[]>([]);
 
-  const api = useMemo(() => KronosService(), []);
+  const api = useMemo(() => CustomerService(), []);
 
   const router = useRouter();
   const { query } = router;
@@ -24,8 +24,7 @@ export default function Projects() {
   const filteredProjects = projectList.filter(
     (project) =>
       project.title.toLowerCase().includes(queryString?.toLowerCase()) ||
-      project.description.toLowerCase().includes(queryString?.toLowerCase()) ||
-      project.registryName.toLowerCase().includes(queryString?.toLowerCase())
+      project.description.toLowerCase().includes(queryString?.toLowerCase())
   );
 
   const handleCreateProject = () => {
@@ -44,8 +43,7 @@ export default function Projects() {
           description: project.attributes.description,
           logo: project.attributes.logo,
           coverImage: project.attributes.coverImage,
-          registryName: project.attributes.registryName,
-          totalCarbon: projectTokens?.reduce((acc, token) => acc + Number(token.attributes.existingCredits), 0) || 0,
+          totalValue: projectTokens?.reduce((acc, token) => acc + Number(token.attributes.price), 0) || 0,
           totalTokens: projectTokens?.length || 0,
           createdAt: project.createdAt,
         }}) || []

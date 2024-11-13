@@ -15,16 +15,11 @@ interface ClaimTopic {
   topic: string;
 }
 
-interface NftDetailsInputFieldGroup {
-  name: string;
-  fields: NftDetailsInputField[];
-}
-
 interface NftDetailsInputField {
   id?: string;
   label: string;
   name: string;
-  dataType: string;
+  type: string;
   placeHolder?: string;
   defaultValue?: string | number | boolean;
   value?: string | number | boolean;
@@ -49,16 +44,6 @@ interface TableData {
   columns: TableColumnType<DataSource>[];
 }
 
-interface NftRecordDetailFieldGroup {
-  name: string;
-  fields: NftRecordDetailField[];
-}
-
-interface NftRecordDetailField {
-  label: string;
-  name: string;
-}
-
 type TransferOnChange = (targetKeys: string[], direction: TransferDirection, moveKeys: string[]) => void;
 type TransferOnSelectChange = (sourceSelectedKeys: string[], targetSelectedKeys: string[]) => void;
 type TransferOnScroll = (direction: TransferDirection, e: React.SyntheticEvent<HTMLUListElement>) => void;
@@ -80,20 +65,16 @@ interface MintedToken {
 
 interface KPIs {
   tokens: number;
-  retired: number;
-  carbonIssued: number;
-  carbonRetired: number;
   issuedValue: number;
-  retiredValue: number;
 }
 
 interface Events {
   [key: string]: {
-    data: KronosEvent[]
+    data: TokenEvent[]
   }
 }
 
-interface KronosEvent {
+interface TokenEvent {
   name: string;
   description?: string;
   value: number;
@@ -103,10 +84,16 @@ interface Project {
   id: string;
   title: string;
   description: string;
-  registryName: string;
   logo: Parse.File;
   coverImage: Parse.File;
   totalTokens: number;
-  totalCarbon: number;
+  totalValue: number;
   createdAt: Date;
+}
+
+interface ProjectSaveData {
+  title: string;
+  description: string;
+  logo: string;
+  coverImage: string;
 }

@@ -239,6 +239,13 @@
   @apply !text-nomyx-text-light dark:!text-nomyx-text-dark;
 }
 
+.ant-select {
+  @apply !bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark !text-nomyx-text-light dark:!text-nomyx-text-dark;
+}
+.ant-select-selector {
+  @apply !border-nomyx-gray4-light dark:!border-nomyx-gray4-dark;
+}
+
 .ant-select-selector, .ant-select-dropdown, .ant-select-item-option {
   @apply !bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark !text-nomyx-text-light dark:!text-nomyx-text-dark;
 }

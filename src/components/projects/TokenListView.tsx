@@ -6,16 +6,15 @@ import BlockchainService from "@/services/BlockchainService";
 import { toast } from "react-toastify";
 import { ethers } from "ethers";
 import { formatPrice } from "@/utils/currencyFormater";
+import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
 interface TokenListViewProps {
   tokens: any[];
-  onProjectClick: (project: any) => void;
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
 }
 
 const TokenListView: React.FC<TokenListViewProps> = ({
   tokens,
-  onProjectClick,
   isSalesHistory,
 }) => {
   const [filteredTokens, setFilteredTokens] = useState(tokens);
@@ -135,49 +134,6 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     }
   };
 
-  // Generate SVG Icon
-  const generateSvgIcon = (color: string) => {
-    return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 100 100"
-      >
-        <defs>
-          <linearGradient
-            id={`gradient-${color}`}
-            x1="0%"
-            y1="0%"
-            x2="0%"
-            y2="100%"
-          >
-            <stop offset="0%" stopColor={color} />
-            <stop offset="100%" stopColor="#003366" stopOpacity="1" />
-          </linearGradient>
-        </defs>
-        <rect
-          width="100"
-          height="100"
-          rx="15"
-          fill={`url(#gradient-${color})`}
-        />
-        <text
-          x="50%"
-          y="50%"
-          fontFamily="Arial, sans-serif"
-          fontWeight="bold"
-          fontSize="40"
-          fill="white"
-          dominantBaseline="middle"
-          textAnchor="middle"
-        >
-          KC
-        </text>
-      </svg>
-    );
-  };
-
   // Define columns conditionally based on `isSalesHistory`
   const listingColumns = [
     {
@@ -187,24 +143,9 @@ const TokenListView: React.FC<TokenListViewProps> = ({
         const color = hashToColor(tokenId);
         return (
           <div style={{ display: "flex", alignItems: "center" }}>
-            {/* {!isSalesHistory && (
-            <EyeOutlined
-              className="text-xl cursor-pointer hover:text-blue-500"
-              onClick={() => onProjectClick(record)}
-              style={{ marginRight: "8px" }}
-            />
-          )} */}
-            {/* {!isSalesHistory && (
-            <div
-              style={{
-                width: "1px",
-                height: "24px",
-                backgroundColor: "#ccc",
-                marginRight: "8px",
-              }}
-            />
-          )} */}
-            {generateSvgIcon(color)}
+            <div className="w-6 h-6">
+              <GenerateSvgIcon color={color} />
+            </div>
             <span style={{ marginLeft: "10px", fontWeight: "bold" }}>
               {record.token?.nftTitle}
             </span>
@@ -215,56 +156,21 @@ const TokenListView: React.FC<TokenListViewProps> = ({
         a.token.nftTitle.localeCompare(b.token.nftTitle),
     },
     {
-      title: "Price Per Credit",
-      dataIndex: ["token", "price"],
-      render: (price: number) => `${formatPrice(price, "USD")}`,
-      sorter: (a: any, b: any) => a.token.price - b.token.price,
+      title: "Description",
+      dataIndex: "token",
+      render: (token: any) => (
+        <p className="text-sm text-gray-600 mt-1 line-clamp-1">
+          {token.description ||
+            "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
+        </p>
+      ),
     },
     {
-      title: "Total Price",
+      title: "Price",
       dataIndex: "price",
       render: (price: number) => 
         isSalesHistory ? formatPrice(price, "USD") : formatPrice(price / 1_000_000, "USD"),      
       sorter: (a: any, b: any) => a.price - b.price,
-    },
-    {
-      title: "Registry ID",
-      dataIndex: ["token", "registerId"],
-      render: (registerId: string) => <span>{registerId}</span>,
-      sorter: (a: any, b: any) =>
-        a.token.registerId.localeCompare(b.token.registerId),
-    },
-    {
-      title: "Carbon Offset (Tons)",
-      dataIndex: ["token", "existingCredits"],
-      render: (existingCredits: number) => Intl.NumberFormat("en-US").format(existingCredits),
-      sorter: (a: any, b: any) =>
-        a.token.existingCredits - b.token.existingCredits,
-    },
-    {
-      title: "Issuance Date",
-      dataIndex: ["token", "issuanceDate"],
-      render: (issuanceDate: string) => <span>{issuanceDate}</span>,
-      sorter: (a: any, b: any) =>
-        a.token.issuanceDate.localeCompare(b.token.issuanceDate),
-    },
-    {
-      title: "GHG Reduction Type",
-      dataIndex: ["token", "ghgReduction"],
-      render: (ghgReduction: string) => <span>{ghgReduction}</span>,
-      sorter: (a: any, b: any) =>
-        a.token.ghgReduction.localeCompare(b.token.ghgReduction),
-    },
-    {
-      title: "Geography",
-      dataIndex: ["token", "country"],
-      // render: (country: string, state: string) => <span>{country && state ? `${country}, ${state.}` : country || state}</span>,
-      render: (country: string) => <span>{country}</span>,
-      // compare country and state
-      sorter: (a: any, b: any) =>
-        a.token.country === b.token.country
-          ? a.token.state.localeCompare(b.token.state)
-          : a.token.country.localeCompare(b.token.country),
     },
     // Conditionally add the "Status" column only if `isSalesHistory` is false
     ...(isSalesHistory

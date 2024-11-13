@@ -13,7 +13,7 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { generateRandomString } from "@/utils/regex";
 import BlockchainService from "@/services/BlockchainService";
 import PrivateRoute from "@/components/atoms/PrivateRoute";
-import Web3Providers from "@/components/Web3Providers";
+import Web3Providers from "@/context/Web3Providers";
 
 import NomyxAppContext from "@/context/NomyxAppContext";
 import { NextPage } from "next";

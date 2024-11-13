@@ -1,5 +1,5 @@
 import { WalletAddressProvider } from "@/context/WalletAddressContext";
-import { BASESEP_CHAIN, LOCALHOST_CHAIN, BASE_CHAIN } from "@/utils/constants";
+import { BASESEP_CHAIN, LOCALHOST_CHAIN, BASE_CHAIN } from "@/utils/chains";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { createContext, ReactNode } from "react";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";

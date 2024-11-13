@@ -2,59 +2,17 @@ import React from "react";
 import { Card } from "antd";
 import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
+import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
 interface TokenCardViewProps {
   tokens: any[];
-  onTokenClick: (token: any) => void;
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
 }
 
 const TokenCardView: React.FC<TokenCardViewProps> = ({
   tokens,
-  onTokenClick,
   isSalesHistory,
 }) => {
-  const generateSvgIcon = (color: string) => {
-    return (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="100%"
-        height="100%"
-        viewBox="0 0 100 100"
-      >
-        <defs>
-          <linearGradient
-            id={`gradient-${color}`}
-            x1="0%"
-            y1="0%"
-            x2="0%"
-            y2="100%"
-          >
-            <stop offset="0%" stopColor={color} stopOpacity="1" />
-            <stop offset="100%" stopColor="#003366" stopOpacity="1" />
-          </linearGradient>
-        </defs>
-        <rect
-          width="100"
-          height="100"
-          rx="15"
-          fill={`url(#gradient-${color})`}
-        />
-        <text
-          x="50%"
-          y="50%"
-          fontFamily="Arial, sans-serif"
-          fontWeight="bold"
-          fontSize="50"
-          fill="white"
-          dominantBaseline="middle"
-          textAnchor="middle"
-        >
-          KC
-        </text>
-      </svg>
-    );
-  };
 
   return (
     <div className="grid gap-5 grid-cols-2 xl:grid-cols-3 mt-5 p-5">
@@ -69,7 +27,6 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({
               !isSalesHistory ? "hover:shadow-2xl hover:scale-105" : ""
             }`}
             style={{
-              //cursor: !isSalesHistory ? "pointer" : "default",
               padding: "0",
               overflow: "hidden",
               boxSizing: "border-box",
@@ -78,7 +35,6 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({
                 : "translateY(-10px)",
               transition: "transform 0.3s ease-in-out",
             }}
-            //onClick={!isSalesHistory ? () => onTokenClick(token) : undefined}
           >
             {/* Logo Section */}
             <div
@@ -92,16 +48,8 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({
                 padding: "20px",
                 boxSizing: "border-box",
               }}
-              //onClick={!isSalesHistory ? () => onTokenClick(token) : undefined}
             >
-              <div
-                style={{
-                  width: "100%",
-                  height: "100%",
-                }}
-              >
-                {generateSvgIcon(color)}
-              </div>
+              <GenerateSvgIcon color={color} />
             </div>
 
             {/* Content Section */}
@@ -124,18 +72,6 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({
                       ? formatPrice(token.price, "USD")
                       : formatPrice(token.price / 1_000_000, "USD"),
                   },
-                  {
-                    label: "Registry ID",
-                    value: token.token?.registerId || "-",
-                  },
-                  {
-                    label: "Carbon Offset (Tons)",
-                    value:
-                      Intl.NumberFormat("en-US").format(
-                        token.token?.existingCredits
-                      ) || "-",
-                  },
-                  { label: "Auditor", value: token.token?.auditor || "-" },
                   {
                     label: "Issuance Date",
                     value: token.token?.issuanceDate || "-",

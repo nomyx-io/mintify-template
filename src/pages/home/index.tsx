@@ -1,15 +1,15 @@
 "use client";
 import KPI from "@/components/atoms/KPI";
-import { KronosService } from "@/services/KronosService";
+import { CustomerService } from "@/services/CustomerService";
 import { EventFeed } from "@/components/molecules/EventFeed";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { getDashboardLayout } from "@/Layouts";
+import { getDashboardLayout } from "@/layouts";
 import BarChart from "@/components/atoms/Graphs/Barchart";
 import { Card, Tabs } from "antd";
 import { getGraphData, getKPIs } from "@/utils/dashboard";
 
 export default function Home() {
-  const api = useMemo(() => KronosService(), []);
+  const api = useMemo(() => CustomerService(), []);
   const [tokenGraphValues, setTokenGraphValues] = useState<GraphValues>();
   const [carbonGraphValues, setCarbonGraphValues] = useState<GraphValues>();
   const [eventDetails, setEventDetails] = useState<Events>({});
@@ -24,11 +24,7 @@ export default function Home() {
       
       setTokenGraphValues({
         labels: ["Total Tokens Issued", "Total Tokens Retired"],
-        values: [kpis.tokens, kpis.retired],
-      })
-      setCarbonGraphValues({
-        labels: ["Total Carbon Issued", "Total Carbon Retired"],
-        values: [kpis.carbonIssued, kpis.carbonRetired],
+        values: [kpis.tokens, 0],
       })
       setkpisData(kpis);
       setEventDetails(events || {});
@@ -49,19 +45,12 @@ export default function Home() {
         <BarChart data={getGraphData(tokenGraphValues)} title='Net Token Issued & Redeemed' />
       ),
     },
-    {
-      label: 'Carbon Insights',
-      key: '2',
-      children: (
-        <BarChart data={getGraphData(carbonGraphValues)} title='Net Carbon Issued & Redeemed' />
-      ),
-    },
   ];
 
   return (
     <div className="w-full flex gap-3"> {/* Flex container for layout control */}
       <div className="lg:col-span-3 flex flex-col gap-3 flex-grow"> {/* Chart container */}
-        <div className="flex lg:grid grid-cols-3 gap-3 pb-3 flex-wrap">
+        <div className="flex lg:grid grid-cols-2 gap-3 pb-3 flex-wrap">
           {getKPIs(kpisData)?.map((kpi) => (
             <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />
           ))}

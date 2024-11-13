@@ -9,7 +9,7 @@ import {
   UploadProps,
 } from 'antd';
 import ImageBoxFormItem from '../molecules/ImageBox';
-import { KronosService } from '@/services/KronosService';
+import { CustomerService } from '@/services/CustomerService';
 import { toast } from 'react-toastify';
 import { useMemo, useState } from 'react';
 import { Trash } from 'iconsax-react';
@@ -83,7 +83,7 @@ export default function CreateProjectModal({
     'price',
   ];
 
-  const api = useMemo(() => KronosService(), []);
+  const api = useMemo(() => CustomerService(), []);
 
   const capitalizeEveryWord = (str: string) => {
     return str.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -116,15 +116,14 @@ export default function CreateProjectModal({
     if (name === 'createProjectForm') {
       const savePromise = saveProject(values as FormValues);
       toast.promise(savePromise, {
-        success: 'Project saved successfully!', // Display this message when the promise is resolved
-        error: 'Failed to save project!', // Display this message when the promise is rejected
+        success: 'Project saved successfully!', 
+        error: 'Failed to save project!', 
       });
 
       if (await savePromise) {
         onCreateSuccess && onCreateSuccess();
       }
 
-      // Submit form with the existing settings values
       form.setFieldsValue({});
       setOpen(false);
     }

@@ -1,5 +1,5 @@
 import React from 'react';
-import SearchBar from '@/components/SearchBar';
+import SearchBar from '@/components/atoms/SearchBar';
 import { Button } from 'antd';
 import { Category, RowVertical } from 'iconsax-react';
 import { useRouter } from 'next/router';

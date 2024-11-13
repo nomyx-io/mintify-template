@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { message } from "antd";
 import { Button, Card, Tabs } from "antd";
-import { KronosService } from "@/services/KronosService";
+import { CustomerService } from "@/services/CustomerService";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import TokenCardView from "@/components/projects/TokenCardView";
 import TokenListView from "@/components/projects/TokenListView";
-import MarketPlaceTokenDetail from "@/components/projects/MarketPlaceTokenDetail";
 import { SearchNormal1, Category, RowVertical, ArrowLeft, Copy } from "iconsax-react";
 import projectBackground from "@/assets/projects_background.png";
 
@@ -14,11 +13,6 @@ interface ProjectDetailsProps {
   project: Project;
   onBack: () => void;
 }
-
-const copyURL = (text: string) => {
-  navigator.clipboard.writeText(text);
-  message.success("Copied to clipboard!");
-};
 
 const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const router = useRouter();
@@ -30,7 +24,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const [showStats, setShowStats] = useState(true);
   const [selectedToken, setSelectedToken] = useState<any | null>(null);
 
-  const api = useMemo(() => KronosService(), []);
+  const api = useMemo(() => CustomerService(), []);
 
   const searchAllProperties = (item: any, query: string): boolean => {
     const searchInObject = (obj: any): boolean => {
@@ -88,13 +82,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     };
   }, []);
 
-  const handleDetailsClick = (token: any) => {
-    setSelectedToken(token);
-  };
-
-  const handleBackToListings = () => {
-    setSelectedToken(null);
-  };
 
   // Fetch listings and sales when component mounts
   useEffect(() => {
@@ -145,27 +132,12 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     }
   };
 
-  const handleNextToken = () => {
-    const currentIndex = filteredListings.findIndex((listing) => listing.tokenId === selectedToken.tokenId);
-    // Move to the next token, or loop to the first if at the end
-    const nextIndex = (currentIndex + 1) % filteredListings.length;
-    setSelectedToken(filteredListings[nextIndex]);
-  };
-
-  const handlePreviousToken = () => {
-    const currentIndex = filteredListings.findIndex((listing) => listing.tokenId === selectedToken.tokenId);
-    // Move to the previous token, or loop to the last if at the beginning
-    const prevIndex = (currentIndex - 1 + filteredListings.length) % filteredListings.length;
-    setSelectedToken(filteredListings[prevIndex]);
-  };
-
   const totalTokens = listings.length + sales.length;
   return (
     <div className="project-details">
       {selectedToken ? (
         <>
           {/* Token Detail View */}
-          <MarketPlaceTokenDetail token={selectedToken} next={handleNextToken} prev={handlePreviousToken} onBack={handleBackToListings} />
         </>
       ) : (
         <>
@@ -212,12 +184,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 style={{ overflow: "hidden" }}
               >
                 <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                  <span className="text-sm">Credit Type</span>
-                  <h2 className="text-lg font-bold">Carbon Credit</h2>
-                </div>
-                <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                  <span className="text-sm">Carbon Offset (Tons)</span>
-                  <h2 className="text-lg font-bold">{Intl.NumberFormat("en-US").format(project.totalCarbon)}</h2>
+                  <span className="text-sm">Total Value</span>
+                  <h2 className="text-lg font-bold">{Intl.NumberFormat("en-US").format(project.totalValue)}</h2>
                 </div>
                 <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
                   <span className="text-sm">Project Creation Date</span>
@@ -226,12 +194,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
                   <span className="text-sm">Total Tokens</span>
                   <h2 className="text-lg font-bold">{totalTokens}</h2>
-                </div>
-                <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                  <span className="text-sm">Registry</span>
-                  <div className="flex justify-between items-center max-w-[150px] mx-auto">
-                    <h2 className="text-lg font-bold truncate">{project.registryName}</h2>
-                  </div>
                 </div>
               </div>
             </div>
@@ -255,7 +217,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 <Button
                   type="primary"
                   className="mr-4 bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark'"
-                  onClick={() => router.push(`/nft-create?projectId=${project.id}`)}
+                  onClick={() => router.push({ pathname: '/nft-create', query: { projectId: project.id } })}
                 >
                   Mint Token
                 </Button>
@@ -291,9 +253,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     children: (
                       <>
                         {viewMode === "table" ? (
-                          <TokenListView tokens={filteredListings} onProjectClick={handleDetailsClick} isSalesHistory={false} />
+                          <TokenListView tokens={filteredListings} isSalesHistory={false} />
                         ) : (
-                          <TokenCardView tokens={filteredListings} onTokenClick={handleDetailsClick} isSalesHistory={false} />
+                          <TokenCardView tokens={filteredListings} isSalesHistory={false} />
                         )}
                       </>
                     ),
@@ -303,9 +265,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     label: "Sales History",
                     children:
                       viewMode === "table" ? (
-                        <TokenListView tokens={filteredSales} onProjectClick={handleDetailsClick} isSalesHistory={true} />
+                        <TokenListView tokens={filteredSales} isSalesHistory={true} />
                       ) : (
-                        <TokenCardView tokens={filteredSales} onTokenClick={handleDetailsClick} isSalesHistory={true} />
+                        <TokenCardView tokens={filteredSales} isSalesHistory={true} />
                       ),
                   },
                 ]}

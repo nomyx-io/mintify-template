@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import Image from "next/image";
 import { Layout } from "antd/es";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import ThemeToggle from "@/components/ThemeToggle";
+import ThemeToggle from "@/components/atoms/ThemeToggle";
 import { useAccount } from "wagmi";
 import { UserContext } from "@/pages/_app";
 import Link from "next/link";

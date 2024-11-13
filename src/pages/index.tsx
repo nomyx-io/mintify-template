@@ -1,6 +1,6 @@
 'use client'
 
-import { getDashboardLayout } from '../Layouts';
+import { getDashboardLayout } from '../layouts';
 import { useRouter } from 'next/navigation';
 export default function LandingPage(){
   const router = useRouter()
