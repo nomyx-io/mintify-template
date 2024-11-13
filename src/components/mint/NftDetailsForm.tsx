@@ -97,7 +97,6 @@ const NftDetailsForm = ({
         name: field.key,
         type: field.type,
       }));
-      debugger
       const functions = project.functions;
       const additionalFunctions = functions
         ? JSON.parse(functions).map((field: any) => ({

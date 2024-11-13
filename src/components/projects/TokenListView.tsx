@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { ethers } from "ethers";
 import { formatPrice } from "@/utils/currencyFormater";
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
-import { ColumnConfig, EXCLUDED_COLUMNS } from "@/utils/dynamicTableColumn";
+import { ColumnConfig, EXCLUDED_COLUMNS } from "@/types/dynamicTableColumn";
 
 interface TokenListViewProps {
   tokens: any[];

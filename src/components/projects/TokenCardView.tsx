@@ -3,7 +3,7 @@ import { Card } from "antd";
 import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
-import { ColumnConfig, EXCLUDED_COLUMNS, ColumnData } from "@/utils/dynamicTableColumn";
+import { ColumnConfig, EXCLUDED_COLUMNS, ColumnData } from "@/types/dynamicTableColumn";
 
 interface TokenCardViewProps {
   tokens: any[];
