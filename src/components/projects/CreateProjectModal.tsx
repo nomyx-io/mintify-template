@@ -72,8 +72,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
       type: "number",
     },
   ];
-  const STANDARD_FIELDS = ["title", "description", "date", "mint to", "project", "price"];
-
   const api = useMemo(() => CustomerService(), []);
 
   const capitalizeEveryWord = (str: string) => {
@@ -137,16 +135,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
       title: values.title,
       description: values.description,
       logo: await getBase64(values.logoUpload.fileList[0].originFileObj as FileType),
-      coverImage: await getBase64(values.coverImageUpload.fileList[0].originFileObj as FileType),
-      fields: JSON.stringify(
-        values.additionalFields?.map((field) => {
-          return {
-            name: field.fieldName,
-            type: field.fieldType,
-            key: field.fieldName.replace(" ", "_").toLowerCase(),
-          };
-        })
-      ),
       coverImage: await getBase64(values.coverImageUpload.fileList[0].originFileObj as FileType),
       fields: JSON.stringify(
         values.additionalFields?.map((field) => {
