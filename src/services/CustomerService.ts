@@ -1,13 +1,15 @@
-import moment from 'moment';
-import ParseClient from './ParseClient';
+import moment from "moment";
+import ParseClient from "./ParseClient";
 
 export const CustomerService = () => {
   ParseClient.initialize();
-  
+
   const getEvents = async () => {
     try {
-      let records = await ParseClient.getRecords('Event', [], [], ['*']);
-      let dateWiseData: { [key: string] : { data: {name: string, value: number}[] } } = {};
+      let records = await ParseClient.getRecords("Event", [], [], ["*"]);
+      let dateWiseData: {
+        [key: string]: { data: { name: string; value: number }[] };
+      } = {};
       const todayEvents = [];
 
       records &&
@@ -15,10 +17,10 @@ export const CustomerService = () => {
           let record = entry.attributes;
 
           const eventDate =
-            record.updatedAt.toISOString().split('T')[0] ==
-            moment().format('yyyy-MM-DD')
-              ? 'Today'
-              : record.updatedAt.toISOString().split('T')[0];
+            record.updatedAt.toISOString().split("T")[0] ==
+            moment().format("yyyy-MM-DD")
+              ? "Today"
+              : record.updatedAt.toISOString().split("T")[0];
 
           const eventData = {
             name: record?.event,
@@ -38,11 +40,11 @@ export const CustomerService = () => {
               dateWiseData[eventDate].data.push(eventData);
             }
           }
-          if (eventDate === 'Today') {
+          if (eventDate === "Today") {
             todayEvents.push(eventData);
           }
         });
-      if (dateWiseData.hasOwnProperty('Today')) {
+      if (dateWiseData.hasOwnProperty("Today")) {
         const todayData = dateWiseData.Today;
         delete dateWiseData.Today;
         dateWiseData = { Today: todayData, ...dateWiseData };
@@ -59,26 +61,26 @@ export const CustomerService = () => {
     }
   };
   const getMintedNfts = async () => {
-    let records = await ParseClient.getRecords('Token', undefined, undefined, [
-      '*',
+    let records = await ParseClient.getRecords("Token", undefined, undefined, [
+      "*",
     ]);
     return records;
   };
   const getMintedNftDetails = async (id: string) => {
-    let records = await ParseClient.get('Token', id);
+    let records = await ParseClient.get("Token", id);
     return JSON.parse(JSON.stringify(records));
   };
 
   const getListings = async (fieldNames: string[], fieldValues: any[]) => {
     const records = await ParseClient.getRecords(
-      'TokenListing',
+      "TokenListing",
       fieldNames,
       fieldValues,
-      ['*'],
+      ["*"],
       undefined,
       undefined,
       undefined,
-      'desc'
+      "desc"
     );
     let sanitizedRecords = [];
 
@@ -91,14 +93,14 @@ export const CustomerService = () => {
 
   const getProjectTokens = async (fieldNames: string[], fieldValues: any[]) => {
     const records = await ParseClient.getRecords(
-      'Token',
+      "Token",
       fieldNames,
       fieldValues,
-      ['*'],
+      ["*"],
       undefined,
       undefined,
       undefined,
-      'desc'
+      "desc"
     );
     let sanitizedRecords = [];
 
@@ -111,14 +113,14 @@ export const CustomerService = () => {
 
   const getSales = async () => {
     const records = await ParseClient.getRecords(
-      'TokenSale',
+      "TokenSale",
       [],
       [],
-      ['*'],
+      ["*"],
       undefined,
       undefined,
       undefined,
-      'desc'
+      "desc"
     );
 
     // filter based off of
@@ -132,43 +134,49 @@ export const CustomerService = () => {
   };
 
   const getKpis = async () => {
-    const tokenRecords = await ParseClient.getRecords('Token', [], [], ['*']);
+    const tokenRecords = await ParseClient.getRecords("Token", [], [], ["*"]);
 
     return {
       tokens: tokenRecords?.length || 0,
-      issuedValue: tokenRecords?.reduce(
-        (acc, record) =>
-          acc +
-          Number(record.attributes.price) *
-            Number(record.attributes.existingCredits),
-        0
-      ) || 0,
+      issuedValue:
+        tokenRecords?.reduce(
+          (acc, record) =>
+            acc +
+            Number(record.attributes.price) *
+              Number(record.attributes.existingCredits),
+          0
+        ) || 0,
     };
   };
 
   const getClaimTopics = async () => {
     let records = await ParseClient.getRecords(
-      'ClaimTopic',
-      ['active'],
+      "ClaimTopic",
+      ["active"],
       [true],
-      ['*']
+      ["*"]
     );
     return records;
   };
 
   const createProject = async (projectData: ProjectSaveData) => {
-    const [logo, cover] = await Promise.all([
-      ParseClient.saveFile('project-logo', { base64: projectData.logo }),
-      ParseClient.saveFile('project-cover', { base64: projectData.coverImage }),
+    const [logoFile, coverImageFile] = await Promise.all([
+      ParseClient.saveFile("project-logo", { base64: projectData.logo }),
+      ParseClient.saveFile("project-cover", { base64: projectData.coverImage }),
     ]);
+    const { logo, coverImage, ...updatedProjectData } = projectData;
 
-        return ParseClient.createRecord('TokenProject', [], [], {...projectData, logo, cover});
-    }
+    return ParseClient.createRecord("TokenProject", [], [], {
+      ...updatedProjectData,
+      logo: logoFile,
+      coverImage: coverImageFile,
+    });
+  };
 
-    const getProjects = async () => {
-        let records = await ParseClient.getRecords('TokenProject', [], [], ["*"]);
-        return records;
-    }
+  const getProjects = async () => {
+    let records = await ParseClient.getRecords("TokenProject", [], [], ["*"]);
+    return records;
+  };
 
   return {
     getEvents,
