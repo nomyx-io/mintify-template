@@ -90,14 +90,15 @@ export default function Details({ service }: { service: BlockchainService }) {
         autoClose: 5000,
       });
 
+      //initiate carbon credit
       if (additionalFunctions) {
         const carbonCreditFunction = additionalFunctions.some(
-          (t) => t.key.replace(" ", "_").toLowerCase() === "carboncredit"
+          (t) => t.name.replace("_", "").toLowerCase() === "carboncredit"
         );
         if (carbonCreditFunction) {
           const carbonCredit = nftMetadata.find(
             (value) =>
-              value.key.replace(" ", "_").toLowerCase() === "carboncredit"
+              value.key.replace("_", "").toLowerCase() === "carboncredit"
           )?.value;
 
           if (carbonCredit) {
