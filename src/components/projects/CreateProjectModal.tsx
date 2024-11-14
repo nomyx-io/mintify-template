@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 
-import { Button, Form, GetProp, Input, message, Modal, Select, UploadProps } from "antd";
+import { Button, Form, GetProp, Input, message, Modal, Select, UploadProps, Checkbox } from "antd";
 import { Rule } from "antd/es/form";
 import { Trash } from "iconsax-react";
 import { FormFinishInfo } from "rc-field-form/es/FormContext";
@@ -22,6 +22,7 @@ interface FormValues {
   title: string;
   description: string;
   additionalFields?: AddedField[];
+  additionalFunctions?: { fieldName: string; fieldType: string }[];
 }
 
 interface AddedField {
@@ -43,7 +44,9 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
   const [form] = Form.useForm();
   const [addFieldForm] = Form.useForm();
   const [addedFields, setAddedFields] = useState<AddedField[]>([]);
-
+  const [checkedFunctions, setCheckedFunctions] = useState<{
+    [key: string]: boolean;
+  }>({});
   const requiredRule = { required: true, message: "This field is required." };
   const uniqueRule: Rule = ({ getFieldValue }) => ({
     validator(_, value: string) {
@@ -62,6 +65,14 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
     { label: "Date", value: "date" },
   ];
   const STANDARD_FIELDS = ["title", "description", "date", "mint to", "project", "price"];
+  const FUNCTION_FIELDS = [
+    {
+      label: "Initialize Carbon Credit",
+      fieldName: "Carbon Credit",
+      type: "number",
+    },
+  ];
+  const STANDARD_FIELDS = ["title", "description", "date", "mint to", "project", "price"];
 
   const api = useMemo(() => CustomerService(), []);
 
@@ -78,6 +89,13 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
     setAddedFields(newFields);
     form.setFieldsValue({ additionalFields: newFields });
   }
+
+  const handleFunctionChange = (fieldName: string, checked: boolean) => {
+    setCheckedFunctions((prevState) => ({
+      ...prevState,
+      [fieldName]: checked,
+    }));
+  };
 
   const onFormFinish = async (name: string, { values, forms }: FormFinishInfo) => {
     if (name === "addFieldForm") {
@@ -129,6 +147,30 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           };
         })
       ),
+      coverImage: await getBase64(values.coverImageUpload.fileList[0].originFileObj as FileType),
+      fields: JSON.stringify(
+        values.additionalFields?.map((field) => {
+          return {
+            name: field.fieldName,
+            type: field.fieldType,
+            key: field.fieldName.replace(" ", "_").toLowerCase(),
+          };
+        })
+      ),
+      functions: checkedFunctions
+        ? JSON.stringify(
+            FUNCTION_FIELDS.reduce((acc: { name: string; type: string; key: string }[], field) => {
+              if (checkedFunctions[field.fieldName.replace(" ", "_").toLowerCase()]) {
+                acc.push({
+                  name: field.fieldName,
+                  type: field.type,
+                  key: field.fieldName.replace(" ", "_").toLowerCase(),
+                });
+              }
+              return acc;
+            }, [] as { name: string; type: string; key: string }[])
+          )
+        : null,
     };
 
     return api.createProject(project);
@@ -223,6 +265,19 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             </table>
           </div>
         )}
+      </div>
+      <span className="">Add Function</span>
+      <div className="flex flex-col p-2 gap-2 pb-4 mb-6 border rounded-md border-nomyx-dark1-dark dark:border-nomyx-gray4-dark">
+        <p className="text-xs">Any additional functions that need to be associated with a token can be specified below.</p>
+        {FUNCTION_FIELDS.map((field) => (
+          <Checkbox
+            key={field.fieldName.replace(" ", "_").toLowerCase()}
+            checked={checkedFunctions[field.fieldName.replace(" ", "_").toLowerCase()] || false}
+            onChange={(e) => handleFunctionChange(field.fieldName.replace(" ", "_").toLowerCase(), e.target.checked)}
+          >
+            {field.label}
+          </Checkbox>
+        ))}
       </div>
     </Modal>
   );

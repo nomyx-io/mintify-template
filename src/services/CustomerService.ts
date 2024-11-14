@@ -8,7 +8,9 @@ export const CustomerService = () => {
   const getEvents = async () => {
     try {
       let records = await ParseClient.getRecords("Event", [], [], ["*"]);
-      let dateWiseData: { [key: string]: { data: { name: string; value: number }[] } } = {};
+      let dateWiseData: {
+        [key: string]: { data: { name: string; value: number }[] };
+      } = {};
       const todayEvents = [];
 
       records &&
@@ -109,12 +111,17 @@ export const CustomerService = () => {
   };
 
   const createProject = async (projectData: ProjectSaveData) => {
-    const [logo, cover] = await Promise.all([
+    const [logoFile, coverImageFile] = await Promise.all([
       ParseClient.saveFile("project-logo", { base64: projectData.logo }),
       ParseClient.saveFile("project-cover", { base64: projectData.coverImage }),
     ]);
+    const { logo, coverImage, ...updatedProjectData } = projectData;
 
-    return ParseClient.createRecord("TokenProject", [], [], { ...projectData, logo, cover });
+    return ParseClient.createRecord("TokenProject", [], [], {
+      ...updatedProjectData,
+      logo: logoFile,
+      coverImage: coverImageFile,
+    });
   };
 
   const getProjects = async () => {

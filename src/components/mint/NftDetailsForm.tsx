@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
 import { Card, Form, FormInstance } from "antd";
+import { isEqual } from "lodash";
 import { useRouter } from "next/router";
 
 import { CustomerService } from "@/services/CustomerService";
@@ -23,15 +24,24 @@ const numberRule = {
 interface NftDetailsFormProps {
   form: FormInstance;
   onFinish: (values: any) => void;
+  onFunctionsUpdate?: (functions: any[]) => void;
 }
 
-const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
+const NftDetailsForm = ({ form, onFinish, onFunctionsUpdate }: NftDetailsFormProps) => {
   const api = useMemo(() => CustomerService(), []);
 
   const router = useRouter();
 
   const [projectId, setProjectId] = useState(router.query.projectId as string);
-  const [projectList, setProjectList] = useState<{ id: string; title: string; startDate: string; fields: string }[]>([]);
+  const [projectList, setProjectList] = useState<
+    {
+      id: string;
+      title: string;
+      startDate: string;
+      fields: string;
+      functions?: string;
+    }[]
+  >([]);
   const [additionalFields, setAdditionalFields] = useState<NftDetailsInputField[]>([]);
 
   Form.useWatch((values) => {
@@ -49,6 +59,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
           title: project.attributes.title,
           startDate: project.createdAt.toLocaleDateString(),
           fields: project.attributes.fields,
+          functions: project.attributes.functions,
         })) || []
       );
     } catch (error) {
@@ -59,6 +70,8 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
+
+  const prevFunctionsRef = useRef([]);
 
   useEffect(() => {
     const project = projectList.find((project) => project.id === projectId);
@@ -73,10 +86,33 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
         name: field.key,
         type: field.type,
       }));
+      const functions = project.functions;
+      const additionalFunctions = functions
+        ? JSON.parse(functions).map((field: any) => ({
+            label: field.name,
+            name: field.key,
+            type: field.type,
+          }))
+        : [];
+
+      additionalFunctions.forEach((funcField: any) => {
+        const existsInFields = additionalFields.some((field: any) => field.name === funcField.name);
+        if (!existsInFields) {
+          additionalFields.push(funcField);
+        }
+      });
 
       setAdditionalFields(additionalFields);
+
+      // Check if additionalFunctions has changed
+      if (onFunctionsUpdate && !isEqual(additionalFunctions, prevFunctionsRef.current)) {
+        onFunctionsUpdate(additionalFunctions);
+      }
+
+      // Update the reference for the next render
+      prevFunctionsRef.current = additionalFunctions;
     }
-  }, [form, projectId, projectList]);
+  }, [form, projectId, projectList, onFunctionsUpdate]);
 
   return (
     <Card
@@ -115,6 +151,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
               }
             />
             <VariableFormInput type="text" name="projectStartDate" label="Project Start Date" placeholder="mm/dd/yyyy" disabled={true} />
+            <VariableFormInput type="text" name="projectStartDate" label="Project Start Date" placeholder="mm/dd/yyyy" disabled={true} />
             <VariableFormInput
               type="text"
               name="mintAddress"
@@ -140,7 +177,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
                     name={field.name}
                     label={field.label}
                     type={field.type}
-                    rules={field.rules}
+                    rules={field.rules ?? [requiredRule]}
                     disabled={field.disabled}
                     prefix={field?.prefix || ""}
                     placeholder={field.placeHolder}
