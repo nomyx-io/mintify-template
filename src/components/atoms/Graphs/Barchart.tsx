@@ -11,21 +11,10 @@ import {
   PointElement,
   LineElement,
   LineController,
-} from 'chart.js';
-import { Bar, Chart } from 'react-chartjs-2';
+} from "chart.js";
+import { Bar, Chart } from "react-chartjs-2";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  BarController,
-  Title,
-  Tooltip,
-  Legend,
-  PointElement,
-  LineElement,
-  LineController
-);
+ChartJS.register(CategoryScale, LinearScale, BarElement, BarController, Title, Tooltip, Legend, PointElement, LineElement, LineController);
 
 interface BarChartData {
   labels: string[];
@@ -50,7 +39,7 @@ const BarChart = ({ data, title }: BarChartProps) => {
     responsive: true,
     plugins: {
       legend: {
-        position: 'bottom' as const,
+        position: "bottom" as const,
       },
       title: {
         display: true,
@@ -72,7 +61,7 @@ const BarChart = ({ data, title }: BarChartProps) => {
   };
 
   return (
-    <div className='p-2'>
+    <div className="p-2">
       <Bar options={options} data={data} />
     </div>
   );

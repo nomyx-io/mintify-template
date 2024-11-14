@@ -19,14 +19,14 @@ export function getGraphData(graphValues?: GraphValues) {
   const labels = graphValues?.labels || [];
   const datasets = [
     {
-      label: graphValues?.labels[0] || '',
+      label: graphValues?.labels[0] || "",
       data: [graphValues?.values[0] || 0, 0],
-      backgroundColor: 'rgba(33, 102, 248, 0.8)',
+      backgroundColor: "rgba(33, 102, 248, 0.8)",
     },
     {
-      label: graphValues?.labels[1] || '',
+      label: graphValues?.labels[1] || "",
       data: [0, graphValues?.values[1] || 0],
-      backgroundColor: 'rgba(255, 130, 0, 0.8)',
+      backgroundColor: "rgba(255, 130, 0, 0.8)",
     },
   ];
 

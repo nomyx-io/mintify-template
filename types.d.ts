@@ -1,5 +1,5 @@
 interface Window {
-  ethereum?: import('ethers').providers.ExternalProvider;
+  ethereum?: import("ethers").providers.ExternalProvider;
 }
 
 interface Metadata {
@@ -23,7 +23,7 @@ interface NftDetailsInputField {
   placeHolder?: string;
   defaultValue?: string | number | boolean;
   value?: string | number | boolean;
-  rules?: import('antd').FormRule[];
+  rules?: import("antd").FormRule[];
   className?: string;
   disabled?: boolean;
   prefix?: string;
@@ -49,8 +49,8 @@ type TransferOnSelectChange = (sourceSelectedKeys: string[], targetSelectedKeys:
 type TransferOnScroll = (direction: TransferDirection, e: React.SyntheticEvent<HTMLUListElement>) => void;
 
 interface GraphValues {
-  labels: string[],
-  values: number[]
+  labels: string[];
+  values: number[];
 }
 
 interface MintedToken {
@@ -70,8 +70,8 @@ interface KPIs {
 
 interface Events {
   [key: string]: {
-    data: TokenEvent[]
-  }
+    data: TokenEvent[];
+  };
 }
 
 interface TokenEvent {

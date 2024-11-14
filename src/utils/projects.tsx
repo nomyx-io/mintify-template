@@ -1,9 +1,7 @@
 import { Eye } from "iconsax-react";
 import Image from "next/image";
 
-export const projectColumns: any = (
-  onProjectClick: (project: Project) => void
-) => [
+export const projectColumns: any = (onProjectClick: (project: Project) => void) => [
   {
     title: "Title",
     align: "left",
@@ -17,18 +15,10 @@ export const projectColumns: any = (
         <div className="flex items-center">
           <div className="flex justify-center items-center pr-4 border-r">
             {/* Eye Icon triggers onProjectClick */}
-            <Eye
-              className="text-xl cursor-pointer hover:text-blue-500"
-              onClick={() => onProjectClick(project)}
-            />
+            <Eye className="text-xl cursor-pointer hover:text-blue-500" onClick={() => onProjectClick(project)} />
           </div>
           <div className="w-10 h-10 relative rounded overflow-hidden flex-shrink-0 ml-4">
-            <Image
-              src={project.logo?.url() || "/default-image.png"}
-              alt={project.title}
-              fill
-              className="object-cover"
-            />
+            <Image src={project.logo?.url() || "/default-image.png"} alt={project.title} fill className="object-cover" />
           </div>
           <h2 className="ml-4 font-semibold">{project.title}</h2>
         </div>
@@ -53,8 +43,7 @@ export const projectColumns: any = (
     title: "Total Token Value",
     dataIndex: "totalValue",
     width: 300,
-    render: (totalValue: number) =>
-      "$ " + Intl.NumberFormat("en-US").format(totalValue),
+    render: (totalValue: number) => "$ " + Intl.NumberFormat("en-US").format(totalValue),
     sorter: (a: any, b: any) => a.totalValue - b.totalValue,
   },
 ];

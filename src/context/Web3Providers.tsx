@@ -1,10 +1,12 @@
-import { WalletAddressProvider } from "@/context/WalletAddressContext";
-import { BASESEP_CHAIN, LOCALHOST_CHAIN, BASE_CHAIN } from "@/utils/chains";
-import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { createContext, ReactNode } from "react";
+
+import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
+
+import { WalletAddressProvider } from "@/context/WalletAddressContext";
+import { BASESEP_CHAIN, LOCALHOST_CHAIN, BASE_CHAIN } from "@/utils/chains";
 
 const localhost = LOCALHOST_CHAIN;
 const baseSep = BASESEP_CHAIN;
@@ -12,10 +14,7 @@ const base = BASE_CHAIN;
 
 const { chains, publicClient } = configureChains(
   [baseSep, base],
-  [
-    alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || "" }),
-    publicProvider(),
-  ]
+  [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || "" }), publicProvider()]
 );
 
 const { connectors } = getDefaultWallets({

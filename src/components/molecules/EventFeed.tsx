@@ -1,9 +1,11 @@
 "use client";
 
 import React, { RefObject, useEffect, useRef } from "react";
-import IconCard from "@/components/atoms/IconCard";
-import { useRouter } from "next/router";
+
 import { Coin, FilterSquare } from "iconsax-react";
+import { useRouter } from "next/router";
+
+import IconCard from "@/components/atoms/IconCard";
 
 interface EventFeedProps {
   data: Events;
@@ -12,10 +14,7 @@ interface EventFeedProps {
 export const EventFeed = ({ data }: EventFeedProps) => {
   const [filterMenuOpen, setFilterMenuOpen] = React.useState(false);
 
-  function useOutsideDetector(
-    ref: RefObject<HTMLDivElement>,
-    callback: (event: MouseEvent) => void
-  ) {
+  function useOutsideDetector(ref: RefObject<HTMLDivElement>, callback: (event: MouseEvent) => void) {
     useEffect(() => {
       function handleClickOutside(event: MouseEvent) {
         if (ref?.current && !ref.current.contains(event.target as Node)) {
@@ -37,21 +36,13 @@ export const EventFeed = ({ data }: EventFeedProps) => {
   });
 
   const router = useRouter();
-  const activeFilters: string[] = router.query.filter
-    ? (router.query.filter as string).split("|")
-    : [];
+  const activeFilters: string[] = router.query.filter ? (router.query.filter as string).split("|") : [];
 
-  const eventNames = Object.values(data).flatMap(
-    (entry: { data: TokenEvent[] }) =>
-      entry.data.map((element: TokenEvent) => element.name)
-  );
+  const eventNames = Object.values(data).flatMap((entry: { data: TokenEvent[] }) => entry.data.map((element: TokenEvent) => element.name));
   const filterOptions = Array.from(new Set(eventNames));
   const filteredEvents: Events = {};
   Object.entries(data).forEach(([key, value]) => {
-    const filteredValues = value.data.filter(
-      (item: TokenEvent) =>
-        activeFilters.length === 0 || activeFilters.includes(item.name)
-    );
+    const filteredValues = value.data.filter((item: TokenEvent) => activeFilters.length === 0 || activeFilters.includes(item.name));
 
     if (filteredValues.length > 0) {
       filteredEvents[key] = { data: filteredValues };
@@ -92,17 +83,8 @@ export const EventFeed = ({ data }: EventFeedProps) => {
             {filterOptions.map((name: string) => {
               const isChecked = activeFilters.includes(name);
               return (
-                <div
-                  className="flex text-xs gap-4 w-full p-2 cursor-pointer"
-                  key={name}
-                  onClick={() => setFilter(name)}
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => setFilter(name)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
+                <div className="flex text-xs gap-4 w-full p-2 cursor-pointer" key={name} onClick={() => setFilter(name)}>
+                  <input type="checkbox" checked={isChecked} onChange={() => setFilter(name)} onClick={(e) => e.stopPropagation()} />
                   <span>{name}</span>
                 </div>
               );
@@ -117,19 +99,10 @@ export const EventFeed = ({ data }: EventFeedProps) => {
         // Render the events
         Object.entries(filteredEvents).map(([key, value]) => {
           return (
-            <div
-              key={key}
-              className="text-nomyx-text-light dark:text-nomyx-text-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark"
-            >
+            <div key={key} className="text-nomyx-text-light dark:text-nomyx-text-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark">
               <h3 className="px-4 pt-4">{key}</h3>
               {value.data.map((item: TokenEvent, index: number) => (
-                <IconCard
-                  key={`${key}-${index}`}
-                  icon={<Coin />}
-                  name={item.name}
-                  description={item.description || ""}
-                  value={item.value}
-                />
+                <IconCard key={`${key}-${index}`} icon={<Coin />} name={item.name} description={item.description || ""} value={item.value} />
               ))}
             </div>
           );

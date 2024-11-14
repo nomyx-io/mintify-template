@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
+
 import { EyeOutlined } from "@ant-design/icons";
 import { Table, Switch } from "antd";
-import { hashToColor } from "@/utils/colorUtils";
-import BlockchainService from "@/services/BlockchainService";
-import { toast } from "react-toastify";
 import { ethers } from "ethers";
+import { toast } from "react-toastify";
+
+import BlockchainService from "@/services/BlockchainService";
+import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
+
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
 interface TokenListViewProps {
@@ -13,10 +16,7 @@ interface TokenListViewProps {
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
 }
 
-const TokenListView: React.FC<TokenListViewProps> = ({
-  tokens,
-  isSalesHistory,
-}) => {
+const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory }) => {
   const [filteredTokens, setFilteredTokens] = useState(tokens);
   const [filterQuery, setFilterQuery] = useState("");
   const blockchainService = BlockchainService.getInstance();
@@ -25,9 +25,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     const cleanupListedTokens = async () => {
       try {
         const listedTokens = await blockchainService?.fetchItems();
-        const listedTokensIds = new Set(
-          listedTokens.map((token: any) => String(token["1"]))
-        );
+        const listedTokensIds = new Set(listedTokens.map((token: any) => String(token["1"])));
 
         const updatedTokens = tokens.map((token) => ({
           ...token,
@@ -59,9 +57,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
 
         // Get the project details to list
         const token = filteredTokens.find((t) => t.tokenId === tokenId);
-        const totalPrice = (
-          Number(token.token.existingCredits) * Number(token.token.price)
-        ).toString();
+        const totalPrice = (Number(token.token.existingCredits) * Number(token.token.price)).toString();
 
         if (!totalPrice || !token) {
           throw new Error("Invalid price or token details.");
@@ -103,9 +99,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
 
       // Step 4: Update local state after success
       const listedTokens = await blockchainService?.fetchItems(); // Get all listed tokens
-      const listedTokensIds = new Set(
-        listedTokens.map((token: any) => String(token["1"]))
-      );
+      const listedTokensIds = new Set(listedTokens.map((token: any) => String(token["1"])));
 
       // Update the local state with the latest token status
       setFilteredTokens((prevTokens) =>
@@ -146,30 +140,25 @@ const TokenListView: React.FC<TokenListViewProps> = ({
             <div className="w-6 h-6">
               <GenerateSvgIcon color={color} />
             </div>
-            <span style={{ marginLeft: "10px", fontWeight: "bold" }}>
-              {record.token?.nftTitle}
-            </span>
+            <span style={{ marginLeft: "10px", fontWeight: "bold" }}>{record.token?.nftTitle}</span>
           </div>
         );
       },
-      sorter: (a: any, b: any) =>
-        a.token.nftTitle.localeCompare(b.token.nftTitle),
+      sorter: (a: any, b: any) => a.token.nftTitle.localeCompare(b.token.nftTitle),
     },
     {
       title: "Description",
       dataIndex: "token",
       render: (token: any) => (
         <p className="text-sm text-gray-600 mt-1 line-clamp-1">
-          {token.description ||
-            "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
+          {token.description || "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
         </p>
       ),
     },
     {
       title: "Price",
       dataIndex: "price",
-      render: (price: number) => 
-        isSalesHistory ? formatPrice(price, "USD") : formatPrice(price / 1_000_000, "USD"),      
+      render: (price: number) => (isSalesHistory ? formatPrice(price, "USD") : formatPrice(price / 1_000_000, "USD")),
       sorter: (a: any, b: any) => a.price - b.price,
     },
     // Conditionally add the "Status" column only if `isSalesHistory` is false
@@ -196,16 +185,10 @@ const TokenListView: React.FC<TokenListViewProps> = ({
                 >
                   {status}
                 </span>
-                <Switch
-                  checked={status === "listed"}
-                  onChange={(checked) =>
-                    handleStatusChange(record.tokenId, checked)
-                  }
-                />
+                <Switch checked={status === "listed"} onChange={(checked) => handleStatusChange(record.tokenId, checked)} />
               </div>
             ),
-            sorter: (a: any, b: any) =>
-              a.token.status.localeCompare(b.token.status),
+            sorter: (a: any, b: any) => a.token.status.localeCompare(b.token.status),
           },
         ]),
   ];
