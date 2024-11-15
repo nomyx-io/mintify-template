@@ -1,13 +1,15 @@
 import React, { useContext } from "react";
-import Image from "next/image";
-import { Layout } from "antd/es";
+
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import ThemeToggle from "@/components/atoms/ThemeToggle";
-import { useAccount } from "wagmi";
-import { UserContext } from "@/pages/_app";
+import { Layout } from "antd/es";
+import Image from "next/image";
 import Link from "next/link";
+import { useAccount } from "wagmi";
+
 import logoDark from "@/assets/nomyx_logo_dark.png";
 import logoLight from "@/assets/nomyx_logo_light.png";
+import ThemeToggle from "@/components/atoms/ThemeToggle";
+import { UserContext } from "@/pages/_app";
 
 const { Header } = Layout;
 
@@ -15,7 +17,7 @@ const TopNavBar = () => {
   const onDisconnect = useContext(UserContext);
 
   useAccount({
-    onDisconnect: function() {
+    onDisconnect: function () {
       onDisconnect();
     },
   });

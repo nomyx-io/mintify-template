@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.18.4",
@@ -44,10 +47,23 @@
     "@types/papaparse": "^5.3.14",
     "@types/parse": "^3.0.9",
     "@types/pubsub-js": "^1.8.6",
-    "@types/react": "18.2.19"
+    "@types/react": "18.2.19",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10"
   },
   "engines": {
     "node": "^18.19.0",
     "npm": "^10.2.4"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }

@@ -1,16 +1,19 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import NftPreview from "../../components/mint/NftRecordDetail";
-import { getDashboardLayout } from "@/Layouts";
-import { toast } from "react-toastify";
-import { useRouter } from "next/router";
-import { useAccount } from "wagmi";
+
 import { Button, Form } from "antd";
-import { usePageUnloadGuard } from "@/hooks/usePageUnloadGuard";
-import BlockchainService from "@/services/BlockchainService";
 import { ethers } from "ethers";
+import { useRouter } from "next/router";
+import { toast } from "react-toastify";
+import { useAccount } from "wagmi";
+
 import NftDetailsForm from "@/components/mint/NftDetailsForm";
 import Compliance from "@/components/molecules/Compliance";
+import usePageUnloadGuard from "@/hooks/usePageUnloadGuard";
+import { getDashboardLayout } from "@/Layouts";
+import BlockchainService from "@/services/BlockchainService";
+
+import NftPreview from "../../components/mint/NftRecordDetail";
 
 export default function Details({ service }: { service: BlockchainService }) {
   const { isConnected } = useAccount();
@@ -70,9 +73,7 @@ export default function Details({ service }: { service: BlockchainService }) {
 
   const handleMint = async () => {
     const nftMetadata = generateMetadata(formData);
-    const mintAddress = nftMetadata.find(
-      (value) => value.key === "mintAddress"
-    )?.value;
+    const mintAddress = nftMetadata.find((value) => value.key === "mintAddress")?.value;
     if (!mintAddress) {
       toast.error("Wallet address is not available.");
       return;
@@ -131,13 +132,10 @@ export default function Details({ service }: { service: BlockchainService }) {
 
       resetFormStates();
 
-      toast.success(
-        `Successfully minted NFT with Token ID: ${tokenId} and listed on the marketplace.`
-      );
+      toast.success(`Successfully minted NFT with Token ID: ${tokenId} and listed on the marketplace.`);
       return tokenId;
     } catch (e) {
-      let errorMessage =
-        "An error occurred during the minting/listing process.";
+      let errorMessage = "An error occurred during the minting/listing process.";
       if (e instanceof Error) {
         errorMessage = e.message;
       } else if (typeof e === "string") {
