@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from "react";
+
 import { EyeOutlined } from "@ant-design/icons";
 import { Table, Switch } from "antd";
-import { hashToColor } from "@/utils/colorUtils";
-import BlockchainService from "@/services/BlockchainService";
-import { toast } from "react-toastify";
 import { ethers } from "ethers";
-import { formatPrice } from "@/utils/currencyFormater";
-import { GenerateSvgIcon } from "../atoms/TokenSVG";
+import { toast } from "react-toastify";
+
+import BlockchainService from "@/services/BlockchainService";
 import { ColumnConfig, EXCLUDED_COLUMNS } from "@/types/dynamicTableColumn";
+import { hashToColor } from "@/utils/colorUtils";
+import { formatPrice } from "@/utils/currencyFormater";
+
+import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
 interface TokenListViewProps {
   tokens: any[];
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
 }
 
-const TokenListView: React.FC<TokenListViewProps> = ({
-  tokens,
-  isSalesHistory,
-}) => {
+const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory }) => {
   const [filteredTokens, setFilteredTokens] = useState(tokens);
   const [filterQuery, setFilterQuery] = useState("");
   const blockchainService = BlockchainService.getInstance();
@@ -26,9 +26,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     const cleanupListedTokens = async () => {
       try {
         const listedTokens = await blockchainService?.fetchItems();
-        const listedTokensIds = new Set(
-          listedTokens.map((token: any) => String(token["1"]))
-        );
+        const listedTokensIds = new Set(listedTokens.map((token: any) => String(token["1"])));
 
         const updatedTokens = tokens.map((token) => ({
           ...token,
@@ -60,9 +58,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
 
         // Get the project details to list
         const token = filteredTokens.find((t) => t.tokenId === tokenId);
-        const totalPrice = (
-          Number(token.token.existingCredits) * Number(token.token.price)
-        ).toString();
+        const totalPrice = (Number(token.token.existingCredits) * Number(token.token.price)).toString();
 
         if (!totalPrice || !token) {
           throw new Error("Invalid price or token details.");
@@ -104,9 +100,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
 
       // Step 4: Update local state after success
       const listedTokens = await blockchainService?.fetchItems(); // Get all listed tokens
-      const listedTokensIds = new Set(
-        listedTokens.map((token: any) => String(token["1"]))
-      );
+      const listedTokensIds = new Set(listedTokens.map((token: any) => String(token["1"])));
 
       // Update the local state with the latest token status
       setFilteredTokens((prevTokens) =>
@@ -140,11 +134,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     tokens.forEach((token) => {
       Object.entries(token.token).forEach(([key, value]) => {
         // Check if the column is non-null, non-undefined, not already in nonNullColumns, and not excluded
-        if (
-          value != null &&
-          !(key in nonNullColumns) &&
-          !EXCLUDED_COLUMNS.has(key)
-        ) {
+        if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
           nonNullColumns[key] = {
             title: key
               .replace(/([A-Z])/g, " $1") // Add a space before uppercase letters
@@ -161,14 +151,11 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     return nonNullColumns.map(({ title, key }) => ({
       title,
       dataIndex: ["token", key] as [string, string],
-      render: (value: any) =>
-        typeof value === "object" ? "N/A" : <span>{value}</span>,
+      render: (value: any) => (typeof value === "object" ? "N/A" : <span>{value}</span>),
       sorter: (a: any, b: any) => {
         const aValue = a.token[key];
         const bValue = b.token[key];
-        return typeof aValue === "string" && typeof bValue === "string"
-          ? aValue.localeCompare(bValue)
-          : 0;
+        return typeof aValue === "string" && typeof bValue === "string" ? aValue.localeCompare(bValue) : 0;
       },
     }));
   };
@@ -189,9 +176,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
               <div className="w-6 h-6">
                 <GenerateSvgIcon color={color} />
               </div>
-              <span style={{ marginLeft: "10px", fontWeight: "bold" }}>
-                {record.token?.nftTitle}
-              </span>{" "}
+              <span style={{ marginLeft: "10px", fontWeight: "bold" }}>{record.token?.nftTitle}</span>{" "}
             </div>
             <p className="text-xs !text-gray-500">
               {record.token?.description ||
@@ -200,8 +185,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
           </>
         );
       },
-      sorter: (a: any, b: any) =>
-        a.token.nftTitle.localeCompare(b.token.nftTitle),
+      sorter: (a: any, b: any) => a.token.nftTitle.localeCompare(b.token.nftTitle),
     },
     // {
     //   title: "Description",
@@ -216,10 +200,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({
     {
       title: "Price",
       dataIndex: "price",
-      render: (price: number) =>
-        isSalesHistory
-          ? formatPrice(price, "USD")
-          : formatPrice(price / 1_000_000, "USD"),
+      render: (price: number) => (isSalesHistory ? formatPrice(price, "USD") : formatPrice(price / 1_000_000, "USD")),
       sorter: (a: any, b: any) => a.price - b.price,
     },
     ...additionalColumns,
@@ -250,14 +231,11 @@ const TokenListView: React.FC<TokenListViewProps> = ({
                 <Switch
                   className="status-toggle-switch"
                   checked={status === "listed"}
-                  onChange={(checked) =>
-                    handleStatusChange(record.tokenId, checked)
-                  }
+                  onChange={(checked) => handleStatusChange(record.tokenId, checked)}
                 />
               </div>
             ),
-            sorter: (a: any, b: any) =>
-              a.token.status.localeCompare(b.token.status),
+            sorter: (a: any, b: any) => a.token.status.localeCompare(b.token.status),
           },
         ]),
   ];

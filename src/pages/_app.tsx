@@ -3,21 +3,21 @@ import "@/styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import "react-toastify/dist/ReactToastify.css";
 
-import axios from "axios";
-import React, { createContext, ReactElement, ReactNode, useEffect, useState } from "react";
-import { BrowserProvider, ethers, Network } from "ethers";
-import { toast, ToastContainer } from "react-toastify";
+import React, { createContext, ReactElement, ReactNode, useEffect, useState, useCallback } from "react";
+
 import { ConfigProvider, theme } from "antd";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
-
-import { generateRandomString } from "@/utils/regex";
-import BlockchainService from "@/services/BlockchainService";
-import PrivateRoute from "@/components/atoms/PrivateRoute";
-import Web3Providers from "@/context/Web3Providers";
-
-import NomyxAppContext from "@/context/NomyxAppContext";
+import axios from "axios";
+import { BrowserProvider, ethers, Network } from "ethers";
 import { NextPage } from "next";
 import { AppProps } from "next/app";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { toast, ToastContainer } from "react-toastify";
+
+import PrivateRoute from "@/components/atoms/PrivateRoute";
+import NomyxAppContext from "@/context/NomyxAppContext";
+import Web3Providers from "@/context/Web3Providers";
+import BlockchainService from "@/services/BlockchainService";
+import { generateRandomString } from "@/utils/regex";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode;
@@ -40,10 +40,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
   const getToken = async (request: object): Promise<{ token: string; roles: string[] }> => {
     try {
-      const { data } = await axios.post(
-        `${process.env.NEXT_PUBLIC_PARSE_SERVER_URL}/auth/login`,
-        request
-      );
+      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_PARSE_SERVER_URL}/auth/login`, request);
 
       return {
         token: data?.access_token || "",
@@ -58,7 +55,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     }
   };
 
-  const onConnect = async () => {
+  const onConnect = useCallback(async () => {
     const RandomString = generateRandomString(10);
     let message = `Sign this message to validate that you are the owner of the account. Random string: ${RandomString}`;
     let storedSignature = localStorage.getItem("signature") ? JSON.parse(localStorage.getItem("signature") as string) : null;
@@ -82,7 +79,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       message: message,
       signature: signature,
     });
-
     if (roles.length > 0 && roles.includes("CentralAuthority")) {
       setRole([...roles]);
       setStatus(false);
@@ -118,7 +114,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         return;
       }
     });
-  };
+  }, []);
 
   const handleForceLogout = () => {
     setForceLogout(false);
@@ -153,10 +149,10 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     algorithm,
     components: {
       Layout: {
-        headerBg: isDarkMode ? '#141414' : '#ffffff',
-        colorBgBase: isDarkMode ? '#141414' : '#ffffff',
-        colorBgContainer: isDarkMode ? '#141414' : '#ffffff',
-        siderBg: isDarkMode ? '#141414' : '#ffffff',
+        headerBg: isDarkMode ? "#141414" : "#ffffff",
+        colorBgBase: isDarkMode ? "#141414" : "#ffffff",
+        colorBgContainer: isDarkMode ? "#141414" : "#ffffff",
+        siderBg: isDarkMode ? "#141414" : "#ffffff",
       },
       Menu: {
         activeBarBorderWidth: 0,

@@ -1,12 +1,8 @@
-import React, {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
-import { Transfer, Card } from 'antd';
-import BlockchainService from '@/services/BlockchainService';
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
+
+import { Transfer, Card } from "antd";
+
+import BlockchainService from "@/services/BlockchainService";
 
 interface ComplianceProps {
   selectedClaims: string[];
@@ -20,8 +16,7 @@ const Compliance = ({ selectedClaims, setSelectedClaims }: ComplianceProps) => {
   const service = BlockchainService.getInstance();
 
   const getClaimTopics = useCallback(async () => {
-    const claims: Parse.Object[] | null | undefined =
-      service && (await service.getClaimTopics());
+    const claims: Parse.Object[] | null | undefined = service && (await service.getClaimTopics());
     if (claims) {
       const data: ClaimTopic[] = claims.map((item: Parse.Object) => {
         return {
@@ -36,22 +31,22 @@ const Compliance = ({ selectedClaims, setSelectedClaims }: ComplianceProps) => {
       //set dummy data
       setClaimTopics([
         {
-          key: '1',
-          displayName: 'Claim 1',
-          topic: '1',
-          id: '1',
+          key: "1",
+          displayName: "Claim 1",
+          topic: "1",
+          id: "1",
         },
         {
-          key: '2',
-          displayName: 'Claim 2',
-          topic: '2',
-          id: '2',
+          key: "2",
+          displayName: "Claim 2",
+          topic: "2",
+          id: "2",
         },
         {
-          key: '3',
-          displayName: 'Claim 3',
-          topic: '3',
-          id: '3',
+          key: "3",
+          displayName: "Claim 3",
+          topic: "3",
+          id: "3",
         },
       ]);
     }
@@ -68,25 +63,18 @@ const Compliance = ({ selectedClaims, setSelectedClaims }: ComplianceProps) => {
   };
 
   // This function is called when the user selects a claim from either the source or target list
-  const onSelectChange: TransferOnSelectChange = (
-    sourceSelectedKeys: string[],
-    targetSelectedKeys: string[]
-  ) => {
+  const onSelectChange: TransferOnSelectChange = (sourceSelectedKeys: string[], targetSelectedKeys: string[]) => {
     setSelectedKeys([...sourceSelectedKeys, ...targetSelectedKeys]);
   };
 
   return (
     <Card
-      title={
-        <span className='text-nomyx-text-light dark:text-nomyx-text-dark'>
-          {' '}
-          {'Compliance Features'}
-        </span>
-      }
-      className='bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark overflow-hidden'>
+      title={<span className="text-nomyx-text-light dark:text-nomyx-text-dark"> {"Compliance Features"}</span>}
+      className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark overflow-hidden"
+    >
       <Transfer
         dataSource={claimTopics}
-        titles={['Available Claims', 'Selected Claims']}
+        titles={["Available Claims", "Selected Claims"]}
         showSelectAll={false}
         targetKeys={targetKeys}
         selectedKeys={selectedKeys}
@@ -97,7 +85,7 @@ const Compliance = ({ selectedClaims, setSelectedClaims }: ComplianceProps) => {
             {item?.displayName}({item.topic})
           </div>
         )}
-        className='overflow-x-scroll md:overflow-auto'
+        className="overflow-x-scroll md:overflow-auto"
       />
     </Card>
   );

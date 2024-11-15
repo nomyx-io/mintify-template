@@ -1,13 +1,16 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
+
 import { message } from "antd";
 import { Button, Card, Tabs } from "antd";
-import { CustomerService } from "@/services/CustomerService";
+import { SearchNormal1, Category, RowVertical, ArrowLeft, Copy } from "iconsax-react";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
+
+import projectBackground from "@/assets/projects_background.png";
 import TokenCardView from "@/components/projects/TokenCardView";
 import TokenListView from "@/components/projects/TokenListView";
-import { SearchNormal1, Category, RowVertical, ArrowLeft, Copy } from "iconsax-react";
-import projectBackground from "@/assets/projects_background.png";
+import { CustomerService } from "@/services/CustomerService";
 
 interface ProjectDetailsProps {
   project: Project;
@@ -82,63 +85,66 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     };
   }, []);
 
+  const fetchListings = useCallback(
+    async (projectTokens: any) => {
+      try {
+        const projectTokens = await api.getProjectTokens(["projectId"], [project.id]);
+        const listingData = await api.getListings(["sold"], [false]);
+
+        // Create a Set of tokenIds for faster lookups
+        const projectTokenIds = new Set(projectTokens.map((token: any) => token.tokenId));
+
+        // Filter listings to include only those part of the project and not sold
+        const filteredListings = listingData.filter((listing: any) => projectTokenIds.has(listing.tokenId));
+
+        setListings(filteredListings);
+      } catch (error) {
+        console.error("Error fetching listings:", error);
+      }
+    },
+    [api, project.id]
+  );
+
+  const fetchSales = useCallback(
+    async (projectTokens: any) => {
+      try {
+        const salesData = await api.getSales();
+
+        // filter sold tokens based off of the fetched listings tokens id
+        const projectSalesData = salesData.filter((sale: any) => {
+          return projectTokens.some((listing: any) => String(listing.tokenId) === String(sale.tokenId));
+        });
+
+        const filteredSalesData = projectSalesData.map((sale: { token: { price: string; existingCredits: string } }) => {
+          return {
+            ...sale,
+            price: Number(sale.token.price) * Number(sale.token.existingCredits),
+          };
+        });
+        setSales(filteredSalesData || []);
+      } catch (error) {
+        console.error("Error fetching sales:", error);
+      }
+    },
+    [api]
+  );
 
   // Fetch listings and sales when component mounts
   useEffect(() => {
+    console.log("Fetching data for project:", project);
     const fetchData = async () => {
       const projectTokens = await api.getProjectTokens(["projectId"], [project.id]);
       fetchListings(projectTokens);
       fetchSales(projectTokens);
     };
     fetchData();
-  }, []);
-
-  const fetchListings = async (projectTokens: any) => {
-    try {
-      const projectTokens = await api.getProjectTokens(["projectId"], [project.id]);
-      const listingData = await api.getListings(["sold"], [false]);
-
-      // Create a Set of tokenIds for faster lookups
-      const projectTokenIds = new Set(projectTokens.map((token: any) => token.tokenId));
-
-      // Filter listings to include only those part of the project and not sold
-      const filteredListings = listingData
-        .filter((listing: any) => projectTokenIds.has(listing.tokenId));
-
-      setListings(filteredListings);
-    } catch (error) {
-      console.error("Error fetching listings:", error);
-    }
-  };
-
-  const fetchSales = async (projectTokens: any) => {
-    try {
-      const salesData = await api.getSales();
-
-      // filter sold tokens based off of the fetched listings tokens id
-      const projectSalesData = salesData.filter((sale: any) => {
-        return projectTokens.some((listing: any) => String(listing.tokenId) === String(sale.tokenId));
-      });
-
-      const filteredSalesData = projectSalesData.map((sale: { token: { price: string; existingCredits: string } }) => {
-        return {
-          ...sale,
-          price: Number(sale.token.price) * Number(sale.token.existingCredits),
-        };
-      });
-      setSales(filteredSalesData || []);
-    } catch (error) {
-      console.error("Error fetching sales:", error);
-    }
-  };
+  }, [api, project, project.id, project.title, fetchListings, fetchSales]);
 
   const totalTokens = listings.length + sales.length;
   return (
     <div className="project-details">
       {selectedToken ? (
-        <>
-          {/* Token Detail View */}
-        </>
+        <>{/* Token Detail View */}</>
       ) : (
         <>
           {/* Project Details View */}
@@ -166,7 +172,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
               <div className="absolute bottom-4 left-0 flex items-center p-4 rounded-lg">
                 {/* Project Image */}
                 <div className="project-logo rounded-lg overflow-hidden" style={{ width: "100px", height: "100px" }}>
-                  <img src={project.coverImage?.url()} alt="Project Logo" className="object-cover w-full h-full" />
+                  <Image src={project.coverImage?.url()} alt="Project Logo" fill className="object-cover" />
                 </div>
 
                 {/* Project Title and Description */}
@@ -217,7 +223,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 <Button
                   type="primary"
                   className="mr-4 bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark'"
-                  onClick={() => router.push({ pathname: '/nft-create', query: { projectId: project.id } })}
+                  onClick={() => router.push({ pathname: "/nft-create", query: { projectId: project.id } })}
                 >
                   Mint Token
                 </Button>
