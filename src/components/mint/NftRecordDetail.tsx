@@ -1,14 +1,14 @@
-import React, { useCallback, useEffect } from 'react';
-import { Button, Card, Checkbox } from 'antd';
+import React, { useCallback, useEffect } from "react";
+import { Button, Card, Checkbox } from "antd";
 
-import { useRouter } from 'next/router';
-import { LeftOutlined } from '@ant-design/icons';
-import { hashToColor } from '@/utils/colorUtils';
-import { GenerateSvgIcon } from '../atoms/TokenSVG';
-import BlockchainService from '@/services/BlockchainService';
-import ParseClient from '@/services/ParseClient';
-import { formatPrice } from '@/utils/currencyFormater';
-import { ShareIcon } from '@/assets';
+import { useRouter } from "next/router";
+import { LeftOutlined } from "@ant-design/icons";
+import { hashToColor } from "@/utils/colorUtils";
+import { GenerateSvgIcon } from "../atoms/TokenSVG";
+import BlockchainService from "@/services/BlockchainService";
+import ParseClient from "@/services/ParseClient";
+import { formatPrice } from "@/utils/currencyFormater";
+import { ShareIcon } from "@/assets";
 
 interface NftRecordDetailProps {
   handleMint?: () => void;
@@ -30,6 +30,7 @@ const NftRecordDetail = ({
 
   const [allTopics, setAllTopics] = React.useState<ClaimTopic[]>();
   const [projectName, setProjectName] = React.useState<string>();
+  const [identityName, setIdentityName] = React.useState<string>();
 
   const {
     transactionHash,
@@ -47,9 +48,9 @@ const NftRecordDetail = ({
   const colorKey = id || nftTitle;
   const color = hashToColor(`${colorKey as string}`);
 
-  const title = detailView ? `Token - ${nftTitle}` : 'Preview Token </>';
+  const title = detailView ? `Token - ${nftTitle}` : "Preview Token </>";
   const backButton = (
-    <Button onClick={() => router.back()} type='text' icon={<LeftOutlined />} />
+    <Button onClick={() => router.back()} type="text" icon={<LeftOutlined />} />
   );
 
   const capitalizeEveryWord = (str: string) => {
@@ -75,8 +76,8 @@ const NftRecordDetail = ({
 
   const getTokenProject = useCallback(async () => {
     const project = await ParseClient.getRecord(
-      'TokenProject',
-      ['objectId'],
+      "TokenProject",
+      ["objectId"],
       [projectId as string]
     );
     if (project) {
@@ -84,17 +85,29 @@ const NftRecordDetail = ({
     }
   }, [projectId]);
 
+  const getIdentityName = useCallback(async () => {
+    const identity = await ParseClient.getRecord(
+      "Identity",
+      ["address"],
+      [mintAddress as string]
+    );
+    if (identity) {
+      setIdentityName(identity.attributes.displayName as string);
+    }
+  }, [mintAddress]);
+
   useEffect(() => {
     getAllTopics();
     getTokenProject();
-  }, [getAllTopics, getTokenProject]);
+    getIdentityName();
+  }, [getAllTopics, getTokenProject, getIdentityName]);
 
   return (
     <>
       <Card
-        className='bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark text-nomyx-text-light dark:text-nomyx-text-dark'
+        className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark text-nomyx-text-light dark:text-nomyx-text-dark"
         title={detailView ? [backButton, title] : title}
-        styles={{ body: { padding: '0' } }}
+        styles={{ body: { padding: "0" } }}
         // extra={
         //   <Button
         //     onClick={() =>
@@ -109,79 +122,80 @@ const NftRecordDetail = ({
         //     View On Block Explorer
         //   </Button>
         // }
-        >
-        <div className='flex flex-col mb-4'>
-          <div className='font-bold p-2'>Details</div>
-          <div className='flex gap-4 px-2'>
-            <div className='flex items-center justify-center h-52 w-52'>
+      >
+        <div className="flex flex-col mb-4">
+          <div className="font-bold p-2">Details</div>
+          <div className="flex gap-4 px-2">
+            <div className="flex items-center justify-center h-52 w-52">
               <GenerateSvgIcon color={color} />
             </div>
-            <div className='p-4 py-8'>
-              <h1 className='text-3xl font bold'>{nftTitle as string}</h1>
-              <p className='!text-nomyx-gray1-light dark:!text-nomyx-gray1-dark'>
+            <div className="p-4 py-8">
+              <h1 className="text-3xl font bold">{nftTitle as string}</h1>
+              <p className="!text-nomyx-gray1-light dark:!text-nomyx-gray1-dark">
                 {description as string}
               </p>
             </div>
           </div>
         </div>
 
-        <div className='mb-4'>
-          <div className='grid grid-cols-2 border-t border-b border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
-            <div className='p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
-              <div className='text-nomyx-gray3-light dark:text-nomyx-gray3-dark'>
+        <div className="mb-4">
+          <div className="grid grid-cols-2 border-t border-b border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+            <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
                 Project
               </div>
-              <div className='card-value truncate'>{projectName}</div>
+              <div className="card-value truncate">{projectName}</div>
             </div>
-            <div className='p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
-              <div className='text-nomyx-gray3-light dark:text-nomyx-gray3-dark'>
+            <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
                 Project Start Date
               </div>
-              <div className='card-value truncate'>
+              <div className="card-value truncate">
                 {projectStartDate as string}
               </div>
             </div>
-            <div className='p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
-              <div className='text-nomyx-gray3-light dark:text-nomyx-gray3-dark'>
+            <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
                 Mint To
               </div>
-              <div className='card-value truncate'>{mintAddress as string}</div>
+              <div className="card-value truncate">{identityName}</div>
             </div>
-            <div className='p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
-              <div className='text-nomyx-gray3-light dark:text-nomyx-gray3-dark'>
+            <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
                 Price
               </div>
-              <div className='card-value truncate'>
+              <div className="card-value truncate">
                 {formatPrice(parseFloat(price as string))}
               </div>
             </div>
           </div>
         </div>
 
-        <div className='mb-4'>
-          <div className='p-2 font-bold'>Token Data</div>
-          <div className='grid grid-cols-2 border-t border-b border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
+        <div className="mb-4">
+          <div className="p-2 font-bold">Token Data</div>
+          <div className="grid grid-cols-2 border-t border-b border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
             {Object.entries(metadata).map(([key, value], index) => {
               return (
                 <div
                   key={`field-${index}`}
-                  className='p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
-                  <div className='text-nomyx-gray3-light dark:text-nomyx-gray3-dark'>
-                    {capitalizeEveryWord(key.replace('_', ' '))}
+                  className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
+                >
+                  <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
+                    {capitalizeEveryWord(key.replace("_", " "))}
                   </div>
-                  <div className='card-value truncate'>{value as string}</div>
+                  <div className="card-value truncate">{value as string}</div>
                 </div>
               );
             })}
           </div>
         </div>
 
-        <div className='p-2 font-bold'>Compliance Features</div>
-        <div className='mb-2 p-2 border-t border-nomyx-gray4-light dark:border-nomyx-gray4-dark'>
+        <div className="p-2 font-bold">Compliance Features</div>
+        <div className="mb-2 p-2 border-t border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
           {allTopics &&
             (allTopics as ClaimTopic[])
               .filter((topic) =>
-                (claimTopics as string).split(',').includes(topic['key'])
+                (claimTopics as string).split(",").includes(topic["key"])
               )
               .map((topic, index) => (
                 <div key={`claim-${index}`}>
@@ -197,15 +211,17 @@ const NftRecordDetail = ({
 
       {!detailView && (
         <>
-          <div className='w-full flex justify-end gap-4 pt-2'>
+          <div className="w-full flex justify-end gap-4 pt-2">
             <Button
-              className='text-nomyx-text-light dark:text-nomyx-text-dark hover:!bg-transparent'
-              onClick={handleBack}>
+              className="text-nomyx-text-light dark:text-nomyx-text-dark hover:!bg-transparent"
+              onClick={handleBack}
+            >
               Back
             </Button>
             <Button
-              className='bg-nomyx-blue-light mr-4 hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark'
-              onClick={handleMint}>
+              className="bg-nomyx-blue-light mr-4 hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark"
+              onClick={handleMint}
+            >
               Mint
             </Button>
           </div>

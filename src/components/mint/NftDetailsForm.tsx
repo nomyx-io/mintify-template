@@ -49,6 +49,10 @@ const NftDetailsForm = ({
       functions?: string;
     }[]
   >([]);
+  const [registeredUserList, setRegisteredUserList] = useState<
+    { walletAddress: string; email: string }[]
+  >([]);
+
   const [additionalFields, setAdditionalFields] = useState<
     NftDetailsInputField[]
   >([]);
@@ -76,9 +80,24 @@ const NftDetailsForm = ({
     }
   }, [api]);
 
+  const fetchRegisteredUsers = useCallback(async () => {
+    try {
+      const users = await api.getIdentityRegisteredUser();
+      setRegisteredUserList(
+        users?.users.map((user: any) => ({
+          walletAddress: user.walletAddress,
+          email: user.email,
+        })) || []
+      );
+    } catch (error) {
+      console.error("Failed to fetch projects:", error);
+    }
+  }, [api]);
+
   useEffect(() => {
     fetchProjects();
-  }, [fetchProjects]);
+    fetchRegisteredUsers();
+  }, [fetchProjects, fetchRegisteredUsers]);
 
   const prevFunctionsRef = useRef([]);
 
@@ -178,17 +197,21 @@ const NftDetailsForm = ({
               disabled={true}
             />
             <VariableFormInput
-              type="text"
+              type="select"
               name="mintAddress"
               label="Mint To"
               placeholder="Enter Wallet Address"
               rules={[
                 {
                   required: true,
-                  pattern: Regex.ethereumAddress,
-                  message: "This field must be an ethereum address.",
                 },
               ]}
+              options={
+                registeredUserList.map((user) => ({
+                  label: user.email,
+                  value: user.walletAddress,
+                })) || []
+              }
             />
             <VariableFormInput
               type="text"
