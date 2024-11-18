@@ -24,10 +24,9 @@ const numberRule = {
 interface NftDetailsFormProps {
   form: FormInstance;
   onFinish: (values: any) => void;
-  onFunctionsUpdate?: (functions: any[]) => void;
 }
 
-const NftDetailsForm = ({ form, onFinish, onFunctionsUpdate }: NftDetailsFormProps) => {
+const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
   const api = useMemo(() => CustomerService(), []);
 
   const router = useRouter();
@@ -39,7 +38,6 @@ const NftDetailsForm = ({ form, onFinish, onFunctionsUpdate }: NftDetailsFormPro
       title: string;
       startDate: string;
       fields: string;
-      functions?: string;
     }[]
   >([]);
   const [additionalFields, setAdditionalFields] = useState<NftDetailsInputField[]>([]);
@@ -59,7 +57,6 @@ const NftDetailsForm = ({ form, onFinish, onFunctionsUpdate }: NftDetailsFormPro
           title: project.attributes.title,
           startDate: project.createdAt.toLocaleDateString(),
           fields: project.attributes.fields,
-          functions: project.attributes.functions,
         })) || []
       );
     } catch (error) {
@@ -70,8 +67,6 @@ const NftDetailsForm = ({ form, onFinish, onFunctionsUpdate }: NftDetailsFormPro
   useEffect(() => {
     fetchProjects();
   }, [fetchProjects]);
-
-  const prevFunctionsRef = useRef([]);
 
   useEffect(() => {
     const project = projectList.find((project) => project.id === projectId);
@@ -86,33 +81,10 @@ const NftDetailsForm = ({ form, onFinish, onFunctionsUpdate }: NftDetailsFormPro
         name: field.key,
         type: field.type,
       }));
-      const functions = project.functions;
-      const additionalFunctions = functions
-        ? JSON.parse(functions).map((field: any) => ({
-            label: field.name,
-            name: field.key,
-            type: field.type,
-          }))
-        : [];
-
-      additionalFunctions.forEach((funcField: any) => {
-        const existsInFields = additionalFields.some((field: any) => field.name === funcField.name);
-        if (!existsInFields) {
-          additionalFields.push(funcField);
-        }
-      });
 
       setAdditionalFields(additionalFields);
-
-      // Check if additionalFunctions has changed
-      if (onFunctionsUpdate && !isEqual(additionalFunctions, prevFunctionsRef.current)) {
-        onFunctionsUpdate(additionalFunctions);
-      }
-
-      // Update the reference for the next render
-      prevFunctionsRef.current = additionalFunctions;
     }
-  }, [form, projectId, projectList, onFunctionsUpdate]);
+  }, [form, projectId, projectList]);
 
   return (
     <Card

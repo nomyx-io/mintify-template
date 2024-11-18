@@ -9,7 +9,7 @@ import ProjectCard from "@/components/projects/ProjectCard";
 import ProjectDetails from "@/components/projects/ProjectDetails";
 import ProjectListView from "@/components/projects/ProjectListView";
 import ProjectsHeader from "@/components/projects/ProjectsHeader";
-import { getDashboardLayout } from "@/layouts";
+import { getDashboardLayout } from "@/Layouts";
 import { CustomerService } from "@/services/CustomerService";
 
 export default function Projects() {
