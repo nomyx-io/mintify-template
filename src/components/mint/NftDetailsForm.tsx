@@ -76,13 +76,16 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       if (projectStartDate) {
         form.setFieldsValue({ projectStartDate, projectId });
       }
-      const additionalFields: NftDetailsInputField[] = JSON.parse(projectFields).map((field: any) => ({
-        label: field.name,
-        name: field.key,
-        type: field.type,
-      }));
 
-      setAdditionalFields(additionalFields);
+      if (projectFields) {
+        const additionalFields: NftDetailsInputField[] = JSON.parse(projectFields).map((field: any) => ({
+          label: field.name,
+          name: field.key,
+          type: field.type,
+        }));
+
+        setAdditionalFields(additionalFields);
+      }
     }
   }, [form, projectId, projectList]);
 
