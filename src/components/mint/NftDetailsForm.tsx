@@ -151,7 +151,6 @@ const NftDetailsForm = ({ form, onFinish, onFunctionsUpdate }: NftDetailsFormPro
               }
             />
             <VariableFormInput type="text" name="projectStartDate" label="Project Start Date" placeholder="mm/dd/yyyy" disabled={true} />
-            <VariableFormInput type="text" name="projectStartDate" label="Project Start Date" placeholder="mm/dd/yyyy" disabled={true} />
             <VariableFormInput
               type="text"
               name="mintAddress"
