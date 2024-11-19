@@ -1,6 +1,8 @@
-import React from 'react';
-import { Table } from 'antd';
-import { projectColumns } from '@/utils/projects';
+import React from "react";
+
+import { Table } from "antd";
+
+import { projectColumns } from "@/utils/projects";
 
 interface ProjectListViewProps {
   projects: Project[];
@@ -8,26 +10,19 @@ interface ProjectListViewProps {
   onProjectClick: (project: Project) => void;
 }
 
-export default function ProjectListView({
-  projects,
-  className,
-  onProjectClick,
-}: ProjectListViewProps) {
-
-  
+export default function ProjectListView({ projects, className, onProjectClick }: ProjectListViewProps) {
   return (
-    <div
-      className={`pt-2 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark rounded-lg ${className}`}>
+    <div className={`pt-2 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark rounded-lg ${className}`}>
       <Table
         columns={projectColumns(onProjectClick)}
-        scroll={{ x: '100%' }}
+        scroll={{ x: "100%" }}
         dataSource={projects}
         className={`bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark rounded-lg`}
         pagination={{
           pageSize: 8,
           total: projects.length,
           showTotal: (total, range) => (
-            <span className='text-nomyx-text-light dark:text-nomyx-text-dark'>{`${range[0]}-${range[1]} of ${total} items`}</span>
+            <span className="text-nomyx-text-light dark:text-nomyx-text-dark">{`${range[0]}-${range[1]} of ${total} items`}</span>
           ),
         }}
       />

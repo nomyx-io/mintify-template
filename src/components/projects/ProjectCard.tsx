@@ -14,13 +14,7 @@ function DataKey({ children }: { children?: React.ReactNode }) {
   return <div className="flex shrink-0 items-center w-36 h-10">{children}</div>;
 }
 
-function DataValue({
-  children,
-  className,
-}: {
-  children?: React.ReactNode;
-  className?: string;
-}) {
+function DataValue({ children, className }: { children?: React.ReactNode; className?: string }) {
   return (
     <div
       className={`flex grow overflow-hidden items-center rounded h-10 pl-3 py-1 pr-2 bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-text-light dark:text-nomyx-text-dark ${
@@ -32,30 +26,19 @@ function DataValue({
   );
 }
 
-export default function ProjectCard({
-  project,
-  onProjectClick,
-}: ProjectCardProps) {
+export default function ProjectCard({ project, onProjectClick }: ProjectCardProps) {
   const themeStyle =
     "bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark text-nomyx-text-light dark:text-nomyx-text-dark";
 
   return (
     <Card className={themeStyle}>
-      <div className="flex w-full h-32 relative">
-        <Image
-          src={project.coverImage?.url()}
-          alt={project.title}
-          fill
-          className="object-cover"
-        />
+      <div className="w-full h-48 relative rounded-lg overflow-hidden">
+        <Image src={project.coverImage?.url()} alt={project.title} fill className="object-cover" />
       </div>
       <div className="gap-2 mt-2">
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-lg font-bold">{project.title}</h2>
-          <span
-            className="text-nomyx-blue-light hover:!text-nomyx-main1-light cursor-pointer"
-            onClick={() => onProjectClick(project)}
-          >
+          <span className="text-nomyx-blue-light hover:!text-nomyx-main1-light cursor-pointer" onClick={() => onProjectClick(project)}>
             View Details
           </span>
         </div>
@@ -68,9 +51,7 @@ export default function ProjectCard({
         </DataRow>
         <DataRow>
           <DataKey>Total Token Value</DataKey>
-          <DataValue>
-            $ {Intl.NumberFormat("en-US").format(project.totalValue)}
-          </DataValue>
+          <DataValue>$ {Intl.NumberFormat("en-US").format(project.totalValue)}</DataValue>
         </DataRow>
       </div>
     </Card>

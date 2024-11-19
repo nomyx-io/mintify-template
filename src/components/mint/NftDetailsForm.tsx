@@ -1,16 +1,13 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
+
 import { Card, Form, FormInstance } from "antd";
-import VariableFormInput from "../atoms/VariableFormInput";
-import { Regex } from "@/utils/regex";
-import { CustomerService } from "@/services/CustomerService";
-import { useRouter } from "next/router";
 import { isEqual } from "lodash";
+import { useRouter } from "next/router";
+
+import { CustomerService } from "@/services/CustomerService";
+import { Regex } from "@/utils/regex";
+
+import VariableFormInput from "../atoms/VariableFormInput";
 
 const requiredRule = { required: true, message: `This field is required.` };
 const alphaNumericRule = {
@@ -30,11 +27,7 @@ interface NftDetailsFormProps {
   onFunctionsUpdate?: (functions: any[]) => void;
 }
 
-const NftDetailsForm = ({
-  form,
-  onFinish,
-  onFunctionsUpdate,
-}: NftDetailsFormProps) => {
+const NftDetailsForm = ({ form, onFinish, onFunctionsUpdate }: NftDetailsFormProps) => {
   const api = useMemo(() => CustomerService(), []);
 
   const router = useRouter();
@@ -49,13 +42,12 @@ const NftDetailsForm = ({
       functions?: string;
     }[]
   >([]);
+  
   const [registeredUserList, setRegisteredUserList] = useState<
     { walletAddress: string; email: string }[]
   >([]);
 
-  const [additionalFields, setAdditionalFields] = useState<
-    NftDetailsInputField[]
-  >([]);
+  const [additionalFields, setAdditionalFields] = useState<NftDetailsInputField[]>([]);
 
   Form.useWatch((values) => {
     if (values.projectId && values.projectId !== projectId) {
@@ -109,9 +101,7 @@ const NftDetailsForm = ({
       if (projectStartDate) {
         form.setFieldsValue({ projectStartDate, projectId });
       }
-      const additionalFields: NftDetailsInputField[] = JSON.parse(
-        projectFields
-      ).map((field: any) => ({
+      const additionalFields: NftDetailsInputField[] = JSON.parse(projectFields).map((field: any) => ({
         label: field.name,
         name: field.key,
         type: field.type,
@@ -126,9 +116,7 @@ const NftDetailsForm = ({
         : [];
 
       additionalFunctions.forEach((funcField: any) => {
-        const existsInFields = additionalFields.some(
-          (field: any) => field.name === funcField.name
-        );
+        const existsInFields = additionalFields.some((field: any) => field.name === funcField.name);
         if (!existsInFields) {
           additionalFields.push(funcField);
         }
@@ -137,10 +125,7 @@ const NftDetailsForm = ({
       setAdditionalFields(additionalFields);
 
       // Check if additionalFunctions has changed
-      if (
-        onFunctionsUpdate &&
-        !isEqual(additionalFunctions, prevFunctionsRef.current)
-      ) {
+      if (onFunctionsUpdate && !isEqual(additionalFunctions, prevFunctionsRef.current)) {
         onFunctionsUpdate(additionalFunctions);
       }
 
@@ -151,11 +136,7 @@ const NftDetailsForm = ({
 
   return (
     <Card
-      title={
-        <span className="text-nomyx-text-light dark:text-nomyx-text-dark">
-          Token Details
-        </span>
-      }
+      title={<span className="text-nomyx-text-light dark:text-nomyx-text-dark">Token Details</span>}
       className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
     >
       <Form form={form} layout="vertical" onFinish={onFinish}>
@@ -189,13 +170,8 @@ const NftDetailsForm = ({
                 })) || []
               }
             />
-            <VariableFormInput
-              type="text"
-              name="projectStartDate"
-              label="Project Start Date"
-              placeholder="mm/dd/yyyy"
-              disabled={true}
-            />
+            <VariableFormInput type="text" name="projectStartDate" label="Project Start Date" placeholder="mm/dd/yyyy" disabled={true} />
+            <VariableFormInput type="text" name="projectStartDate" label="Project Start Date" placeholder="mm/dd/yyyy" disabled={true} />
             <VariableFormInput
               type="select"
               name="mintAddress"
@@ -213,36 +189,27 @@ const NftDetailsForm = ({
                 })) || []
               }
             />
-            <VariableFormInput
-              type="text"
-              name="price"
-              label="Price"
-              placeholder="Enter Price"
-              rules={[requiredRule, numberRule]}
-              prefix="$"
-            />
+            <VariableFormInput type="text" name="price" label="Price" placeholder="Enter Price" rules={[requiredRule, numberRule]} prefix="$" />
           </div>
           {additionalFields.length > 0 && (
             <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
               <p className="col-span-2 font-bold pb-6">Token Fields</p>
-              {additionalFields.map(
-                (field: NftDetailsInputField, index: Number) => {
-                  return (
-                    <VariableFormInput
-                      key={"field-" + index}
-                      name={field.name}
-                      label={field.label}
-                      type={field.type}
-                      rules={field.rules ?? [requiredRule]}
-                      disabled={field.disabled}
-                      prefix={field?.prefix || ""}
-                      placeholder={field.placeHolder}
-                      options={field.options}
-                      className={field.className}
-                    />
-                  );
-                }
-              )}
+              {additionalFields.map((field: NftDetailsInputField, index: Number) => {
+                return (
+                  <VariableFormInput
+                    key={"field-" + index}
+                    name={field.name}
+                    label={field.label}
+                    type={field.type}
+                    rules={field.rules ?? [requiredRule]}
+                    disabled={field.disabled}
+                    prefix={field?.prefix || ""}
+                    placeholder={field.placeHolder}
+                    options={field.options}
+                    className={field.className}
+                  />
+                );
+              })}
             </div>
           )}
         </div>

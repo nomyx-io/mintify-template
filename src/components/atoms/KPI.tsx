@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+
 import { Card, Statistic } from "antd/es";
 import classNames from "classnames";
 
@@ -24,9 +25,7 @@ const KPI: React.FC<IndicatorProps> = ({ icon, title, value, className }) => {
         formatter={() => (
           <div className="flex items-center space-x-2">
             {icon}
-            <span className={valueColorClass}>
-              {value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            </span>
+            <span className={valueColorClass}>{value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
           </div>
         )}
         style={{ textAlign: "center" }}

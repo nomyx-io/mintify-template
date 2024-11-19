@@ -1,68 +1,65 @@
-import {useRouter} from 'next/router';
-import {useEffect, useState} from 'react';
-import {useAccount, useDisconnect} from 'wagmi';
+import { useEffect, useState } from "react";
 
-function PrivateRoute({children, onConnect, role, forceLogout, handleForecLogout}) {
+import { useRouter } from "next/router";
+import { useAccount, useDisconnect } from "wagmi";
 
-    // console.log("PrivateRoute");
+function PrivateRoute({ children, onConnect, role, forceLogout, handleForecLogout }) {
+  const { disconnect } = useDisconnect();
+  const router = useRouter();
+  const { address, isConnected, isConnecting } = useAccount();
+  const [history, setHistory] = useState([]);
 
-    const {disconnect} = useDisconnect();
-    const router = useRouter();
-    const {address, isConnected, isConnecting} = useAccount();
-    const [history, setHistory] = useState([]);
+  const handleDisconnect = () => {
+    disconnect();
+    handleForecLogout();
+  };
 
-    const handleDisconnect = () => {
-        disconnect();
-        handleForecLogout();
+  useEffect(() => {
+    if (!isConnected && !address) {
+      router.push("/login");
+    }
+
+    if (isConnected && role.length == 0) {
+      onConnect();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [address, isConnected, role]);
+
+  useEffect(() => {
+    if (isConnected && role.length > 0) {
+      const redirectTarget = history[1] == "/" || history[1] == "/login" ? "/home" : history[1] || history[0];
+      router.push(redirectTarget);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role, isConnected]);
+
+  useEffect(() => {
+    forceLogout && handleDisconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [forceLogout]);
+
+  useEffect(() => {
+    const handleRouteChange = (url) => {
+      setHistory((prevHistory) => {
+        const newHistory = [url, ...prevHistory].slice(0, 3);
+        return newHistory;
+      });
     };
 
-    useEffect(() => {
-        if (!isConnected && !address) {
-            router.push('/login');
-        }
+    handleRouteChange(router.asPath);
+    router.events.on("routeChangeComplete", handleRouteChange);
 
-        // console.log("role = ", role);
+    return () => {
+      router.events.off("routeChangeComplete", handleRouteChange);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-        if (isConnected && role.length == 0) {
-            onConnect()
-        }
-    }, [address, isConnected, role]);
-
-    useEffect(() => {
-
-        if(isConnected && role.length > 0){
-            const redirectTarget = history[1] == '/' || history[1] == '/login' ? '/home' : history[1] ||  history[0];
-            router.push(redirectTarget);
-        }
-    }, [role, isConnected]);
-
-    useEffect(() => {
-        forceLogout && handleDisconnect();
-    }, [forceLogout]);
-
-    useEffect(() => {
-        const handleRouteChange = (url) => {
-            setHistory((prevHistory) => {
-                const newHistory = [url, ...prevHistory].slice(0, 3);
-                return newHistory;
-            });
-        };
-
-        handleRouteChange(router.asPath);
-        router.events.on('routeChangeComplete', handleRouteChange);
-
-        return () => {
-            router.events.off('routeChangeComplete', handleRouteChange);
-        };
-
-    }, []);
-
-    // console.log("role = ", role);
-
-    return isConnected && role.length == 0 ? <div
-        className='z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center'>
-    </div> : children;
-
+  return isConnected && role.length == 0 ? (
+    <div className="z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center"></div>
+  ) : (
+    children
+  );
 }
 
 export default PrivateRoute;

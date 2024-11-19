@@ -1,14 +1,13 @@
 import React, { useCallback, useEffect } from "react";
-import { Button, Card, Checkbox } from "antd";
-
-import { useRouter } from "next/router";
 import { LeftOutlined } from "@ant-design/icons";
-import { hashToColor } from "@/utils/colorUtils";
-import { GenerateSvgIcon } from "../atoms/TokenSVG";
+import { Button, Card, Checkbox } from "antd";
+import { useRouter } from "next/router";
+import { ShareIcon } from "@/assets";
 import BlockchainService from "@/services/BlockchainService";
 import ParseClient from "@/services/ParseClient";
+import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
-import { ShareIcon } from "@/assets";
+import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
 interface NftRecordDetailProps {
   handleMint?: () => void;
@@ -19,12 +18,7 @@ interface NftRecordDetailProps {
   detailView?: boolean;
 }
 
-const NftRecordDetail = ({
-  handleMint,
-  handleBack,
-  data,
-  detailView = false,
-}: NftRecordDetailProps) => {
+const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: NftRecordDetailProps) => {
   const router = useRouter();
   const blockchainService = BlockchainService.getInstance();
 
@@ -32,34 +26,19 @@ const NftRecordDetail = ({
   const [projectName, setProjectName] = React.useState<string>();
   const [identityDetail, setIdentityDetail] = React.useState<string>();
 
-  const {
-    transactionHash,
-    claimTopics,
-    id,
-    nftTitle,
-    description,
-    price,
-    projectId,
-    projectStartDate,
-    mintAddress,
-    ...metadata
-  } = data;
+  const { transactionHash, claimTopics, id, nftTitle, description, price, projectId, projectStartDate, mintAddress, ...metadata } = data;
 
   const colorKey = id || nftTitle;
   const color = hashToColor(`${colorKey as string}`);
 
   const title = detailView ? `Token - ${nftTitle}` : "Preview Token </>";
-  const backButton = (
-    <Button onClick={() => router.back()} type="text" icon={<LeftOutlined />} />
-  );
-
+  const backButton = <Button onClick={() => router.back()} type="text" icon={<LeftOutlined />} />;
   const capitalizeEveryWord = (str: string) => {
     return str.replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
   const getAllTopics = useCallback(async () => {
-    const claims: Parse.Object[] | undefined =
-      await blockchainService?.getClaimTopics();
+    const claims: Parse.Object[] | undefined = await blockchainService?.getClaimTopics();
     let allTopics: ClaimTopic[] = [];
     if (claims) {
       claims.forEach((item: Parse.Object) => {
@@ -75,11 +54,7 @@ const NftRecordDetail = ({
   }, [blockchainService]);
 
   const getTokenProject = useCallback(async () => {
-    const project = await ParseClient.getRecord(
-      "TokenProject",
-      ["objectId"],
-      [projectId as string]
-    );
+    const project = await ParseClient.getRecord("TokenProject", ["objectId"], [projectId as string]);
     if (project) {
       setProjectName(project.attributes.title as string);
     }
@@ -132,9 +107,7 @@ const NftRecordDetail = ({
             </div>
             <div className="p-4 py-8">
               <h1 className="text-3xl font bold">{nftTitle as string}</h1>
-              <p className="!text-nomyx-gray1-light dark:!text-nomyx-gray1-dark">
-                {description as string}
-              </p>
+              <p className="!text-nomyx-gray1-light dark:!text-nomyx-gray1-dark">{description as string}</p>
             </div>
           </div>
         </div>
