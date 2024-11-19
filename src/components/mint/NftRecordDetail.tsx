@@ -1,12 +1,15 @@
 import React, { useCallback, useEffect } from "react";
+
 import { LeftOutlined } from "@ant-design/icons";
 import { Button, Card, Checkbox } from "antd";
 import { useRouter } from "next/router";
+
 import { ShareIcon } from "@/assets";
 import BlockchainService from "@/services/BlockchainService";
 import ParseClient from "@/services/ParseClient";
 import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
+
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
 interface NftRecordDetailProps {
@@ -61,14 +64,10 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
   }, [projectId]);
 
   const getUserDetail = useCallback(async () => {
-    const identity = await ParseClient.getRecord(
-      "User",
-      ["walletAddress"],
-      [mintAddress as string]
-    );
+    const identity = await ParseClient.getRecord("User", ["walletAddress"], [mintAddress as string]);
     if (identity?.attributes) {
-      const { email, walletAddress } = identity.attributes;
-      setIdentityDetail(`${email} (${walletAddress})`);
+      const { username, walletAddress } = identity.attributes;
+      setIdentityDetail(`${username} (${walletAddress})`);
     }
   }, [mintAddress]);
 
@@ -115,32 +114,20 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
         <div className="mb-4">
           <div className="grid grid-cols-2 border-t border-b border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
             <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
-              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
-                Project
-              </div>
+              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Project</div>
               <div className="card-value truncate">{projectName}</div>
             </div>
             <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
-              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
-                Project Start Date
-              </div>
-              <div className="card-value truncate">
-                {projectStartDate as string}
-              </div>
+              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Project Start Date</div>
+              <div className="card-value truncate">{projectStartDate as string}</div>
             </div>
             <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
-              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
-                Mint To
-              </div>
+              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Mint To</div>
               <div className="card-value truncate">{identityDetail}</div>
             </div>
             <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
-              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
-                Price
-              </div>
-              <div className="card-value truncate">
-                {formatPrice(parseFloat(price as string))}
-              </div>
+              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Price</div>
+              <div className="card-value truncate">{formatPrice(parseFloat(price as string))}</div>
             </div>
           </div>
         </div>
@@ -154,9 +141,7 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
                   key={`field-${index}`}
                   className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
                 >
-                  <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
-                    {capitalizeEveryWord(key.replace("_", " "))}
-                  </div>
+                  <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">{capitalizeEveryWord(key.replace("_", " "))}</div>
                   <div className="card-value truncate">{value as string}</div>
                 </div>
               );
@@ -168,9 +153,7 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
         <div className="mb-2 p-2 border-t border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
           {allTopics &&
             (allTopics as ClaimTopic[])
-              .filter((topic) =>
-                (claimTopics as string).split(",").includes(topic["key"])
-              )
+              .filter((topic) => (claimTopics as string).split(",").includes(topic["key"]))
               .map((topic, index) => (
                 <div key={`claim-${index}`}>
                   <Checkbox defaultChecked disabled>
@@ -186,16 +169,10 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
       {!detailView && (
         <>
           <div className="w-full flex justify-end gap-4 pt-2">
-            <Button
-              className="text-nomyx-text-light dark:text-nomyx-text-dark hover:!bg-transparent"
-              onClick={handleBack}
-            >
+            <Button className="text-nomyx-text-light dark:text-nomyx-text-dark hover:!bg-transparent" onClick={handleBack}>
               Back
             </Button>
-            <Button
-              className="bg-nomyx-blue-light mr-4 hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark"
-              onClick={handleMint}
-            >
+            <Button className="bg-nomyx-blue-light mr-4 hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark" onClick={handleMint}>
               Mint
             </Button>
           </div>
