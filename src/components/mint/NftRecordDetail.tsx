@@ -30,7 +30,7 @@ const NftRecordDetail = ({
 
   const [allTopics, setAllTopics] = React.useState<ClaimTopic[]>();
   const [projectName, setProjectName] = React.useState<string>();
-  const [identityName, setIdentityName] = React.useState<string>();
+  const [identityDetail, setIdentityDetail] = React.useState<string>();
 
   const {
     transactionHash,
@@ -85,22 +85,23 @@ const NftRecordDetail = ({
     }
   }, [projectId]);
 
-  const getIdentityName = useCallback(async () => {
+  const getUserDetail = useCallback(async () => {
     const identity = await ParseClient.getRecord(
-      "Identity",
-      ["address"],
+      "User",
+      ["walletAddress"],
       [mintAddress as string]
     );
-    if (identity) {
-      setIdentityName(identity.attributes.displayName as string);
+    if (identity?.attributes) {
+      const { email, walletAddress } = identity.attributes;
+      setIdentityDetail(`${email} (${walletAddress})`);
     }
   }, [mintAddress]);
 
   useEffect(() => {
     getAllTopics();
     getTokenProject();
-    getIdentityName();
-  }, [getAllTopics, getTokenProject, getIdentityName]);
+    getUserDetail();
+  }, [getAllTopics, getTokenProject, getUserDetail]);
 
   return (
     <>
@@ -158,7 +159,7 @@ const NftRecordDetail = ({
               <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
                 Mint To
               </div>
-              <div className="card-value truncate">{identityName}</div>
+              <div className="card-value truncate">{identityDetail}</div>
             </div>
             <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
               <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
