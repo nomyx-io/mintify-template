@@ -27,6 +27,7 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
 
   const [allTopics, setAllTopics] = React.useState<ClaimTopic[]>();
   const [projectName, setProjectName] = React.useState<string>();
+  const [identityDetail, setIdentityDetail] = React.useState<string>();
 
   const { transactionHash, claimTopics, id, nftTitle, description, price, projectId, projectStartDate, mintAddress, ...metadata } = data;
 
@@ -35,7 +36,6 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
 
   const title = detailView ? `Token - ${nftTitle}` : "Preview Token </>";
   const backButton = <Button onClick={() => router.back()} type="text" icon={<LeftOutlined />} />;
-
   const capitalizeEveryWord = (str: string) => {
     return str.replace(/\b\w/g, (char) => char.toUpperCase());
   };
@@ -63,10 +63,19 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
     }
   }, [projectId]);
 
+  const getUserDetail = useCallback(async () => {
+    const identity = await ParseClient.getRecord("User", ["walletAddress"], [mintAddress as string]);
+    if (identity?.attributes) {
+      const { username, walletAddress } = identity.attributes;
+      setIdentityDetail(`${username} (${walletAddress})`);
+    }
+  }, [mintAddress]);
+
   useEffect(() => {
     getAllTopics();
     getTokenProject();
-  }, [getAllTopics, getTokenProject]);
+    getUserDetail();
+  }, [getAllTopics, getTokenProject, getUserDetail]);
 
   return (
     <>
@@ -114,7 +123,7 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
             </div>
             <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
               <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Mint To</div>
-              <div className="card-value truncate">{mintAddress as string}</div>
+              <div className="card-value truncate">{identityDetail}</div>
             </div>
             <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
               <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Price</div>

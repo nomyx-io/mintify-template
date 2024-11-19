@@ -129,6 +129,20 @@ export const CustomerService = () => {
     return records;
   };
 
+  const getIdentityRegisteredUser = async () => {
+    try {
+      // Call the Parse Cloud function `getUsersWithIdentityWallets`
+      const response = await ParseClient.run("getUsersWithIdentityWallets");
+      console.log("Retrieved users with identity wallets:", response);
+      // Return the list of users with wallets if successful
+      return { users: response, error: null };
+    } catch (error: any) {
+      console.error("Error retrieving users with identity wallets:", error);
+      // Return null for users and the error message if an error occurs
+      return { users: null, error: error.message };
+    }
+  };
+
   return {
     getEvents,
     getMintedNfts,
@@ -140,5 +154,6 @@ export const CustomerService = () => {
     getClaimTopics,
     createProject,
     getProjects,
+    getIdentityRegisteredUser,
   };
 };
