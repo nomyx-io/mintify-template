@@ -21,8 +21,8 @@ interface FormValues {
   coverImageUpload: UploadProps;
   title: string;
   description: string;
+  industry: string;
   additionalFields?: AddedField[];
-  additionalFunctions?: { fieldName: string; fieldType: string }[];
 }
 
 interface AddedField {
@@ -44,9 +44,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
   const [form] = Form.useForm();
   const [addFieldForm] = Form.useForm();
   const [addedFields, setAddedFields] = useState<AddedField[]>([]);
-  const [checkedFunctions, setCheckedFunctions] = useState<{
-    [key: string]: boolean;
-  }>({});
   const requiredRule = { required: true, message: "This field is required." };
   const uniqueRule: Rule = ({ getFieldValue }) => ({
     validator(_, value: string) {
@@ -64,14 +61,16 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
     { label: "Number", value: "number" },
     { label: "Date", value: "date" },
   ];
-  const STANDARD_FIELDS = ["title", "description", "date", "mint to", "project", "price"];
-  const FUNCTION_FIELDS = [
-    {
-      label: "Initialize Carbon Credit",
-      fieldName: "Carbon Credit",
-      type: "number",
-    },
+
+  // TODO: Move to database later?
+  const industryOptions = [
+    { label: "Carbon Credit", value: "carbon_credit" },
+    { label: "Tokenized Debt", value: "tokenized_debt" },
+    { label: "Trade Financing", value: "trade_financing" },
   ];
+
+  const STANDARD_FIELDS = ["title", "description", "date", "mint to", "project", "price"];
+
   const api = useMemo(() => CustomerService(), []);
 
   const capitalizeEveryWord = (str: string) => {
@@ -87,13 +86,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
     setAddedFields(newFields);
     form.setFieldsValue({ additionalFields: newFields });
   }
-
-  const handleFunctionChange = (fieldName: string, checked: boolean) => {
-    setCheckedFunctions((prevState) => ({
-      ...prevState,
-      [fieldName]: checked,
-    }));
-  };
 
   const onFormFinish = async (name: string, { values, forms }: FormFinishInfo) => {
     if (name === "addFieldForm") {
@@ -134,6 +126,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
     const project = {
       title: values.title,
       description: values.description,
+      industryTemplate: values.industry,
       logo: await getBase64(values.logoUpload.fileList[0].originFileObj as FileType),
       coverImage: await getBase64(values.coverImageUpload.fileList[0].originFileObj as FileType),
       fields: JSON.stringify(
@@ -145,20 +138,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           };
         })
       ),
-      functions: checkedFunctions
-        ? JSON.stringify(
-            FUNCTION_FIELDS.reduce((acc: { name: string; type: string; key: string }[], field) => {
-              if (checkedFunctions[field.fieldName.replace(" ", "_").toLowerCase()]) {
-                acc.push({
-                  name: field.fieldName,
-                  type: field.type,
-                  key: field.fieldName.replace(" ", "_").toLowerCase(),
-                });
-              }
-              return acc;
-            }, [] as { name: string; type: string; key: string }[])
-          )
-        : null,
     };
 
     return api.createProject(project);
@@ -197,6 +176,9 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           </div>
           <Form.Item rules={[requiredRule]} label="Title" name="title">
             <Input placeholder="Add Project Title" />
+          </Form.Item>
+          <Form.Item rules={[requiredRule]} label="Industry Template" name="industry">
+            <Select placeholder="Select Industry" options={industryOptions} />
           </Form.Item>
           <Form.Item rules={[requiredRule]} label="Description" name="description">
             <Input.TextArea placeholder="Add Project Description" autoSize={{ minRows: 3, maxRows: 5 }} />
@@ -253,19 +235,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             </table>
           </div>
         )}
-      </div>
-      <span className="">Add Function</span>
-      <div className="flex flex-col p-2 gap-2 pb-4 mb-6 border rounded-md border-nomyx-dark1-dark dark:border-nomyx-gray4-dark">
-        <p className="text-xs">Any additional functions that need to be associated with a token can be specified below.</p>
-        {FUNCTION_FIELDS.map((field) => (
-          <Checkbox
-            key={field.fieldName.replace(" ", "_").toLowerCase()}
-            checked={checkedFunctions[field.fieldName.replace(" ", "_").toLowerCase()] || false}
-            onChange={(e) => handleFunctionChange(field.fieldName.replace(" ", "_").toLowerCase(), e.target.checked)}
-          >
-            {field.label}
-          </Checkbox>
-        ))}
       </div>
     </Modal>
   );
