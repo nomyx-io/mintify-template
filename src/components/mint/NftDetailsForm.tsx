@@ -1,25 +1,14 @@
-import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef, use } from "react";
 
 import { Card, Form, FormInstance } from "antd";
-import { isEqual } from "lodash";
 import { useRouter } from "next/router";
 
+import { Industries, carbonCreditFields, tradeFinanceFields, tokenizedDebtFields } from "@/constants/constants";
+import { requiredRule, numberRule, alphaNumericRule } from "@/constants/rules";
 import { CustomerService } from "@/services/CustomerService";
 import { Regex } from "@/utils/regex";
 
 import VariableFormInput from "../atoms/VariableFormInput";
-
-const requiredRule = { required: true, message: `This field is required.` };
-const alphaNumericRule = {
-  required: true,
-  pattern: Regex.alphaNumeric,
-  message: "Only alphanumeric characters are allowed.",
-};
-const numberRule = {
-  required: true,
-  pattern: Regex.numericWithDecimal,
-  message: "This field must be a number.",
-};
 
 interface NftDetailsFormProps {
   form: FormInstance;
@@ -38,6 +27,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       title: string;
       startDate: string;
       fields: string;
+      industryTemplate: string;
     }[]
   >([]);
   const [additionalFields, setAdditionalFields] = useState<NftDetailsInputField[]>([]);
@@ -57,6 +47,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
           title: project.attributes.title,
           startDate: project.createdAt.toLocaleDateString(),
           fields: project.attributes.fields,
+          industryTemplate: project.attributes.industryTemplate,
         })) || []
       );
     } catch (error) {
@@ -77,15 +68,28 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
         form.setFieldsValue({ projectStartDate, projectId });
       }
 
+      let fields: NftDetailsInputField[] = [];
       if (projectFields) {
-        const additionalFields: NftDetailsInputField[] = JSON.parse(projectFields).map((field: any) => ({
+        fields = JSON.parse(projectFields).map((field: any) => ({
           label: field.name,
           name: field.key,
           type: field.type,
         }));
-
-        setAdditionalFields(additionalFields);
       }
+
+      switch (project.industryTemplate) {
+        case Industries.CARBON_CREDIT:
+          fields = [...fields, ...carbonCreditFields];
+          break;
+        case Industries.TOKENIZED_DEBT:
+          break;
+        case Industries.TRADE_FINANCE:
+          break;
+        default:
+          break;
+      }
+
+      setAdditionalFields(fields);
     }
   }, [form, projectId, projectList]);
 
@@ -94,7 +98,11 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       title={<span className="text-nomyx-text-light dark:text-nomyx-text-dark">Token Details</span>}
       className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
     >
-      <Form form={form} layout="vertical" onFinish={onFinish}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={(values) => onFinish({ ...values, industryTemplate: projectList.find((p) => p.id === projectId)?.industryTemplate })}
+      >
         <div className="flex flex-col divide-y divide-[#484848]">
           <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
             <p className="col-span-2 font-bold pb-6">Details</p>

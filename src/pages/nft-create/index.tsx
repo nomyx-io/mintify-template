@@ -9,11 +9,19 @@ import { useAccount } from "wagmi";
 
 import NftDetailsForm from "@/components/mint/NftDetailsForm";
 import Compliance from "@/components/molecules/Compliance";
+import { Industries } from "@/constants/constants";
 import usePageUnloadGuard from "@/hooks/usePageUnloadGuard";
 import { getDashboardLayout } from "@/Layouts";
 import BlockchainService from "@/services/BlockchainService";
+import { CarbonCreditService } from "@/services/CarbonCreditService";
+import { TokenizedDebtService } from "@/services/TokenizedDebtService";
+import { TradeFinanceService } from "@/services/TradeFinanceService";
 
 import NftPreview from "../../components/mint/NftRecordDetail";
+
+const carbonCreditService = CarbonCreditService();
+const tokenizedDebtService = TokenizedDebtService();
+const tradeFinanceService = TradeFinanceService();
 
 export default function Details({ service }: { service: BlockchainService }) {
   const { isConnected } = useAccount();
@@ -21,8 +29,9 @@ export default function Details({ service }: { service: BlockchainService }) {
   const [form] = Form.useForm();
 
   const [preview, setPreview] = useState(false);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState<any>({});
   const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
+  const [industry, setIndustry] = useState<Industries | null>(null);
 
   const listener = usePageUnloadGuard();
   listener.onBeforeUnload = () => {
@@ -35,6 +44,7 @@ export default function Details({ service }: { service: BlockchainService }) {
 
   const handlePreview = (values: any) => {
     setFormData(values);
+    setIndustry(values.industryTemplate as Industries);
     setPreview(true);
   };
 
@@ -84,8 +94,26 @@ export default function Details({ service }: { service: BlockchainService }) {
         autoClose: 5000,
       });
 
+      switch (industry) {
+        case Industries.CARBON_CREDIT:
+          const carbonCreditToast = toast.loading("Initializing carbon credits...");
+          await carbonCreditService.initializeCarbonCredit(tokenId, formData?.existingCredits || "0");
+          toast.update(carbonCreditToast, {
+            render: `Carbon credits initialized for token ID: ${tokenId}`,
+            type: "success",
+            isLoading: false,
+            autoClose: 5000,
+          });
+          break;
+        case Industries.TOKENIZED_DEBT:
+          break;
+        case Industries.TRADE_FINANCE:
+          break;
+        default:
+          break;
+      }
+
       const price = nftMetadata.find((value) => value.key === "price")?.value || "0";
-      console.log(price);
       const usdcPrice = ethers.parseUnits(price, 6);
       toast.info(`Calculated total price in USDC: ${price || "0"}`, {
         autoClose: 3000,

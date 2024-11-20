@@ -6,6 +6,7 @@ import { Trash } from "iconsax-react";
 import { FormFinishInfo } from "rc-field-form/es/FormContext";
 import { toast } from "react-toastify";
 
+import { industryOptions, Industries } from "@/constants/constants";
 import { CustomerService } from "@/services/CustomerService";
 
 import ImageBoxFormItem from "../molecules/ImageBox";
@@ -21,7 +22,7 @@ interface FormValues {
   coverImageUpload: UploadProps;
   title: string;
   description: string;
-  industry: string;
+  industryTemplate: Industries;
   additionalFields?: AddedField[];
 }
 
@@ -60,13 +61,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
     { label: "Text", value: "text" },
     { label: "Number", value: "number" },
     { label: "Date", value: "date" },
-  ];
-
-  // TODO: Move to database later?
-  const industryOptions = [
-    { label: "Carbon Credit", value: "carbon_credit" },
-    { label: "Tokenized Debt", value: "tokenized_debt" },
-    { label: "Trade Financing", value: "trade_financing" },
   ];
 
   const STANDARD_FIELDS = ["title", "description", "date", "mint to", "project", "price"];
@@ -126,7 +120,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
     const project = {
       title: values.title,
       description: values.description,
-      industryTemplate: values.industry,
+      industryTemplate: values.industryTemplate,
       logo: await getBase64(values.logoUpload.fileList[0].originFileObj as FileType),
       coverImage: await getBase64(values.coverImageUpload.fileList[0].originFileObj as FileType),
       fields: JSON.stringify(
@@ -177,7 +171,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           <Form.Item rules={[requiredRule]} label="Title" name="title">
             <Input placeholder="Add Project Title" />
           </Form.Item>
-          <Form.Item rules={[requiredRule]} label="Industry Template" name="industry">
+          <Form.Item rules={[requiredRule]} label="Industry Template" name="industryTemplate">
             <Select placeholder="Select Industry" options={industryOptions} />
           </Form.Item>
           <Form.Item rules={[requiredRule]} label="Description" name="description">
