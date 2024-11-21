@@ -128,7 +128,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           return {
             name: field.fieldName,
             type: field.fieldType,
-            key: field.fieldName.replace(" ", "_").toLowerCase(),
+            key: field.fieldName.replaceAll(" ", "_").toLowerCase(),
           };
         })
       ),
