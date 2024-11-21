@@ -101,7 +101,7 @@ export const CustomerService = () => {
 
     return {
       tokens: tokenRecords?.length || 0,
-      issuedValue: tokenRecords?.reduce((acc, record) => acc + Number(record.attributes.price) * Number(record.attributes.existingCredits), 0) || 0,
+      issuedValue: tokenRecords?.reduce((acc, record) => acc + Number(record.attributes.price), 0) || 0,
     };
   };
 
