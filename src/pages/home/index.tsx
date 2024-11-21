@@ -6,7 +6,7 @@ import { Card, Tabs } from "antd";
 import BarChart from "@/components/atoms/Graphs/Barchart";
 import KPI from "@/components/atoms/KPI";
 import { EventFeed } from "@/components/molecules/EventFeed";
-import { getDashboardLayout } from "@/layouts";
+import { getDashboardLayout } from "@/Layouts";
 import { CustomerService } from "@/services/CustomerService";
 import { getGraphData, getKPIs } from "@/utils/dashboard";
 
@@ -21,12 +21,19 @@ export default function Home() {
     try {
       const [events, kpis] = await Promise.all([api.getEvents(), api.getKpis()]);
 
-      setTokenGraphValues({
-        labels: ["Total Tokens Issued", "Total Tokens Retired"],
-        values: [kpis.tokens, 0],
-      });
       setkpisData(kpis);
       setEventDetails(events || {});
+
+      setTokenGraphValues({
+        labels: ["Total Tokens Issued", "Sales"],
+        values: [
+          kpis.tokens,
+          Object.values(events || {}).flatMap((entry: any) => {
+            if (!entry?.data || !Array.isArray(entry.data)) return [];
+            return entry.data.filter((x: TokenEvent) => x.name === "sales");
+          }).length, // Get the total count of "sales"
+        ],
+      });
     } catch (error) {
       console.error(error);
     }
@@ -52,7 +59,9 @@ export default function Home() {
         {" "}
         {/* Chart container */}
         <div className="flex lg:grid grid-cols-2 gap-3 pb-3 flex-wrap">
-          {getKPIs(kpisData)?.map((kpi) => <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />)}
+          {getKPIs(kpisData)?.map((kpi) => (
+            <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />
+          ))}
         </div>
         <Card className="w-full flex-grow no-padding bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
           <Tabs items={items}></Tabs>
