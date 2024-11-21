@@ -136,7 +136,7 @@ export const CustomerService = () => {
       console.log("Retrieved users with identity wallets:", response);
       // Return the list of users with wallets if successful
       return { users: response, error: null };
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error retrieving users with identity wallets:", error);
       // Return null for users and the error message if an error occurs
       return { users: null, error: error.message };
