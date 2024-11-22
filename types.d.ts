@@ -65,7 +65,7 @@ interface MintedToken {
 
 interface KPIs {
   tokens: number;
-  issuedValue: number;
+  issuedValue: string;
 }
 
 interface Events {
