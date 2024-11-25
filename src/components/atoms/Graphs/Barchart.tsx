@@ -55,7 +55,7 @@ const BarChart = ({ data, title }: BarChartProps) => {
         ticks: {
           stepSize: 5,
         },
-        max: maxData * 1.1,
+        max: maxData,
       },
     },
   };
