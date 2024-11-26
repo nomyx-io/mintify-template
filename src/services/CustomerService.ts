@@ -1,6 +1,7 @@
 import moment from "moment";
 
 import ParseClient from "./ParseClient";
+import { formatPrice } from "@/utils/currencyFormater";
 
 export const CustomerService = () => {
   ParseClient.initialize();
@@ -98,10 +99,15 @@ export const CustomerService = () => {
 
   const getKpis = async () => {
     const tokenRecords = await ParseClient.getRecords("Token", [], [], ["*"]);
-
     return {
       tokens: tokenRecords?.length || 0,
-      issuedValue: tokenRecords?.reduce((acc, record) => acc + Number(record.attributes.price), 0) || 0,
+      issuedValue: formatPrice(
+        tokenRecords?.reduce((acc: number, record: any) => {
+          const price = parseFloat(record.attributes.price) || 0; // Safely parse the price
+          return acc + price;
+        }, 0) ?? 0,
+        "USD"
+      ),
     };
   };
 

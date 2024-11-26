@@ -28,10 +28,12 @@ export default function Home() {
         labels: ["Total Tokens Issued", "Sales"],
         values: [
           kpis.tokens,
-          Object.values(events || {}).flatMap((entry: any) => {
-            if (!entry?.data || !Array.isArray(entry.data)) return [];
-            return entry.data.filter((x: TokenEvent) => x.name === "sales");
-          }).length, // Get the total count of "sales"
+          Object.values(events || {})
+            .flatMap((entry: any) => {
+              if (!entry?.data || !Array.isArray(entry.data)) return [];
+              return entry.data.filter((x: TokenEvent) => x.name === "Sales").map((x: TokenEvent) => x.value);
+            })
+            .reduce((acc: number, value: number) => acc + value, 0), // Calculate the total sum
         ],
       });
     } catch (error) {
