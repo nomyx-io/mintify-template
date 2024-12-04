@@ -259,9 +259,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     children: (
                       <>
                         {viewMode === "table" ? (
-                          <TokenListView tokens={filteredListings} isSalesHistory={false} />
+                          <TokenListView tokens={filteredListings} isSalesHistory={false} industryTemplate={project.industryTemplate} />
                         ) : (
-                          <TokenCardView tokens={filteredListings} isSalesHistory={false} />
+                          <TokenCardView tokens={filteredListings} isSalesHistory={false} industryTemplate={project.industryTemplate} />
                         )}
                       </>
                     ),
