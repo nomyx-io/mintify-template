@@ -89,6 +89,7 @@ interface Project {
   totalTokens: number;
   totalValue: number;
   createdAt: Date;
+  industryTemplate?: string;
 }
 
 interface ProjectSaveData {

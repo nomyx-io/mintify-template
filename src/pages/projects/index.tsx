@@ -47,6 +47,7 @@ export default function Projects() {
             totalValue: projectTokens?.reduce((acc, token) => acc + Number(token.attributes.price), 0) || 0,
             totalTokens: projectTokens?.length || 0,
             createdAt: project.createdAt,
+            industryTemplate: project.attributes.industryTemplate,
           };
         }) || []
       );
