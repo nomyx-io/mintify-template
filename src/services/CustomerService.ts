@@ -1,7 +1,8 @@
 import moment from "moment";
 
-import ParseClient from "./ParseClient";
 import { formatPrice } from "@/utils/currencyFormater";
+
+import ParseClient from "./ParseClient";
 
 export const CustomerService = () => {
   ParseClient.initialize();
@@ -142,7 +143,7 @@ export const CustomerService = () => {
       console.log("Retrieved users with identity wallets:", response);
       // Return the list of users with wallets if successful
       return { users: response, error: null };
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error retrieving users with identity wallets:", error);
       // Return null for users and the error message if an error occurs
       return { users: null, error: error.message };

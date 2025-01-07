@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
-import { getDashboardLayout } from "../layouts";
+import { getDashboardLayout } from "@/Layouts";
 export default function LandingPage() {
   const router = useRouter();
   router.push("/login");

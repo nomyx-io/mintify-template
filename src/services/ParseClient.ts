@@ -8,12 +8,14 @@ export default class ParseClient {
     Parse.serverURL = process.env.NEXT_PUBLIC_PARSE_SERVER_URL + "/parse";
     Parse.javaScriptKey = process.env.NEXT_PUBLIC_PARSE_JAVASCRIPT_KEY;
 
-    // Middleware: Automatically use the session token (JWT) for all requests
-    const sessionToken = localStorage.getItem("sessionToken");
-    if (sessionToken) {
-      Parse.User.become(sessionToken).catch((error) => {
-        console.error("Error becoming user with sessionToken:", error);
-      });
+    // Middleware: Automatically use the session token (JWT) for all
+    if (typeof window !== "undefined") {
+      const sessionToken = localStorage.getItem("sessionToken");
+      if (sessionToken) {
+        Parse.User.become(sessionToken).catch((error) => {
+          console.error("Error becoming user with sessionToken:", error);
+        });
+      }
     }
   }
 

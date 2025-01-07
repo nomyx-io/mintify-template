@@ -3,17 +3,17 @@ import React, { useState, useEffect } from "react";
 import { EyeOutlined } from "@ant-design/icons";
 import { Table, Switch, Modal, Input, Button } from "antd";
 import { ethers } from "ethers";
+import { MoneyRecive } from "iconsax-react";
 import { toast } from "react-toastify";
 
+import { Industries } from "@/constants/constants";
 import BlockchainService from "@/services/BlockchainService";
+import { DepositService } from "@/services/DepositService";
 import { ColumnConfig, EXCLUDED_COLUMNS } from "@/types/dynamicTableColumn";
 import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
 
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
-import { MoneyRecive } from "iconsax-react";
-import { DepositService } from "@/services/DepositService";
-import { Industries } from "@/constants/constants";
 
 const depositService = DepositService();
 
