@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 
 import { Card, Modal, Input, Button } from "antd";
+import { MoneyRecive } from "iconsax-react";
+import { toast } from "react-toastify";
 
+import { Industries } from "@/constants/constants";
+import { DepositService } from "@/services/DepositService";
 import { ColumnConfig, EXCLUDED_COLUMNS, ColumnData } from "@/types/dynamicTableColumn";
 import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
 
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
-import { toast } from "react-toastify";
-import { DepositService } from "@/services/DepositService";
-import { Industries } from "@/constants/constants";
-import { MoneyRecive } from "iconsax-react";
 
 const depositService = DepositService();
 

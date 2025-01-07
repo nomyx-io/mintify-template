@@ -58,7 +58,11 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const onConnect = useCallback(async () => {
     const RandomString = generateRandomString(10);
     let message = `Sign this message to validate that you are the owner of the account. Random string: ${RandomString}`;
-    let storedSignature = localStorage.getItem("signature") ? JSON.parse(localStorage.getItem("signature") as string) : null;
+    let storedSignature = null;
+    if (typeof window !== "undefined") {
+      const signature = localStorage.getItem("signature");
+      storedSignature = signature ? JSON.parse(signature) : null;
+    }
     let signature;
 
     if (!storedSignature) {

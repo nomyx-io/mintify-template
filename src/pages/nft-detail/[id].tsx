@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 
 import { useRouter } from "next/router";
 
-import { getDashboardLayout } from "@/layouts";
+import { getDashboardLayout } from "@/Layouts";
 import { CustomerService } from "@/services/CustomerService";
 
 import NftRecordDetail from "../../components/mint/NftRecordDetail";
