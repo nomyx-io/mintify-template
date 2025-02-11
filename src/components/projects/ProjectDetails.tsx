@@ -95,8 +95,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
         const projectTokenIds = new Set(projectTokens.map((token: any) => token.tokenId));
 
         // Filter listings to include only those part of the project and not sold
-        const filteredListings = listingData.filter((listing: any) => projectTokenIds.has(listing.tokenId));
-
+        let filteredListings = listingData.filter((listing: any) => projectTokenIds.has(listing.tokenId));
+        filteredListings.forEach((listing: any) => {
+          const matchedToken = projectTokens.find((t: any) => t.tokenId === listing.tokenId);
+          listing.depositAmount = matchedToken?.depositAmount ?? 0; // Default to 0 if not found
+        });
         setListings(filteredListings);
       } catch (error) {
         console.error("Error fetching listings:", error);

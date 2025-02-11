@@ -39,32 +39,39 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
   };
 
   const handleSubmit = async () => {
-    console.log(`Token ID: ${selectedTokenId}, Amount: ${amount}`);
-    setIsSubmitting(true);
-    try {
-      const depositToast = toast.loading("Making a deposit...");
-      await depositService.deposit(selectedTokenId, amount);
-      toast.update(depositToast, {
-        render: `Deposit successfully made for Token ID ${selectedTokenId}`,
-        type: "success",
-        isLoading: false,
-        autoClose: 5000,
-      });
-      // Add your submission logic here
-      setIsModalVisible(false);
-      setAmount("");
-      setIsSubmitting(false);
-    } catch (e) {
-      toast.dismiss();
-      let errorMessage = "Failed to deposit.";
-      if (e instanceof Error) {
-        errorMessage = e.message;
-      } else if (typeof e === "string") {
-        errorMessage = e;
+    let result = await depositService.getTotalDepositAmountAndTokenPrice(selectedTokenId || "0");
+    let totalDepositAmount = result?.totalAmount / 1_000_000 || 0;
+    totalDepositAmount = totalDepositAmount + Number(amount);
+    if (result?.price > totalDepositAmount) {
+      console.log(`Token ID: ${selectedTokenId}, Amount: ${amount}`);
+      setIsSubmitting(true);
+      try {
+        const depositToast = toast.loading("Making a deposit...");
+        await depositService.deposit(selectedTokenId, amount);
+        toast.update(depositToast, {
+          render: `Deposit successfully made for Token ID ${selectedTokenId}`,
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
+        });
+        // Add your submission logic here
+        setIsModalVisible(false);
+        setAmount("");
+        setIsSubmitting(false);
+      } catch (e) {
+        toast.dismiss();
+        let errorMessage = "Failed to deposit.";
+        if (e instanceof Error) {
+          errorMessage = e.message;
+        } else if (typeof e === "string") {
+          errorMessage = e;
+        }
+        console.error(e);
+        toast.error(errorMessage);
+        setIsSubmitting(false);
       }
-      console.error(e);
-      toast.error(errorMessage);
-      setIsSubmitting(false);
+    } else {
+      toast.warning("The total deposited amount exceeds the token price.");
     }
   };
 
@@ -154,12 +161,20 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                     </div>
                   ))}
                   {industryTemplate && industryTemplate === Industries.TOKENIZED_DEBT && (
-                    <div key="deposit" className="flex items-center justify-between">
-                      <span className="font-semibold text-left">Deposit</span>
-                      <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">
-                        <MoneyRecive className="cursor-pointer" onClick={() => handleDepositClick(tokenId)} />
-                      </span>
-                    </div>
+                    <>
+                      <div key="deposit" className="flex items-center justify-between">
+                        <span className="font-semibold text-left">Deposit</span>
+                        <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">
+                          <MoneyRecive className="cursor-pointer" onClick={() => handleDepositClick(tokenId)} />
+                        </span>
+                      </div>
+                      <div key="depositAmount" className="flex items-center justify-between">
+                        <span className="font-semibold text-left">Deposited Amount</span>
+                        <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">
+                          {formatPrice(token?.depositAmount / 1_000_000, "USD")}
+                        </span>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>

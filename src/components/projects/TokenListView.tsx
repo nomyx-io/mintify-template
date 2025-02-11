@@ -45,7 +45,6 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
             status: listedTokensIds.has(token.tokenId) ? "listed" : "unlisted",
           },
         }));
-
         setFilteredTokens(updatedTokens);
       } catch (error) {
         console.error("Error fetching listed tokens:", error);
@@ -152,32 +151,39 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   };
 
   const handleSubmit = async () => {
-    console.log(`Token ID: ${selectedTokenId}, Amount: ${amount}`);
-    setIsSubmitting(true);
-    try {
-      const depositToast = toast.loading("Making a deposit...");
-      await depositService.deposit(selectedTokenId, amount);
-      toast.update(depositToast, {
-        render: `Deposit successfully made for Token ID ${selectedTokenId}`,
-        type: "success",
-        isLoading: false,
-        autoClose: 5000,
-      });
-      // Add your submission logic here
-      setIsModalVisible(false);
-      setAmount("");
-      setIsSubmitting(false);
-    } catch (e) {
-      toast.dismiss();
-      let errorMessage = "Failed to deposit.";
-      if (e instanceof Error) {
-        errorMessage = e.message;
-      } else if (typeof e === "string") {
-        errorMessage = e;
+    let result = await depositService.getTotalDepositAmountAndTokenPrice(selectedTokenId || "0");
+    let totalDepositAmount = result?.totalAmount / 1_000_000 || 0;
+    totalDepositAmount = totalDepositAmount + Number(amount);
+    if (result?.price > totalDepositAmount) {
+      console.log(`Token ID: ${selectedTokenId}, Amount: ${amount}`);
+      setIsSubmitting(true);
+      try {
+        const depositToast = toast.loading("Making a deposit...");
+        await depositService.deposit(selectedTokenId, amount);
+        toast.update(depositToast, {
+          render: `Deposit successfully made for Token ID ${selectedTokenId}`,
+          type: "success",
+          isLoading: false,
+          autoClose: 5000,
+        });
+        // Add your submission logic here
+        setIsModalVisible(false);
+        setAmount("");
+        setIsSubmitting(false);
+      } catch (e) {
+        toast.dismiss();
+        let errorMessage = "Failed to deposit.";
+        if (e instanceof Error) {
+          errorMessage = e.message;
+        } else if (typeof e === "string") {
+          errorMessage = e;
+        }
+        console.error(e);
+        toast.error(errorMessage);
+        setIsSubmitting(false);
       }
-      console.error(e);
-      toast.error(errorMessage);
-      setIsSubmitting(false);
+    } else {
+      toast.warning("The total deposited amount exceeds the token price.");
     }
   };
 
@@ -266,6 +272,11 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
                   title: "Deposit",
                   dataIndex: "tokenId",
                   render: (tokenId: string) => <MoneyRecive className="cursor-pointer" onClick={() => handleDepositClick(tokenId)} />,
+                },
+                {
+                  title: "Deposited Amount",
+                  dataIndex: "depositAmount",
+                  render: (depositAmount: number) => <span>{formatPrice(depositAmount / 1_000_000, "USD")}</span>,
                 },
               ]
             : []),
