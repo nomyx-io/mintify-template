@@ -1,4 +1,5 @@
 import moment from "moment";
+import Parse from "parse";
 
 import { formatPrice } from "@/utils/currencyFormater";
 
@@ -75,14 +76,53 @@ export const CustomerService = () => {
   };
 
   const getProjectTokens = async (fieldNames: string[], fieldValues: any[]) => {
-    const records = await ParseClient.getRecords("Token", fieldNames, fieldValues, ["*"], undefined, undefined, undefined, "desc");
-    let sanitizedRecords = [];
+    try {
+      // Retrieve tokens from the Token class
+      const tokenRecords = await ParseClient.getRecords("Token", fieldNames, fieldValues, ["*"], undefined, undefined, undefined, "desc");
 
-    if (records && records.length > 0) {
-      sanitizedRecords = JSON.parse(JSON.stringify(records || []));
+      if (!tokenRecords || tokenRecords.length === 0) {
+        return [];
+      }
+
+      // Extract token objectIds
+      const tokenObjectIds = tokenRecords.map((token) => token.id);
+
+      if (tokenObjectIds.length === 0) {
+        return tokenRecords.map((record) => ({ ...record, depositAmount: 0 }));
+      }
+
+      // Query TokenDeposit for all tokens at once
+      const depositQuery = new Parse.Query("TokenDeposit");
+      depositQuery.containedIn(
+        "token",
+        tokenObjectIds.map((id) => new Parse.Object("Token", { id }))
+      ); // Use pointers
+      const depositRecords = await depositQuery.find();
+
+      // Create a map of deposit amounts
+      const depositMap: Record<string, number> = {};
+
+      depositRecords.forEach((deposit) => {
+        const tokenId = deposit.get("token").get("tokenId");
+        const amount = Number(deposit.get("amount")) || 0;
+        depositMap[tokenId] = (depositMap[tokenId] || 0) + amount;
+      });
+
+      let sanitizedRecords = [];
+      if (tokenRecords && tokenRecords.length > 0) {
+        sanitizedRecords = JSON.parse(JSON.stringify(tokenRecords || []));
+      }
+
+      // Append depositAmount to each token record and correctly assign the updated array
+      sanitizedRecords = sanitizedRecords.map((record: any) => ({
+        ...record, // Retain all existing properties of the record
+        depositAmount: depositMap[record.tokenId] ?? 0, // Ensure default value is 0
+      }));
+      return sanitizedRecords;
+    } catch (error) {
+      console.error("Error fetching project tokens:", error);
+      return [];
     }
-
-    return sanitizedRecords;
   };
 
   const getSales = async () => {
@@ -93,6 +133,34 @@ export const CustomerService = () => {
 
     if (records && records.length > 0) {
       sanitizedRecords = JSON.parse(JSON.stringify(records || []));
+    }
+
+    // Extract token objectIds
+    const tokenObjects = records?.map((token) => token.get("token"));
+    const tokenObjectIds = tokenObjects?.map((t) => t.id);
+
+    if (tokenObjectIds && tokenObjectIds.length > 0) {
+      const depositQuery = new Parse.Query("TokenDeposit");
+      depositQuery.containedIn(
+        "token",
+        tokenObjectIds.map((id) => new Parse.Object("Token", { id }))
+      ); // Use pointers
+      const depositRecords = await depositQuery.find();
+
+      // Create a map of deposit amounts
+      const depositMap: Record<string, number> = {};
+
+      depositRecords.forEach((deposit) => {
+        const tokenId = deposit.get("token").get("tokenId");
+        const amount = Number(deposit.get("amount")) || 0;
+        depositMap[tokenId] = (depositMap[tokenId] || 0) + amount;
+      });
+
+      sanitizedRecords = sanitizedRecords.map((record: any) => ({
+        ...record, // Retain all existing properties of the record
+        depositAmount: depositMap[record.tokenId] ?? 0, // Ensure default value is 0
+        price: record.token.price,
+      }));
     }
 
     return sanitizedRecords;
