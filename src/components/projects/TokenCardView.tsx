@@ -18,9 +18,10 @@ interface TokenCardViewProps {
   tokens: any[];
   isSalesHistory: boolean;
   industryTemplate?: string;
+  setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, industryTemplate }) => {
+const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, industryTemplate, setRefresh }) => {
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
   const [amount, setAmount] = useState<string>(""); // State for the input value
   const [isSubmitting, setIsSubmitting] = useState(false); // For submission state
@@ -38,11 +39,11 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
     setAmount("");
   };
 
-  const handleSubmit = async () => {
+  const handleDepositSubmit = async () => {
     let result = await depositService.getTotalDepositAmountAndTokenPrice(selectedTokenId || "0");
     let totalDepositAmount = result?.totalAmount / 1_000_000 || 0;
     totalDepositAmount = totalDepositAmount + Number(amount);
-    if (result?.price > totalDepositAmount) {
+    if (result?.price >= totalDepositAmount) {
       console.log(`Token ID: ${selectedTokenId}, Amount: ${amount}`);
       setIsSubmitting(true);
       try {
@@ -58,6 +59,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
         setIsModalVisible(false);
         setAmount("");
         setIsSubmitting(false);
+        setRefresh?.((prev) => !prev);
       } catch (e) {
         toast.dismiss();
         let errorMessage = "Failed to deposit.";
@@ -165,7 +167,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                       <div key="deposit" className="flex items-center justify-between">
                         <span className="font-semibold text-left">Deposit</span>
                         <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">
-                          <MoneyRecive className="cursor-pointer" onClick={() => handleDepositClick(tokenId)} />
+                          <MoneyRecive className="cursor-pointer float-right" onClick={() => handleDepositClick(tokenId)} />
                         </span>
                       </div>
                       <div key="depositAmount" className="flex items-center justify-between">
@@ -199,7 +201,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
           </Button>
           <Button
             type="primary"
-            onClick={handleSubmit}
+            onClick={handleDepositSubmit}
             disabled={!amount || isSubmitting}
             className={`text-blue-600 border-blue-600 ${!amount || isSubmitting ? "!text-gray-400 !border-gray-400" : ""}`}
           >

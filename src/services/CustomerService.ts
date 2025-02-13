@@ -135,6 +135,34 @@ export const CustomerService = () => {
       sanitizedRecords = JSON.parse(JSON.stringify(records || []));
     }
 
+    // Extract token objectIds
+    const tokenObjects = records?.map((token) => token.get("token"));
+    const tokenObjectIds = tokenObjects?.map((t) => t.id);
+
+    if (tokenObjectIds && tokenObjectIds.length > 0) {
+      const depositQuery = new Parse.Query("TokenDeposit");
+      depositQuery.containedIn(
+        "token",
+        tokenObjectIds.map((id) => new Parse.Object("Token", { id }))
+      ); // Use pointers
+      const depositRecords = await depositQuery.find();
+
+      // Create a map of deposit amounts
+      const depositMap: Record<string, number> = {};
+
+      depositRecords.forEach((deposit) => {
+        const tokenId = deposit.get("token").get("tokenId");
+        const amount = Number(deposit.get("amount")) || 0;
+        depositMap[tokenId] = (depositMap[tokenId] || 0) + amount;
+      });
+
+      sanitizedRecords = sanitizedRecords.map((record: any) => ({
+        ...record, // Retain all existing properties of the record
+        depositAmount: depositMap[record.tokenId] ?? 0, // Ensure default value is 0
+        price: record.token.price,
+      }));
+    }
+
     return sanitizedRecords;
   };
 

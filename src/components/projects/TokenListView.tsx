@@ -21,9 +21,10 @@ interface TokenListViewProps {
   tokens: any[];
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
   industryTemplate?: string;
+  setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, industryTemplate }) => {
+const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, industryTemplate, setRefresh }) => {
   const [filteredTokens, setFilteredTokens] = useState(tokens);
   const [filterQuery, setFilterQuery] = useState("");
   const blockchainService = BlockchainService.getInstance();
@@ -150,11 +151,11 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     setAmount("");
   };
 
-  const handleSubmit = async () => {
+  const handleDepositSubmit = async () => {
     let result = await depositService.getTotalDepositAmountAndTokenPrice(selectedTokenId || "0");
     let totalDepositAmount = result?.totalAmount / 1_000_000 || 0;
     totalDepositAmount = totalDepositAmount + Number(amount);
-    if (result?.price > totalDepositAmount) {
+    if (result?.price >= totalDepositAmount) {
       console.log(`Token ID: ${selectedTokenId}, Amount: ${amount}`);
       setIsSubmitting(true);
       try {
@@ -170,6 +171,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
         setIsModalVisible(false);
         setAmount("");
         setIsSubmitting(false);
+        setRefresh?.((prev) => !prev);
       } catch (e) {
         toast.dismiss();
         let errorMessage = "Failed to deposit.";
@@ -264,14 +266,29 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     ...additionalColumns,
     // Conditionally add the "Status" column only if `isSalesHistory` is false
     ...(isSalesHistory
-      ? []
+      ? [
+          ...(industryTemplate && industryTemplate === Industries.TOKENIZED_DEBT
+            ? [
+                {
+                  title: "Deposit",
+                  dataIndex: "tokenId",
+                  render: (tokenId: string) => <MoneyRecive className="cursor-pointer float-right" onClick={() => handleDepositClick(tokenId)} />,
+                },
+                {
+                  title: "Deposited Amount",
+                  dataIndex: "depositAmount",
+                  render: (depositAmount: number) => <span>{formatPrice(depositAmount / 1_000_000, "USD")}</span>,
+                },
+              ]
+            : []),
+        ]
       : [
           ...(industryTemplate && industryTemplate === Industries.TOKENIZED_DEBT
             ? [
                 {
                   title: "Deposit",
                   dataIndex: "tokenId",
-                  render: (tokenId: string) => <MoneyRecive className="cursor-pointer" onClick={() => handleDepositClick(tokenId)} />,
+                  render: (tokenId: string) => <MoneyRecive className="cursor-pointer float-right" onClick={() => handleDepositClick(tokenId)} />,
                 },
                 {
                   title: "Deposited Amount",
@@ -343,7 +360,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
           </Button>
           <Button
             type="primary"
-            onClick={handleSubmit}
+            onClick={handleDepositSubmit}
             disabled={!amount || isSubmitting}
             className={`text-blue-600 border-blue-600 ${!amount || isSubmitting ? "!text-gray-400 !border-gray-400" : ""}`}
           >
