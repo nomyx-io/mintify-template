@@ -40,7 +40,6 @@ export default function Details({ service }: { service: BlockchainService }) {
   };
 
   useEffect(() => {
-    debugger;
     !user && router.push("/login");
   }, [user, router]);
 

@@ -27,7 +27,6 @@ function PrivateRoute({ children, onConnect, role, forceLogout, handleForecLogou
 
   useEffect(() => {
     if (isConnected && role.length > 0) {
-      debugger;
       const redirectTarget = history[1] == "/" || history[1] == "/login" ? "/home" : history[1] || history[0];
       if (redirectTarget) {
         router.push(redirectTarget);

@@ -220,7 +220,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       setUser(user);
       setDfnsToken(dfnsToken);
       setWalletPreference(walletPreference);
-      debugger;
       localStorage.setItem("sessionToken", token);
       setIsConnected(true);
       // Initialize blockchainService if required for standard login
