@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 
 import { Button, Form } from "antd";
 import { ethers } from "ethers";
@@ -18,13 +18,14 @@ import { TokenizedDebtService } from "@/services/TokenizedDebtService";
 import { TradeFinanceService } from "@/services/TradeFinanceService";
 
 import NftPreview from "../../components/mint/NftRecordDetail";
+import { UserContext } from "../../context/UserContext";
 
 const carbonCreditService = CarbonCreditService();
 const tokenizedDebtService = TokenizedDebtService();
 const tradeFinanceService = TradeFinanceService();
 
 export default function Details({ service }: { service: BlockchainService }) {
-  const { isConnected } = useAccount();
+  const { user } = useContext(UserContext);
   const router = useRouter();
   const [form] = Form.useForm();
 
@@ -39,8 +40,9 @@ export default function Details({ service }: { service: BlockchainService }) {
   };
 
   useEffect(() => {
-    !isConnected && router.push("/login");
-  }, [isConnected, router]);
+    debugger;
+    !user && router.push("/login");
+  }, [user, router]);
 
   const handlePreview = (values: any) => {
     setFormData(values);
