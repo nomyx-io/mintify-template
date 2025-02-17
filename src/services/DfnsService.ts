@@ -74,7 +74,7 @@ class DfnsService {
       const assertion = await webauthn.sign(initiateResponse.challenge);
 
       // Step 3: Complete USDC approval
-      const completeResponse = await Parse.Cloud.run("dfnsCompleteApproval", {
+      const completeResponse = await Parse.Cloud.run("dfnsCompleteTreasuryApproval", {
         walletId,
         dfns_token: dfnsToken,
         signedChallenge: {
