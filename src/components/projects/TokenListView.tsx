@@ -1,26 +1,36 @@
 import React, { useState, useEffect } from "react";
 
 import { EyeOutlined } from "@ant-design/icons";
-import { Table, Switch } from "antd";
+import { Table, Switch, Modal, Input, Button } from "antd";
 import { ethers } from "ethers";
+import { MoneyRecive } from "iconsax-react";
 import { toast } from "react-toastify";
 
+import { Industries } from "@/constants/constants";
 import BlockchainService from "@/services/BlockchainService";
+import { DepositService } from "@/services/DepositService";
 import { ColumnConfig, EXCLUDED_COLUMNS } from "@/types/dynamicTableColumn";
 import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
 
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
+const depositService = DepositService();
+
 interface TokenListViewProps {
   tokens: any[];
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
+  industryTemplate?: string;
 }
 
-const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory }) => {
+const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, industryTemplate }) => {
   const [filteredTokens, setFilteredTokens] = useState(tokens);
   const [filterQuery, setFilterQuery] = useState("");
   const blockchainService = BlockchainService.getInstance();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
+  const [amount, setAmount] = useState<string>(""); // State for the input value
+  const [isSubmitting, setIsSubmitting] = useState(false); // For submission state
 
   useEffect(() => {
     const cleanupListedTokens = async () => {
@@ -129,6 +139,48 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory })
     }
   };
 
+  const handleDepositClick = (tokenId: string) => {
+    console.log("tokenId", tokenId);
+    setSelectedTokenId(tokenId);
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedTokenId(null);
+    setAmount("");
+  };
+
+  const handleSubmit = async () => {
+    console.log(`Token ID: ${selectedTokenId}, Amount: ${amount}`);
+    setIsSubmitting(true);
+    try {
+      const depositToast = toast.loading("Making a deposit...");
+      await depositService.deposit(selectedTokenId, amount);
+      toast.update(depositToast, {
+        render: `Deposit successfully made for Token ID ${selectedTokenId}`,
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+      });
+      // Add your submission logic here
+      setIsModalVisible(false);
+      setAmount("");
+      setIsSubmitting(false);
+    } catch (e) {
+      toast.dismiss();
+      let errorMessage = "Failed to deposit.";
+      if (e instanceof Error) {
+        errorMessage = e.message;
+      } else if (typeof e === "string") {
+        errorMessage = e;
+      }
+      console.error(e);
+      toast.error(errorMessage);
+      setIsSubmitting(false);
+    }
+  };
+
   const getDynamicColumns = (maxColumns = 7): ColumnConfig[] => {
     const nonNullColumns: Record<string, ColumnConfig> = {};
     tokens.forEach((token) => {
@@ -208,6 +260,15 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory })
     ...(isSalesHistory
       ? []
       : [
+          ...(industryTemplate && industryTemplate === Industries.TOKENIZED_DEBT
+            ? [
+                {
+                  title: "Deposit",
+                  dataIndex: "tokenId",
+                  render: (tokenId: string) => <MoneyRecive className="cursor-pointer" onClick={() => handleDepositClick(tokenId)} />,
+                },
+              ]
+            : []),
           {
             title: "Status",
             dataIndex: ["token", "status"],
@@ -241,19 +302,45 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory })
   ];
 
   return (
-    <Table
-      columns={listingColumns}
-      dataSource={filteredTokens}
-      rowKey="tokenId"
-      pagination={false}
-      scroll={{ x: "100%" }}
-      style={{
-        wordWrap: "break-word",
-        whiteSpace: "pre-wrap",
-        maxHeight: "350px",
-        overflowY: "auto",
-      }}
-    />
+    <>
+      <Table
+        columns={listingColumns}
+        dataSource={filteredTokens}
+        rowKey="tokenId"
+        pagination={false}
+        scroll={{ x: "100%" }}
+        style={{
+          wordWrap: "break-word",
+          whiteSpace: "pre-wrap",
+          maxHeight: "350px",
+          overflowY: "auto",
+        }}
+      />
+      <Modal
+        title={`Deposit for Token ID: ${selectedTokenId}`}
+        open={isModalVisible}
+        onCancel={handleModalClose}
+        footer={null} // Custom footer for Submit and Cancel buttons
+      >
+        <div>
+          <p>Enter the deposit amount:</p>
+          <Input placeholder="Enter amount" value={amount} onChange={(e) => setAmount(e.target.value)} type="number" required />
+        </div>
+        <div style={{ marginTop: "16px", textAlign: "right" }}>
+          <Button onClick={handleModalClose} style={{ marginRight: "8px" }} className="text-black">
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleSubmit}
+            disabled={!amount || isSubmitting}
+            className={`text-blue-600 border-blue-600 ${!amount || isSubmitting ? "!text-gray-400 !border-gray-400" : ""}`}
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
+        </div>
+      </Modal>
+    </>
   );
 };
 

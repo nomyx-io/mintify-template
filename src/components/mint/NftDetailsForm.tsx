@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState, useRef, use } from "react";
 
-import { Card, Form, FormInstance } from "antd";
+import { Card, Form, FormInstance, Radio } from "antd";
 import { useRouter } from "next/router";
 
 import { Industries, carbonCreditFields, tradeFinanceFields, tokenizedDebtFields } from "@/constants/constants";
-import { requiredRule, numberRule, alphaNumericRule } from "@/constants/rules";
+import { requiredRule, numberRule, alphaNumericRule, walletAddressRule } from "@/constants/rules";
 import { CustomerService } from "@/services/CustomerService";
 import { Regex } from "@/utils/regex";
 
@@ -34,6 +34,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
   const [registeredUserList, setRegisteredUserList] = useState<{ walletAddress: string; email: string }[]>([]);
 
   const [additionalFields, setAdditionalFields] = useState<NftDetailsInputField[]>([]);
+  const [mintToType, setMintToType] = useState<"registered" | "new">("registered");
 
   Form.useWatch((values) => {
     if (values.projectId && values.projectId !== projectId) {
@@ -111,6 +112,10 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
     }
   }, [form, projectId, projectList]);
 
+  const handleMintToChange = (e: any) => {
+    setMintToType(e.target.value);
+  };
+
   return (
     <Card
       title={<span className="text-nomyx-text-light dark:text-nomyx-text-dark">Token Details</span>}
@@ -152,23 +157,36 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
               }
             />
             <VariableFormInput type="text" name="projectStartDate" label="Project Start Date" placeholder="mm/dd/yyyy" disabled={true} />
-            <VariableFormInput
-              type="select"
-              name="mintAddress"
-              label="Mint To"
-              placeholder="Enter Wallet Address"
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-              options={
-                registeredUserList.map((user) => ({
-                  label: user.email,
-                  value: user.walletAddress,
-                })) || []
-              }
-            />
+            <div className="flex flex-col">
+              <Form.Item label="Mint To" required>
+                <Radio.Group onChange={handleMintToChange} value={mintToType}>
+                  <Radio value="registered">Registered Identity</Radio>
+                  <Radio value="new">New Address</Radio>
+                </Radio.Group>
+              </Form.Item>
+              {mintToType === "registered" && (
+                <VariableFormInput
+                  type="select"
+                  name="mintAddress"
+                  label=""
+                  placeholder="Enter Wallet Address"
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                  options={
+                    registeredUserList.map((user) => ({
+                      label: user.email,
+                      value: user.walletAddress,
+                    })) || []
+                  }
+                />
+              )}
+              {mintToType === "new" && (
+                <VariableFormInput type="text" name="mintAddress" label="" placeholder="Enter Wallet Address" rules={[walletAddressRule]} />
+              )}
+            </div>
             <VariableFormInput type="text" name="price" label="Price" placeholder="Enter Price" rules={[requiredRule, numberRule]} prefix="$" />
           </div>
           {additionalFields.length > 0 && (

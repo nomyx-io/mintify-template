@@ -161,45 +161,43 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
             >
               {/* Back Button */}
               <button
-                onClick={onBack} // Use the onBack function to reset the view
-                className="absolute top-4 left-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark rounded-md flex items-center px-4 py-2 shadow-md"
+                onClick={onBack}
+                className="absolute top-4 left-4 sm:left-auto sm:right-4 lg:left-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark rounded-md flex items-center px-4 py-2 shadow-md w-[100px]"
               >
                 <ArrowLeft size="24" className="mr-2" />
                 Back
               </button>
 
               {/* Project Image, Title, and Description */}
-              <div className="absolute bottom-4 left-0 flex items-center p-4 rounded-lg">
+              <div className="absolute sm:-bottom-2 bottom-4 left-0 md:flex md:flex-row flex-col items-start md:items-center p-4 rounded-lg w-full">
                 {/* Project Image */}
-                <div className="project-logo rounded-lg overflow-hidden" style={{ width: "100px", height: "100px" }}>
+                <div className="project-logo rounded-lg overflow-hidden flex-shrink-0" style={{ width: "100px", height: "100px" }}>
                   <Image src={project.logo?.url()} alt="Project Logo" width={100} height={25} className="object-cover w-full h-full" />
                 </div>
 
                 {/* Project Title and Description */}
-                <div className="text-white flex-1 mx-4">
+                <div className="text-white flex-1 mx-4 mt-4 md:mt-0">
                   <h1 className="text-3xl font-bold !text-nomyx-dark2-light dark:nomyx-dark2-dark">{project.title}</h1>
                   <p className="text-sm mt-2 max-w-md break-words !text-nomyx-dark2-light dark:nomyx-dark2-dark">{project.description}</p>
                 </div>
-              </div>
 
-              {/* Project Stats (Hide when screen width is small enough to cause overlap) */}
-              <div
-                className={`absolute bottom-4 right-4 flex flex-nowrap space-x-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 ${
-                  showStats ? "opacity-100" : "opacity-0 pointer-events-none"
-                }`}
-                style={{ overflow: "hidden" }}
-              >
-                <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                  <span className="text-sm">Total Value</span>
-                  <h2 className="text-lg font-bold">{Intl.NumberFormat("en-US").format(project.totalValue)}</h2>
-                </div>
-                <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                  <span className="text-sm">Project Creation Date</span>
-                  <h2 className="text-lg font-bold">{project.createdAt?.toLocaleDateString()}</h2>
-                </div>
-                <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                  <span className="text-sm">Total Tokens</span>
-                  <h2 className="text-lg font-bold">{totalTokens}</h2>
+                {/* Project Stats (Move below on small screens) */}
+                <div
+                  className={`mt-6 md:mt-0 flex flex-col md:flex-row md:flex-nowrap space-y-4 md:space-y-0 md:space-x-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100`}
+                  style={{ maxWidth: "100%", overflow: "hidden" }}
+                >
+                  <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                    <span className="text-sm">Total Value</span>
+                    <h2 className="text-lg font-bold">{Intl.NumberFormat("en-US").format(project.totalValue)}</h2>
+                  </div>
+                  <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                    <span className="text-sm">Project Creation Date</span>
+                    <h2 className="text-lg font-bold">{project.createdAt?.toLocaleDateString()}</h2>
+                  </div>
+                  <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                    <span className="text-sm">Total Tokens</span>
+                    <h2 className="text-lg font-bold">{totalTokens}</h2>
+                  </div>
                 </div>
               </div>
             </div>
@@ -259,9 +257,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     children: (
                       <>
                         {viewMode === "table" ? (
-                          <TokenListView tokens={filteredListings} isSalesHistory={false} />
+                          <TokenListView tokens={filteredListings} isSalesHistory={false} industryTemplate={project.industryTemplate} />
                         ) : (
-                          <TokenCardView tokens={filteredListings} isSalesHistory={false} />
+                          <TokenCardView tokens={filteredListings} isSalesHistory={false} industryTemplate={project.industryTemplate} />
                         )}
                       </>
                     ),

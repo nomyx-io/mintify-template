@@ -68,6 +68,8 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
     if (identity?.attributes) {
       const { username, walletAddress } = identity.attributes;
       setIdentityDetail(`${username} (${walletAddress})`);
+    } else if (data?.mintAddress) {
+      setIdentityDetail(data.mintAddress.toString());
     }
   }, [mintAddress]);
 

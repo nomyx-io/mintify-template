@@ -1,19 +1,73 @@
-import React from "react";
+import React, { useState } from "react";
 
-import { Card } from "antd";
+import { Card, Modal, Input, Button } from "antd";
+import { MoneyRecive } from "iconsax-react";
+import { toast } from "react-toastify";
 
+import { Industries } from "@/constants/constants";
+import { DepositService } from "@/services/DepositService";
 import { ColumnConfig, EXCLUDED_COLUMNS, ColumnData } from "@/types/dynamicTableColumn";
 import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
 
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
+const depositService = DepositService();
+
 interface TokenCardViewProps {
   tokens: any[];
   isSalesHistory: boolean;
+  industryTemplate?: string;
 }
 
-const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory }) => {
+const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, industryTemplate }) => {
+  const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
+  const [amount, setAmount] = useState<string>(""); // State for the input value
+  const [isSubmitting, setIsSubmitting] = useState(false); // For submission state
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const handleDepositClick = (tokenId: string) => {
+    console.log("tokenId", tokenId);
+    setSelectedTokenId(tokenId);
+    setIsModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+    setSelectedTokenId(null);
+    setAmount("");
+  };
+
+  const handleSubmit = async () => {
+    console.log(`Token ID: ${selectedTokenId}, Amount: ${amount}`);
+    setIsSubmitting(true);
+    try {
+      const depositToast = toast.loading("Making a deposit...");
+      await depositService.deposit(selectedTokenId, amount);
+      toast.update(depositToast, {
+        render: `Deposit successfully made for Token ID ${selectedTokenId}`,
+        type: "success",
+        isLoading: false,
+        autoClose: 5000,
+      });
+      // Add your submission logic here
+      setIsModalVisible(false);
+      setAmount("");
+      setIsSubmitting(false);
+    } catch (e) {
+      toast.dismiss();
+      let errorMessage = "Failed to deposit.";
+      if (e instanceof Error) {
+        errorMessage = e.message;
+      } else if (typeof e === "string") {
+        errorMessage = e;
+      }
+      console.error(e);
+      toast.error(errorMessage);
+      setIsSubmitting(false);
+    }
+  };
+
   const getDynamicColumns = (maxColumns = 5): ColumnConfig[] => {
     const nonNullColumns: Record<string, ColumnConfig> = {};
     tokens.forEach((token) => {
@@ -99,12 +153,45 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory })
                       <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">{item.value}</span>
                     </div>
                   ))}
+                  {industryTemplate && industryTemplate === Industries.TOKENIZED_DEBT && (
+                    <div key="deposit" className="flex items-center justify-between">
+                      <span className="font-semibold text-left">Deposit</span>
+                      <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">
+                        <MoneyRecive className="cursor-pointer" onClick={() => handleDepositClick(tokenId)} />
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </Card>
           );
         })
       )}
+
+      <Modal
+        title={`Deposit for Token ID: ${selectedTokenId}`}
+        open={isModalVisible}
+        onCancel={handleModalClose}
+        footer={null} // Custom footer for Submit and Cancel buttons
+      >
+        <div>
+          <p>Enter the deposit amount:</p>
+          <Input placeholder="Enter amount" value={amount} onChange={(e) => setAmount(e.target.value)} type="number" required />
+        </div>
+        <div style={{ marginTop: "16px", textAlign: "right" }}>
+          <Button onClick={handleModalClose} style={{ marginRight: "8px" }} className="text-black">
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            onClick={handleSubmit}
+            disabled={!amount || isSubmitting}
+            className={`text-blue-600 border-blue-600 ${!amount || isSubmitting ? "!text-gray-400 !border-gray-400" : ""}`}
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -253,3 +253,9 @@
 label, p, h1, h2, h3, h4, h5, h6, input {
   @apply !text-nomyx-text-light dark:!text-nomyx-text-dark;
 }
+.light .ant-radio-wrapper .ant-radio-inner {
+  background-color: #dddada;
+}
+.light .ant-radio-wrapper .ant-radio-checked  .ant-radio-inner{
+  background-color: #1668dc;
+}
