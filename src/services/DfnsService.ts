@@ -51,18 +51,57 @@ class DfnsService {
     }
   }
 
-  public async dfnsDeposit(walletId: string, dfnsToken: string, depositData: any) {
-    if (!walletId || !dfnsToken || !depositData) {
-      throw new Error("Missing required parameters for deposit.");
+  public async dfnsApproveUSDC(walletId: string, dfnsToken: string, price: string) {
+    if (!walletId || !dfnsToken || !price) {
+      throw new Error("Missing required parameters for USDC approval.");
     }
 
     try {
-      // Step 1: Initiate deposit
+      // Step 1: Initiate USDC approval
+      const initiateResponse = await Parse.Cloud.run("dfnsInitTreasuryApproval", {
+        walletId,
+        dfns_token: dfnsToken,
+        price,
+      });
+
+      console.log("Pending USDC approval request:", initiateResponse);
+
+      // Step 2: Sign the challenge
+      const webauthn = new WebAuthnSigner();
+      const assertion = await webauthn.sign(initiateResponse.challenge);
+
+      // Step 3: Complete USDC approval
+      const completeResponse = await Parse.Cloud.run("dfnsCompleteTreasuryApproval", {
+        walletId,
+        dfns_token: dfnsToken,
+        signedChallenge: {
+          challengeIdentifier: initiateResponse.challenge.challengeIdentifier,
+          firstFactor: assertion,
+        },
+        requestBody: initiateResponse.requestBody,
+      });
+
+      return { completeResponse, error: null };
+    } catch (error: any) {
+      console.error("Error approving USDC:", error);
+      return { completeResponse: null, error: error.message };
+    }
+  }
+
+  public async dfnsDeposit(walletId: string, dfnsToken: string, depositData: any) {
+    if (!walletId || !dfnsToken || !depositData || !Array.isArray(depositData)) {
+      throw new Error("Missing required parameters for deposit or invalid format.");
+    }
+
+    try {
+      // Step 1: Initiate deposit (no approval here, already handled separately)
+
       const initiateResponse = await Parse.Cloud.run("dfnsInitDeposit", {
         walletId,
         dfns_token: dfnsToken,
         deposits: depositData,
       });
+      
       console.log("Pending deposit request:", initiateResponse);
 
       // Step 2: Sign the challenge
