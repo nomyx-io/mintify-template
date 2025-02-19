@@ -158,6 +158,39 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     setAmount("");
   };
 
+  const pollDepositUpdate = async (tokenId: string, addedAmount: number, retries = 5, delay = 2000) => {
+    let result = await depositService.getTotalDepositAmountAndTokenPrice(tokenId);
+    let initialDepositAmount = result?.totalAmount / 1_000_000 || 0;
+    let expectedDepositAmount = initialDepositAmount + addedAmount; // 🔹 What we expect after the deposit
+
+    console.log(`🔍 Initial deposit: ${initialDepositAmount} USDC`);
+    console.log(`📝 Expecting final deposit: ${expectedDepositAmount} USDC`);
+
+    for (let attempt = 0; attempt < retries; attempt++) {
+      console.log(`🔄 Polling deposit amount... Attempt ${attempt + 1}/${retries}`);
+
+      let latestResult = await depositService.getTotalDepositAmountAndTokenPrice(tokenId);
+      let updatedDepositAmount = latestResult?.totalAmount / 1_000_000 || 0;
+
+      console.log(`📡 API Response: ${updatedDepositAmount} USDC`);
+
+      // ✅ Stop polling if the expected deposit amount is reached
+      if (updatedDepositAmount >= expectedDepositAmount) {
+        console.log(`✅ Deposit updated successfully: ${updatedDepositAmount} USDC`);
+        setFilteredTokens((prevTokens) =>
+          prevTokens.map((token) =>
+            token.tokenId === tokenId ? { ...token, token: { ...token.token, depositAmount: updatedDepositAmount } } : token
+          )
+        );
+        return;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+
+    console.warn(`⚠️ Deposit polling timed out. Expected: ${expectedDepositAmount}`);
+  };
+
   const handleDepositSubmit = async () => {
     let result = await depositService.getTotalDepositAmountAndTokenPrice(selectedTokenId || "0");
     let totalDepositAmount = result?.totalAmount / 1_000_000 || 0;
@@ -236,6 +269,9 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
         isLoading: false,
         autoClose: 5000, // Keep toast open for 5 seconds
       });
+
+      await pollDepositUpdate(selectedTokenId, Number(amount));
+      setRefresh?.((prev) => !prev);
 
       // Reset form state
       setIsModalVisible(false);
