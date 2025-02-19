@@ -26,6 +26,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const [viewMode, setViewMode] = useState<string>("table");
   const [showStats, setShowStats] = useState(true);
   const [selectedToken, setSelectedToken] = useState<any | null>(null);
+  const [refresh, setRefresh] = useState(false);
 
   const api = useMemo(() => CustomerService(), []);
 
@@ -72,18 +73,27 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
         setShowStats(true); // Show stats on larger screens
       }
     };
-
     // Set initial visibility
     handleResize();
-
     // Add event listener
     window.addEventListener("resize", handleResize);
-
     // Cleanup event listener on component unmount
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const projectTokens = await api.getProjectTokens(["projectId"], [project.id]);
+        await Promise.all([fetchListings(projectTokens), fetchSales(projectTokens)]);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, [refresh, project.id]);
 
   const fetchListings = useCallback(
     async (projectTokens: any) => {
@@ -95,8 +105,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
         const projectTokenIds = new Set(projectTokens.map((token: any) => token.tokenId));
 
         // Filter listings to include only those part of the project and not sold
-        const filteredListings = listingData.filter((listing: any) => projectTokenIds.has(listing.tokenId));
-
+        let filteredListings = listingData.filter((listing: any) => projectTokenIds.has(listing.tokenId));
+        filteredListings.forEach((listing: any) => {
+          const matchedToken = projectTokens.find((t: any) => t.tokenId === listing.tokenId);
+          listing.depositAmount = matchedToken?.depositAmount ?? 0; // Default to 0 if not found
+        });
         setListings(filteredListings);
       } catch (error) {
         console.error("Error fetching listings:", error);
@@ -114,11 +127,10 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
         const projectSalesData = salesData.filter((sale: any) => {
           return projectTokens.some((listing: any) => String(listing.tokenId) === String(sale.tokenId));
         });
-
         const filteredSalesData = projectSalesData.map((sale: { token: { price: string; existingCredits: string } }) => {
           return {
             ...sale,
-            price: Number(sale.token.price) * Number(sale.token.existingCredits),
+            price: Number(sale.token.price),
           };
         });
         setSales(filteredSalesData || []);
@@ -257,9 +269,19 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     children: (
                       <>
                         {viewMode === "table" ? (
-                          <TokenListView tokens={filteredListings} isSalesHistory={false} industryTemplate={project.industryTemplate} />
+                          <TokenListView
+                            tokens={filteredListings}
+                            isSalesHistory={false}
+                            industryTemplate={project.industryTemplate}
+                            setRefresh={setRefresh}
+                          />
                         ) : (
-                          <TokenCardView tokens={filteredListings} isSalesHistory={false} industryTemplate={project.industryTemplate} />
+                          <TokenCardView
+                            tokens={filteredListings}
+                            isSalesHistory={false}
+                            industryTemplate={project.industryTemplate}
+                            setRefresh={setRefresh}
+                          />
                         )}
                       </>
                     ),
@@ -269,9 +291,19 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     label: "Sales History",
                     children:
                       viewMode === "table" ? (
-                        <TokenListView tokens={filteredSales} isSalesHistory={true} />
+                        <TokenListView
+                          tokens={filteredSales}
+                          isSalesHistory={true}
+                          industryTemplate={project.industryTemplate}
+                          setRefresh={setRefresh}
+                        />
                       ) : (
-                        <TokenCardView tokens={filteredSales} isSalesHistory={true} />
+                        <TokenCardView
+                          tokens={filteredSales}
+                          isSalesHistory={true}
+                          industryTemplate={project.industryTemplate}
+                          setRefresh={setRefresh}
+                        />
                       ),
                   },
                 ]}

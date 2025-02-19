@@ -95,12 +95,13 @@ class DfnsService {
 
     try {
       // Step 1: Initiate deposit (no approval here, already handled separately)
+
       const initiateResponse = await Parse.Cloud.run("dfnsInitDeposit", {
         walletId,
         dfns_token: dfnsToken,
         deposits: depositData,
       });
-
+      
       console.log("Pending deposit request:", initiateResponse);
 
       // Step 2: Sign the challenge
