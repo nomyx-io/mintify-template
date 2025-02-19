@@ -51,9 +51,6 @@ class DfnsService {
     }
   }
 
-  /**
-   * Approves USDC before depositing (decoupled)
-   */
   public async dfnsApproveUSDC(walletId: string, dfnsToken: string, price: string) {
     if (!walletId || !dfnsToken || !price) {
       throw new Error("Missing required parameters for USDC approval.");
@@ -91,9 +88,6 @@ class DfnsService {
     }
   }
 
-  /**
-   * Deposits funds after approval
-   */
   public async dfnsDeposit(walletId: string, dfnsToken: string, depositData: any) {
     if (!walletId || !dfnsToken || !depositData || !Array.isArray(depositData)) {
       throw new Error("Missing required parameters for deposit or invalid format.");

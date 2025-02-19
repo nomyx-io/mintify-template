@@ -78,7 +78,6 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
         return; // Stop polling once status is updated
       }
 
-      // Wait before next retry
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
 
@@ -127,7 +126,6 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
         await pollTokenStatusUpdate(tokenId, checked ? "listed" : "unlisted");
       };
 
-      // **Wrap process inside `toast.promise`**
       await toast.promise(
         processTransaction(),
         {
