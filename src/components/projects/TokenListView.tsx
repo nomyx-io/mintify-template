@@ -219,7 +219,8 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
       }
 
       // **Convert amount to valid BigNumber format (USDC has 6 decimals)**
-      const depositAmount = ethers.parseUnits(amount.toString(), 6).toString();
+      // **Convert amount based on wallet type**
+      const depositAmount = walletPreference === WalletPreference.PRIVATE ? amount.toString() : ethers.parseUnits(amount.toString(), 6).toString();
 
       if (!depositAmount) {
         throw new Error("Deposit amount is invalid.");
