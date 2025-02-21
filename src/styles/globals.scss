@@ -154,3 +154,26 @@
     outline: 1px solid slategrey;
   }
 */
+.ant-radio-group {
+  .ant-radio-button-wrapper.login-radio-button.ant-radio-button-wrapper-checked{
+    color: #fff !important;
+    background: #3f206b !important;
+    border-color: #3f206b !important;
+  }
+  .ant-radio-button-wrapper.login-radio-button {
+    border: 1px solid #878787 !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  }
+  .dark .signup-input {
+    color: #000 !important;
+  }
+  .dark .signup-input {
+    input {
+    color: #000 !important;
+    }
+  }
+  .dark .signup-input .anticon-eye-invisible, .dark .signup-input .anticon-eye {
+    color: #808080 !important;
+  }

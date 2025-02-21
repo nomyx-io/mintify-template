@@ -64,7 +64,6 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
   }, [projectId]);
 
   const getUserDetail = useCallback(async () => {
-    debugger;
     const identity = await ParseClient.getRecord("User", ["walletAddress"], [mintAddress as string]);
     if (identity?.attributes) {
       const { username, walletAddress } = identity.attributes;

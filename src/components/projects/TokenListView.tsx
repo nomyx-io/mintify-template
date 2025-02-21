@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 import { EyeOutlined } from "@ant-design/icons";
 import { Table, Switch, Modal, Input, Button } from "antd";
@@ -9,10 +9,13 @@ import { toast } from "react-toastify";
 import { Industries } from "@/constants/constants";
 import BlockchainService from "@/services/BlockchainService";
 import { DepositService } from "@/services/DepositService";
+import DfnsService from "@/services/DfnsService";
 import { ColumnConfig, EXCLUDED_COLUMNS } from "@/types/dynamicTableColumn";
 import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
 
+import { UserContext } from "../../context/UserContext";
+import { WalletPreference } from "../../utils/constants";
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
 const depositService = DepositService();
@@ -21,9 +24,10 @@ interface TokenListViewProps {
   tokens: any[];
   isSalesHistory: boolean; // New prop to determine if this is a sales history view
   industryTemplate?: string;
+  setRefresh?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, industryTemplate }) => {
+const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, industryTemplate, setRefresh }) => {
   const [filteredTokens, setFilteredTokens] = useState(tokens);
   const [filterQuery, setFilterQuery] = useState("");
   const blockchainService = BlockchainService.getInstance();
@@ -31,29 +35,55 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
   const [amount, setAmount] = useState<string>(""); // State for the input value
   const [isSubmitting, setIsSubmitting] = useState(false); // For submission state
+  const { walletPreference, dfnsToken, user } = useContext(UserContext);
 
   useEffect(() => {
-    const cleanupListedTokens = async () => {
-      try {
-        const listedTokens = await blockchainService?.fetchItems();
-        const listedTokensIds = new Set(listedTokens.map((token: any) => String(token["1"])));
-
-        const updatedTokens = tokens.map((token) => ({
-          ...token,
-          token: {
-            ...token.token,
-            status: listedTokensIds.has(token.tokenId) ? "listed" : "unlisted",
-          },
-        }));
-
-        setFilteredTokens(updatedTokens);
-      } catch (error) {
-        console.error("Error fetching listed tokens:", error);
-      }
+    const fetchData = async () => {
+      await cleanupListedTokens();
     };
 
-    cleanupListedTokens();
+    fetchData();
   }, [tokens, blockchainService]);
+
+  const cleanupListedTokens = async () => {
+    try {
+      const listedTokens = await blockchainService?.fetchItems();
+      const listedTokensIds = new Set(listedTokens.map((token: any) => String(token["1"])));
+
+      const updatedTokens = tokens.map((token) => ({
+        ...token,
+        token: {
+          ...token.token,
+          status: listedTokensIds.has(token.tokenId) ? "listed" : "unlisted",
+        },
+      }));
+
+      console.log("updated tokens listed");
+
+      setFilteredTokens(updatedTokens);
+    } catch (error) {
+      console.error("Error fetching listed tokens:", error);
+    }
+  };
+
+  const pollTokenStatusUpdate = async (tokenId: number, expectedStatus: "listed" | "unlisted", retries = 10, delay = 3000) => {
+    for (let attempt = 0; attempt < retries; attempt++) {
+      console.log(`🔄 Polling attempt ${attempt + 1}/${retries} for token ${tokenId}`);
+
+      await cleanupListedTokens();
+
+      // Get the updated token status
+      const token = filteredTokens.find((t) => t.tokenId === tokenId);
+      if (token && token.token.status === expectedStatus) {
+        console.log(`✅ Token ${tokenId} is now ${expectedStatus}`);
+        return; // Stop polling once status is updated
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+
+    console.warn(`⚠️ Polling timed out. Token ${tokenId} status update not detected.`);
+  };
 
   const handleStatusChange = async (tokenId: number, checked: boolean) => {
     if (!blockchainService) {
@@ -62,77 +92,54 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     }
 
     try {
-      if (checked) {
-        // Step 1: Start listing process with a loading toast
-        const listingToast = toast.loading("Listing token...");
+      const walletId = user?.walletId || null;
+      const safeDfnsToken = dfnsToken || "";
 
-        // Get the project details to list
-        const token = filteredTokens.find((t) => t.tokenId === tokenId);
-        const totalPrice = (Number(token.token.existingCredits) * Number(token.token.price)).toString();
+      if (walletPreference === WalletPreference.MANAGED && (!walletId || !safeDfnsToken)) {
+        throw new Error("Missing wallet credentials for DFNS transactions.");
+      }
 
-        if (!totalPrice || !token) {
-          throw new Error("Invalid price or token details.");
+      // Fetch token details
+      const token = filteredTokens.find((t) => t.tokenId === tokenId);
+      if (!token) throw new Error("Token not found.");
+
+      const processTransaction = async () => {
+        if (checked) {
+          // **LIST ITEM**
+          if (walletPreference === WalletPreference.PRIVATE) {
+            const totalPrice = (Number(token.token.existingCredits) * Number(token.token.price)).toString();
+            const usdcPrice = ethers.parseUnits(totalPrice, 6);
+            await blockchainService?.listItem(token.receiver, tokenId, usdcPrice, true);
+          } else {
+            const totalPrice = (Number(token.token.existingCredits) * Number(token.token.price)).toString();
+            await DfnsService.dfnsListItem(walletId, safeDfnsToken, token.receiver, tokenId, totalPrice, true);
+          }
+        } else {
+          // **DELIST ITEM**
+          if (walletPreference === WalletPreference.PRIVATE) {
+            await blockchainService?.delistItem(tokenId);
+          } else {
+            await DfnsService.dfnsDelistItem(walletId, safeDfnsToken, tokenId);
+          }
         }
 
-        //format for usdc decimals
-        const usdcPrice = ethers.parseUnits(totalPrice, 6);
+        // **Polling to check for status update**
+        await pollTokenStatusUpdate(tokenId, checked ? "listed" : "unlisted");
+      };
 
-        // Step 2: List the token using the blockchain service
-        await blockchainService?.listItem(
-          token.receiver,
-          tokenId,
-          usdcPrice,
-          true // Transfer the NFT to the marketplace
-        );
-
-        // Step 3: Update the listing toast with success
-        toast.update(listingToast, {
-          render: `Token successfully listed with ID: ${tokenId}`,
-          type: "success",
-          isLoading: false,
-          autoClose: 5000,
-        });
-      } else {
-        // Step 1: Start delisting process with a loading toast
-        const delistingToast = toast.loading("Delisting token...");
-
-        // Step 2: Delist the token using the blockchain service
-        await blockchainService?.delistItem(tokenId);
-
-        // Step 3: Update the delisting toast with success
-        toast.update(delistingToast, {
-          render: `Token with ID ${tokenId} has been delisted.`,
-          type: "success",
-          isLoading: false,
-          autoClose: 5000,
-        });
-      }
-
-      // Step 4: Update local state after success
-      const listedTokens = await blockchainService?.fetchItems(); // Get all listed tokens
-      const listedTokensIds = new Set(listedTokens.map((token: any) => String(token["1"])));
-
-      // Update the local state with the latest token status
-      setFilteredTokens((prevTokens) =>
-        prevTokens.map((token) => {
-          const listedToken = listedTokensIds.has(token.tokenId);
-          return {
-            ...token,
-            token: {
-              ...token.token,
-              status: listedToken ? "listed" : "unlisted",
-            },
-          };
-        })
+      await toast.promise(
+        processTransaction(),
+        {
+          pending: checked ? "Listing token on the marketplace..." : "Delisting token...",
+          success: checked ? `✅ Token listed successfully!` : `✅ Token delisted successfully!`,
+          error: checked ? "❌ Failed to list token." : "❌ Failed to delist token.",
+        },
+        { autoClose: 5000 }
       );
     } catch (e) {
-      // Step 5: Handle errors and show an error toast
       let errorMessage = "Failed to update token status.";
-      if (e instanceof Error) {
-        errorMessage = e.message;
-      } else if (typeof e === "string") {
-        errorMessage = e;
-      }
+      if (e instanceof Error) errorMessage = e.message;
+      if (typeof e === "string") errorMessage = e;
 
       console.error(e);
       toast.error(errorMessage);
@@ -151,32 +158,150 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     setAmount("");
   };
 
-  const handleSubmit = async () => {
+  const pollDepositUpdate = async (tokenId: string, addedAmount: number, retries = 5, delay = 2000) => {
+    let result = await depositService.getTotalDepositAmountAndTokenPrice(tokenId);
+    let initialDepositAmount = result?.totalAmount / 1_000_000 || 0;
+    let expectedDepositAmount = initialDepositAmount + addedAmount; // 🔹 What we expect after the deposit
+
+    console.log(`🔍 Initial deposit: ${initialDepositAmount} USDC`);
+    console.log(`📝 Expecting final deposit: ${expectedDepositAmount} USDC`);
+
+    for (let attempt = 0; attempt < retries; attempt++) {
+      console.log(`🔄 Polling deposit amount... Attempt ${attempt + 1}/${retries}`);
+
+      let latestResult = await depositService.getTotalDepositAmountAndTokenPrice(tokenId);
+      let updatedDepositAmount = latestResult?.totalAmount / 1_000_000 || 0;
+
+      console.log(`📡 API Response: ${updatedDepositAmount} USDC`);
+
+      // ✅ Stop polling if the expected deposit amount is reached
+      if (updatedDepositAmount >= expectedDepositAmount) {
+        console.log(`✅ Deposit updated successfully: ${updatedDepositAmount} USDC`);
+        setFilteredTokens((prevTokens) =>
+          prevTokens.map((token) =>
+            token.tokenId === tokenId ? { ...token, token: { ...token.token, depositAmount: updatedDepositAmount } } : token
+          )
+        );
+        return;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+
+    console.warn(`⚠️ Deposit polling timed out. Expected: ${expectedDepositAmount}`);
+  };
+
+  const handleDepositSubmit = async () => {
+    let result = await depositService.getTotalDepositAmountAndTokenPrice(selectedTokenId || "0");
+    let totalDepositAmount = result?.totalAmount / 1_000_000 || 0;
+    totalDepositAmount += Number(amount);
+
+    if (result?.price < totalDepositAmount) {
+      toast.warning("The total deposited amount exceeds the token price.");
+      return;
+    }
+
     console.log(`Token ID: ${selectedTokenId}, Amount: ${amount}`);
     setIsSubmitting(true);
+
+    let toastId;
+
     try {
-      const depositToast = toast.loading("Making a deposit...");
-      await depositService.deposit(selectedTokenId, amount);
-      toast.update(depositToast, {
-        render: `Deposit successfully made for Token ID ${selectedTokenId}`,
+      if (!selectedTokenId || !amount) {
+        throw new Error("Missing required deposit details.");
+      }
+
+      const walletId = user?.walletId || null;
+      const safeDfnsToken = dfnsToken || "";
+
+      if (walletPreference === WalletPreference.MANAGED && (!walletId || !safeDfnsToken)) {
+        throw new Error("Missing wallet credentials for DFNS transactions.");
+      }
+
+      // **Convert amount to valid BigNumber format (USDC has 6 decimals)**
+      // **Convert amount based on wallet type**
+      const depositAmount = walletPreference === WalletPreference.PRIVATE ? amount.toString() : ethers.parseUnits(amount.toString(), 6).toString();
+
+      if (!depositAmount) {
+        throw new Error("Deposit amount is invalid.");
+      }
+
+      // **Step 1: Start Approval Toast**
+      toastId = toast.loading("Approving USDC for deposit...");
+
+      if (walletPreference === WalletPreference.MANAGED) {
+        // **Managed Wallets: Approve USDC before deposit**
+        const approvalResponse = await DfnsService.dfnsApproveUSDC(walletId, safeDfnsToken, depositAmount);
+
+        if (approvalResponse.error) {
+          throw new Error(`USDC approval failed: ${approvalResponse.error}`);
+        }
+      }
+
+      // **Step 2: Update toast for Approval Success & Wait**
+      toast.update(toastId, {
+        render: "✅ USDC Approved! Proceeding with deposit...",
         type: "success",
         isLoading: false,
-        autoClose: 5000,
+        autoClose: 2000, // Show success for 2 seconds
       });
-      // Add your submission logic here
+
+      // **Introduce a small delay before proceeding to deposit**
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      // **Step 3: Start Deposit Toast**
+      toastId = toast.loading("Processing deposit...");
+
+      if (walletPreference === WalletPreference.PRIVATE) {
+        await depositService.deposit(selectedTokenId, depositAmount);
+      } else {
+        await DfnsService.dfnsDeposit(walletId, safeDfnsToken, [
+          {
+            tokenId: selectedTokenId,
+            amount: depositAmount,
+          },
+        ]);
+      }
+
+      // **Step 4: Final Success Toast**
+      toast.update(toastId, {
+        render: `✅ Deposit successfully made for Token ID ${selectedTokenId}`,
+        type: "success",
+        isLoading: false,
+        autoClose: 5000, // Keep toast open for 5 seconds
+      });
+
+      await pollDepositUpdate(selectedTokenId, Number(amount));
+      setRefresh?.((prev) => !prev);
+
+      // Reset form state
       setIsModalVisible(false);
       setAmount("");
       setIsSubmitting(false);
     } catch (e) {
-      toast.dismiss();
-      let errorMessage = "Failed to deposit.";
+      let errorMessage = "❌ Failed to deposit.";
+
       if (e instanceof Error) {
-        errorMessage = e.message;
+        errorMessage = `❌ ${e.message}`;
       } else if (typeof e === "string") {
-        errorMessage = e;
+        errorMessage = `❌ ${e}`;
       }
-      console.error(e);
-      toast.error(errorMessage);
+
+      console.error("Deposit Error:", e);
+
+      // **Check if toastId exists before updating**
+      if (toastId) {
+        toast.update(toastId, {
+          render: errorMessage,
+          type: "error",
+          isLoading: false,
+          autoClose: 6000, // Show error for 6 seconds
+        });
+      } else {
+        // **If toast didn't start, create a new error toast**
+        toast.error(errorMessage, { autoClose: 6000 });
+      }
+
       setIsSubmitting(false);
     }
   };
@@ -258,14 +383,34 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     ...additionalColumns,
     // Conditionally add the "Status" column only if `isSalesHistory` is false
     ...(isSalesHistory
-      ? []
+      ? [
+          ...(industryTemplate && industryTemplate === Industries.TOKENIZED_DEBT
+            ? [
+                {
+                  title: "Deposit",
+                  dataIndex: "tokenId",
+                  render: (tokenId: string) => <MoneyRecive className="cursor-pointer float-right" onClick={() => handleDepositClick(tokenId)} />,
+                },
+                {
+                  title: "Deposited Amount",
+                  dataIndex: "depositAmount",
+                  render: (depositAmount: number) => <span>{formatPrice(depositAmount / 1_000_000, "USD")}</span>,
+                },
+              ]
+            : []),
+        ]
       : [
           ...(industryTemplate && industryTemplate === Industries.TOKENIZED_DEBT
             ? [
                 {
                   title: "Deposit",
                   dataIndex: "tokenId",
-                  render: (tokenId: string) => <MoneyRecive className="cursor-pointer" onClick={() => handleDepositClick(tokenId)} />,
+                  render: (tokenId: string) => <MoneyRecive className="cursor-pointer float-right" onClick={() => handleDepositClick(tokenId)} />,
+                },
+                {
+                  title: "Deposited Amount",
+                  dataIndex: "depositAmount",
+                  render: (depositAmount: number) => <span>{formatPrice(depositAmount / 1_000_000, "USD")}</span>,
                 },
               ]
             : []),
@@ -332,7 +477,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
           </Button>
           <Button
             type="primary"
-            onClick={handleSubmit}
+            onClick={handleDepositSubmit}
             disabled={!amount || isSubmitting}
             className={`text-blue-600 border-blue-600 ${!amount || isSubmitting ? "!text-gray-400 !border-gray-400" : ""}`}
           >

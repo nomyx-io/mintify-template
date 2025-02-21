@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useAccount, useDisconnect } from "wagmi";
 
-function PrivateRoute({ children, onConnect, role, forceLogout, handleForecLogout }) {
+function PrivateRoute({ children, onConnect, role, forceLogout, handleForecLogout, isConnected }) {
   const { disconnect } = useDisconnect();
   const router = useRouter();
-  const { address, isConnected, isConnecting } = useAccount();
+  const { address, isConnecting } = useAccount();
   const [history, setHistory] = useState([]);
 
   const handleDisconnect = () => {
@@ -28,7 +28,9 @@ function PrivateRoute({ children, onConnect, role, forceLogout, handleForecLogou
   useEffect(() => {
     if (isConnected && role.length > 0) {
       const redirectTarget = history[1] == "/" || history[1] == "/login" ? "/home" : history[1] || history[0];
-      router.push(redirectTarget);
+      if (redirectTarget) {
+        router.push(redirectTarget);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role, isConnected]);
