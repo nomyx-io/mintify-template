@@ -48,6 +48,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   const cleanupListedTokens = async () => {
     try {
       const listedTokens = await blockchainService?.fetchItems();
+      console.log("listedTokens: ", listedTokens);
       const listedTokensIds = new Set(listedTokens.map((token: any) => String(token["1"])));
 
       const updatedTokens = tokens.map((token) => ({
@@ -66,23 +67,68 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     }
   };
 
-  const pollTokenStatusUpdate = async (tokenId: number, expectedStatus: "listed" | "unlisted", retries = 10, delay = 3000) => {
+  const pollTokenStatusUpdate = async (tokenId: number, expectedStatus: "listed" | "unlisted", retries = 10, delay = 3000): Promise<boolean> => {
     for (let attempt = 0; attempt < retries; attempt++) {
       console.log(`🔄 Polling attempt ${attempt + 1}/${retries} for token ${tokenId}`);
 
-      await cleanupListedTokens();
+      try {
+        // Fetch fresh data directly from blockchain
+        const listedTokens = await blockchainService?.fetchItems();
 
-      // Get the updated token status
-      const token = filteredTokens.find((t) => t.tokenId === tokenId);
-      if (token && token.token.status === expectedStatus) {
-        console.log(`✅ Token ${tokenId} is now ${expectedStatus}`);
-        return; // Stop polling once status is updated
+        if (!listedTokens) {
+          console.error("Failed to fetch items from blockchain");
+          continue; // Try again on next iteration
+        }
+
+        const listedTokensIds = new Set(listedTokens.map((token: any) => String(token["1"])));
+
+        // Determine current status based on blockchain data
+        const isListed = listedTokensIds.has(String(tokenId));
+        const currentStatus = isListed ? "listed" : "unlisted";
+
+        console.log(`Token ${tokenId} current status: ${currentStatus}, expected: ${expectedStatus}`);
+
+        if (currentStatus === expectedStatus) {
+          console.log(`✅ Token ${tokenId} is now ${expectedStatus}`);
+
+          // Update local state to match blockchain state
+          setFilteredTokens((prevTokens) =>
+            prevTokens.map((token) => (token.tokenId === tokenId ? { ...token, token: { ...token.token, status: expectedStatus } } : token))
+          );
+
+          return true; // Successfully validated status change
+        }
+      } catch (error) {
+        // Log error but don't fail the polling yet, try again
+        console.error(`Error during polling attempt ${attempt + 1}:`, error);
+
+        // If this is the last attempt, return false to indicate failure
+        if (attempt === retries - 1) {
+          return false;
+        }
       }
 
+      // Wait before next attempt
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
 
+    // We've timed out without seeing the status change
     console.warn(`⚠️ Polling timed out. Token ${tokenId} status update not detected.`);
+    return false;
+  };
+
+  // Helper function to validate blockchain transaction responses
+  const validateBlockchainResponse = (response: any): boolean => {
+    if (!response) return false;
+
+    // Example: Check if response contains an error property
+    if (response.error) return false;
+
+    // Example: Check for transaction hash or other success indicators
+    if (response.transactionHash || response.txHash || response.success) return true;
+
+    // If no clear indicators, assume success (can be adjusted based on your needs)
+    return true;
   };
 
   const handleStatusChange = async (tokenId: number, checked: boolean) => {
@@ -91,58 +137,163 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
       return;
     }
 
+    // Create a toastId first to track this operation
+    const toastId = toast.loading(checked ? "Listing token on the marketplace..." : "Delisting token...");
+
     try {
       const walletId = user?.walletId || null;
       const safeDfnsToken = dfnsToken || "";
 
       if (walletPreference === WalletPreference.MANAGED && (!walletId || !safeDfnsToken)) {
-        throw new Error("Missing wallet credentials for DFNS transactions.");
+        toast.update(toastId, {
+          render: "Missing wallet credentials for DFNS transactions.",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+        return;
       }
 
       // Fetch token details
       const token = filteredTokens.find((t) => t.tokenId === tokenId);
-      if (!token) throw new Error("Token not found.");
+      if (!token) {
+        toast.update(toastId, {
+          render: "Token not found.",
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+        return;
+      }
 
-      const processTransaction = async () => {
+      let txResponse = null;
+
+      try {
         if (checked) {
-          // **LIST ITEM**
+          const existingCredits = Number(token.token.existingCredits);
+          const safeExistingCredits = isNaN(existingCredits) ? 1 : existingCredits; // Default to 1 if NaN
+          const price = Number(token.token.price);
+
+          console.log("Listing:", {
+            tokenId,
+            existingCredits,
+            safeExistingCredits, // Log the safe value too
+            price,
+            isExistingCreditsValid: !isNaN(existingCredits),
+            isPriceValid: !isNaN(price),
+            calculatedTotal: safeExistingCredits * price,
+          });
+
+          // LIST ITEM
           if (walletPreference === WalletPreference.PRIVATE) {
-            const totalPrice = (Number(token.token.existingCredits) * Number(token.token.price)).toString();
+            // Calculate price safely with validations
+            const totalPrice = (safeExistingCredits * price).toFixed(6); // Ensure 6 decimal places for USDC
+            console.log("Calculated totalPrice for listing:", totalPrice);
+
+            // Check if totalPrice is valid before proceeding
+            if (isNaN(parseFloat(totalPrice))) {
+              throw new Error("Calculated price is not a valid number");
+            }
+
             const usdcPrice = ethers.parseUnits(totalPrice, 6);
-            await blockchainService?.listItem(token.receiver, tokenId, usdcPrice, true);
+            txResponse = await blockchainService?.listItem(token.receiver, tokenId, usdcPrice, true);
           } else {
-            const totalPrice = (Number(token.token.existingCredits) * Number(token.token.price)).toString();
-            await DfnsService.dfnsListItem(walletId, safeDfnsToken, token.receiver, tokenId, totalPrice, true);
+            // Calculate price safely with validations for DFNS
+            const totalPrice = (safeExistingCredits * price).toFixed(6); // Ensure 6 decimal places for USDC
+            console.log("Calculated totalPrice for DFNS listing:", totalPrice);
+
+            // Check if totalPrice is valid before proceeding
+            if (isNaN(parseFloat(totalPrice))) {
+              throw new Error("Calculated price is not a valid number");
+            }
+
+            txResponse = await DfnsService.dfnsListItem(walletId, safeDfnsToken, token.receiver, tokenId, totalPrice, true);
           }
         } else {
-          // **DELIST ITEM**
+          // DELIST ITEM
           if (walletPreference === WalletPreference.PRIVATE) {
-            await blockchainService?.delistItem(tokenId);
+            txResponse = await blockchainService?.delistItem(tokenId);
+
+            // Check transaction response
+            if (!validateBlockchainResponse(txResponse)) {
+              throw new Error("Blockchain transaction failed or returned invalid response");
+            }
           } else {
-            await DfnsService.dfnsDelistItem(walletId, safeDfnsToken, tokenId);
+            txResponse = await DfnsService.dfnsDelistItem(walletId, safeDfnsToken, tokenId);
+
+            // Check DFNS response
+            if (txResponse?.error) {
+              throw new Error(`DFNS error: ${txResponse.error}`);
+            }
           }
         }
 
-        // **Polling to check for status update**
-        await pollTokenStatusUpdate(tokenId, checked ? "listed" : "unlisted");
-      };
+        console.log(`Transaction response for ${checked ? "listing" : "delisting"} token ${tokenId}:`, txResponse);
 
-      await toast.promise(
-        processTransaction(),
-        {
-          pending: checked ? "Listing token on the marketplace..." : "Delisting token...",
-          success: checked ? `✅ Token listed successfully!` : `✅ Token delisted successfully!`,
-          error: checked ? "❌ Failed to list token." : "❌ Failed to delist token.",
-        },
-        { autoClose: 5000 }
-      );
+        // Update toast to "Verifying transaction..."
+        toast.update(toastId, {
+          render: "Verifying transaction status...",
+          type: "info",
+          isLoading: true,
+        });
+
+        // Poll for status change with timeout
+        const pollingSuccess = await pollTokenStatusUpdate(tokenId, checked ? "listed" : "unlisted");
+
+        if (pollingSuccess) {
+          // Success case - status changed as expected
+          toast.update(toastId, {
+            render: checked ? "✅ Token listed successfully!" : "✅ Token delisted successfully!",
+            type: "success",
+            isLoading: false,
+            autoClose: 5000,
+          });
+        } else {
+          // Warning case - transaction sent but status didn't update in time
+          toast.update(toastId, {
+            render: checked
+              ? "⚠️ Transaction sent but status change not confirmed. Please refresh later."
+              : "⚠️ Transaction sent but status change not confirmed. Please refresh later.",
+            type: "warning",
+            isLoading: false,
+            autoClose: 7000,
+          });
+        }
+      } catch (error) {
+        // Handle transaction error - log full error details first
+        console.error("Transaction error details:", error);
+
+        // Extract error message for toast
+        let errorMessage = "Operation failed.";
+        if (error instanceof Error) errorMessage = error.message;
+        if (typeof error === "string") errorMessage = error;
+
+        // Check for specific error patterns from blockchain/DFNS
+        if (txResponse?.error) {
+          errorMessage = `${txResponse.error}`;
+        }
+
+        toast.update(toastId, {
+          render: checked ? `❌ Failed to list token: ${errorMessage}` : `❌ Failed to delist token: ${errorMessage}`,
+          type: "error",
+          isLoading: false,
+          autoClose: 5000,
+        });
+      }
     } catch (e) {
+      // Outer catch block for any other errors - log full details first
+      console.error("Token status update error (full details):", e);
+
       let errorMessage = "Failed to update token status.";
       if (e instanceof Error) errorMessage = e.message;
       if (typeof e === "string") errorMessage = e;
 
-      console.error(e);
-      toast.error(errorMessage);
+      toast.update(toastId, {
+        render: `❌ Error: ${errorMessage}`,
+        type: "error",
+        isLoading: false,
+        autoClose: 5000,
+      });
     }
   };
 
@@ -308,19 +459,32 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
 
   const getDynamicColumns = (maxColumns = 7): ColumnConfig[] => {
     const nonNullColumns: Record<string, ColumnConfig> = {};
+
     tokens.forEach((token) => {
-      Object.entries(token.token).forEach(([key, value]) => {
-        // Check if the column is non-null, non-undefined, not already in nonNullColumns, and not excluded
-        if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
-          nonNullColumns[key] = {
-            title: key
-              .replace(/([A-Z])/g, " $1") // Add a space before uppercase letters
-              .replace(/^./, (str) => str.toUpperCase()), // Capitalize the first letter
-            key,
-          };
-        }
-      });
+      // Skip tokens with no token property or non-object token property
+      if (!token || !token.token || typeof token.token !== "object") {
+        console.warn("Skipping token with missing or invalid token property:", token);
+        return; // Skip this iteration
+      }
+
+      try {
+        Object.entries(token.token).forEach(([key, value]) => {
+          // Check if the column is non-null, non-undefined, not already in nonNullColumns, and not excluded
+          if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
+            nonNullColumns[key] = {
+              title: key
+                .replace(/([A-Z])/g, " $1") // Add a space before uppercase letters
+                .replace(/^./, (str) => str.toUpperCase()), // Capitalize the first letter
+              key,
+            };
+          }
+        });
+      } catch (error) {
+        console.error("Error processing token for dynamic columns:", token, error);
+        // Continue with next token even if this one fails
+      }
     });
+
     return Object.values(nonNullColumns).slice(0, maxColumns);
   };
 
