@@ -15,6 +15,7 @@ export default class BlockchainService {
   private carbonCreditAbi = CarbonCreditRegistry.abi;
   private parseClient = ParseClient;
   private provider: ethers.BrowserProvider;
+  private dedicatedProvider: ethers.JsonRpcProvider | null = null;
   // private signer: ethers.JsonRpcSigner|undefined;
   private signer: any;
   private gfMintService: ethers.Contract | undefined;
@@ -39,6 +40,12 @@ export default class BlockchainService {
     this.provider = new ethers.BrowserProvider(ethObject);
     this.provider.getSigner().then((signer) => (this.signer = signer));
 
+    const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL;
+    if (rpcUrl) {
+      this.dedicatedProvider = new ethers.JsonRpcProvider(rpcUrl);
+      console.log("Using dedicated RPC provider:", rpcUrl);
+    }
+
     this.gemforceMint = this.gemforceMint.bind(this);
     this.getClaimTopics = this.getClaimTopics.bind(this);
 
@@ -48,15 +55,13 @@ export default class BlockchainService {
   }
 
   private async init() {
-    const network = await this.provider.getNetwork();
-    const chainId: any = network.chainId;
+    const network = await this.dedicatedProvider?.getNetwork();
+    const chainId: any = network?.chainId;
 
     const chainConfig = process.env.NEXT_PUBLIC_HARDHAT_CHAIN_ID;
 
     if (!chainConfig || chainConfig != chainId) {
-      // setUnsupportedNetworkDialogVisible(true);
-      // return;
-      throw new Error(`Unable to find ${chainId} in environment variables`);
+      throw new Error(`No chain config found for chainId: ${chainId}, chainConfig: ${chainConfig}`);
     }
 
     this.contractAddress = process.env.NEXT_PUBLIC_HARDHAT_CONTRACT_ADDRESS;
@@ -193,12 +198,13 @@ export default class BlockchainService {
   /// @return MarketItem[] memory array of all the items listed in the marketplace
   async fetchItems() {
     try {
-      if (!this.signer) {
+      if (!this.dedicatedProvider) {
         throw new Error("Signer is not available.");
       }
 
-      const contractWithSigner: any = this.marketplaceService?.connect(this.signer);
-      const items = await contractWithSigner.fetchItems();
+      const contractWithSigner: any = this.marketplaceService?.connect(this.dedicatedProvider);
+      const items = await contractWithSigner?.fetchItems();
+      console.log("items: ", items);
       return items;
     } catch (e) {
       console.log("Error in fetchItems:", e);
