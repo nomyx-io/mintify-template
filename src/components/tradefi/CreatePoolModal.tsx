@@ -44,24 +44,16 @@ const CreatePoolModal: React.FC<CreatePoolModalProps> = ({ open, setOpen, onCrea
       const values = await form.validateFields();
       setLoading(true);
 
-      // Convert files to base64
-      let logoBase64 = "";
-      let coverBase64 = "";
+      // For mock implementation, we'll use placeholder images instead of actual uploads
+      // In a real implementation, we would convert files to base64 and upload them
 
-      if (logoFile?.originFileObj) {
-        logoBase64 = await getBase64(logoFile.originFileObj);
-      }
-
-      if (coverFile?.originFileObj) {
-        coverBase64 = await getBase64(coverFile.originFileObj);
-      }
-
-      // Create pool
+      // Create pool with mock data
       await tradeFinanceService.createTradeFiPool({
         title: values.title,
         description: values.description,
-        logo: logoBase64,
-        coverImage: coverBase64,
+        // Use placeholder images for mock implementation
+        logo: `https://via.placeholder.com/150/${Math.floor(Math.random() * 16777215).toString(16)}/FFFFFF?text=${values.title.charAt(0)}`,
+        coverImage: `https://via.placeholder.com/800x400/${Math.floor(Math.random() * 16777215).toString(16)}/FFFFFF?text=${values.title}`,
         creditType: values.creditType,
         maturityDate: values.maturityDate.toDate(),
       });

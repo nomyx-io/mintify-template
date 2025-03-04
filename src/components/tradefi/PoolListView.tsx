@@ -21,7 +21,13 @@ const PoolListView: React.FC<PoolListViewProps> = ({ pools, className = "", onPo
       render: (text, record) => (
         <div className="flex items-center gap-3">
           <div className="relative h-10 w-10 rounded-full overflow-hidden">
-            <Image src={record.logo || "/images/placeholder.png"} alt={`${text} logo`} layout="fill" objectFit="cover" />
+            <Image
+              src={record.logo || "https://via.placeholder.com/150/cccccc/FFFFFF?text=Logo"}
+              alt={`${text} logo`}
+              fill
+              sizes="40px"
+              style={{ objectFit: "cover" }}
+            />
           </div>
           <Text className="font-medium text-nomyx-text-light dark:text-nomyx-text-dark">{text}</Text>
         </div>

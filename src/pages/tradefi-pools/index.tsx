@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Button } from "antd";
+import { Button, message } from "antd";
 import { useRouter } from "next/router";
 
 import { TelescopeIcon } from "@/assets";
@@ -33,15 +33,20 @@ export default function TradeFiPools() {
 
   const fetchPools = useCallback(async () => {
     try {
+      // Show loading state
+      setPoolList([]);
+
       const pools = await api.getTradeFiPools();
-      setPoolList(
+
+      // Map the pool data to the format expected by the components
+      const formattedPools =
         pools?.map((pool: any) => {
           return {
             id: pool.id,
             title: pool.attributes.title,
             description: pool.attributes.description,
-            logo: pool.attributes.logo?._url || "",
-            coverImage: pool.attributes.coverImage?._url || "",
+            logo: pool.attributes.logo?._url || "https://via.placeholder.com/150/cccccc/FFFFFF?text=Logo",
+            coverImage: pool.attributes.coverImage?._url || "https://via.placeholder.com/800x400/cccccc/FFFFFF?text=Cover",
             creditType: pool.attributes.creditType,
             totalUsdcDeposited: pool.attributes.totalUsdcDeposited || 0,
             totalInvoiceAmount: pool.attributes.totalInvoiceAmount || 0,
@@ -49,10 +54,13 @@ export default function TradeFiPools() {
             usdcRemaining: pool.attributes.usdcRemaining || 0,
             maturityDate: pool.attributes.maturityDate,
           };
-        }) || []
-      );
+        }) || [];
+
+      setPoolList(formattedPools);
     } catch (error) {
       console.error("Failed to fetch pools:", error);
+      // Show error message
+      message.error("Failed to fetch pools");
     }
   }, [api]);
 

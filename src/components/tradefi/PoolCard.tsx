@@ -28,9 +28,22 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, onPoolClick }) => {
       onClick={() => onPoolClick(pool)}
       cover={
         <div className="relative h-40 w-full">
-          <Image src={pool.coverImage || "/images/placeholder.png"} alt={pool.title} layout="fill" objectFit="cover" className="rounded-t-lg" />
+          <Image
+            src={pool.coverImage || "https://via.placeholder.com/800x400/cccccc/FFFFFF?text=Cover"}
+            alt={pool.title}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            style={{ objectFit: "cover" }}
+            className="rounded-t-lg"
+          />
           <div className="absolute top-4 left-4 h-16 w-16 rounded-full overflow-hidden bg-white shadow-md">
-            <Image src={pool.logo || "/images/placeholder.png"} alt={`${pool.title} logo`} layout="fill" objectFit="cover" />
+            <Image
+              src={pool.logo || "https://via.placeholder.com/150/cccccc/FFFFFF?text=Logo"}
+              alt={`${pool.title} logo`}
+              fill
+              sizes="64px"
+              style={{ objectFit: "cover" }}
+            />
           </div>
         </div>
       }

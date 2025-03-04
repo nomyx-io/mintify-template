@@ -41,6 +41,12 @@ const nextConfig = {
         port: "8337",
         pathname: "/parse/files/**",
       },
+      {
+        protocol: "https",
+        hostname: "via.placeholder.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

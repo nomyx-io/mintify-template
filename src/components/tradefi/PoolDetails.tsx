@@ -31,11 +31,23 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
       </Button>
 
       <div className="relative h-64 w-full rounded-lg overflow-hidden mb-6">
-        <Image src={pool.coverImage || "/images/placeholder.png"} alt={pool.title} layout="fill" objectFit="cover" />
+        <Image
+          src={pool.coverImage || "https://via.placeholder.com/800x400/cccccc/FFFFFF?text=Cover"}
+          alt={pool.title}
+          fill
+          sizes="100vw"
+          style={{ objectFit: "cover" }}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
           <div className="flex items-center gap-4">
-            <div className="h-20 w-20 rounded-full overflow-hidden bg-white shadow-md">
-              <Image src={pool.logo || "/images/placeholder.png"} alt={`${pool.title} logo`} layout="fill" objectFit="cover" />
+            <div className="h-20 w-20 rounded-full overflow-hidden bg-white shadow-md relative">
+              <Image
+                src={pool.logo || "https://via.placeholder.com/150/cccccc/FFFFFF?text=Logo"}
+                alt={`${pool.title} logo`}
+                fill
+                sizes="80px"
+                style={{ objectFit: "cover" }}
+              />
             </div>
             <div>
               <Title level={2} className="text-white m-0">
