@@ -2,7 +2,7 @@ import React from "react";
 
 import type { MenuProps } from "antd";
 import { Layout, Menu } from "antd/es";
-import { ChartSquare, LanguageSquare, Briefcase } from "iconsax-react";
+import { ChartSquare, LanguageSquare, Briefcase, Bank } from "iconsax-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -33,6 +33,7 @@ const SideNavBar = () => {
     getItem("Dashboard", "/home", <ChartSquare className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />),
     getItem("Mint Tokens", "/nft-create", <LanguageSquare className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />),
     getItem("Projects", "/projects", <Briefcase size="20" className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />),
+    getItem("TradeFi Pools", "/tradefi-pools", <Bank size="20" className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />),
   ];
 
   return (
