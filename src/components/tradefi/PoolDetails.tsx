@@ -209,7 +209,7 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [viewMode, setViewMode] = useState<string>("table");
-  const [activeTab, setActiveTab] = useState("3"); // Set to Invoices tab by default
+  const [activeTab, setActiveTab] = useState("2"); // Set to Invoices tab by default
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
@@ -422,35 +422,6 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
           items={[
             {
               key: "1",
-              label: "Pool Details",
-              children: (
-                <div className="p-4">
-                  <Card className="mb-6 bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark">
-                    <Title level={4} className="mb-4 text-nomyx-text-light dark:text-nomyx-text-dark">
-                      Description
-                    </Title>
-                    <Paragraph className="text-nomyx-text-light dark:text-nomyx-text-dark">{pool.description}</Paragraph>
-                  </Card>
-
-                  {pool.maturityDate && (
-                    <Card className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark">
-                      <Title level={4} className="mb-4 text-nomyx-text-light dark:text-nomyx-text-dark">
-                        Maturity Date
-                      </Title>
-                      <Paragraph className="text-nomyx-text-light dark:text-nomyx-text-dark">
-                        {new Date(pool.maturityDate).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </Paragraph>
-                    </Card>
-                  )}
-                </div>
-              ),
-            },
-            {
-              key: "2",
               label: "Investors",
               children: (
                 <div className="p-4">
@@ -529,8 +500,8 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
               ),
             },
             {
-              key: "3",
-              label: "Invoices",
+              key: "2",
+              label: "Stock Certificates",
               children: (
                 <div className="p-4">
                   {/* Filter Dropdowns and Action Buttons */}
@@ -732,7 +703,7 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
               ),
             },
             {
-              key: "4",
+              key: "3",
               label: "Collateral Token History",
               children: (
                 <div className="p-4">
@@ -795,7 +766,7 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
               ),
             },
             {
-              key: "5",
+              key: "4",
               label: "Interest Token History",
               children: (
                 <div className="p-4">
