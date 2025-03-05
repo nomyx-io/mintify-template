@@ -5,7 +5,7 @@ import { SearchNormal1, Category, RowVertical, ArrowLeft } from "iconsax-react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
-import projectBackground from "@/assets/projects_background.png";
+import projectBackground from "../../assets/projects_background.png";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -62,15 +62,15 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
         <div className="absolute sm:-bottom-2 bottom-4 left-0 md:flex md:flex-row flex-col items-start md:items-center p-4 rounded-lg w-full">
           {/* Pool Logo */}
           <div
-            className="pool-logo rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center"
+            className="pool-logo rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center pl-5 pt-5"
             style={{
-              width: "100px",
-              height: "100px",
+              width: "150px",
+              height: "150px",
               backgroundColor: pool.color || "#3c89e8",
             }}
           >
             {pool.logo ? (
-              <Image src={pool.logo} alt="Pool Logo" width={100} height={100} className="object-cover w-full h-full" />
+              <Image src={pool.logo} alt="Pool Logo" width={150} height={150} className="object-cover w-full h-full" />
             ) : (
               <span className="text-white text-4xl font-bold">{pool.title.charAt(0)}</span>
             )}
