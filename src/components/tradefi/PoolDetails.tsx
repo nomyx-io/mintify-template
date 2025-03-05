@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 
-import { Button, Card, Tabs, Typography, Table, Pagination, Select, Dropdown, Menu } from "antd";
+import { Button, Card, Tabs, Typography, Table, Pagination, Select, Dropdown, Menu, message } from "antd";
 import { SearchNormal1, Category, RowVertical, ArrowLeft, Eye } from "iconsax-react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
+import PaybackPoolModal from "./PaybackPoolModal";
 import projectBackground from "../../assets/projects_background.png";
 
 const { Title, Text, Paragraph } = Typography;
@@ -205,6 +206,34 @@ const mockInterestTokenHistory = [
   },
 ];
 
+// Mock data for payback pool invoices
+const mockPaybackInvoices = [
+  {
+    key: "1",
+    invoiceId: "53265985515",
+    tokenId: "53265985515",
+    amount: 20000,
+  },
+  {
+    key: "2",
+    invoiceId: "53265985515",
+    tokenId: "53265985515",
+    amount: 18000,
+  },
+  {
+    key: "3",
+    invoiceId: "53265985515",
+    tokenId: "53265985515",
+    amount: 15000,
+  },
+  {
+    key: "4",
+    invoiceId: "53265985515",
+    tokenId: "53265985515",
+    amount: 9000,
+  },
+];
+
 const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -220,8 +249,29 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
   const [companyFilter, setCompanyFilter] = useState<string | null>(null);
   const [shareholderFilter, setShareholderFilter] = useState<string | null>(null);
 
+  // Payback Pool Modal state
+  const [paybackModalVisible, setPaybackModalVisible] = useState(false);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+  };
+
+  // Payback Pool Modal handlers
+  const handleOpenPaybackModal = () => {
+    setPaybackModalVisible(true);
+  };
+
+  const handleClosePaybackModal = () => {
+    setPaybackModalVisible(false);
+  };
+
+  const handleDepositPayback = (selectedItems: any[]) => {
+    // Here you would implement the actual deposit functionality
+    // For now, we'll just show a success message and close the modal
+    message.success(
+      `Successfully deposited ${selectedItems.length} items with a total amount of ${selectedItems.reduce((sum, item) => sum + item.amount, 0).toLocaleString()}`
+    );
+    setPaybackModalVisible(false);
   };
 
   // Filter investors based on search query
@@ -568,7 +618,7 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
                       <Button type="primary" danger className="bg-red-500 hover:bg-red-600">
                         Withdraw From Pool
                       </Button>
-                      <Button type="primary" className="bg-green-500 hover:bg-green-600">
+                      <Button type="primary" className="bg-green-500 hover:bg-green-600" onClick={handleOpenPaybackModal}>
                         Payback Pool
                       </Button>
                       <Button type="primary" className="bg-blue-500 hover:bg-blue-600">
@@ -836,6 +886,14 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
           ]}
         />
       </Card>
+
+      {/* Payback Pool Modal */}
+      <PaybackPoolModal
+        visible={paybackModalVisible}
+        onCancel={handleClosePaybackModal}
+        onDeposit={handleDepositPayback}
+        invoices={mockPaybackInvoices}
+      />
     </div>
   );
 };
