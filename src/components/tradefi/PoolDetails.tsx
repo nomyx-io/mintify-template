@@ -23,6 +23,16 @@ interface PoolDetailsProps {
     totalInvoices: number;
     usdcRemaining: number;
     maturityDate?: string;
+    // New fields based on the image
+    developmentMethod?: string; // e.g. "52.53%"
+    neweraScore?: string; // e.g. "4/5"
+    fundSize?: string; // e.g. "200 M"
+    generation?: string; // e.g. "Q3"
+    economics?: string; // e.g. "2% - 20%"
+    targetReturn?: string; // e.g. "3-4x gross"
+    category?: string; // e.g. "Venture"
+    stage?: string; // e.g. "Early/Venture"
+    phase?: string; // e.g. "Closing soon"
   };
   onBack: () => void;
 }
@@ -86,18 +96,49 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
           </div>
 
           {/* Pool Stats */}
-          <div className="mt-6 md:mt-0 flex flex-col md:flex-row md:flex-nowrap space-y-4 md:space-y-0 md:space-x-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100">
-            <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-              <span className="text-sm">Total USDC Deposited</span>
-              <h2 className="text-lg font-bold">${Intl.NumberFormat("en-US").format(pool.totalUsdcDeposited)}</h2>
+          <div className="mt-6 md:mt-0 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100">
+            {/* First row of stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                <span className="text-sm">Development method</span>
+                <h2 className="text-lg font-bold">{pool.developmentMethod || "52.53%"}</h2>
+              </div>
+              <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                <span className="text-sm">Newera Score</span>
+                <h2 className="text-lg font-bold">{pool.neweraScore || "4/5"}</h2>
+              </div>
+              <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                <span className="text-sm">Fund Size</span>
+                <h2 className="text-lg font-bold">{pool.fundSize || "200 M"}</h2>
+              </div>
+              <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                <span className="text-sm">Generation</span>
+                <h2 className="text-lg font-bold">{pool.generation || "Q3"}</h2>
+              </div>
             </div>
-            <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-              <span className="text-sm">Total Invoice Amount</span>
-              <h2 className="text-lg font-bold">${Intl.NumberFormat("en-US").format(pool.totalInvoiceAmount)}</h2>
-            </div>
-            <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-              <span className="text-sm">Total Invoices</span>
-              <h2 className="text-lg font-bold">{pool.totalInvoices}</h2>
+
+            {/* Second row of stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                <span className="text-sm">Economics</span>
+                <h2 className="text-lg font-bold">{pool.economics || "2% - 20%"}</h2>
+              </div>
+              <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                <span className="text-sm">Target return</span>
+                <h2 className="text-lg font-bold">{pool.targetReturn || "3-4x gross"}</h2>
+              </div>
+              <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                <span className="text-sm">Category</span>
+                <h2 className="text-lg font-bold">{pool.category || "Venture"}</h2>
+              </div>
+              <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                <span className="text-sm">Stage</span>
+                <h2 className="text-lg font-bold">{pool.stage || "Early/Venture"}</h2>
+              </div>
+              <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                <span className="text-sm">Phase</span>
+                <h2 className="text-lg font-bold">{pool.phase || "Closing soon"}</h2>
+              </div>
             </div>
           </div>
         </div>

@@ -8,7 +8,7 @@ const mockPools = [
     attributes: {
       title: "SGH Capital",
       description:
-        "SGH Capital is a leading investment firm specializing in trade finance solutions. We provide innovative financial products and services to help businesses optimize their working capital and manage their supply chain more efficiently.",
+        "SGH Alpha is an early stage venture capital fund managed by SGH Capital. The fund is located in Luxembourg, Luxembourg and invests in Europe, California and India. The fund targets investments in crypto currencies, digital assets and decentralized finance sectors.yield.",
       logo: {
         _url: "/assets/sgh/sgh_logo.png",
       },
@@ -21,6 +21,16 @@ const mockPools = [
       totalInvoices: 4,
       usdcRemaining: 0,
       maturityDate: "2025-12-25T00:00:00.000Z",
+      // New fields based on the image
+      developmentMethod: "52.53%",
+      neweraScore: "4/5",
+      fundSize: "200 M",
+      generation: "Q3",
+      economics: "2% - 20%",
+      targetReturn: "3-4x gross",
+      category: "Venture",
+      stage: "Early/Venture",
+      phase: "Closing soon",
     },
   },
   {
@@ -41,6 +51,16 @@ const mockPools = [
       totalInvoices: 4,
       usdcRemaining: 4000,
       maturityDate: "2025-11-15T00:00:00.000Z",
+      // New fields with different values
+      developmentMethod: "48.75%",
+      neweraScore: "3/5",
+      fundSize: "150 M",
+      generation: "Q2",
+      economics: "3% - 15%",
+      targetReturn: "2-3x gross",
+      category: "Growth",
+      stage: "Mid/Growth",
+      phase: "Active",
     },
   },
   {
@@ -61,6 +81,16 @@ const mockPools = [
       totalInvoices: 4,
       usdcRemaining: 6000,
       maturityDate: "2025-10-10T00:00:00.000Z",
+      // New fields with different values
+      developmentMethod: "65.20%",
+      neweraScore: "5/5",
+      fundSize: "300 M",
+      generation: "Q4",
+      economics: "1% - 25%",
+      targetReturn: "4-5x gross",
+      category: "Seed",
+      stage: "Early/Seed",
+      phase: "Fundraising",
     },
   },
 ];
@@ -90,6 +120,15 @@ export const TradeFinanceService = () => {
     coverImage: string;
     creditType: string;
     maturityDate: Date;
+    developmentMethod?: string;
+    neweraScore?: string;
+    fundSize?: string;
+    generation?: string;
+    economics?: string;
+    targetReturn?: string;
+    category?: string;
+    stage?: string;
+    phase?: string;
   }) => {
     // Simulate API delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -112,6 +151,16 @@ export const TradeFinanceService = () => {
         totalInvoices: 0,
         usdcRemaining: 0,
         maturityDate: poolData.maturityDate.toISOString(),
+        // New fields with default values if not provided
+        developmentMethod: poolData.developmentMethod || "50.00%",
+        neweraScore: poolData.neweraScore || "3/5",
+        fundSize: poolData.fundSize || "100 M",
+        generation: poolData.generation || "Q1",
+        economics: poolData.economics || "2% - 15%",
+        targetReturn: poolData.targetReturn || "2-3x gross",
+        category: poolData.category || "Venture",
+        stage: poolData.stage || "Early/Venture",
+        phase: poolData.phase || "Active",
       },
     };
 

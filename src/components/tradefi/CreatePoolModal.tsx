@@ -56,6 +56,16 @@ const CreatePoolModal: React.FC<CreatePoolModalProps> = ({ open, setOpen, onCrea
         coverImage: `https://via.placeholder.com/800x400/${Math.floor(Math.random() * 16777215).toString(16)}/FFFFFF?text=${values.title}`,
         creditType: values.creditType,
         maturityDate: values.maturityDate.toDate(),
+        // New fields
+        developmentMethod: values.developmentMethod,
+        neweraScore: values.neweraScore,
+        fundSize: values.fundSize,
+        generation: values.generation,
+        economics: values.economics,
+        targetReturn: values.targetReturn,
+        category: values.category,
+        stage: values.stage,
+        phase: values.phase,
       });
 
       message.success("Pool created successfully");
@@ -214,6 +224,68 @@ const CreatePoolModal: React.FC<CreatePoolModalProps> = ({ open, setOpen, onCrea
         <Form.Item label="Maturity Date" name="maturityDate" rules={[{ required: true, message: "Please select a maturity date" }]}>
           <DatePicker className="w-full" disabledDate={(current) => current && current < moment().startOf("day")} />
         </Form.Item>
+
+        {/* New fields based on the image */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Form.Item label="Development Method" name="developmentMethod" initialValue="50.00%">
+            <Input placeholder="e.g. 52.53%" />
+          </Form.Item>
+
+          <Form.Item label="Newera Score" name="neweraScore" initialValue="3/5">
+            <Select placeholder="Select score">
+              <Option value="1/5">1/5</Option>
+              <Option value="2/5">2/5</Option>
+              <Option value="3/5">3/5</Option>
+              <Option value="4/5">4/5</Option>
+              <Option value="5/5">5/5</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="Fund Size" name="fundSize" initialValue="100 M">
+            <Input placeholder="e.g. 200 M" />
+          </Form.Item>
+
+          <Form.Item label="Generation" name="generation" initialValue="Q1">
+            <Select placeholder="Select generation">
+              <Option value="Q1">Q1</Option>
+              <Option value="Q2">Q2</Option>
+              <Option value="Q3">Q3</Option>
+              <Option value="Q4">Q4</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="Economics" name="economics" initialValue="2% - 15%">
+            <Input placeholder="e.g. 2% - 20%" />
+          </Form.Item>
+
+          <Form.Item label="Target Return" name="targetReturn" initialValue="2-3x gross">
+            <Input placeholder="e.g. 3-4x gross" />
+          </Form.Item>
+
+          <Form.Item label="Category" name="category" initialValue="Venture">
+            <Select placeholder="Select category">
+              <Option value="Venture">Venture</Option>
+              <Option value="Growth">Growth</Option>
+              <Option value="Seed">Seed</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="Stage" name="stage" initialValue="Early/Venture">
+            <Select placeholder="Select stage">
+              <Option value="Early/Venture">Early/Venture</Option>
+              <Option value="Mid/Growth">Mid/Growth</Option>
+              <Option value="Early/Seed">Early/Seed</Option>
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="Phase" name="phase" initialValue="Active">
+            <Select placeholder="Select phase">
+              <Option value="Active">Active</Option>
+              <Option value="Closing soon">Closing soon</Option>
+              <Option value="Fundraising">Fundraising</Option>
+            </Select>
+          </Form.Item>
+        </div>
       </Form>
     </Modal>
   );
