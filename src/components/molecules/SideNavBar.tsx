@@ -34,6 +34,7 @@ const SideNavBar = () => {
     getItem("Mint Tokens", "/nft-create", <LanguageSquare className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />),
     getItem("Projects", "/projects", <Briefcase size="20" className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />),
     getItem("TradeFi Pools", "/tradefi-pools", <Bank size="20" className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />),
+    getItem("Customer View", "/customer-view", <Bank size="20" className="!text-nomyx-text-light dark:!text-nomyx-text-dark" />),
   ];
 
   return (
