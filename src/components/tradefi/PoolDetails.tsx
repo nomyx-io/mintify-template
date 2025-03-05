@@ -84,10 +84,10 @@ const mockInvoices = [
     stockCertificateId: "Certificate 001247",
     tokenId: "53265985516",
     issuanceDate: "09-05-2024",
-    heldBy: "Warehouse 1",
+    heldBy: "Equity Trust Partners 1",
     maturityDate: "09-05-2025",
-    companyName: "Sichuan XW Bank",
-    shareholderName: "Qualcomm",
+    companyName: "SpaceX",
+    shareholderName: "SGH Capital",
     numberOfShares: 24000,
     classOfShares: "Class A",
     parValue: 100000,
@@ -99,10 +99,10 @@ const mockInvoices = [
     stockCertificateId: "Certificate 001248",
     tokenId: "53265985517",
     issuanceDate: "09-05-2024",
-    heldBy: "Warehouse 2",
+    heldBy: "Equity Trust Partners 2",
     maturityDate: "09-05-2025",
-    companyName: "Sichuan XW Bank",
-    shareholderName: "Nordic Semi",
+    companyName: "SpaceX",
+    shareholderName: "SGH Capital",
     numberOfShares: 24000,
     classOfShares: "Class A",
     parValue: 127000,
@@ -114,10 +114,10 @@ const mockInvoices = [
     stockCertificateId: "Certificate 001249",
     tokenId: "53265985518",
     issuanceDate: "09-05-2024",
-    heldBy: "Warehouse 3",
+    heldBy: "Equity Trust Partners 3",
     maturityDate: "09-05-2025",
-    companyName: "Sichuan XW Bank",
-    shareholderName: "SEED Studios",
+    companyName: "SpaceX",
+    shareholderName: "SGH Capital",
     numberOfShares: 24000,
     classOfShares: "Class A",
     parValue: 50000,
@@ -129,10 +129,10 @@ const mockInvoices = [
     stockCertificateId: "Certificate 001250",
     tokenId: "53265985519",
     issuanceDate: "09-05-2024",
-    heldBy: "Warehouse 1",
+    heldBy: "Equity Trust Partners 1",
     maturityDate: "09-05-2025",
-    companyName: "Sichuan XW Bank",
-    shareholderName: "Qualcomm",
+    companyName: "SpaceX",
+    shareholderName: "SGH Capital",
     numberOfShares: 24000,
     classOfShares: "Class A",
     parValue: 200000,
@@ -521,7 +521,7 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
                       {/* Held By Filter */}
                       <Select
                         placeholder={<span style={{ color: "#555555" }}>Held By</span>}
-                        className="w-36"
+                        className="w-56"
                         allowClear
                         value={heldByFilter}
                         onChange={(value) => setHeldByFilter(value)}
