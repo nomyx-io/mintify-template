@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
-import { Button, Card, Tabs, Typography, Table, Pagination } from "antd";
-import { SearchNormal1, Category, RowVertical, ArrowLeft } from "iconsax-react";
+import { Button, Card, Tabs, Typography, Table, Pagination, Select, Dropdown, Menu } from "antd";
+import { SearchNormal1, Category, RowVertical, ArrowLeft, Eye } from "iconsax-react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 
@@ -77,6 +77,70 @@ const mockInvestors = [
   },
 ];
 
+// Mock data for invoices based on the design
+const mockInvoices = [
+  {
+    key: "1",
+    stockCertificateId: "Certificate 001247",
+    tokenId: "53265985516",
+    issuanceDate: "09-05-2024",
+    heldBy: "Warehouse 1",
+    maturityDate: "09-05-2025",
+    companyName: "Sichuan XW Bank",
+    shareholderName: "Qualcomm",
+    numberOfShares: 24000,
+    classOfShares: "Class A",
+    parValue: 100000,
+    isinNumber: "53286",
+    transferRestrictions: 100000,
+  },
+  {
+    key: "2",
+    stockCertificateId: "Certificate 001248",
+    tokenId: "53265985517",
+    issuanceDate: "09-05-2024",
+    heldBy: "Warehouse 2",
+    maturityDate: "09-05-2025",
+    companyName: "Sichuan XW Bank",
+    shareholderName: "Nordic Semi",
+    numberOfShares: 24000,
+    classOfShares: "Class A",
+    parValue: 127000,
+    isinNumber: "32651",
+    transferRestrictions: 127000,
+  },
+  {
+    key: "3",
+    stockCertificateId: "Certificate 001249",
+    tokenId: "53265985518",
+    issuanceDate: "09-05-2024",
+    heldBy: "Warehouse 3",
+    maturityDate: "09-05-2025",
+    companyName: "Sichuan XW Bank",
+    shareholderName: "SEED Studios",
+    numberOfShares: 24000,
+    classOfShares: "Class A",
+    parValue: 50000,
+    isinNumber: "26455",
+    transferRestrictions: 50000,
+  },
+  {
+    key: "4",
+    stockCertificateId: "Certificate 001250",
+    tokenId: "53265985519",
+    issuanceDate: "09-05-2024",
+    heldBy: "Warehouse 1",
+    maturityDate: "09-05-2025",
+    companyName: "Sichuan XW Bank",
+    shareholderName: "Qualcomm",
+    numberOfShares: 24000,
+    classOfShares: "Class A",
+    parValue: 200000,
+    isinNumber: "53200",
+    transferRestrictions: 200000,
+  },
+];
+
 // Mock data for collateral token history
 const mockCollateralHistory = [
   {
@@ -145,9 +209,16 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [viewMode, setViewMode] = useState<string>("table");
-  const [activeTab, setActiveTab] = useState("1");
+  const [activeTab, setActiveTab] = useState("3"); // Set to Invoices tab by default
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  // Filter states for invoices tab
+  const [issuanceDateFilter, setIssuanceDateFilter] = useState<string | null>(null);
+  const [heldByFilter, setHeldByFilter] = useState<string | null>(null);
+  const [maturityDateFilter, setMaturityDateFilter] = useState<string | null>(null);
+  const [companyFilter, setCompanyFilter] = useState<string | null>(null);
+  const [shareholderFilter, setShareholderFilter] = useState<string | null>(null);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -181,6 +252,37 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
       item.createdDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.total.toString().includes(searchQuery)
   );
+
+  // Filter invoices based on search query and filter selections
+  const filteredInvoices = mockInvoices.filter(
+    (item) =>
+      // Search query filter
+      (item.stockCertificateId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.tokenId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.issuanceDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.heldBy.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.maturityDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.shareholderName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.numberOfShares.toString().includes(searchQuery) ||
+        item.classOfShares.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.parValue.toString().includes(searchQuery) ||
+        item.isinNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.transferRestrictions.toString().includes(searchQuery)) &&
+      // Dropdown filters
+      (!issuanceDateFilter || item.issuanceDate === issuanceDateFilter) &&
+      (!heldByFilter || item.heldBy === heldByFilter) &&
+      (!maturityDateFilter || item.maturityDate === maturityDateFilter) &&
+      (!companyFilter || item.companyName === companyFilter) &&
+      (!shareholderFilter || item.shareholderName === shareholderFilter)
+  );
+
+  // Get unique values for filter dropdowns
+  const uniqueIssuanceDates = Array.from(new Set(mockInvoices.map((item) => item.issuanceDate)));
+  const uniqueHeldBy = Array.from(new Set(mockInvoices.map((item) => item.heldBy)));
+  const uniqueMaturityDates = Array.from(new Set(mockInvoices.map((item) => item.maturityDate)));
+  const uniqueCompanies = Array.from(new Set(mockInvoices.map((item) => item.companyName)));
+  const uniqueShareholders = Array.from(new Set(mockInvoices.map((item) => item.shareholderName)));
 
   return (
     <div className="pool-details">
@@ -429,7 +531,205 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
             {
               key: "3",
               label: "Invoices",
-              children: <div className="p-4">Invoice list will be implemented here</div>,
+              children: (
+                <div className="p-4">
+                  {/* Filter Dropdowns and Action Buttons */}
+                  <div className="flex flex-wrap justify-between items-center mb-4">
+                    <div className="flex flex-wrap gap-2 mb-2 sm:mb-0">
+                      {/* Issuance Date Filter */}
+                      <Select
+                        placeholder="Issuance Date"
+                        className="w-32"
+                        allowClear
+                        value={issuanceDateFilter}
+                        onChange={(value) => setIssuanceDateFilter(value)}
+                        options={uniqueIssuanceDates.map((date) => ({ value: date, label: date }))}
+                      />
+
+                      {/* Held By Filter */}
+                      <Select
+                        placeholder="Held By"
+                        className="w-32"
+                        allowClear
+                        value={heldByFilter}
+                        onChange={(value) => setHeldByFilter(value)}
+                        options={uniqueHeldBy.map((held) => ({ value: held, label: held }))}
+                      />
+
+                      {/* Maturity Date Filter */}
+                      <Select
+                        placeholder="Maturity Date"
+                        className="w-32"
+                        allowClear
+                        value={maturityDateFilter}
+                        onChange={(value) => setMaturityDateFilter(value)}
+                        options={uniqueMaturityDates.map((date) => ({ value: date, label: date }))}
+                      />
+
+                      {/* Company Filter */}
+                      <Select
+                        placeholder="Company"
+                        className="w-32"
+                        allowClear
+                        value={companyFilter}
+                        onChange={(value) => setCompanyFilter(value)}
+                        options={uniqueCompanies.map((company) => ({ value: company, label: company }))}
+                      />
+
+                      {/* Shareholder Filter */}
+                      <Select
+                        placeholder="Shareholder"
+                        className="w-32"
+                        allowClear
+                        value={shareholderFilter}
+                        onChange={(value) => setShareholderFilter(value)}
+                        options={uniqueShareholders.map((shareholder) => ({ value: shareholder, label: shareholder }))}
+                      />
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-2">
+                      <Button type="primary" danger className="bg-red-500 hover:bg-red-600">
+                        Withdraw From Pool
+                      </Button>
+                      <Button type="primary" className="bg-green-500 hover:bg-green-600">
+                        Payback Pool
+                      </Button>
+                      <Button type="primary" className="bg-blue-500 hover:bg-blue-600">
+                        Add Stock Certificate
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Items Count */}
+                  <div className="mb-4">
+                    <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">{filteredInvoices.length} items</Text>
+                  </div>
+
+                  {/* Invoices Table */}
+                  <Table
+                    dataSource={filteredInvoices}
+                    pagination={false}
+                    className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
+                    rowClassName="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-text-light dark:text-nomyx-text-dark"
+                    columns={[
+                      {
+                        title: "Stock Certificate ID",
+                        dataIndex: "stockCertificateId",
+                        key: "stockCertificateId",
+                        sorter: (a, b) => a.stockCertificateId.localeCompare(b.stockCertificateId),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Token ID",
+                        dataIndex: "tokenId",
+                        key: "tokenId",
+                        sorter: (a, b) => a.tokenId.localeCompare(b.tokenId),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Issuance Date",
+                        dataIndex: "issuanceDate",
+                        key: "issuanceDate",
+                        sorter: (a, b) => a.issuanceDate.localeCompare(b.issuanceDate),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Held By",
+                        dataIndex: "heldBy",
+                        key: "heldBy",
+                        sorter: (a, b) => a.heldBy.localeCompare(b.heldBy),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Maturity Date",
+                        dataIndex: "maturityDate",
+                        key: "maturityDate",
+                        sorter: (a, b) => a.maturityDate.localeCompare(b.maturityDate),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Company Name",
+                        dataIndex: "companyName",
+                        key: "companyName",
+                        sorter: (a, b) => a.companyName.localeCompare(b.companyName),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Shareholder Name",
+                        dataIndex: "shareholderName",
+                        key: "shareholderName",
+                        sorter: (a, b) => a.shareholderName.localeCompare(b.shareholderName),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Number Of Shares",
+                        dataIndex: "numberOfShares",
+                        key: "numberOfShares",
+                        sorter: (a, b) => a.numberOfShares - b.numberOfShares,
+                        render: (text) => `${text.toLocaleString()}`,
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Class of Shares",
+                        dataIndex: "classOfShares",
+                        key: "classOfShares",
+                        sorter: (a, b) => a.classOfShares.localeCompare(b.classOfShares),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Par Value",
+                        dataIndex: "parValue",
+                        key: "parValue",
+                        sorter: (a, b) => a.parValue - b.parValue,
+                        render: (text) => `${text.toLocaleString()}`,
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "ISIN Number",
+                        dataIndex: "isinNumber",
+                        key: "isinNumber",
+                        sorter: (a, b) => a.isinNumber.localeCompare(b.isinNumber),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Transfer Restrictions",
+                        dataIndex: "transferRestrictions",
+                        key: "transferRestrictions",
+                        sorter: (a, b) => a.transferRestrictions - b.transferRestrictions,
+                        render: (text) => `${text.toLocaleString()}`,
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "",
+                        key: "actions",
+                        render: () => (
+                          <div className="flex justify-center">
+                            <Button type="text" icon={<Eye size="16" />} />
+                          </div>
+                        ),
+                        width: 50,
+                      },
+                    ]}
+                  />
+
+                  {/* Pagination */}
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="text-nomyx-text-light dark:text-nomyx-text-dark">
+                      Showing {Math.min((currentPage - 1) * pageSize + 1, filteredInvoices.length)} -{" "}
+                      {Math.min(currentPage * pageSize, filteredInvoices.length)} of {filteredInvoices.length} items
+                    </div>
+                    <Pagination
+                      current={currentPage}
+                      pageSize={pageSize}
+                      total={filteredInvoices.length}
+                      onChange={(page) => setCurrentPage(page)}
+                      showSizeChanger={false}
+                      className="text-nomyx-text-light dark:text-nomyx-text-dark"
+                    />
+                  </div>
+                </div>
+              ),
             },
             {
               key: "4",
