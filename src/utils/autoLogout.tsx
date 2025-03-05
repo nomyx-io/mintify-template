@@ -24,7 +24,7 @@ const AutoLogout = () => {
   }, []);
 
   const checkExpiration = () => {
-    console.log("🔍 Running checkExpiration...");
+    //console.log("🔍 Running checkExpiration...");
 
     const tokenExpString = localStorage.getItem("tokenExpiration");
 

@@ -216,7 +216,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     const { token, roles, walletPreference, user, dfnsToken } = await getToken({ email, password });
 
     if (roles.length > 0) {
-      const expirationTime = Date.now() + 60 * 60 * 1000; //1h
+      const expirationTime = Date.now() + 60 * 30 * 1000; //30m
 
       setRole([...roles]);
       setUser(user);
