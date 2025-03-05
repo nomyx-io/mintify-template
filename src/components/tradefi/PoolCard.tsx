@@ -30,7 +30,7 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, onPoolClick }) => {
       cover={
         <div className="relative h-40 w-full">
           <div
-            className="w-full h-full rounded-t-lg bg-blue-500"
+            className="w-full h-full rounded-t-lg bg-blue-500 relative"
             style={{
               backgroundColor: pool.color || "#3c89e8",
               display: "flex",
@@ -39,20 +39,11 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, onPoolClick }) => {
               color: "white",
               fontSize: "24px",
               fontWeight: "bold",
+              position: "relative",
+              overflow: "hidden",
             }}
           >
-            {pool.title}
-          </div>
-          <div
-            className="absolute top-4 left-4 h-16 w-16 rounded-full overflow-hidden bg-white shadow-md flex items-center justify-center"
-            style={{
-              backgroundColor: pool.color || "#3c89e8",
-              color: "white",
-              fontSize: "20px",
-              fontWeight: "bold",
-            }}
-          >
-            {pool.title.charAt(0)}
+            {pool.coverImage ? <Image src={pool.coverImage} alt={`${pool.title} Cover`} fill style={{ objectFit: "cover" }} /> : pool.title}
           </div>
         </div>
       }

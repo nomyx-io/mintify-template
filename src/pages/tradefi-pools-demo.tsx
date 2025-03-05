@@ -17,11 +17,11 @@ import MockProviders from "@/context/MockWeb3Providers";
 const mockPools = [
   {
     id: "pool1",
-    title: "Pool 1",
+    title: "SGH Capital",
     description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis at tincidunt ex. Vivamus varius nulla eget nisl interdum sollicitudin eget at turpis. Integer ut interdum velit, sed maximus turpis.",
-    logo: "https://via.placeholder.com/150/6c5ce7/FFFFFF?text=P1",
-    coverImage: "https://via.placeholder.com/800x400/6c5ce7/FFFFFF?text=Pool+1",
+      "SGH Capital is a leading investment firm specializing in trade finance solutions. We provide innovative financial products and services to help businesses optimize their working capital and manage their supply chain more efficiently.",
+    logo: "/assets/sgh/sgh_logo.png",
+    coverImage: "/assets/sgh/cover.png",
     creditType: "Trade Finance Invoice",
     totalUsdcDeposited: 477000,
     totalInvoiceAmount: 477000,
@@ -34,8 +34,8 @@ const mockPools = [
     title: "Pool 2",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis at tincidunt ex. Vivamus varius nulla eget nisl interdum sollicitudin eget at turpis. Integer ut interdum velit, sed maximus turpis.",
-    logo: "https://via.placeholder.com/150/8e44ad/FFFFFF?text=P2",
-    coverImage: "https://via.placeholder.com/800x400/8e44ad/FFFFFF?text=Pool+2",
+    logo: "",
+    coverImage: "",
     creditType: "Trade Finance Invoice",
     totalUsdcDeposited: 22000,
     totalInvoiceAmount: 18000,
@@ -48,8 +48,8 @@ const mockPools = [
     title: "Pool 3",
     description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis at tincidunt ex. Vivamus varius nulla eget nisl interdum sollicitudin eget at turpis. Integer ut interdum velit, sed maximus turpis.",
-    logo: "https://via.placeholder.com/150/3498db/FFFFFF?text=P3",
-    coverImage: "https://via.placeholder.com/800x400/3498db/FFFFFF?text=Pool+3",
+    logo: "",
+    coverImage: "",
     creditType: "Trade Finance Invoice",
     totalUsdcDeposited: 22000,
     totalInvoiceAmount: 16000,

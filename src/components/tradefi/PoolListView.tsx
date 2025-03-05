@@ -27,9 +27,10 @@ const PoolListView: React.FC<PoolListViewProps> = ({ pools, className = "", onPo
               color: "white",
               fontSize: "16px",
               fontWeight: "bold",
+              position: "relative",
             }}
           >
-            {text.charAt(0)}
+            {record.logo ? <Image src={record.logo} alt={`${text} Logo`} fill style={{ objectFit: "cover" }} /> : text.charAt(0)}
           </div>
           <Text className="font-medium text-gray-900 dark:text-white">{text}</Text>
         </div>

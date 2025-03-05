@@ -30,10 +30,10 @@ const mockPools = [
       description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis at tincidunt ex. Vivamus varius nulla eget nisl interdum sollicitudin eget at turpis. Integer ut interdum velit, sed maximus turpis. Maecenas ornare massa et pharetra suscipit. Sed ultrices, lacus...",
       logo: {
-        _url: "https://via.placeholder.com/150/8e44ad/FFFFFF?text=P2",
+        _url: "",
       },
       coverImage: {
-        _url: "https://via.placeholder.com/800x400/8e44ad/FFFFFF?text=Pool+2",
+        _url: "",
       },
       creditType: "Trade Finance Invoice",
       totalUsdcDeposited: 22000,
@@ -50,10 +50,10 @@ const mockPools = [
       description:
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis at tincidunt ex. Vivamus varius nulla eget nisl interdum sollicitudin eget at turpis. Integer ut interdum velit, sed maximus turpis. Maecenas ornare massa et pharetra suscipit. Sed ultrices, lacus...",
       logo: {
-        _url: "https://via.placeholder.com/150/3498db/FFFFFF?text=P3",
+        _url: "",
       },
       coverImage: {
-        _url: "https://via.placeholder.com/800x400/3498db/FFFFFF?text=Pool+3",
+        _url: "",
       },
       creditType: "Trade Finance Invoice",
       totalUsdcDeposited: 22000,
@@ -101,10 +101,10 @@ export const TradeFinanceService = () => {
         title: poolData.title,
         description: poolData.description,
         logo: {
-          _url: poolData.logo || "https://via.placeholder.com/150/2ecc71/FFFFFF?text=New",
+          _url: poolData.logo || "",
         },
         coverImage: {
-          _url: poolData.coverImage || "https://via.placeholder.com/800x400/2ecc71/FFFFFF?text=New+Pool",
+          _url: poolData.coverImage || "",
         },
         creditType: poolData.creditType,
         totalUsdcDeposited: 0,
