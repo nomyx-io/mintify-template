@@ -69,6 +69,38 @@ const mockCollateralHistory = [
   },
 ];
 
+// Mock data for interest token history
+const mockInterestTokenHistory = [
+  {
+    key: "1",
+    id: "53265985515",
+    txHash: "0xd80b3332a4cdfd65df65df65df65df65df65",
+    createdDate: "09-05-2024",
+    total: 20000,
+  },
+  {
+    key: "2",
+    id: "53265985515",
+    txHash: "0xd80b3332a4cdfd65df65df65df65df65df65",
+    createdDate: "09-05-2024",
+    total: 18000,
+  },
+  {
+    key: "3",
+    id: "53265985515",
+    txHash: "0xd80b3332a4cdfd65df65df65df65df65df65",
+    createdDate: "09-05-2024",
+    total: 15000,
+  },
+  {
+    key: "4",
+    id: "53265985515",
+    txHash: "0xd80b3332a4cdfd65df65df65df65df65df65",
+    createdDate: "09-05-2024",
+    total: 9000,
+  },
+];
+
 const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -86,6 +118,15 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
     (item) =>
       item.investorId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.toHash.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.createdDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.total.toString().includes(searchQuery)
+  );
+
+  // Filter interest token history based on search query
+  const filteredInterestTokenHistory = mockInterestTokenHistory.filter(
+    (item) =>
+      item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.txHash.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.createdDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.total.toString().includes(searchQuery)
   );
@@ -315,6 +356,69 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
                       current={currentPage}
                       pageSize={pageSize}
                       total={filteredCollateralHistory.length}
+                      onChange={(page) => setCurrentPage(page)}
+                      showSizeChanger={false}
+                      className="text-nomyx-text-light dark:text-nomyx-text-dark"
+                    />
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: "4",
+              label: "Interest Token History",
+              children: (
+                <div className="p-4">
+                  <div className="mb-4">
+                    <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">{filteredInterestTokenHistory.length} items</Text>
+                  </div>
+
+                  <Table
+                    dataSource={filteredInterestTokenHistory}
+                    pagination={false}
+                    className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
+                    rowClassName="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-text-light dark:text-nomyx-text-dark"
+                    columns={[
+                      {
+                        title: "ID",
+                        dataIndex: "id",
+                        key: "id",
+                        sorter: (a, b) => a.id.localeCompare(b.id),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Tx Hash",
+                        dataIndex: "txHash",
+                        key: "txHash",
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Created Date",
+                        dataIndex: "createdDate",
+                        key: "createdDate",
+                        sorter: (a, b) => a.createdDate.localeCompare(b.createdDate),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Total",
+                        dataIndex: "total",
+                        key: "total",
+                        sorter: (a, b) => a.total - b.total,
+                        render: (text) => `${text.toLocaleString()}`,
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                    ]}
+                  />
+
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="text-nomyx-text-light dark:text-nomyx-text-dark">
+                      Showing {Math.min((currentPage - 1) * pageSize + 1, filteredInterestTokenHistory.length)} -{" "}
+                      {Math.min(currentPage * pageSize, filteredInterestTokenHistory.length)} of {filteredInterestTokenHistory.length} items
+                    </div>
+                    <Pagination
+                      current={currentPage}
+                      pageSize={pageSize}
+                      total={filteredInterestTokenHistory.length}
                       onChange={(page) => setCurrentPage(page)}
                       showSizeChanger={false}
                       className="text-nomyx-text-light dark:text-nomyx-text-dark"
