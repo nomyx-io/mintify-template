@@ -180,3 +180,9 @@ export const TelescopeIcon = ({ width = 240, height = 240, fill = "none", stroke
     </svg>
   );
 };
+
+// SGH Assets
+import sghCover from "./sgh/cover.png";
+import sghLogo from "./sgh/sgh_logo.png";
+
+export { sghLogo, sghCover };

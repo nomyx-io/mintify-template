@@ -43,7 +43,9 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
       <div
         className="pool-header relative p-6 rounded-lg"
         style={{
-          backgroundImage: `linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 75%), url(${projectBackground.src})`,
+          backgroundImage: pool.coverImage
+            ? `linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 75%), url(${pool.coverImage})`
+            : `linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 75%), url(${projectBackground.src})`,
           backgroundSize: "cover",
           backgroundPosition: "top center",
           height: "500px",
@@ -62,15 +64,16 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
         <div className="absolute sm:-bottom-2 bottom-4 left-0 md:flex md:flex-row flex-col items-start md:items-center p-4 rounded-lg w-full">
           {/* Pool Logo */}
           <div
-            className="pool-logo rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center pl-5 pt-5"
+            className="pool-logo rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center"
             style={{
               width: "150px",
               height: "150px",
               backgroundColor: pool.color || "#3c89e8",
+              position: "relative",
             }}
           >
             {pool.logo ? (
-              <Image src={pool.logo} alt="Pool Logo" width={150} height={150} className="object-cover w-full h-full" />
+              <Image src={pool.logo} alt="Pool Logo" fill style={{ objectFit: "cover" }} className="w-full h-full" />
             ) : (
               <span className="text-white text-4xl font-bold">{pool.title.charAt(0)}</span>
             )}

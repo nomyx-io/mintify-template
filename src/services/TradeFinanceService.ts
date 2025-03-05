@@ -6,14 +6,14 @@ const mockPools = [
   {
     id: "pool1",
     attributes: {
-      title: "Pool 1",
+      title: "SGH Capital",
       description:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis at tincidunt ex. Vivamus varius nulla eget nisl interdum sollicitudin eget at turpis. Integer ut interdum velit, sed maximus turpis. Maecenas ornare massa et pharetra suscipit. Sed ultrices, lacus...",
+        "SGH Capital is a leading investment firm specializing in trade finance solutions. We provide innovative financial products and services to help businesses optimize their working capital and manage their supply chain more efficiently.",
       logo: {
-        _url: "https://via.placeholder.com/150/6c5ce7/FFFFFF?text=P1",
+        _url: "/assets/sgh/sgh_logo.png",
       },
       coverImage: {
-        _url: "https://via.placeholder.com/800x400/6c5ce7/FFFFFF?text=Pool+1",
+        _url: "/assets/sgh/cover.png",
       },
       creditType: "Trade Finance Invoice",
       totalUsdcDeposited: 477000,
