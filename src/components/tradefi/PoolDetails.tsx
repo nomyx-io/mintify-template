@@ -509,52 +509,57 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
                     <div className="flex flex-wrap gap-2 mb-2 sm:mb-0">
                       {/* Issuance Date Filter */}
                       <Select
-                        placeholder="Issuance Date"
-                        className="w-32"
+                        placeholder={<span style={{ color: "#555555" }}>Issuance Date</span>}
+                        className="w-36"
                         allowClear
                         value={issuanceDateFilter}
                         onChange={(value) => setIssuanceDateFilter(value)}
                         options={uniqueIssuanceDates.map((date) => ({ value: date, label: date }))}
+                        style={{ borderColor: "#d9d9d9" }}
                       />
 
                       {/* Held By Filter */}
                       <Select
-                        placeholder="Held By"
-                        className="w-32"
+                        placeholder={<span style={{ color: "#555555" }}>Held By</span>}
+                        className="w-36"
                         allowClear
                         value={heldByFilter}
                         onChange={(value) => setHeldByFilter(value)}
                         options={uniqueHeldBy.map((held) => ({ value: held, label: held }))}
+                        style={{ borderColor: "#d9d9d9" }}
                       />
 
                       {/* Maturity Date Filter */}
                       <Select
-                        placeholder="Maturity Date"
-                        className="w-32"
+                        placeholder={<span style={{ color: "#555555" }}>Maturity Date</span>}
+                        className="w-36"
                         allowClear
                         value={maturityDateFilter}
                         onChange={(value) => setMaturityDateFilter(value)}
                         options={uniqueMaturityDates.map((date) => ({ value: date, label: date }))}
+                        style={{ borderColor: "#d9d9d9" }}
                       />
 
                       {/* Company Filter */}
                       <Select
-                        placeholder="Company"
-                        className="w-32"
+                        placeholder={<span style={{ color: "#555555" }}>Company</span>}
+                        className="w-36"
                         allowClear
                         value={companyFilter}
                         onChange={(value) => setCompanyFilter(value)}
                         options={uniqueCompanies.map((company) => ({ value: company, label: company }))}
+                        style={{ borderColor: "#d9d9d9" }}
                       />
 
                       {/* Shareholder Filter */}
                       <Select
-                        placeholder="Shareholder"
-                        className="w-32"
+                        placeholder={<span style={{ color: "#555555" }}>Shareholder</span>}
+                        className="w-36"
                         allowClear
                         value={shareholderFilter}
                         onChange={(value) => setShareholderFilter(value)}
                         options={uniqueShareholders.map((shareholder) => ({ value: shareholder, label: shareholder }))}
+                        style={{ borderColor: "#d9d9d9" }}
                       />
                     </div>
 
