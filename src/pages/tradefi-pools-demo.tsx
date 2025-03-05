@@ -60,7 +60,7 @@ const mockPools = [
 
 export default function TradeFiPoolsDemo() {
   const [open, setOpen] = useState(false);
-  const [poolList, setPoolList] = useState<any[]>(mockPools);
+  const [poolList, setPoolList] = useState<any[]>([]);
   const [viewMode, setViewMode] = useState("card");
   const [selectedPool, setSelectedPool] = useState<any | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,12 +84,13 @@ export default function TradeFiPoolsDemo() {
   const onCreateSuccess = () => {
     // In a real implementation, we would fetch the updated pools
     // For now, we'll just add a new mock pool
+    const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+
     const newPool = {
       id: `pool${poolList.length + 1}`,
       title: `New Pool ${poolList.length + 1}`,
       description: "A newly created pool with mock data.",
-      logo: `https://via.placeholder.com/150/${Math.floor(Math.random() * 16777215).toString(16)}/FFFFFF?text=New`,
-      coverImage: `https://via.placeholder.com/800x400/${Math.floor(Math.random() * 16777215).toString(16)}/FFFFFF?text=New+Pool`,
+      color: randomColor,
       creditType: "Trade Finance Invoice",
       totalUsdcDeposited: 0,
       totalInvoiceAmount: 0,

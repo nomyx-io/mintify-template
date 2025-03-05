@@ -10,8 +10,9 @@ interface PoolCardProps {
     id: string;
     title: string;
     description: string;
-    logo: string;
-    coverImage: string;
+    logo?: string;
+    coverImage?: string;
+    color?: string;
     creditType: string;
     totalUsdcDeposited: number;
     totalInvoiceAmount: number;
@@ -28,22 +29,30 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, onPoolClick }) => {
       onClick={() => onPoolClick(pool)}
       cover={
         <div className="relative h-40 w-full">
-          <Image
-            src={pool.coverImage || "https://via.placeholder.com/800x400/cccccc/FFFFFF?text=Cover"}
-            alt={pool.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            style={{ objectFit: "cover" }}
-            className="rounded-t-lg"
-          />
-          <div className="absolute top-4 left-4 h-16 w-16 rounded-full overflow-hidden bg-white shadow-md">
-            <Image
-              src={pool.logo || "https://via.placeholder.com/150/cccccc/FFFFFF?text=Logo"}
-              alt={`${pool.title} logo`}
-              fill
-              sizes="64px"
-              style={{ objectFit: "cover" }}
-            />
+          <div
+            className="w-full h-full rounded-t-lg bg-blue-500"
+            style={{
+              backgroundColor: pool.color || "#3c89e8",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "white",
+              fontSize: "24px",
+              fontWeight: "bold",
+            }}
+          >
+            {pool.title}
+          </div>
+          <div
+            className="absolute top-4 left-4 h-16 w-16 rounded-full overflow-hidden bg-white shadow-md flex items-center justify-center"
+            style={{
+              backgroundColor: pool.color || "#3c89e8",
+              color: "white",
+              fontSize: "20px",
+              fontWeight: "bold",
+            }}
+          >
+            {pool.title.charAt(0)}
           </div>
         </div>
       }

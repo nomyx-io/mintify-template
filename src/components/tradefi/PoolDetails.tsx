@@ -11,8 +11,9 @@ interface PoolDetailsProps {
     id: string;
     title: string;
     description: string;
-    logo: string;
-    coverImage: string;
+    logo?: string;
+    coverImage?: string;
+    color?: string;
     creditType: string;
     totalUsdcDeposited: number;
     totalInvoiceAmount: number;
@@ -31,23 +32,32 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
       </Button>
 
       <div className="relative h-64 w-full rounded-lg overflow-hidden mb-6">
-        <Image
-          src={pool.coverImage || "https://via.placeholder.com/800x400/cccccc/FFFFFF?text=Cover"}
-          alt={pool.title}
-          fill
-          sizes="100vw"
-          style={{ objectFit: "cover" }}
-        />
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundColor: pool.color || "#3c89e8",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "white",
+            fontSize: "32px",
+            fontWeight: "bold",
+          }}
+        >
+          {pool.title}
+        </div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
           <div className="flex items-center gap-4">
-            <div className="h-20 w-20 rounded-full overflow-hidden bg-white shadow-md relative">
-              <Image
-                src={pool.logo || "https://via.placeholder.com/150/cccccc/FFFFFF?text=Logo"}
-                alt={`${pool.title} logo`}
-                fill
-                sizes="80px"
-                style={{ objectFit: "cover" }}
-              />
+            <div
+              className="h-20 w-20 rounded-full overflow-hidden shadow-md flex items-center justify-center"
+              style={{
+                backgroundColor: pool.color || "#3c89e8",
+                color: "white",
+                fontSize: "24px",
+                fontWeight: "bold",
+              }}
+            >
+              {pool.title.charAt(0)}
             </div>
             <div>
               <Title level={2} className="text-white m-0">
