@@ -72,22 +72,51 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
       <Row gutter={[24, 24]} className="mb-6">
         <Col xs={24} sm={12} md={6}>
           <Card className="h-full bg-white dark:bg-gray-800">
-            <Statistic title="Total USDC Deposited" value={pool.totalUsdcDeposited} precision={2} prefix="$" valueStyle={{ color: "#3c89e8" }} />
+            <Statistic
+              title="Total USDC Deposited"
+              value={pool.totalUsdcDeposited}
+              precision={2}
+              prefix="$"
+              valueStyle={{ color: "#3c89e8" }}
+              className="statistic-title-dark"
+            />
+            <style jsx global>{`
+              .statistic-title-dark .ant-statistic-title {
+                color: rgba(0, 0, 0, 0.85);
+              }
+              .dark .statistic-title-dark .ant-statistic-title {
+                color: rgba(255, 255, 255, 0.85);
+              }
+            `}</style>
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Card className="h-full bg-white dark:bg-gray-800">
-            <Statistic title="Total Invoice Amount" value={pool.totalInvoiceAmount} precision={2} prefix="$" valueStyle={{ color: "#3c89e8" }} />
+            <Statistic
+              title="Total Invoice Amount"
+              value={pool.totalInvoiceAmount}
+              precision={2}
+              prefix="$"
+              valueStyle={{ color: "#3c89e8" }}
+              className="statistic-title-dark"
+            />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Card className="h-full bg-white dark:bg-gray-800">
-            <Statistic title="Total Invoices" value={pool.totalInvoices} valueStyle={{ color: "#3c89e8" }} />
+            <Statistic title="Total Invoices" value={pool.totalInvoices} valueStyle={{ color: "#3c89e8" }} className="statistic-title-dark" />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
           <Card className="h-full bg-white dark:bg-gray-800">
-            <Statistic title="USDC Remaining" value={pool.usdcRemaining} precision={2} prefix="$" valueStyle={{ color: "#3c89e8" }} />
+            <Statistic
+              title="USDC Remaining"
+              value={pool.usdcRemaining}
+              precision={2}
+              prefix="$"
+              valueStyle={{ color: "#3c89e8" }}
+              className="statistic-title-dark"
+            />
           </Card>
         </Col>
       </Row>

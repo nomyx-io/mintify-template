@@ -65,27 +65,27 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, onPoolClick }) => {
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Text className="text-gray-500 dark:text-gray-400 block">Credit Type</Text>
+            <Text className="text-gray-700 dark:text-gray-400 block">Credit Type</Text>
             <Text className="font-medium text-gray-900 dark:text-white">{pool.creditType}</Text>
           </div>
 
           <div>
-            <Text className="text-gray-500 dark:text-gray-400 block">Total USDC deposited</Text>
+            <Text className="text-gray-700 dark:text-gray-400 block">Total USDC deposited</Text>
             <Text className="font-medium text-gray-900 dark:text-white">$ {pool.totalUsdcDeposited.toLocaleString()}</Text>
           </div>
 
           <div>
-            <Text className="text-gray-500 dark:text-gray-400 block">Total Invoice Amount</Text>
+            <Text className="text-gray-700 dark:text-gray-400 block">Total Invoice Amount</Text>
             <Text className="font-medium text-gray-900 dark:text-white">$ {pool.totalInvoiceAmount.toLocaleString()}</Text>
           </div>
 
           <div>
-            <Text className="text-gray-500 dark:text-gray-400 block">Total Invoices</Text>
+            <Text className="text-gray-700 dark:text-gray-400 block">Total Invoices</Text>
             <Text className="font-medium text-gray-900 dark:text-white">{pool.totalInvoices}</Text>
           </div>
 
           <div className="col-span-2">
-            <Text className="text-gray-500 dark:text-gray-400 block">USDC remaining</Text>
+            <Text className="text-gray-700 dark:text-gray-400 block">USDC remaining</Text>
             <Text className="font-medium text-gray-900 dark:text-white">$ {pool.usdcRemaining.toLocaleString()}</Text>
           </div>
         </div>
