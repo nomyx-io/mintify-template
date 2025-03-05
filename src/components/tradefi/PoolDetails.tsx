@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Button, Card, Typography, Row, Col, Statistic } from "antd";
+import { Button, Card, Tabs, Typography } from "antd";
+import { SearchNormal1, Category, RowVertical, ArrowLeft } from "iconsax-react";
 import Image from "next/image";
+import { useRouter } from "next/router";
+
+import projectBackground from "@/assets/projects_background.png";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -25,123 +28,154 @@ interface PoolDetailsProps {
 }
 
 const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
-  return (
-    <div>
-      <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack} className="mb-4 text-gray-900 dark:text-white">
-        Back to Pools
-      </Button>
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [viewMode, setViewMode] = useState<string>("table");
+  const [activeTab, setActiveTab] = useState("1");
 
-      <div className="relative h-64 w-full rounded-lg overflow-hidden mb-6">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundColor: pool.color || "#3c89e8",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "white",
-            fontSize: "32px",
-            fontWeight: "bold",
-          }}
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  return (
+    <div className="pool-details">
+      {/* Pool Header Section */}
+      <div
+        className="pool-header relative p-6 rounded-lg"
+        style={{
+          backgroundImage: `linear-gradient(to top, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 75%), url(${projectBackground.src})`,
+          backgroundSize: "cover",
+          backgroundPosition: "top center",
+          height: "500px",
+        }}
+      >
+        {/* Back Button */}
+        <button
+          onClick={onBack}
+          className="absolute top-4 left-4 sm:left-auto sm:right-4 lg:left-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark rounded-md flex items-center px-4 py-2 shadow-md w-[100px]"
         >
-          {pool.title}
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-6">
-          <div className="flex items-center gap-4">
-            <div
-              className="h-20 w-20 rounded-full overflow-hidden shadow-md flex items-center justify-center"
-              style={{
-                backgroundColor: pool.color || "#3c89e8",
-                color: "white",
-                fontSize: "24px",
-                fontWeight: "bold",
-              }}
-            >
-              {pool.title.charAt(0)}
+          <ArrowLeft size="24" className="mr-2" />
+          Back
+        </button>
+
+        {/* Pool Image, Title, and Description */}
+        <div className="absolute sm:-bottom-2 bottom-4 left-0 md:flex md:flex-row flex-col items-start md:items-center p-4 rounded-lg w-full">
+          {/* Pool Logo */}
+          <div
+            className="pool-logo rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center"
+            style={{
+              width: "100px",
+              height: "100px",
+              backgroundColor: pool.color || "#3c89e8",
+            }}
+          >
+            {pool.logo ? (
+              <Image src={pool.logo} alt="Pool Logo" width={100} height={100} className="object-cover w-full h-full" />
+            ) : (
+              <span className="text-white text-4xl font-bold">{pool.title.charAt(0)}</span>
+            )}
+          </div>
+
+          {/* Pool Title and Description */}
+          <div className="text-white flex-1 mx-4 mt-4 md:mt-0">
+            <h1 className="text-3xl font-bold !text-nomyx-dark2-light dark:nomyx-dark2-dark">{pool.title}</h1>
+            <p className="text-sm mt-2 max-w-md break-words !text-nomyx-dark2-light dark:nomyx-dark2-dark">{pool.description}</p>
+          </div>
+
+          {/* Pool Stats */}
+          <div className="mt-6 md:mt-0 flex flex-col md:flex-row md:flex-nowrap space-y-4 md:space-y-0 md:space-x-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100">
+            <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+              <span className="text-sm">Total USDC Deposited</span>
+              <h2 className="text-lg font-bold">${Intl.NumberFormat("en-US").format(pool.totalUsdcDeposited)}</h2>
             </div>
-            <div>
-              <Title level={2} className="text-white m-0">
-                {pool.title}
-              </Title>
-              <Text className="text-gray-200">{pool.creditType}</Text>
+            <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+              <span className="text-sm">Total Invoice Amount</span>
+              <h2 className="text-lg font-bold">${Intl.NumberFormat("en-US").format(pool.totalInvoiceAmount)}</h2>
+            </div>
+            <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+              <span className="text-sm">Total Invoices</span>
+              <h2 className="text-lg font-bold">{pool.totalInvoices}</h2>
             </div>
           </div>
         </div>
       </div>
 
-      <Row gutter={[24, 24]} className="mb-6">
-        <Col xs={24} sm={12} md={6}>
-          <Card className="h-full bg-white dark:bg-gray-800">
-            <Statistic
-              title="Total USDC Deposited"
-              value={pool.totalUsdcDeposited}
-              precision={2}
-              prefix="$"
-              valueStyle={{ color: "#3c89e8" }}
-              className="statistic-title-dark"
-            />
-            <style jsx global>{`
-              .statistic-title-dark .ant-statistic-title {
-                color: rgba(0, 0, 0, 0.85);
-              }
-              .dark .statistic-title-dark .ant-statistic-title {
-                color: rgba(255, 255, 255, 0.85);
-              }
-            `}</style>
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card className="h-full bg-white dark:bg-gray-800">
-            <Statistic
-              title="Total Invoice Amount"
-              value={pool.totalInvoiceAmount}
-              precision={2}
-              prefix="$"
-              valueStyle={{ color: "#3c89e8" }}
-              className="statistic-title-dark"
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card className="h-full bg-white dark:bg-gray-800">
-            <Statistic title="Total Invoices" value={pool.totalInvoices} valueStyle={{ color: "#3c89e8" }} className="statistic-title-dark" />
-          </Card>
-        </Col>
-        <Col xs={24} sm={12} md={6}>
-          <Card className="h-full bg-white dark:bg-gray-800">
-            <Statistic
-              title="USDC Remaining"
-              value={pool.usdcRemaining}
-              precision={2}
-              prefix="$"
-              valueStyle={{ color: "#3c89e8" }}
-              className="statistic-title-dark"
-            />
-          </Card>
-        </Col>
-      </Row>
+      {/* Header Section with Search Bar */}
+      <div className="flex justify-between items-center p-2 rounded-lg bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark mt-4">
+        {/* Search Bar */}
+        <div className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark flex-shrink-0 w-64 flex items-center rounded-sm h-8 py-1 px-2">
+          <SearchNormal1 size="24" />
+          <input
+            type="text"
+            placeholder="Search all columns"
+            className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark ml-2 w-full focus:outline-none"
+            onChange={handleSearchChange}
+            value={searchQuery}
+          />
+        </div>
 
-      <Card className="mb-6 bg-white dark:bg-gray-800">
-        <Title level={4} className="mb-4 text-gray-900 dark:text-white">
-          Description
-        </Title>
-        <Paragraph className="text-gray-600 dark:text-gray-400">{pool.description}</Paragraph>
+        {/* View Toggle */}
+        <div className="flex items-center">
+          {/* View Toggle Buttons */}
+          <button
+            onClick={() => setViewMode("card")}
+            className={`p-0.5 rounded-sm mr-2 ${viewMode === "card" ? "bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-blue-light" : ""}`}
+          >
+            <Category size="20" variant={viewMode === "card" ? "Bold" : "Linear"} />
+          </button>
+          <button
+            onClick={() => setViewMode("table")}
+            className={`p-0.5 rounded-sm ${viewMode === "table" ? "bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-blue-light" : ""}`}
+          >
+            <RowVertical size="20" variant={viewMode === "table" ? "Bold" : "Linear"} />
+          </button>
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <Card className="no-padding border-nomyx-gray4-light dark:border-nomyx-gray4-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark mt-4">
+        <Tabs
+          activeKey={activeTab}
+          onChange={(key) => setActiveTab(key)}
+          className="nftTabs"
+          items={[
+            {
+              key: "1",
+              label: "Pool Details",
+              children: (
+                <div className="p-4">
+                  <Card className="mb-6 bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark">
+                    <Title level={4} className="mb-4 text-nomyx-text-light dark:text-nomyx-text-dark">
+                      Description
+                    </Title>
+                    <Paragraph className="text-nomyx-text-light dark:text-nomyx-text-dark">{pool.description}</Paragraph>
+                  </Card>
+
+                  {pool.maturityDate && (
+                    <Card className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark">
+                      <Title level={4} className="mb-4 text-nomyx-text-light dark:text-nomyx-text-dark">
+                        Maturity Date
+                      </Title>
+                      <Paragraph className="text-nomyx-text-light dark:text-nomyx-text-dark">
+                        {new Date(pool.maturityDate).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </Paragraph>
+                    </Card>
+                  )}
+                </div>
+              ),
+            },
+            {
+              key: "2",
+              label: "Invoices",
+              children: <div className="p-4">Invoice list will be implemented here</div>,
+            },
+          ]}
+        />
       </Card>
-
-      {pool.maturityDate && (
-        <Card className="bg-white dark:bg-gray-800">
-          <Title level={4} className="mb-4 text-gray-900 dark:text-white">
-            Maturity Date
-          </Title>
-          <Paragraph className="text-gray-600 dark:text-gray-400">
-            {new Date(pool.maturityDate).toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </Paragraph>
-        </Card>
-      )}
     </div>
   );
 };
