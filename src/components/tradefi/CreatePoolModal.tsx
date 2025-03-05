@@ -123,29 +123,76 @@ const CreatePoolModal: React.FC<CreatePoolModalProps> = ({ open, setOpen, onCrea
     >
       <Form form={form} layout="vertical">
         <Form.Item label="Logo" name="logo" rules={[{ required: true, message: "Please upload a logo" }]}>
-          <Upload listType="picture-card" {...logoProps} accept="image/png,image/jpeg">
-            {!logoFile && (
-              <div>
-                <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-                <div style={{ fontSize: 12, color: "#999" }}>PNG, JPEG only</div>
-                <div style={{ fontSize: 12, color: "#999" }}>Max file size is 1 MB</div>
-              </div>
-            )}
-          </Upload>
+          <div className="flex items-center justify-center">
+            <Upload listType="picture-card" {...logoProps} accept="image/png,image/jpeg" className="upload-logo-button">
+              {!logoFile && (
+                <div className="upload-button-content">
+                  <PlusOutlined style={{ fontSize: 20 }} />
+                  <div style={{ marginTop: 4, fontSize: 14, fontWeight: 500 }}>Logo</div>
+                  <div style={{ fontSize: 11, color: "#999" }}>PNG, JPEG only</div>
+                  <div style={{ fontSize: 11, color: "#999" }}>Max file size is 1 MB</div>
+                </div>
+              )}
+            </Upload>
+          </div>
+          <style jsx global>{`
+            .upload-logo-button .ant-upload.ant-upload-select {
+              width: 120px !important;
+              height: 120px !important;
+              border-radius: 50%;
+              border: 2px dashed #d9d9d9;
+              background-color: #fafafa;
+              transition: all 0.3s;
+            }
+            .dark .upload-logo-button .ant-upload.ant-upload-select {
+              border-color: #434343;
+              background-color: #1f1f1f;
+            }
+            .upload-logo-button .ant-upload.ant-upload-select:hover {
+              border-color: #3c89e8;
+            }
+            .upload-button-content {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              height: 100%;
+              padding: 8px;
+              text-align: center;
+            }
+          `}</style>
         </Form.Item>
 
         <Form.Item label="Cover Image" name="coverImage" rules={[{ required: true, message: "Please upload a cover image" }]}>
-          <Upload listType="picture-card" {...coverProps} accept="image/png,image/jpeg">
-            {!coverFile && (
-              <div>
-                <PlusOutlined />
-                <div style={{ marginTop: 8 }}>Upload</div>
-                <div style={{ fontSize: 12, color: "#999" }}>PNG, JPEG only</div>
-                <div style={{ fontSize: 12, color: "#999" }}>Max file size is 1 MB</div>
-              </div>
-            )}
-          </Upload>
+          <div className="flex items-center justify-center">
+            <Upload listType="picture-card" {...coverProps} accept="image/png,image/jpeg" className="upload-cover-button">
+              {!coverFile && (
+                <div className="upload-button-content">
+                  <PlusOutlined style={{ fontSize: 20 }} />
+                  <div style={{ marginTop: 4, fontSize: 14, fontWeight: 500 }}>Cover Image</div>
+                  <div style={{ fontSize: 11, color: "#999" }}>PNG, JPEG only</div>
+                  <div style={{ fontSize: 11, color: "#999" }}>Max file size is 1 MB</div>
+                </div>
+              )}
+            </Upload>
+          </div>
+          <style jsx global>{`
+            .upload-cover-button .ant-upload.ant-upload-select {
+              width: 240px !important;
+              height: 135px !important;
+              border-radius: 8px;
+              border: 2px dashed #d9d9d9;
+              background-color: #fafafa;
+              transition: all 0.3s;
+            }
+            .dark .upload-cover-button .ant-upload.ant-upload-select {
+              border-color: #434343;
+              background-color: #1f1f1f;
+            }
+            .upload-cover-button .ant-upload.ant-upload-select:hover {
+              border-color: #3c89e8;
+            }
+          `}</style>
         </Form.Item>
 
         <Form.Item label="Title" name="title" rules={[{ required: true, message: "Please enter a title" }]}>
