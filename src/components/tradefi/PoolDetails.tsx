@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { Button, Card, Tabs, Typography } from "antd";
+import { Button, Card, Tabs, Typography, Table, Pagination } from "antd";
 import { SearchNormal1, Category, RowVertical, ArrowLeft } from "iconsax-react";
 import Image from "next/image";
 import { useRouter } from "next/router";
@@ -37,15 +37,58 @@ interface PoolDetailsProps {
   onBack: () => void;
 }
 
+// Mock data for collateral token history
+const mockCollateralHistory = [
+  {
+    key: "1",
+    investorId: "53265985515",
+    toHash: "0xd80b3332a4cdfd65df65df65df65df65df65",
+    createdDate: "09-05-2024",
+    total: 20000,
+  },
+  {
+    key: "2",
+    investorId: "53265985515",
+    toHash: "0xd80b3332a4cdfd65df65df65df65df65df65",
+    createdDate: "09-05-2024",
+    total: 18000,
+  },
+  {
+    key: "3",
+    investorId: "53265985515",
+    toHash: "0xd80b3332a4cdfd65df65df65df65df65df65",
+    createdDate: "09-05-2024",
+    total: 15000,
+  },
+  {
+    key: "4",
+    investorId: "53265985515",
+    toHash: "0xd80b3332a4cdfd65df65df65df65df65df65",
+    createdDate: "09-05-2024",
+    total: 9000,
+  },
+];
+
 const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [viewMode, setViewMode] = useState<string>("table");
   const [activeTab, setActiveTab] = useState("1");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
+
+  // Filter collateral history based on search query
+  const filteredCollateralHistory = mockCollateralHistory.filter(
+    (item) =>
+      item.investorId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.toHash.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.createdDate.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.total.toString().includes(searchQuery)
+  );
 
   return (
     <div className="pool-details">
@@ -216,6 +259,69 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
               key: "2",
               label: "Invoices",
               children: <div className="p-4">Invoice list will be implemented here</div>,
+            },
+            {
+              key: "3",
+              label: "Collateral Token History",
+              children: (
+                <div className="p-4">
+                  <div className="mb-4">
+                    <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">{filteredCollateralHistory.length} items</Text>
+                  </div>
+
+                  <Table
+                    dataSource={filteredCollateralHistory}
+                    pagination={false}
+                    className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
+                    rowClassName="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-text-light dark:text-nomyx-text-dark"
+                    columns={[
+                      {
+                        title: "Investor ID",
+                        dataIndex: "investorId",
+                        key: "investorId",
+                        sorter: (a, b) => a.investorId.localeCompare(b.investorId),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "To Hash",
+                        dataIndex: "toHash",
+                        key: "toHash",
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Created Date",
+                        dataIndex: "createdDate",
+                        key: "createdDate",
+                        sorter: (a, b) => a.createdDate.localeCompare(b.createdDate),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Total",
+                        dataIndex: "total",
+                        key: "total",
+                        sorter: (a, b) => a.total - b.total,
+                        render: (text) => `${text.toLocaleString()}`,
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                    ]}
+                  />
+
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="text-nomyx-text-light dark:text-nomyx-text-dark">
+                      Showing {Math.min((currentPage - 1) * pageSize + 1, filteredCollateralHistory.length)} -{" "}
+                      {Math.min(currentPage * pageSize, filteredCollateralHistory.length)} of {filteredCollateralHistory.length} items
+                    </div>
+                    <Pagination
+                      current={currentPage}
+                      pageSize={pageSize}
+                      total={filteredCollateralHistory.length}
+                      onChange={(page) => setCurrentPage(page)}
+                      showSizeChanger={false}
+                      className="text-nomyx-text-light dark:text-nomyx-text-dark"
+                    />
+                  </div>
+                </div>
+              ),
             },
           ]}
         />
