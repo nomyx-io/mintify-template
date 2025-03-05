@@ -31,7 +31,7 @@ const PoolListView: React.FC<PoolListViewProps> = ({ pools, className = "", onPo
           >
             {text.charAt(0)}
           </div>
-          <Text className="font-medium text-nomyx-text-light dark:text-nomyx-text-dark">{text}</Text>
+          <Text className="font-medium text-gray-900 dark:text-white">{text}</Text>
         </div>
       ),
     },
@@ -45,31 +45,31 @@ const PoolListView: React.FC<PoolListViewProps> = ({ pools, className = "", onPo
       title: "Credit Type",
       dataIndex: "creditType",
       key: "creditType",
-      render: (text) => <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">{text}</Text>,
+      render: (text) => <Text className="text-gray-900 dark:text-white">{text}</Text>,
     },
     {
       title: "Total USDC deposited",
       dataIndex: "totalUsdcDeposited",
       key: "totalUsdcDeposited",
-      render: (value) => <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">$ {value.toLocaleString()}</Text>,
+      render: (value) => <Text className="text-gray-900 dark:text-white">$ {value.toLocaleString()}</Text>,
     },
     {
       title: "Total Invoice Amount",
       dataIndex: "totalInvoiceAmount",
       key: "totalInvoiceAmount",
-      render: (value) => <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">$ {value.toLocaleString()}</Text>,
+      render: (value) => <Text className="text-gray-900 dark:text-white">$ {value.toLocaleString()}</Text>,
     },
     {
       title: "Total Invoices",
       dataIndex: "totalInvoices",
       key: "totalInvoices",
-      render: (value) => <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">{value}</Text>,
+      render: (value) => <Text className="text-gray-900 dark:text-white">{value}</Text>,
     },
     {
       title: "USDC remaining",
       dataIndex: "usdcRemaining",
       key: "usdcRemaining",
-      render: (value) => <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">$ {value.toLocaleString()}</Text>,
+      render: (value) => <Text className="text-gray-900 dark:text-white">$ {value.toLocaleString()}</Text>,
     },
   ];
 
@@ -78,7 +78,7 @@ const PoolListView: React.FC<PoolListViewProps> = ({ pools, className = "", onPo
       <Table
         columns={columns}
         dataSource={pools.map((pool) => ({ ...pool, key: pool.id }))}
-        className="bg-nomyx-light-light dark:bg-nomyx-dark-dark"
+        className="bg-white dark:bg-gray-800"
         onRow={(record) => ({
           onClick: () => onPoolClick(record),
           className: "cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800",

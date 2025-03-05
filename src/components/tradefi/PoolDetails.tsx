@@ -27,7 +27,7 @@ interface PoolDetailsProps {
 const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
   return (
     <div>
-      <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack} className="mb-4 text-nomyx-text-light dark:text-nomyx-text-dark">
+      <Button type="text" icon={<ArrowLeftOutlined />} onClick={onBack} className="mb-4 text-gray-900 dark:text-white">
         Back to Pools
       </Button>
 
@@ -71,37 +71,37 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
 
       <Row gutter={[24, 24]} className="mb-6">
         <Col xs={24} sm={12} md={6}>
-          <Card className="h-full">
+          <Card className="h-full bg-white dark:bg-gray-800">
             <Statistic title="Total USDC Deposited" value={pool.totalUsdcDeposited} precision={2} prefix="$" valueStyle={{ color: "#3c89e8" }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card className="h-full">
+          <Card className="h-full bg-white dark:bg-gray-800">
             <Statistic title="Total Invoice Amount" value={pool.totalInvoiceAmount} precision={2} prefix="$" valueStyle={{ color: "#3c89e8" }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card className="h-full">
+          <Card className="h-full bg-white dark:bg-gray-800">
             <Statistic title="Total Invoices" value={pool.totalInvoices} valueStyle={{ color: "#3c89e8" }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card className="h-full">
+          <Card className="h-full bg-white dark:bg-gray-800">
             <Statistic title="USDC Remaining" value={pool.usdcRemaining} precision={2} prefix="$" valueStyle={{ color: "#3c89e8" }} />
           </Card>
         </Col>
       </Row>
 
-      <Card className="mb-6">
-        <Title level={4} className="mb-4 text-nomyx-text-light dark:text-nomyx-text-dark">
+      <Card className="mb-6 bg-white dark:bg-gray-800">
+        <Title level={4} className="mb-4 text-gray-900 dark:text-white">
           Description
         </Title>
         <Paragraph className="text-gray-600 dark:text-gray-400">{pool.description}</Paragraph>
       </Card>
 
       {pool.maturityDate && (
-        <Card>
-          <Title level={4} className="mb-4 text-nomyx-text-light dark:text-nomyx-text-dark">
+        <Card className="bg-white dark:bg-gray-800">
+          <Title level={4} className="mb-4 text-gray-900 dark:text-white">
             Maturity Date
           </Title>
           <Paragraph className="text-gray-600 dark:text-gray-400">

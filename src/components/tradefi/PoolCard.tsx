@@ -25,7 +25,7 @@ interface PoolCardProps {
 const PoolCard: React.FC<PoolCardProps> = ({ pool, onPoolClick }) => {
   return (
     <Card
-      className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300"
+      className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-800"
       onClick={() => onPoolClick(pool)}
       cover={
         <div className="relative h-40 w-full">
@@ -58,7 +58,7 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, onPoolClick }) => {
       }
     >
       <div className="p-4">
-        <Title level={4} className="mb-2 text-nomyx-text-light dark:text-nomyx-text-dark">
+        <Title level={4} className="mb-2 text-gray-900 dark:text-white">
           {pool.title}
         </Title>
         <Text className="text-gray-600 dark:text-gray-400 line-clamp-3 mb-4">{pool.description}</Text>
@@ -66,27 +66,27 @@ const PoolCard: React.FC<PoolCardProps> = ({ pool, onPoolClick }) => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Text className="text-gray-500 dark:text-gray-400 block">Credit Type</Text>
-            <Text className="font-medium text-nomyx-text-light dark:text-nomyx-text-dark">{pool.creditType}</Text>
+            <Text className="font-medium text-gray-900 dark:text-white">{pool.creditType}</Text>
           </div>
 
           <div>
             <Text className="text-gray-500 dark:text-gray-400 block">Total USDC deposited</Text>
-            <Text className="font-medium text-nomyx-text-light dark:text-nomyx-text-dark">$ {pool.totalUsdcDeposited.toLocaleString()}</Text>
+            <Text className="font-medium text-gray-900 dark:text-white">$ {pool.totalUsdcDeposited.toLocaleString()}</Text>
           </div>
 
           <div>
             <Text className="text-gray-500 dark:text-gray-400 block">Total Invoice Amount</Text>
-            <Text className="font-medium text-nomyx-text-light dark:text-nomyx-text-dark">$ {pool.totalInvoiceAmount.toLocaleString()}</Text>
+            <Text className="font-medium text-gray-900 dark:text-white">$ {pool.totalInvoiceAmount.toLocaleString()}</Text>
           </div>
 
           <div>
             <Text className="text-gray-500 dark:text-gray-400 block">Total Invoices</Text>
-            <Text className="font-medium text-nomyx-text-light dark:text-nomyx-text-dark">{pool.totalInvoices}</Text>
+            <Text className="font-medium text-gray-900 dark:text-white">{pool.totalInvoices}</Text>
           </div>
 
           <div className="col-span-2">
             <Text className="text-gray-500 dark:text-gray-400 block">USDC remaining</Text>
-            <Text className="font-medium text-nomyx-text-light dark:text-nomyx-text-dark">$ {pool.usdcRemaining.toLocaleString()}</Text>
+            <Text className="font-medium text-gray-900 dark:text-white">$ {pool.usdcRemaining.toLocaleString()}</Text>
           </div>
         </div>
       </div>
