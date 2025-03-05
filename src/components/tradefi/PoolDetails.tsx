@@ -37,6 +37,46 @@ interface PoolDetailsProps {
   onBack: () => void;
 }
 
+// Mock data for investors
+const mockInvestors = [
+  {
+    key: "1",
+    name: "Investor 01",
+    id: "53265985515",
+    amountDeposited: 20000,
+    collateralTokenIssued: 20000,
+    lockupPeriod: "5/365",
+    interestTokensIssued: 20000,
+  },
+  {
+    key: "2",
+    name: "Investor 02",
+    id: "53265985515",
+    amountDeposited: 18000,
+    collateralTokenIssued: 18000,
+    lockupPeriod: "8/365",
+    interestTokensIssued: 18000,
+  },
+  {
+    key: "3",
+    name: "Investor 03",
+    id: "53265985515",
+    amountDeposited: 15000,
+    collateralTokenIssued: 15000,
+    lockupPeriod: "2/365",
+    interestTokensIssued: 15000,
+  },
+  {
+    key: "4",
+    name: "Investor 04",
+    id: "53265985515",
+    amountDeposited: 9000,
+    collateralTokenIssued: 9000,
+    lockupPeriod: "3/365",
+    interestTokensIssued: 9000,
+  },
+];
+
 // Mock data for collateral token history
 const mockCollateralHistory = [
   {
@@ -112,6 +152,17 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
+
+  // Filter investors based on search query
+  const filteredInvestors = mockInvestors.filter(
+    (item) =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.amountDeposited.toString().includes(searchQuery) ||
+      item.collateralTokenIssued.toString().includes(searchQuery) ||
+      item.lockupPeriod.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.interestTokensIssued.toString().includes(searchQuery)
+  );
 
   // Filter collateral history based on search query
   const filteredCollateralHistory = mockCollateralHistory.filter(
@@ -298,11 +349,90 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
             },
             {
               key: "2",
+              label: "Investors",
+              children: (
+                <div className="p-4">
+                  <div className="mb-4">
+                    <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">{filteredInvestors.length} items</Text>
+                  </div>
+
+                  <Table
+                    dataSource={filteredInvestors}
+                    pagination={false}
+                    className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
+                    rowClassName="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-text-light dark:text-nomyx-text-dark"
+                    columns={[
+                      {
+                        title: "Investor Name",
+                        dataIndex: "name",
+                        key: "name",
+                        sorter: (a, b) => a.name.localeCompare(b.name),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Investor ID",
+                        dataIndex: "id",
+                        key: "id",
+                        sorter: (a, b) => a.id.localeCompare(b.id),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Amount Deposited ($)",
+                        dataIndex: "amountDeposited",
+                        key: "amountDeposited",
+                        sorter: (a, b) => a.amountDeposited - b.amountDeposited,
+                        render: (text) => `${text.toLocaleString()}`,
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Collateral Token Issued",
+                        dataIndex: "collateralTokenIssued",
+                        key: "collateralTokenIssued",
+                        sorter: (a, b) => a.collateralTokenIssued - b.collateralTokenIssued,
+                        render: (text) => `${text.toLocaleString()}`,
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Collateral Token Lockup Period",
+                        dataIndex: "lockupPeriod",
+                        key: "lockupPeriod",
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Interest Tokens Issued",
+                        dataIndex: "interestTokensIssued",
+                        key: "interestTokensIssued",
+                        sorter: (a, b) => a.interestTokensIssued - b.interestTokensIssued,
+                        render: (text) => `${text.toLocaleString()}`,
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                    ]}
+                  />
+
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="text-nomyx-text-light dark:text-nomyx-text-dark">
+                      Showing {Math.min((currentPage - 1) * pageSize + 1, filteredInvestors.length)} -{" "}
+                      {Math.min(currentPage * pageSize, filteredInvestors.length)} of {filteredInvestors.length} items
+                    </div>
+                    <Pagination
+                      current={currentPage}
+                      pageSize={pageSize}
+                      total={filteredInvestors.length}
+                      onChange={(page) => setCurrentPage(page)}
+                      showSizeChanger={false}
+                      className="text-nomyx-text-light dark:text-nomyx-text-dark"
+                    />
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: "3",
               label: "Invoices",
               children: <div className="p-4">Invoice list will be implemented here</div>,
             },
             {
-              key: "3",
+              key: "4",
               label: "Collateral Token History",
               children: (
                 <div className="p-4">
@@ -365,7 +495,7 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
               ),
             },
             {
-              key: "4",
+              key: "5",
               label: "Interest Token History",
               children: (
                 <div className="p-4">
