@@ -1,7 +1,7 @@
 import React from "react";
 
 import { SearchOutlined, AppstoreOutlined, UnorderedListOutlined } from "@ant-design/icons";
-import { Button, Input, Space, Tabs } from "antd";
+import { Button, Input, Space, Select, DatePicker } from "antd";
 import { useRouter } from "next/router";
 
 interface PoolsHeaderProps {
@@ -11,7 +11,7 @@ interface PoolsHeaderProps {
 const PoolsHeader: React.FC<PoolsHeaderProps> = ({ setOpen }) => {
   const router = useRouter();
   const { query } = router;
-  const viewMode = query?.viewMode || "card";
+  const viewMode = query?.viewMode || "table";
   const queryString = (query?.query as string) || "";
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,32 +30,30 @@ const PoolsHeader: React.FC<PoolsHeaderProps> = ({ setOpen }) => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-      <div className="flex-1">
-        <h1 className="text-2xl font-bold text-nomyx-text-light dark:text-nomyx-text-dark mb-2">Customer View</h1>
-        <p className="text-gray-600 dark:text-gray-400">Manage and explore customer pools</p>
-      </div>
+    <div className="flex flex-col gap-4 mb-4">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <Input placeholder="Search" prefix={<SearchOutlined />} value={queryString} onChange={handleSearch} className="w-48" />
 
-      <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-        <Input placeholder="Search pools" prefix={<SearchOutlined />} value={queryString} onChange={handleSearch} className="w-full sm:w-64" />
+          <DatePicker placeholder="Start Date" className="w-40" />
 
-        <Space>
+          <DatePicker placeholder="Maturity Date" className="w-40" />
+        </div>
+
+        <div className="flex items-center gap-2">
           <Button
             type={viewMode === "card" ? "primary" : "default"}
             icon={<AppstoreOutlined />}
             onClick={() => handleViewModeChange("card")}
-            className={viewMode === "card" ? "bg-[#3c89e8]" : ""}
+            className={`flex items-center justify-center ${viewMode === "card" ? "bg-blue-600" : ""}`}
           />
           <Button
             type={viewMode === "table" ? "primary" : "default"}
             icon={<UnorderedListOutlined />}
             onClick={() => handleViewModeChange("table")}
-            className={viewMode === "table" ? "bg-[#3c89e8]" : ""}
+            className={`flex items-center justify-center ${viewMode === "table" ? "bg-blue-600" : ""}`}
           />
-          <Button type="primary" onClick={() => setOpen(true)} className="bg-[#3c89e8]">
-            Create New Pool
-          </Button>
-        </Space>
+        </div>
       </div>
     </div>
   );

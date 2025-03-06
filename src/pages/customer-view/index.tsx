@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-import { Button, message } from "antd";
+import { Button, message, Typography } from "antd";
 import { useRouter } from "next/router";
 
 import { TelescopeIcon } from "@/assets";
@@ -12,6 +12,8 @@ import PoolsHeader from "@/components/customer-view/PoolsHeader";
 import { getDashboardLayout } from "@/Layouts";
 import { TradeFinanceService } from "@/services/TradeFinanceService";
 
+const { Title } = Typography;
+
 export default function CustomerView() {
   const [open, setOpen] = useState(false);
   const [poolList, setPoolList] = useState<any[]>([]);
@@ -21,11 +23,54 @@ export default function CustomerView() {
   const router = useRouter();
   const { query } = router;
   const queryString = (query?.query as string) || "";
-  const viewMode = query?.viewMode || "card";
+  const viewMode = query?.viewMode || "table";
   const [selectedPool, setSelectedPool] = useState<any | null>(null);
   const filteredPools = poolList.filter(
-    (pool) => pool.title.toLowerCase().includes(queryString?.toLowerCase()) || pool.description.toLowerCase().includes(queryString?.toLowerCase())
+    (pool) => pool.title.toLowerCase().includes(queryString?.toLowerCase()) || pool.description?.toLowerCase().includes(queryString?.toLowerCase())
   );
+
+  // Mock data for SGH Capital pools
+  const mockPools = [
+    {
+      id: "1",
+      title: "SGH Capital",
+      description: "SGH Capital investment pool",
+      logo: "https://via.placeholder.com/150/cccccc/FFFFFF?text=SGH",
+      coverImage: "https://via.placeholder.com/800x400/cccccc/FFFFFF?text=SGH+Capital",
+      creditType: "Investment",
+      totalUsdcDeposited: 62000,
+      totalInvoiceAmount: 62000,
+      totalInvoices: 10,
+      usdcRemaining: 0,
+      maturityDate: "09-05-2024",
+    },
+    {
+      id: "2",
+      title: "Pool 1",
+      description: "Investment pool 1",
+      logo: "https://via.placeholder.com/150/cccccc/FFFFFF?text=P1",
+      coverImage: "https://via.placeholder.com/800x400/cccccc/FFFFFF?text=Pool+1",
+      creditType: "Investment",
+      totalUsdcDeposited: 62000,
+      totalInvoiceAmount: 62000,
+      totalInvoices: 8,
+      usdcRemaining: 0,
+      maturityDate: "09-05-2024",
+    },
+    {
+      id: "3",
+      title: "Pool 2",
+      description: "Investment pool 2",
+      logo: "https://via.placeholder.com/150/cccccc/FFFFFF?text=P2",
+      coverImage: "https://via.placeholder.com/800x400/cccccc/FFFFFF?text=Pool+2",
+      creditType: "Investment",
+      totalUsdcDeposited: 22000,
+      totalInvoiceAmount: 22000,
+      totalInvoices: 5,
+      usdcRemaining: 0,
+      maturityDate: "09-05-2024",
+    },
+  ];
 
   const handleCreatePool = () => {
     setOpen(true);
@@ -33,6 +78,11 @@ export default function CustomerView() {
 
   const fetchPools = useCallback(async () => {
     try {
+      // For mock purposes, we'll use the mockPools instead of API call
+      setPoolList(mockPools);
+
+      // Uncomment below for real API implementation
+      /*
       // Show loading state
       setPoolList([]);
 
@@ -57,12 +107,13 @@ export default function CustomerView() {
         }) || [];
 
       setPoolList(formattedPools);
+      */
     } catch (error) {
       console.error("Failed to fetch pools:", error);
       // Show error message
       message.error("Failed to fetch pools");
     }
-  }, [api]);
+  }, []);
 
   useEffect(() => {
     fetchPools();
@@ -78,7 +129,13 @@ export default function CustomerView() {
   };
 
   return (
-    <>
+    <div className="p-6">
+      <div className="mb-6">
+        <Title level={4} className="m-0">
+          Fund Pools
+        </Title>
+      </div>
+
       <CreatePoolModal open={open} setOpen={setOpen} onCreateSuccess={onCreateSuccess} />
       {!selectedPool && <PoolsHeader setOpen={setOpen} />}
       {selectedPool ? (
@@ -103,14 +160,14 @@ export default function CustomerView() {
               <p>No Pools around here?</p>
               <p>Worry not! Let&apos;s create some</p>
               <br />
-              <Button className="bg-[#3c89e8]" onClick={handleCreatePool}>
+              <Button className="bg-blue-600" onClick={handleCreatePool}>
                 Create New Pool
               </Button>
             </div>
           )}
         </>
       )}
-    </>
+    </div>
   );
 }
 
