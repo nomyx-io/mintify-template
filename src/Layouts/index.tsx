@@ -34,7 +34,6 @@ export const AppLayout = ({ children }: { children: React.ReactElement }) => {
   return (
     <AntdRegistry>
       <Layout style={{ minHeight: "100vh" }}>
-        <TopNavBar />
         <div className="sm:hidden w-[100%] h-[100%] text-white p-4 text-center overflow-hidden absolute top-0 left-0 flex justify-center items-center z-20">
           We&apos;re sorry, but this application is not supported on mobile devices.
         </div>
