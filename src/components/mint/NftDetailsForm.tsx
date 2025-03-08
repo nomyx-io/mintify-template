@@ -187,7 +187,14 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
                 <VariableFormInput type="text" name="mintAddress" label="" placeholder="Enter Wallet Address" rules={[walletAddressRule]} />
               )}
             </div>
-            <VariableFormInput type="text" name="price" label="Price" placeholder="Enter Price" rules={[requiredRule, numberRule]} prefix="$" />
+            <VariableFormInput
+              type="text"
+              name="price"
+              label={projectList.find((p) => p.id === projectId)?.industryTemplate === Industries.CARBON_CREDIT ? "Price Per Credit" : "Price"}
+              placeholder="Enter Price"
+              rules={[requiredRule, numberRule]}
+              prefix="$"
+            />
           </div>
           {additionalFields.length > 0 && (
             <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
