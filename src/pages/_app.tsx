@@ -216,11 +216,14 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     const { token, roles, walletPreference, user, dfnsToken } = await getToken({ email, password });
 
     if (roles.length > 0) {
+      const expirationTime = Date.now() + 60 * 30 * 1000; //30m
+
       setRole([...roles]);
       setUser(user);
       setDfnsToken(dfnsToken);
       setWalletPreference(walletPreference);
       localStorage.setItem("sessionToken", token);
+      localStorage.setItem("tokenExpiration", expirationTime.toString());
       setIsConnected(true);
       // Initialize blockchainService if required for standard login
       if ((window as any).ethereum) {

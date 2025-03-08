@@ -9,6 +9,7 @@ import { useAccount, useDisconnect } from "wagmi";
 import logoDark from "../../assets/nomyx_logo_dark.png";
 import logoLight from "../../assets/nomyx_logo_light.png";
 import { UserContext } from "../../context/UserContext";
+import AutoLogout from "../../utils/autoLogout";
 import { LoginPreference } from "../../utils/constants";
 
 export default function Login({ forceLogout, onConnect, onDisconnect, onLogin }) {
@@ -67,6 +68,8 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
         backgroundPosition: "center",
       }}
     >
+      <AutoLogout />
+
       {isConnected ? (
         <div className="flex flex-1 flex-col lg:flex-row items-center justify-center">
           <Spin />
