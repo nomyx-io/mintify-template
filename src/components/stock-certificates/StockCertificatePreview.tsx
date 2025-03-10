@@ -13,6 +13,8 @@ interface StockCertificatePreviewProps {
     title: string;
     description: string;
     fullDescription: string[];
+    smallLogoUrl?: string | null;
+    fullLogoUrl?: string | null;
     stockInfo: {
       type: string;
       stage: string;
@@ -46,9 +48,24 @@ const StockCertificatePreview: React.FC<StockCertificatePreviewProps> = ({ stock
           <div className="w-full md:w-1/3 mb-6 md:mb-0 md:mr-6">
             <div className="w-full h-64 bg-gray-800 rounded-lg overflow-hidden relative">
               {/* This would be the actual image in a real implementation */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Image src="https://placehold.co/400x400/3c89e8/FFFFFF.png?text=Stock+Certificate" alt="Stock Certificate" width={400} height={400} />
-              </div>
+              {stockCertificate.fullLogoUrl ? (
+                <div className="absolute inset-0">
+                  <img src={stockCertificate.fullLogoUrl} alt="Stock Certificate" className="w-full h-full object-cover" />
+                </div>
+              ) : stockCertificate.smallLogoUrl ? (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <img src={stockCertificate.smallLogoUrl} alt="Stock Certificate" className="w-64 h-64 object-contain" />
+                </div>
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Image
+                    src="https://placehold.co/400x400/3c89e8/FFFFFF.png?text=Stock+Certificate"
+                    alt="Stock Certificate"
+                    width={400}
+                    height={400}
+                  />
+                </div>
+              )}
             </div>
           </div>
 

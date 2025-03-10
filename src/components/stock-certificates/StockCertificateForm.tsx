@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import "styled-jsx/style";
 
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, PlusOutlined, LoadingOutlined } from "@ant-design/icons";
 import { Button, Card, Form, Input, Select, DatePicker, Typography, Upload, message } from "antd";
+import type { UploadFile, UploadProps } from "antd/es/upload/interface";
 import {
   ArrowLeft2,
   TextBold,
@@ -28,13 +30,73 @@ interface StockCertificateFormProps {
 const StockCertificateForm: React.FC<StockCertificateFormProps> = ({ onSubmit }) => {
   const [form] = Form.useForm();
   const [shortDescriptionLength, setShortDescriptionLength] = useState(0);
+  const [smallLogoLoading, setSmallLogoLoading] = useState(false);
+  const [fullLogoLoading, setFullLogoLoading] = useState(false);
+  const [smallLogoUrl, setSmallLogoUrl] = useState<string | null>(null);
+  const [fullLogoUrl, setFullLogoUrl] = useState<string | null>(null);
 
   const handleFinish = (values: any) => {
-    onSubmit(values);
+    // Add the logo URLs to the form values
+    const formData = {
+      ...values,
+      smallLogoUrl,
+      fullLogoUrl,
+    };
+    onSubmit(formData);
   };
 
   const handleShortDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setShortDescriptionLength(e.target.value.length);
+  };
+
+  // Function to handle image upload before it's sent to the server
+  const beforeUpload = (file: File) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("You can only upload JPG/PNG file!");
+    }
+    const isLt1M = file.size / 1024 / 1024 < 1;
+    if (!isLt1M) {
+      message.error("Image must be smaller than 1MB!");
+    }
+    return isJpgOrPng && isLt1M;
+  };
+
+  // Function to handle small logo upload
+  const handleSmallLogoChange: UploadProps["onChange"] = (info) => {
+    if (info.file.status === "uploading") {
+      setSmallLogoLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      // Get the image URL from the response or create a local URL
+      getBase64(info.file.originFileObj as File, (url) => {
+        setSmallLogoLoading(false);
+        setSmallLogoUrl(url);
+      });
+    }
+  };
+
+  // Function to handle full logo upload
+  const handleFullLogoChange: UploadProps["onChange"] = (info) => {
+    if (info.file.status === "uploading") {
+      setFullLogoLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      // Get the image URL from the response or create a local URL
+      getBase64(info.file.originFileObj as File, (url) => {
+        setFullLogoLoading(false);
+        setFullLogoUrl(url);
+      });
+    }
+  };
+
+  // Helper function to convert file to base64
+  const getBase64 = (img: File, callback: (url: string) => void) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => callback(reader.result as string));
+    reader.readAsDataURL(img);
   };
 
   const uploadProps = {
@@ -64,7 +126,25 @@ const StockCertificateForm: React.FC<StockCertificateFormProps> = ({ onSubmit })
   };
 
   return (
-    <div>
+    <div className="stock-certificate-form">
+      {/* Add CSS styles for the upload component */}
+      <style jsx global>{`
+        .ant-upload.ant-upload-select-picture-card {
+          width: 100%;
+          height: 150px;
+          margin-right: 0;
+          margin-bottom: 0;
+          background-color: transparent;
+          border: 1px dashed #d9d9d9;
+          border-radius: 8px;
+        }
+        .avatar-uploader .ant-upload-list-item-info {
+          height: 150px;
+        }
+        .ant-upload-list-item-thumbnail img {
+          object-fit: cover;
+        }
+      `}</style>
       <Card className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark mb-4">
         <Title level={5} className="text-nomyx-text-light dark:text-nomyx-text-dark mb-4">
           Details
@@ -82,20 +162,37 @@ const StockCertificateForm: React.FC<StockCertificateFormProps> = ({ onSubmit })
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Left Column */}
             <div>
-              <div className="mb-6">
-                <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">Token Small Logo</Text>
-                <div className="border border-dashed border-gray-300 rounded-lg p-6 mt-2 text-center">
-                  <p className="text-gray-500">Drop image here, or</p>
-                  <Button icon={<ArrowLeft2 size={16} />} className="mt-2">
-                    Select File
-                  </Button>
-                  <p className="text-gray-500 text-xs mt-2">
-                    PNG, JPEG only
-                    <br />
-                    Max file size is 1 MB
-                  </p>
-                </div>
-              </div>
+              <Form.Item name="smallLogo" label={<span className="text-nomyx-text-light dark:text-nomyx-text-dark">Token Small Logo</span>}>
+                <Upload
+                  name="smallLogo"
+                  listType="picture-card"
+                  className="avatar-uploader"
+                  showUploadList={false}
+                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                  beforeUpload={beforeUpload}
+                  onChange={handleSmallLogoChange}
+                  accept="image/jpeg,image/png"
+                >
+                  {smallLogoUrl ? (
+                    <div className="relative w-full h-full">
+                      <img src={smallLogoUrl} alt="Small Logo" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <PlusOutlined className="text-white text-2xl" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center">
+                      {smallLogoLoading ? <LoadingOutlined /> : <PlusOutlined />}
+                      <div className="mt-2">Upload</div>
+                      <p className="text-gray-500 text-xs mt-2">
+                        PNG, JPEG only
+                        <br />
+                        Max file size is 1 MB
+                      </p>
+                    </div>
+                  )}
+                </Upload>
+              </Form.Item>
 
               <Form.Item
                 name="title"
@@ -141,20 +238,37 @@ const StockCertificateForm: React.FC<StockCertificateFormProps> = ({ onSubmit })
 
             {/* Right Column */}
             <div>
-              <div className="mb-6">
-                <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">Token Full Logo</Text>
-                <div className="border border-dashed border-gray-300 rounded-lg p-6 mt-2 text-center">
-                  <p className="text-gray-500">Drop image here, or</p>
-                  <Button icon={<ArrowLeft2 size={16} />} className="mt-2">
-                    Select File
-                  </Button>
-                  <p className="text-gray-500 text-xs mt-2">
-                    PNG, JPEG only
-                    <br />
-                    Max file size is 1 MB
-                  </p>
-                </div>
-              </div>
+              <Form.Item name="fullLogo" label={<span className="text-nomyx-text-light dark:text-nomyx-text-dark">Token Full Logo</span>}>
+                <Upload
+                  name="fullLogo"
+                  listType="picture-card"
+                  className="avatar-uploader"
+                  showUploadList={false}
+                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                  beforeUpload={beforeUpload}
+                  onChange={handleFullLogoChange}
+                  accept="image/jpeg,image/png"
+                >
+                  {fullLogoUrl ? (
+                    <div className="relative w-full h-full">
+                      <img src={fullLogoUrl} alt="Full Logo" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <PlusOutlined className="text-white text-2xl" />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center">
+                      {fullLogoLoading ? <LoadingOutlined /> : <PlusOutlined />}
+                      <div className="mt-2">Upload</div>
+                      <p className="text-gray-500 text-xs mt-2">
+                        PNG, JPEG only
+                        <br />
+                        Max file size is 1 MB
+                      </p>
+                    </div>
+                  )}
+                </Upload>
+              </Form.Item>
 
               <Form.Item
                 name="shortDescription"
