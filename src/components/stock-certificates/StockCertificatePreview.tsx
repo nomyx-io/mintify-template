@@ -206,19 +206,20 @@ const StockCertificatePreview: React.FC<StockCertificatePreviewProps> = ({ stock
           Related Documentation
         </Title>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+        <div className="flex flex-wrap gap-6">
           {stockCertificate.documents?.map((doc, index) => (
-            <div key={index} className="text-center">
-              <div className="w-full h-32 bg-red-600 rounded-lg mb-2 flex items-center justify-center">
+            <div key={index} className="text-center w-32">
+              <div className="w-32 h-32 bg-red-600 rounded-lg mb-2 flex items-center justify-center">
                 <Text className="text-white text-lg">PDF</Text>
               </div>
-              <Text className="text-nomyx-text-light dark:text-nomyx-text-dark block">{doc.type}</Text>
+              <Text className="text-nomyx-text-light dark:text-nomyx-text-dark block text-sm">{doc.type}</Text>
               <div className="flex justify-center mt-2 space-x-2">
                 <Button
                   type="text"
                   shape="circle"
+                  size="small"
                   icon={
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path
                         d="M12 14C13.1046 14 14 13.1046 14 12C14 10.8954 13.1046 10 12 10C10.8954 10 10 10.8954 10 12C10 13.1046 10.8954 14 12 14Z"
                         stroke="currentColor"
@@ -241,8 +242,9 @@ const StockCertificatePreview: React.FC<StockCertificatePreviewProps> = ({ stock
                 <Button
                   type="text"
                   shape="circle"
+                  size="small"
                   icon={
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path
                         d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z"
                         stroke="currentColor"
