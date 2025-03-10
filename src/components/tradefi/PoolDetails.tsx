@@ -471,85 +471,6 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
           className="nftTabs"
           items={[
             {
-              key: "1",
-              label: "Investors",
-              children: (
-                <div className="p-4">
-                  <div className="mb-4">
-                    <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">{filteredInvestors.length} items</Text>
-                  </div>
-
-                  <Table
-                    dataSource={filteredInvestors}
-                    pagination={false}
-                    className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
-                    rowClassName="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-text-light dark:text-nomyx-text-dark"
-                    columns={[
-                      {
-                        title: "Investor Name",
-                        dataIndex: "name",
-                        key: "name",
-                        sorter: (a, b) => a.name.localeCompare(b.name),
-                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
-                      },
-                      {
-                        title: "Investor ID",
-                        dataIndex: "id",
-                        key: "id",
-                        sorter: (a, b) => a.id.localeCompare(b.id),
-                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
-                      },
-                      {
-                        title: "Amount Deposited ($)",
-                        dataIndex: "amountDeposited",
-                        key: "amountDeposited",
-                        sorter: (a, b) => a.amountDeposited - b.amountDeposited,
-                        render: (text) => `${text.toLocaleString()}`,
-                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
-                      },
-                      {
-                        title: "Collateral Token Issued",
-                        dataIndex: "collateralTokenIssued",
-                        key: "collateralTokenIssued",
-                        sorter: (a, b) => a.collateralTokenIssued - b.collateralTokenIssued,
-                        render: (text) => `${text.toLocaleString()}`,
-                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
-                      },
-                      {
-                        title: "Collateral Token Lockup Period",
-                        dataIndex: "lockupPeriod",
-                        key: "lockupPeriod",
-                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
-                      },
-                      {
-                        title: "Interest Tokens Issued",
-                        dataIndex: "interestTokensIssued",
-                        key: "interestTokensIssued",
-                        sorter: (a, b) => a.interestTokensIssued - b.interestTokensIssued,
-                        render: (text) => `${text.toLocaleString()}`,
-                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
-                      },
-                    ]}
-                  />
-
-                  <div className="flex justify-between items-center mt-4">
-                    <div className="text-nomyx-text-light dark:text-nomyx-text-dark">
-                      Showing {Math.min((currentPage - 1) * pageSize + 1, filteredInvestors.length)} -{" "}
-                      {Math.min(currentPage * pageSize, filteredInvestors.length)} of {filteredInvestors.length} items
-                    </div>
-                    <Pagination
-                      current={currentPage}
-                      pageSize={pageSize}
-                      total={filteredInvestors.length}
-                      onChange={(page) => setCurrentPage(page)}
-                      showSizeChanger={false}
-                      className="text-nomyx-text-light dark:text-nomyx-text-dark"
-                    />
-                  </div>
-                </div>
-              ),
-            },
-            {
               key: "2",
               label: "Stock Certificates",
               children: (
@@ -749,6 +670,85 @@ const PoolDetails: React.FC<PoolDetailsProps> = ({ pool, onBack }) => {
                       current={currentPage}
                       pageSize={pageSize}
                       total={filteredInvoices.length}
+                      onChange={(page) => setCurrentPage(page)}
+                      showSizeChanger={false}
+                      className="text-nomyx-text-light dark:text-nomyx-text-dark"
+                    />
+                  </div>
+                </div>
+              ),
+            },
+            {
+              key: "1",
+              label: "Investors",
+              children: (
+                <div className="p-4">
+                  <div className="mb-4">
+                    <Text className="text-nomyx-text-light dark:text-nomyx-text-dark">{filteredInvestors.length} items</Text>
+                  </div>
+
+                  <Table
+                    dataSource={filteredInvestors}
+                    pagination={false}
+                    className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
+                    rowClassName="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-text-light dark:text-nomyx-text-dark"
+                    columns={[
+                      {
+                        title: "Investor Name",
+                        dataIndex: "name",
+                        key: "name",
+                        sorter: (a, b) => a.name.localeCompare(b.name),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Investor ID",
+                        dataIndex: "id",
+                        key: "id",
+                        sorter: (a, b) => a.id.localeCompare(b.id),
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Amount Deposited ($)",
+                        dataIndex: "amountDeposited",
+                        key: "amountDeposited",
+                        sorter: (a, b) => a.amountDeposited - b.amountDeposited,
+                        render: (text) => `${text.toLocaleString()}`,
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Collateral Token Issued",
+                        dataIndex: "collateralTokenIssued",
+                        key: "collateralTokenIssued",
+                        sorter: (a, b) => a.collateralTokenIssued - b.collateralTokenIssued,
+                        render: (text) => `${text.toLocaleString()}`,
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Collateral Token Lockup Period",
+                        dataIndex: "lockupPeriod",
+                        key: "lockupPeriod",
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                      {
+                        title: "Interest Tokens Issued",
+                        dataIndex: "interestTokensIssued",
+                        key: "interestTokensIssued",
+                        sorter: (a, b) => a.interestTokensIssued - b.interestTokensIssued,
+                        render: (text) => `${text.toLocaleString()}`,
+                        className: "text-nomyx-text-light dark:text-nomyx-text-dark",
+                      },
+                    ]}
+                  />
+
+                  <div className="flex justify-between items-center mt-4">
+                    <div className="text-nomyx-text-light dark:text-nomyx-text-dark">
+                      Showing {Math.min((currentPage - 1) * pageSize + 1, filteredInvestors.length)} -{" "}
+                      {Math.min(currentPage * pageSize, filteredInvestors.length)} of {filteredInvestors.length} items
+                    </div>
+                    <Pagination
+                      current={currentPage}
+                      pageSize={pageSize}
+                      total={filteredInvestors.length}
                       onChange={(page) => setCurrentPage(page)}
                       showSizeChanger={false}
                       className="text-nomyx-text-light dark:text-nomyx-text-dark"
