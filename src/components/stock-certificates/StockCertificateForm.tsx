@@ -43,6 +43,14 @@ const StockCertificateForm: React.FC<StockCertificateFormProps> = ({ onSubmit })
     headers: {
       authorization: "authorization-text",
     },
+    accept: "application/pdf",
+    beforeUpload: (file: any) => {
+      const isPDF = file.type === "application/pdf";
+      if (!isPDF) {
+        message.error(`${file.name} is not a PDF file. Only PDF files are allowed.`);
+      }
+      return isPDF || Upload.LIST_IGNORE;
+    },
     onChange(info: any) {
       if (info.file.status !== "uploading") {
         console.log(info.file, info.fileList);
