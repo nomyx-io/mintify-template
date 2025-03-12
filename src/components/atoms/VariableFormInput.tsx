@@ -1,5 +1,5 @@
 import { UploadOutlined } from "@ant-design/icons";
-import { Checkbox, DatePicker, Form, FormRule, Input, Select, Upload, Button } from "antd";
+import { Checkbox, DatePicker, Form, FormRule, Input, Select, Upload, Button, message } from "antd";
 import dayjs from "dayjs";
 
 interface VariableFormInputProps {
@@ -64,10 +64,18 @@ export default function VariableFormInput({
             listType="text"
             className={inputStyle}
             maxCount={1}
-            beforeUpload={() => false} // Prevent auto upload
+            accept=".pdf"
+            beforeUpload={(file) => {
+              const isPDF = file.type === "application/pdf";
+              if (!isPDF) {
+                message.error("You can only upload PDF files!");
+                return Upload.LIST_IGNORE;
+              }
+              return false; // Prevent auto upload but allow file to be added to list
+            }}
           >
             <Button icon={<UploadOutlined />} className="bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark">
-              {placeholder || placeHolder || "Upload"}
+              {placeholder || placeHolder || "Upload PDF"}
             </Button>
           </Upload>
         </Form.Item>
