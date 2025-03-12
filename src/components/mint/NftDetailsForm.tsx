@@ -1,14 +1,33 @@
-import React, { useCallback, useEffect, useMemo, useState, useRef, use } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
-import { Card, Form, FormInstance, Radio } from "antd";
+import { Card, Form, FormInstance, Radio, FormRule } from "antd";
 import { useRouter } from "next/router";
 
-import { Industries, carbonCreditFields, tradeFinanceFields, tokenizedDebtFields } from "@/constants/constants";
+import {
+  Industries,
+  carbonCreditFields,
+  tradeFinanceFields,
+  tokenizedDebtFields,
+  tradeFinanceStockInfoFields,
+  tradeFinanceDocumentationFields,
+} from "@/constants/constants";
 import { requiredRule, numberRule, alphaNumericRule, walletAddressRule } from "@/constants/rules";
 import { CustomerService } from "@/services/CustomerService";
 import { Regex } from "@/utils/regex";
 
 import VariableFormInput from "../atoms/VariableFormInput";
+
+interface NftDetailsInputField {
+  label: string;
+  name: string;
+  type: string;
+  placeHolder?: string;
+  rules?: FormRule[];
+  disabled?: boolean;
+  prefix?: string;
+  options?: { label: string; value: string }[];
+  className?: string;
+}
 
 interface NftDetailsFormProps {
   form: FormInstance;
@@ -78,6 +97,8 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
     fetchRegisteredUsers();
   }, [fetchProjects, fetchRegisteredUsers]);
 
+  const [showTradeFinanceFields, setShowTradeFinanceFields] = useState(false);
+
   useEffect(() => {
     const project = projectList.find((project) => project.id === projectId);
     if (project) {
@@ -96,6 +117,9 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
         }));
       }
 
+      // Set showTradeFinanceFields based on the project's industry template
+      setShowTradeFinanceFields(project.industryTemplate === Industries.TRADE_FINANCE);
+
       switch (project.industryTemplate) {
         case Industries.CARBON_CREDIT:
           fields = [...fields, ...carbonCreditFields];
@@ -103,6 +127,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
         case Industries.TOKENIZED_DEBT:
           break;
         case Industries.TRADE_FINANCE:
+          fields = [...fields, ...tradeFinanceFields];
           break;
         default:
           break;
@@ -189,6 +214,49 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
             </div>
             <VariableFormInput type="text" name="price" label="Price" placeholder="Enter Price" rules={[requiredRule, numberRule]} prefix="$" />
           </div>
+
+          {/* Stock Information Section for Trade Finance */}
+          {showTradeFinanceFields && (
+            <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
+              <p className="col-span-2 font-bold pb-6">Stock Information</p>
+              {tradeFinanceStockInfoFields.map((field, index) => (
+                <VariableFormInput
+                  key={`stock-info-${index}`}
+                  name={field.name}
+                  label={field.label}
+                  type={field.type}
+                  rules={field.rules ?? [requiredRule]}
+                  disabled={field.disabled}
+                  prefix={field.prefix || ""}
+                  placeHolder={field.placeHolder}
+                  options={field.options}
+                  className={field.className}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Related Documentation Section for Trade Finance */}
+          {showTradeFinanceFields && (
+            <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
+              <p className="col-span-2 font-bold pb-6">Related Documentation</p>
+              {tradeFinanceDocumentationFields.map((field, index) => (
+                <VariableFormInput
+                  key={`documentation-${index}`}
+                  name={field.name}
+                  label={field.label}
+                  type={field.type}
+                  rules={field.rules ?? [requiredRule]}
+                  disabled={field.disabled}
+                  prefix={field.prefix || ""}
+                  placeHolder={field.placeHolder}
+                  options={field.options}
+                  className={field.className}
+                />
+              ))}
+            </div>
+          )}
+
           {additionalFields.length > 0 && (
             <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
               <p className="col-span-2 font-bold pb-6">Token Fields</p>
@@ -202,7 +270,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
                     rules={field.rules ?? [requiredRule]}
                     disabled={field.disabled}
                     prefix={field?.prefix || ""}
-                    placeholder={field.placeHolder}
+                    placeHolder={field.placeHolder}
                     options={field.options}
                     className={field.className}
                   />

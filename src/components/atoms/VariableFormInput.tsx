@@ -1,4 +1,5 @@
-import { Checkbox, DatePicker, Form, FormRule, Input, Select } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import { Checkbox, DatePicker, Form, FormRule, Input, Select, Upload, Button } from "antd";
 import dayjs from "dayjs";
 
 interface VariableFormInputProps {
@@ -12,6 +13,7 @@ interface VariableFormInputProps {
   value?: string;
   rules?: FormRule[];
   className?: string;
+  placeHolder?: string;
 }
 
 export default function VariableFormInput({
@@ -25,6 +27,7 @@ export default function VariableFormInput({
   value,
   rules,
   className,
+  placeHolder,
 }: VariableFormInputProps) {
   const inputStyle =
     "!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark " +
@@ -51,18 +54,35 @@ export default function VariableFormInput({
             value: e ? dayjs(e) : "",
           })}
         >
-          <DatePicker className={inputStyle + " w-full"} placeholder={placeholder} disabled={disabled} format="MM/DD/YYYY" />
+          <DatePicker className={inputStyle + " w-full"} placeholder={placeholder || placeHolder} disabled={disabled} format="MM/DD/YYYY" />
+        </Form.Item>
+      )}
+      {type === "file" && (
+        <Form.Item name={name} label={label} rules={rules}>
+          <Upload
+            name={name}
+            listType="text"
+            className={inputStyle}
+            maxCount={1}
+            beforeUpload={() => false} // Prevent auto upload
+          >
+            <Button icon={<UploadOutlined />} className="bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark">
+              {placeholder || placeHolder || "Upload"}
+            </Button>
+          </Upload>
         </Form.Item>
       )}
       {(type === "select" || type === "number" || type === "text") && (
         <Form.Item name={name} label={label} rules={rules}>
-          {type === "select" && <Select showSearch placeholder={placeholder} optionFilterProp="label" options={options} className={inputStyle} />}
+          {type === "select" && (
+            <Select showSearch placeholder={placeholder || placeHolder} optionFilterProp="label" options={options} className={inputStyle} />
+          )}
           {type !== "select" && (
             <Input
               disabled={disabled}
               prefix={prefix || null}
               type={type}
-              placeholder={placeholder}
+              placeholder={placeholder || placeHolder}
               name={name}
               className={inputStyle}
               value={value}
