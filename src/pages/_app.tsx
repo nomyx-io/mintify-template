@@ -206,6 +206,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     setForceLogout(false);
     setIsConnected(false);
     localStorage.removeItem("sessionToken");
+    localStorage.removeItem("tokenExpiration");
     //setBlockchainService(null);
 
     toast.success("Logged out successfully.");
@@ -250,6 +251,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       } else {
         // Token is invalid or roles are empty
         localStorage.removeItem("sessionToken");
+        localStorage.removeItem("tokenExpiration");
         setForceLogout(true);
       }
     }
@@ -283,6 +285,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     setForceLogout(false);
     setIsConnected(false);
     localStorage.removeItem("sessionToken");
+    localStorage.removeItem("tokenExpiration");
   };
 
   const getLayout = Component.getLayout || ((page: React.ReactNode) => page);
