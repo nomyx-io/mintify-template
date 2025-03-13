@@ -1,30 +1,86 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
 
-import { useDisconnect } from "wagmi";
+import { useDisconnect, useAccount } from "wagmi";
+
+import { UserContext } from "../context/UserContext";
 
 const AutoLogout = () => {
   const { disconnect } = useDisconnect();
-  const [expirationTime, setExpirationTime] = useState<number | null>(null);
-  const [hasLoggedOut, setHasLoggedOut] = useState(false);
-  const [waitingForToken, setWaitingForToken] = useState(true); // NEW: Wait until tokenExpiration exists
+  const { isConnected } = useAccount();
+  const { user } = useContext(UserContext);
+
+  const [waitingForToken, setWaitingForToken] = useState(true);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const waitForTokenRef = useRef<NodeJS.Timeout | null>(null);
+  const isLoggedOut = useRef(false);
+
+  const isUserLoggedIn = isConnected || user || localStorage.getItem("sessionToken"); // Check if user is logged in
 
   useEffect(() => {
-    const waitForToken = setInterval(() => {
-      const tokenExpString = localStorage.getItem("tokenExpiration");
+    if (!isUserLoggedIn) {
+      console.log("🔒 User is not logged in. AutoLogout disabled.");
+      return;
+    }
 
+    console.log("✅ User detected. AutoLogout enabled.");
+    isLoggedOut.current = false; // Reset logout flag when user logs in
+
+    const tokenExpString = localStorage.getItem("tokenExpiration");
+
+    if (tokenExpString) {
+      console.log("✅ TokenExpiration detected. Starting AutoLogout.");
+      setWaitingForToken(false);
+      checkExpiration();
+    } else {
+      console.log("⏳ Waiting for tokenExpiration...");
+      waitForTokenRef.current = setInterval(() => {
+        if (isLoggedOut.current) return; // Stop checking if logged out
+
+        const tokenExpString = localStorage.getItem("tokenExpiration");
+        if (tokenExpString) {
+          console.log("✅ TokenExpiration detected. Starting AutoLogout.");
+          clearInterval(waitForTokenRef.current!);
+          waitForTokenRef.current = null;
+          setWaitingForToken(false);
+          checkExpiration();
+        }
+      }, 500);
+    }
+
+    return () => {
+      if (waitForTokenRef.current) {
+        clearInterval(waitForTokenRef.current);
+        waitForTokenRef.current = null;
+      }
+    };
+  }, [isUserLoggedIn]);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      if (!isUserLoggedIn || isLoggedOut.current) return; // Stop execution if logged out
+
+      const tokenExpString = localStorage.getItem("tokenExpiration");
       if (tokenExpString) {
-        console.log("✅ TokenExpiration detected. Starting AutoLogout.");
-        clearInterval(waitForToken);
+        console.log("🔄 TokenExpiration updated. Restarting AutoLogout.");
         setWaitingForToken(false);
         checkExpiration();
       }
-    }, 500); // Check every 500ms if tokenExpiration is set
+    };
 
-    return () => clearInterval(waitForToken);
-  }, []);
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [isUserLoggedIn]);
 
   const checkExpiration = () => {
-    //console.log("🔍 Running checkExpiration...");
+    if (isLoggedOut.current) {
+      console.warn("⚠️ User has logged out. Stopping AutoLogout.");
+      return; // Stop execution
+    }
+
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
     const tokenExpString = localStorage.getItem("tokenExpiration");
 
@@ -40,33 +96,44 @@ const AutoLogout = () => {
       return;
     }
 
-    setExpirationTime(tokenExp);
-    //console.log(`✅ AutoLogout initialized - Token expires at: ${new Date(tokenExp).toLocaleTimeString()} (${tokenExp})`);
-
     const timeRemaining = tokenExp - Date.now();
-    //console.log(`⏳ Time remaining: ${Math.max(Math.round(timeRemaining / 1000), 0)}s`);
+    console.log(`⏳ Time remaining: ${Math.max(Math.round(timeRemaining / 1000), 0)}s`);
 
-    if (timeRemaining <= 0) {
-      console.log("🚨 Token expired! Logging out...");
+    if (timeRemaining <= 1000) {
       handleLogout();
-      return;
+    } else {
+      timeoutRef.current = setTimeout(() => {
+        if (!isLoggedOut.current) {
+          checkExpiration();
+        }
+      }, 1000);
     }
-
-    setTimeout(checkExpiration, 1000);
   };
 
   const handleLogout = () => {
-    if (hasLoggedOut) {
+    if (isLoggedOut.current) {
       console.warn("🚫 Logout already triggered. Skipping...");
       return;
     }
 
     console.log("🚨 Logging out...");
-    setHasLoggedOut(true);
+    isLoggedOut.current = true; // Set flag to prevent future executions
     disconnect();
 
+    // **Remove tokenExpiration so checkExpiration() stops running**
     localStorage.removeItem("sessionToken");
     localStorage.removeItem("tokenExpiration");
+
+    // **Fully cleanup all timeouts/intervals** to stop countdown
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    if (waitForTokenRef.current) {
+      clearInterval(waitForTokenRef.current);
+      waitForTokenRef.current = null;
+    }
 
     setTimeout(() => {
       console.log("🔄 Redirecting to /login...");
@@ -76,7 +143,7 @@ const AutoLogout = () => {
 
   if (waitingForToken) {
     console.log("⏳ Waiting for tokenExpiration...");
-    return null; // Don't start countdown yet
+    return null;
   }
 
   return null;
