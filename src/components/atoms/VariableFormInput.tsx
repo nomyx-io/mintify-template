@@ -100,13 +100,20 @@ export default function VariableFormInput({
                 // Save file to Parse
                 const parseFile = await ParseClient.saveFile(sanitizedName, { base64: (base64Data as string).split(",")[1] }, file.type);
 
-                // Update form with Parse file URL
+                // Update form with Parse file URL and store file object
+                const fileUrl = parseFile.url();
+                if (!fileUrl) {
+                  message.error("Failed to get file URL from Parse");
+                  return Upload.LIST_IGNORE;
+                }
+
+                // Update form with the Parse Server URL
                 const form = (file as any).form;
                 if (form) {
                   form.setFields([
                     {
                       name,
-                      value: parseFile.url(),
+                      value: fileUrl,
                     },
                   ]);
                 }
@@ -126,11 +133,25 @@ export default function VariableFormInput({
           </Upload>
           {form?.getFieldValue(name) && (
             <div className="mt-2">
-              {form.getFieldValue(name).toLowerCase().endsWith(".pdf") ? (
-                <iframe src={form.getFieldValue(name)} className="w-full h-64" />
-              ) : (
-                <img src={form.getFieldValue(name)} alt="Preview" className="max-w-full h-auto" />
-              )}
+              {(() => {
+                const fileUrl = form.getFieldValue(name);
+                if (!fileUrl || fileUrl.startsWith("data:")) {
+                  return <div className="text-red-500">Invalid file URL. Please try uploading again.</div>;
+                }
+                return fileUrl.toLowerCase().endsWith(".pdf") ? (
+                  <iframe src={fileUrl} className="w-full h-64" />
+                ) : (
+                  <img
+                    src={fileUrl}
+                    alt="Preview"
+                    className="max-w-full h-auto"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                      message.error("Failed to load preview");
+                    }}
+                  />
+                );
+              })()}
             </div>
           )}
         </Form.Item>
