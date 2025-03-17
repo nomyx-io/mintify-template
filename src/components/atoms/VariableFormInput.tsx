@@ -1,7 +1,8 @@
 import { UploadOutlined } from "@ant-design/icons";
-import { Checkbox, DatePicker, Form, FormRule, Input, Select, Upload, Button, message } from "antd";
+import { Checkbox, DatePicker, Form, FormInstance, FormRule, Input, Select, Upload, Button, message } from "antd";
 import dayjs from "dayjs";
 
+import ParseClient from "@/services/ParseClient";
 interface VariableFormInputProps {
   type: string;
   name: string;
@@ -14,6 +15,7 @@ interface VariableFormInputProps {
   rules?: FormRule[];
   className?: string;
   placeHolder?: string;
+  form?: FormInstance;
 }
 
 export default function VariableFormInput({
@@ -28,6 +30,7 @@ export default function VariableFormInput({
   rules,
   className,
   placeHolder,
+  form,
 }: VariableFormInputProps) {
   const inputStyle =
     "!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark " +
@@ -61,23 +64,62 @@ export default function VariableFormInput({
         <Form.Item name={name} label={label} rules={rules}>
           <Upload
             name={name}
-            listType="text"
+            listType="picture"
             className={inputStyle}
             maxCount={1}
-            accept=".pdf"
-            beforeUpload={(file) => {
-              const isPDF = file.type === "application/pdf";
-              if (!isPDF) {
-                message.error("You can only upload PDF files!");
+            accept=".pdf,.jpg,.jpeg,.png"
+            beforeUpload={async (file) => {
+              const isValidType = file.type === "application/pdf" || file.type.startsWith("image/");
+              if (!isValidType) {
+                message.error("You can only upload PDF or image files!");
                 return Upload.LIST_IGNORE;
               }
-              return false; // Prevent auto upload but allow file to be added to list
+
+              try {
+                // Convert file to base64 for Parse
+                const reader = new FileReader();
+                const base64Promise = new Promise((resolve) => {
+                  reader.onload = () => resolve(reader.result);
+                });
+                reader.readAsDataURL(file);
+                const base64Data = await base64Promise;
+
+                // Save file to Parse
+                const parseFile = await ParseClient.saveFile(file.name, { base64: (base64Data as string).split(",")[1] }, file.type);
+
+                // Update form with Parse file URL
+                const form = (file as any).form;
+                if (form) {
+                  form.setFields([
+                    {
+                      name,
+                      value: parseFile.url(),
+                    },
+                  ]);
+                }
+
+                message.success("File uploaded successfully");
+              } catch (error) {
+                message.error("Failed to upload file");
+                console.error("Upload error:", error);
+              }
+
+              return false; // Prevent default upload
             }}
           >
             <Button icon={<UploadOutlined />} className="bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark">
-              {placeholder || placeHolder || "Upload PDF"}
+              {placeholder || placeHolder || "Upload File"}
             </Button>
           </Upload>
+          {form?.getFieldValue(name) && (
+            <div className="mt-2">
+              {form.getFieldValue(name).toLowerCase().endsWith(".pdf") ? (
+                <iframe src={form.getFieldValue(name)} className="w-full h-64" />
+              ) : (
+                <img src={form.getFieldValue(name)} alt="Preview" className="max-w-full h-auto" />
+              )}
+            </div>
+          )}
         </Form.Item>
       )}
       {(type === "select" || type === "number" || type === "text") && (
