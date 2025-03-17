@@ -84,8 +84,13 @@ export default function VariableFormInput({
                 reader.readAsDataURL(file);
                 const base64Data = await base64Promise;
 
+                // Sanitize filename - remove special characters and spaces
+                const timestamp = Date.now();
+                const extension = file.name.split(".").pop();
+                const sanitizedName = `file_${timestamp}.${extension}`;
+
                 // Save file to Parse
-                const parseFile = await ParseClient.saveFile(file.name, { base64: (base64Data as string).split(",")[1] }, file.type);
+                const parseFile = await ParseClient.saveFile(sanitizedName, { base64: (base64Data as string).split(",")[1] }, file.type);
 
                 // Update form with Parse file URL
                 const form = (file as any).form;
