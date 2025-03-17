@@ -69,9 +69,17 @@ export default function VariableFormInput({
             maxCount={1}
             accept=".pdf,.jpg,.jpeg,.png"
             beforeUpload={async (file) => {
+              // Check file type
               const isValidType = file.type === "application/pdf" || file.type.startsWith("image/");
               if (!isValidType) {
                 message.error("You can only upload PDF or image files!");
+                return Upload.LIST_IGNORE;
+              }
+
+              // Check file size (5MB = 5 * 1024 * 1024 bytes)
+              const maxSize = 5 * 1024 * 1024;
+              if (file.size > maxSize) {
+                message.error("File must be smaller than 5MB!");
                 return Upload.LIST_IGNORE;
               }
 
