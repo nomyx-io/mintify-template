@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 
-import { LeftOutlined, CloseOutlined } from "@ant-design/icons";
-import { Button, Card, Checkbox, Modal } from "antd";
+import { LeftOutlined } from "@ant-design/icons";
+import { Button, Card, Checkbox } from "antd";
 import { useRouter } from "next/router";
 
 import { ShareIcon } from "@/assets";
@@ -25,11 +25,9 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
   const router = useRouter();
   const blockchainService = BlockchainService.getInstance();
 
-  const [allTopics, setAllTopics] = useState<ClaimTopic[]>();
-  const [projectName, setProjectName] = useState<string>();
-  const [identityDetail, setIdentityDetail] = useState<string>();
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [previewTitle, setPreviewTitle] = useState<string>("Document Preview");
+  const [allTopics, setAllTopics] = React.useState<ClaimTopic[]>();
+  const [projectName, setProjectName] = React.useState<string>();
+  const [identityDetail, setIdentityDetail] = React.useState<string>();
 
   const { transactionHash, claimTopics, id, nftTitle, description, price, projectId, projectStartDate, mintAddress, ...metadata } = data;
 
@@ -81,67 +79,8 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
     getUserDetail();
   }, [getAllTopics, getTokenProject, getUserDetail]);
 
-  // Function to determine the appropriate preview content based on file type
-  const renderPreviewContent = () => {
-    if (!previewUrl) return null;
-
-    const fileExtension = previewUrl.split(".").pop()?.toLowerCase();
-
-    // For images
-    if (["jpg", "jpeg", "png", "gif", "svg"].includes(fileExtension || "")) {
-      return <img src={previewUrl} alt={previewTitle} style={{ maxWidth: "100%", maxHeight: "70vh" }} />;
-    }
-
-    // For PDFs
-    if (fileExtension === "pdf") {
-      return <iframe src={`${previewUrl}#toolbar=0&navpanes=0`} style={{ width: "100%", height: "70vh" }} title={previewTitle} />;
-    }
-
-    // For other document types, provide a download link
-    return (
-      <div className="text-center p-8">
-        <p className="mb-4">Preview not available for this file type.</p>
-        <Button
-          type="primary"
-          href={previewUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark"
-        >
-          Download File
-        </Button>
-      </div>
-    );
-  };
-
   return (
     <>
-      {/* Document Preview Modal */}
-      <Modal
-        title={previewTitle}
-        open={!!previewUrl}
-        onCancel={() => setPreviewUrl(null)}
-        width="80%"
-        footer={[
-          <Button key="close" onClick={() => setPreviewUrl(null)}>
-            Close
-          </Button>,
-          <Button
-            key="download"
-            type="primary"
-            href={previewUrl || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark"
-          >
-            Download
-          </Button>,
-        ]}
-        className="document-preview-modal"
-      >
-        {renderPreviewContent()}
-      </Modal>
-
       <Card
         className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark text-nomyx-text-light dark:text-nomyx-text-dark"
         title={detailView ? [backButton, title] : title}
@@ -205,71 +144,7 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
                   className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
                 >
                   <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">{capitalizeEveryWord(key.replace("_", " "))}</div>
-                  <div className="card-value">
-                    {typeof value === "object" && value !== null ? (
-                      // Check if it's a file upload object (has fileList property)
-                      "fileList" in value && Array.isArray((value as any).fileList) && (value as any).fileList.length > 0 ? (
-                        <div className="flex items-center">
-                          <button
-                            type="button"
-                            className="text-nomyx-blue-light hover:underline flex items-center"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              const fileItem = (value as any).fileList[0];
-                              const fileUrl = fileItem?.url || fileItem?.response?.url;
-                              if (fileUrl) {
-                                setPreviewUrl(fileUrl);
-                                setPreviewTitle(fileItem?.name || capitalizeEveryWord(key.replace("_", " ")));
-                              }
-                            }}
-                          >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                              />
-                            </svg>
-                            {((value as any).fileList[0]?.name as string) || "Document"}
-                          </button>
-                        </div>
-                      ) : typeof value.toString === "function" ? (
-                        value.toString()
-                      ) : (
-                        JSON.stringify(value)
-                      )
-                    ) : typeof value === "string" &&
-                      value.startsWith("http") &&
-                      (key.toLowerCase().includes("contract") ||
-                        key.toLowerCase().includes("document") ||
-                        key.toLowerCase().includes("certificate") ||
-                        key.toLowerCase().includes("order")) ? (
-                      <div className="flex items-center">
-                        <button
-                          type="button"
-                          className="text-nomyx-blue-light hover:underline flex items-center"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setPreviewUrl(value);
-                            setPreviewTitle(value.split("/").pop() || capitalizeEveryWord(key.replace("_", " ")));
-                          }}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
-                          {value.split("/").pop() || "Document"}
-                        </button>
-                      </div>
-                    ) : (
-                      (value as string)
-                    )}
-                  </div>
+                  <div className="card-value truncate">{value as string}</div>
                 </div>
               );
             })}
