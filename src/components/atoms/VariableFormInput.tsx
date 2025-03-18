@@ -1,6 +1,9 @@
+import { useState } from "react";
+
 import { UploadOutlined } from "@ant-design/icons";
-import { Checkbox, DatePicker, Form, FormRule, Input, Select, Upload, Button } from "antd";
+import { Checkbox, DatePicker, Form, FormRule, Input, Select, Upload, Button, message } from "antd";
 import dayjs from "dayjs";
+import Parse from "parse";
 
 interface VariableFormInputProps {
   type: string;
@@ -29,6 +32,8 @@ export default function VariableFormInput({
   className,
   placeHolder,
 }: VariableFormInputProps) {
+  const form = Form.useFormInstance();
+  const [fileList, setFileList] = useState<any[]>([]);
   const inputStyle =
     "!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark " +
     "text-nomyx-text-light dark:text-nomyx-text-dark " +
@@ -61,10 +66,52 @@ export default function VariableFormInput({
         <Form.Item name={name} label={label} rules={rules}>
           <Upload
             name={name}
-            listType="text"
+            listType="picture"
             className={inputStyle}
             maxCount={1}
-            beforeUpload={() => false} // Prevent auto upload
+            fileList={fileList}
+            beforeUpload={async (file) => {
+              try {
+                // Sanitize filename: remove special characters and spaces
+                const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_").toLowerCase();
+
+                const parseFile = new Parse.File(sanitizedName, file);
+                await parseFile.save();
+
+                const fileUrl = parseFile.url();
+
+                // Update form field with file URL
+                form?.setFieldValue(name, fileUrl);
+
+                // Update fileList with the Parse URL
+                setFileList([
+                  {
+                    uid: file.uid,
+                    name: file.name,
+                    status: "done",
+                    url: fileUrl,
+                  },
+                ]);
+
+                message.success("File uploaded successfully");
+                return false; // Prevent default upload
+              } catch (error) {
+                message.error("Error uploading file");
+                console.error("Upload error:", error);
+                return false;
+              }
+            }}
+            onChange={({ file }) => {
+              if (file.status === "removed") {
+                setFileList([]);
+                form?.setFieldValue(name, undefined);
+              }
+            }}
+            onPreview={(file) => {
+              if (file.url) {
+                window.open(file.url, "_blank");
+              }
+            }}
           >
             <Button icon={<UploadOutlined />} className="bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark">
               {placeholder || placeHolder || "Upload"}
