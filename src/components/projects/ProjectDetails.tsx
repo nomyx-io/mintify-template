@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 
 import projectBackground from "@/assets/projects_background.png";
+import InvestorListView from "@/components/projects/InvestorListView";
 import TokenCardView from "@/components/projects/TokenCardView";
 import TokenListView from "@/components/projects/TokenListView";
 import { Industries } from "@/constants/constants";
@@ -28,6 +29,41 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const [showStats, setShowStats] = useState(true);
   const [selectedToken, setSelectedToken] = useState<any | null>(null);
   const [refresh, setRefresh] = useState(false);
+
+  const mockInvestors = [
+    {
+      investorName: "Investor 01",
+      investorId: "53265985515",
+      amountDeposited: 20000,
+      collateralTokenIssued: 20000,
+      collateralTokenLockupPeriod: "5/365",
+      interestTokensIssued: 20000,
+    },
+    {
+      investorName: "Investor 02",
+      investorId: "53265985515",
+      amountDeposited: 18000,
+      collateralTokenIssued: 18000,
+      collateralTokenLockupPeriod: "8/365",
+      interestTokensIssued: 18000,
+    },
+    {
+      investorName: "Investor 03",
+      investorId: "53265985515",
+      amountDeposited: 15000,
+      collateralTokenIssued: 15000,
+      collateralTokenLockupPeriod: "2/365",
+      interestTokensIssued: 15000,
+    },
+    {
+      investorName: "Investor 04",
+      investorId: "53265985515",
+      amountDeposited: 9000,
+      collateralTokenIssued: 9000,
+      collateralTokenLockupPeriod: "3/365",
+      interestTokensIssued: 9000,
+    },
+  ];
 
   const api = useMemo(() => CustomerService(), []);
 
@@ -313,10 +349,19 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       </>
                     ),
                   },
-                  ...(project.industryTemplate !== Industries.TRADE_FINANCE
+                  ...(project.industryTemplate === Industries.TRADE_FINANCE
                     ? [
                         {
                           key: "2",
+                          label: "Investors",
+                          children: <InvestorListView investors={mockInvestors} />,
+                        },
+                      ]
+                    : []),
+                  ...(project.industryTemplate !== Industries.TRADE_FINANCE
+                    ? [
+                        {
+                          key: "3",
                           label: "Sales History",
                           children:
                             viewMode === "table" ? (
