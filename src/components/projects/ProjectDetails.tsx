@@ -292,7 +292,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 items={[
                   {
                     key: "1",
-                    label: "Current Listings",
+                    label: project.industryTemplate === Industries.TRADE_FINANCE ? "Stocks" : "Current Listings",
                     children: (
                       <>
                         {viewMode === "table" ? (
