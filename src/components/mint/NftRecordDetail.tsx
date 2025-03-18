@@ -5,6 +5,7 @@ import { Button, Card, Checkbox } from "antd";
 import { useRouter } from "next/router";
 
 import { ShareIcon } from "@/assets";
+import { tradeFinanceDocumentationFields } from "@/constants/constants";
 import BlockchainService from "@/services/BlockchainService";
 import ParseClient from "@/services/ParseClient";
 import { hashToColor } from "@/utils/colorUtils";
@@ -144,7 +145,15 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
                   className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
                 >
                   <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">{capitalizeEveryWord(key.replace("_", " "))}</div>
-                  <div className="card-value truncate">{value as string}</div>
+                  <div className="card-value truncate">
+                    {tradeFinanceDocumentationFields.find((field: { name: string; type: string }) => field.name === key)?.type === "file" ? (
+                      <a href={value as string} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+                        View Document
+                      </a>
+                    ) : (
+                      (value as string)
+                    )}
+                  </div>
                 </div>
               );
             })}
