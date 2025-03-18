@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import projectBackground from "@/assets/projects_background.png";
 import TokenCardView from "@/components/projects/TokenCardView";
 import TokenListView from "@/components/projects/TokenListView";
+import { Industries } from "@/constants/constants";
 import { CustomerService } from "@/services/CustomerService";
 
 interface ProjectDetailsProps {
@@ -230,13 +231,39 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
               {/* View Toggle and Purchase Selected Button */}
               <div className="flex items-center">
-                <Button
-                  type="primary"
-                  className="mr-4 bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark'"
-                  onClick={() => router.push({ pathname: "/nft-create", query: { projectId: project.id } })}
-                >
-                  Mint Token
-                </Button>
+                {project.industryTemplate === Industries.TRADE_FINANCE ? (
+                  <div className="flex gap-2">
+                    <Button
+                      type="primary"
+                      className="bg-red-500 hover:!bg-red-600"
+                      onClick={() => router.push({ pathname: "/withdraw-pool", query: { projectId: project.id } })}
+                    >
+                      Withdraw From Pool
+                    </Button>
+                    <Button
+                      type="primary"
+                      className="bg-green-500 hover:!bg-green-600"
+                      onClick={() => router.push({ pathname: "/payback-pool", query: { projectId: project.id } })}
+                    >
+                      Payback Pool
+                    </Button>
+                    <Button
+                      type="primary"
+                      className="bg-blue-500 hover:!bg-blue-600"
+                      onClick={() => router.push({ pathname: "/add-stock-certificate", query: { projectId: project.id } })}
+                    >
+                      Add Stock Certificate
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="primary"
+                    className="mr-4 bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark'"
+                    onClick={() => router.push({ pathname: "/nft-create", query: { projectId: project.id } })}
+                  >
+                    Mint Token
+                  </Button>
+                )}
 
                 {/* View Toggle Buttons */}
                 <button
