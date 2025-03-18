@@ -8,6 +8,7 @@ import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 
 import projectBackground from "@/assets/projects_background.png";
+import CollateralTokenHistoryView from "@/components/projects/CollateralTokenHistoryView";
 import InvestorListView from "@/components/projects/InvestorListView";
 import TokenCardView from "@/components/projects/TokenCardView";
 import TokenListView from "@/components/projects/TokenListView";
@@ -29,6 +30,33 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const [showStats, setShowStats] = useState(true);
   const [selectedToken, setSelectedToken] = useState<any | null>(null);
   const [refresh, setRefresh] = useState(false);
+
+  const mockCollateralTokenHistory = [
+    {
+      investorId: "53265985515",
+      toHash: "0xdB0b3332a4cdfsdf55df65ddf65sdf65sdfs65sdf65",
+      createdDate: "09-05-2024",
+      total: 20000,
+    },
+    {
+      investorId: "53265985515",
+      toHash: "0xdB0b3332a4cdfsdf55df65ddf65sdf65sdfs65sdf65",
+      createdDate: "09-05-2024",
+      total: 18000,
+    },
+    {
+      investorId: "53265985515",
+      toHash: "0xdB0b3332a4cdfsdf55df65ddf65sdf65sdfs65sdf65",
+      createdDate: "09-05-2024",
+      total: 15000,
+    },
+    {
+      investorId: "53265985515",
+      toHash: "0xdB0b3332a4cdfsdf55df65ddf65sdf65sdfs65sdf65",
+      createdDate: "09-05-2024",
+      total: 9000,
+    },
+  ];
 
   const mockInvestors = [
     {
@@ -355,6 +383,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                           key: "2",
                           label: "Investors",
                           children: <InvestorListView investors={mockInvestors} />,
+                        },
+                        {
+                          key: "3",
+                          label: "Collateral Token History",
+                          children: <CollateralTokenHistoryView records={mockCollateralTokenHistory} />,
                         },
                       ]
                     : []),
