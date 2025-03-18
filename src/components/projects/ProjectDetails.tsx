@@ -313,26 +313,30 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       </>
                     ),
                   },
-                  {
-                    key: "2",
-                    label: "Sales History",
-                    children:
-                      viewMode === "table" ? (
-                        <TokenListView
-                          tokens={filteredSales}
-                          isSalesHistory={true}
-                          industryTemplate={project.industryTemplate}
-                          setRefresh={setRefresh}
-                        />
-                      ) : (
-                        <TokenCardView
-                          tokens={filteredSales}
-                          isSalesHistory={true}
-                          industryTemplate={project.industryTemplate}
-                          setRefresh={setRefresh}
-                        />
-                      ),
-                  },
+                  ...(project.industryTemplate !== Industries.TRADE_FINANCE
+                    ? [
+                        {
+                          key: "2",
+                          label: "Sales History",
+                          children:
+                            viewMode === "table" ? (
+                              <TokenListView
+                                tokens={filteredSales}
+                                isSalesHistory={true}
+                                industryTemplate={project.industryTemplate}
+                                setRefresh={setRefresh}
+                              />
+                            ) : (
+                              <TokenCardView
+                                tokens={filteredSales}
+                                isSalesHistory={true}
+                                industryTemplate={project.industryTemplate}
+                                setRefresh={setRefresh}
+                              />
+                            ),
+                        },
+                      ]
+                    : []),
                 ]}
               />
             </Card>
