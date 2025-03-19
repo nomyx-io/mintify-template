@@ -70,41 +70,42 @@ export default function VariableFormInput({
             className={inputStyle}
             maxCount={1}
             fileList={fileList}
-            beforeUpload={async (file) => {
-              try {
-                // Sanitize filename: remove special characters and spaces
-                const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_").toLowerCase();
-
-                const parseFile = new Parse.File(sanitizedName, file);
-                await parseFile.save();
-
-                const fileUrl = parseFile.url();
-
-                // Update form field with file URL
-                form?.setFieldValue(name, fileUrl);
-
-                // Update fileList with the Parse URL
-                setFileList([
-                  {
-                    uid: file.uid,
-                    name: file.name,
-                    status: "done",
-                    url: fileUrl,
-                  },
-                ]);
-
-                message.success("File uploaded successfully");
-                return false; // Prevent default upload
-              } catch (error) {
-                message.error("Error uploading file");
-                console.error("Upload error:", error);
-                return false;
-              }
-            }}
-            onChange={({ file }) => {
+            onChange={async ({ file }) => {
               if (file.status === "removed") {
                 setFileList([]);
                 form?.setFieldValue(name, undefined);
+                return;
+              }
+
+              if (file.originFileObj) {
+                try {
+                  // Sanitize filename: remove special characters and spaces
+                  const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_").toLowerCase();
+
+                  const parseFile = new Parse.File(sanitizedName, file.originFileObj);
+                  await parseFile.save();
+
+                  const fileUrl = parseFile.url();
+
+                  // Update form field with file URL
+                  form?.setFieldValue(name, fileUrl);
+
+                  // Update fileList with the Parse URL
+                  setFileList([
+                    {
+                      uid: file.uid,
+                      name: file.name,
+                      status: "done",
+                      url: fileUrl,
+                    },
+                  ]);
+
+                  message.success("File uploaded successfully");
+                } catch (error) {
+                  message.error("Error uploading file");
+                  console.error("Upload error:", error);
+                  setFileList([]);
+                }
               }
             }}
             onPreview={(file) => {
