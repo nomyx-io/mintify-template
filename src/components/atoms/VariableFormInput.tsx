@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { UploadOutlined } from "@ant-design/icons";
 import { Checkbox, DatePicker, Form, FormRule, Input, Select, Upload, Button, message } from "antd";
 import dayjs from "dayjs";
 import Parse from "parse";
-
-import { useFileUpload } from "../../context/FileUploadContext";
 
 interface VariableFormInputProps {
   type: string;
@@ -36,25 +34,6 @@ export default function VariableFormInput({
 }: VariableFormInputProps) {
   const form = Form.useFormInstance();
   const [fileList, setFileList] = useState<any[]>([]);
-  const { addFileUpload, getFileUpload, removeFileUpload } = useFileUpload();
-  const formId = `${name}-file`;
-
-  useEffect(() => {
-    // Restore file from context if it exists
-    const savedFile = getFileUpload(formId);
-    if (savedFile) {
-      setFileList([
-        {
-          uid: "-1",
-          name: savedFile.fileName,
-          status: "done",
-          url: savedFile.fileUrl,
-        },
-      ]);
-      form?.setFieldValue(name, savedFile.fileUrl);
-    }
-  }, [formId, name, form, getFileUpload]);
-
   const inputStyle =
     "!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark " +
     "text-nomyx-text-light dark:text-nomyx-text-dark " +
@@ -101,9 +80,10 @@ export default function VariableFormInput({
 
                 const fileUrl = parseFile.url();
 
-                // Store file in context and update form
-                addFileUpload(formId, name, file.name, fileUrl);
+                // Update form field with file URL
                 form?.setFieldValue(name, fileUrl);
+
+                // Update fileList with the Parse URL
                 setFileList([
                   {
                     uid: file.uid,
@@ -125,7 +105,6 @@ export default function VariableFormInput({
               if (file.status === "removed") {
                 setFileList([]);
                 form?.setFieldValue(name, undefined);
-                removeFileUpload(formId);
               }
             }}
             onPreview={(file) => {

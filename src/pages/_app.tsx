@@ -22,7 +22,6 @@ import Web3Providers from "@/context/Web3Providers";
 import BlockchainService from "@/services/BlockchainService";
 import { generateRandomString } from "@/utils/regex";
 
-import { FileUploadProvider } from "../context/FileUploadContext";
 import { UserContext } from "../context/UserContext";
 import parseInitialize from "../services/parseInitialize";
 import { WalletPreference } from "../utils/constants";
@@ -338,39 +337,37 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         <Web3Providers>
           <NextThemesProvider attribute="class">
             <ConfigProvider theme={antTheme}>
-              <FileUploadProvider>
-                <ToastContainer
-                  position="top-right"
-                  className="toast-background"
-                  progressClassName="toast-progress-bar"
-                  autoClose={4000}
-                  closeOnClick
-                  pauseOnHover
-                />
-                {isConnected && user && <TopNavBar onDisconnect={onDisconnect} onLogout={onLogoutEmailPassword} />}
-                <PrivateRoute
-                  handleForecLogout={handleForceLogout}
-                  forceLogout={forceLogout}
-                  role={role}
-                  onConnect={onConnect}
-                  isConnected={isConnected}
-                >
-                  {getLayout(
-                    <Component
-                      {...pageProps}
-                      role={role}
-                      service={blockchainService}
-                      onConnect={onConnect}
-                      onDisconnect={onDisconnect}
-                      forceLogout={forceLogout}
-                      onLogin={onLogin}
-                    />
-                  )}
-                </PrivateRoute>
-                {/* {!isConnected && (
-                  <Component {...pageProps} forceLogout={forceLogout} onConnect={onConnect} onDisconnect={onDisconnect} onLogin={onLogin} />
-                )} */}
-              </FileUploadProvider>
+              <ToastContainer
+                position="top-right"
+                className="toast-background"
+                progressClassName="toast-progress-bar"
+                autoClose={4000}
+                closeOnClick
+                pauseOnHover
+              />
+              {isConnected && user && <TopNavBar onDisconnect={onDisconnect} onLogout={onLogoutEmailPassword} />}
+              <PrivateRoute
+                handleForecLogout={handleForceLogout}
+                forceLogout={forceLogout}
+                role={role}
+                onConnect={onConnect}
+                isConnected={isConnected}
+              >
+                {getLayout(
+                  <Component
+                    {...pageProps}
+                    role={role}
+                    service={blockchainService}
+                    onConnect={onConnect}
+                    onDisconnect={onDisconnect}
+                    forceLogout={forceLogout}
+                    onLogin={onLogin}
+                  />
+                )}
+              </PrivateRoute>
+              {/* {!isConnected && (
+                <Component {...pageProps} forceLogout={forceLogout} onConnect={onConnect} onDisconnect={onDisconnect} onLogin={onLogin} />
+              )} */}
             </ConfigProvider>
           </NextThemesProvider>
         </Web3Providers>
