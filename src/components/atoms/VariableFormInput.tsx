@@ -33,7 +33,20 @@ export default function VariableFormInput({
   placeHolder,
 }: VariableFormInputProps) {
   const form = Form.useFormInstance();
-  const [fileList, setFileList] = useState<any[]>([]);
+  const [fileList, setFileList] = useState<any[]>(() => {
+    const existingValue = form?.getFieldValue(name);
+    if (existingValue) {
+      return [
+        {
+          uid: "-1",
+          name: existingValue.split("/").pop() || "document",
+          status: "done",
+          url: existingValue,
+        },
+      ];
+    }
+    return [];
+  });
   const inputStyle =
     "!bg-nomyx-dark2-light dark:!bg-nomyx-dark2-dark " +
     "text-nomyx-text-light dark:text-nomyx-text-dark " +
