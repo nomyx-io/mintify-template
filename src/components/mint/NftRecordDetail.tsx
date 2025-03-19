@@ -147,9 +147,9 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
                   <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">{capitalizeEveryWord(key.replace("_", " "))}</div>
                   <div className="card-value truncate">
                     {tradeFinanceDocumentationFields.find((field: { name: string; type: string }) => field.name === key)?.type === "file" ? (
-                      <a href={value as string} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+                      <button onClick={() => window.open(value as string, "_blank")} className="text-blue-500 hover:text-blue-700">
                         View Document
-                      </a>
+                      </button>
                     ) : (
                       (value as string)
                     )}
