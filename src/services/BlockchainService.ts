@@ -216,6 +216,25 @@ export default class BlockchainService {
     }
   }
 
+  async activateTradeDeal(tradeDealId: number) {
+    try {
+      if (!this.signer) {
+        throw new Error("Signer is not available.");
+      }
+
+      const contractWithSigner: any = this.tradeDealService?.connect(this.signer);
+
+      // Send the transaction
+      const tx = await contractWithSigner.activateTradeDeal(tradeDealId);
+
+      // Wait for the transaction to be mined and return the receipt
+      return await tx.wait();
+    } catch (e) {
+      console.error("Error in activateTradeDeal:", e);
+      throw e;
+    }
+  }
+
   async createTradeDeal(
     name: string,
     symbol: string,
