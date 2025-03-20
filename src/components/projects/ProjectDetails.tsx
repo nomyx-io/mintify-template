@@ -32,6 +32,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const [selectedToken, setSelectedToken] = useState<any | null>(null);
   const [refresh, setRefresh] = useState(false);
   const [isWithdrawModalVisible, setIsWithdrawModalVisible] = useState(false);
+  const [isPaybackModalVisible, setIsPaybackModalVisible] = useState(false);
+  const [selectedStocks, setSelectedStocks] = useState<string[]>([]);
 
   const mockInterestTokenHistory = [
     {
@@ -372,13 +374,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     <Button type="primary" className="bg-red-500 hover:!bg-red-600" onClick={() => setIsWithdrawModalVisible(true)}>
                       Withdraw From Pool
                     </Button>
-                    <Button
-                      type="primary"
-                      className="bg-green-500 hover:!bg-green-600"
-                      onClick={() => router.push({ pathname: "/payback-pool", query: { projectId: project.id } })}
-                    >
+
+                    <Button type="primary" className="bg-green-500 hover:!bg-green-600" onClick={() => setIsPaybackModalVisible(true)}>
                       Payback Pool
                     </Button>
+
                     <Button
                       type="primary"
                       className="bg-blue-500 hover:!bg-blue-600 mr-4"
@@ -513,6 +513,98 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
             >
               Confirm
             </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Payback Pool Modal */}
+      <Modal
+        open={isPaybackModalVisible}
+        onCancel={() => {
+          setIsPaybackModalVisible(false);
+          setSelectedStocks([]);
+        }}
+        footer={null}
+        width={800}
+        className="payback-modal"
+      >
+        <div className="py-4">
+          <h3 className="text-xl font-medium mb-4">Payback Pool</h3>
+          <p className="mb-4">Select Stocks to deposit</p>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark">
+                  <th className="p-3 text-left"></th>
+                  <th className="p-3 text-left">Stock ID</th>
+                  <th className="p-3 text-left">Token ID</th>
+                  <th className="p-3 text-left">Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mockInterestTokenHistory.map((token, index) => (
+                  <tr key={index} className="border-b border-nomyx-dark1-light dark:border-nomyx-dark1-dark">
+                    <td className="p-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedStocks.includes(token.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedStocks([...selectedStocks, token.id]);
+                          } else {
+                            setSelectedStocks(selectedStocks.filter((id) => id !== token.id));
+                          }
+                        }}
+                        className="rounded"
+                      />
+                    </td>
+                    <td className="p-3">{token.id}</td>
+                    <td className="p-3">{token.id}</td>
+                    <td className="p-3">{token.total.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 flex justify-between items-center">
+            <div>
+              <p>Selected: {selectedStocks.length}</p>
+              <p>
+                Total Amount:{" "}
+                {mockInterestTokenHistory
+                  .filter((token) => selectedStocks.includes(token.id))
+                  .reduce((sum, token) => sum + token.total, 0)
+                  .toLocaleString()}
+              </p>
+            </div>
+            <div className="flex gap-4">
+              <Button
+                type="text"
+                onClick={() => {
+                  setIsPaybackModalVisible(false);
+                  setSelectedStocks([]);
+                }}
+                className="text-[#2E5BFF] hover:!text-black"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                onClick={() => {
+                  // Handle deposit action here
+                  message.success("Stocks deposited successfully");
+                  setIsPaybackModalVisible(false);
+                  setSelectedStocks([]);
+                }}
+                disabled={selectedStocks.length === 0}
+                className="!bg-[#2E5BFF] hover:!bg-[#2E5BFF]/80 disabled:!bg-[#D3D3D3] disabled:opacity-100 disabled:!text-[#4A4A4A]"
+                style={{ width: "200px", borderRadius: "8px" }}
+              >
+                Deposit
+              </Button>
+            </div>
           </div>
         </div>
       </Modal>
