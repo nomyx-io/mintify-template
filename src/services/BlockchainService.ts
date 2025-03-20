@@ -4,6 +4,7 @@ import ParseClient from "./ParseClient";
 import CarbonCreditRegistry from "../abi/ICarbonCreditFacet.json";
 import GFMintedRegistry from "../abi/IGemForceMinterFacet.json";
 import MarketplaceRegistry from "../abi/IMarketplaceFacet.json";
+import TradeDealRegistry from "../abi/ITradeDealFacet.json";
 import TreasuryRegistry from "../abi/ITreasury.json";
 import USDCRegistry from "../abi/USDC.json";
 
@@ -13,6 +14,7 @@ export default class BlockchainService {
   private usdcAbi = USDCRegistry.abi;
   private marketplaceAbi = MarketplaceRegistry.abi;
   private carbonCreditAbi = CarbonCreditRegistry.abi;
+  private tradeDealAbi = TradeDealRegistry.abi;
   private parseClient = ParseClient;
   private provider: ethers.BrowserProvider;
   private dedicatedProvider: ethers.JsonRpcProvider | null = null;
@@ -23,6 +25,7 @@ export default class BlockchainService {
   private usdcService: ethers.Contract | undefined;
   private marketplaceService: ethers.Contract | undefined;
   private carbonCreditService: ethers.Contract | undefined;
+  private tradeDealService: ethers.Contract | undefined;
 
   private contractAddress: any;
   private treasuryAddress: any;
@@ -73,6 +76,7 @@ export default class BlockchainService {
     this.usdcService = new ethers.Contract(this.usdcAddress, this.usdcAbi, this.provider);
     this.marketplaceService = new ethers.Contract(this.contractAddress, this.marketplaceAbi, this.provider);
     this.carbonCreditService = new ethers.Contract(this.contractAddress, this.carbonCreditAbi, this.provider);
+    this.tradeDealService = new ethers.Contract(this.contractAddress, this.tradeDealAbi, this.provider);
   }
 
   async getClaimTopics(): Promise<Parse.Object[] | undefined> {
@@ -208,6 +212,43 @@ export default class BlockchainService {
       return items;
     } catch (e) {
       console.log("Error in fetchItems:", e);
+      throw e;
+    }
+  }
+
+  async createTradeDeal(
+    name: string,
+    symbol: string,
+    interestRate: number,
+    vabbToVabiRatio: number,
+    requiredClaimTopics: number[],
+    vabbAddress: string,
+    vabiAddress: string,
+    usdcAddress: string
+  ) {
+    try {
+      if (!this.signer) {
+        throw new Error("Signer is not available.");
+      }
+
+      const contractWithSigner: any = this.tradeDealService?.connect(this.signer);
+
+      // Send the transaction
+      const tx = await contractWithSigner.createTradeDeal(
+        name,
+        symbol,
+        interestRate,
+        vabbToVabiRatio,
+        requiredClaimTopics,
+        vabbAddress,
+        vabiAddress,
+        usdcAddress
+      );
+
+      // Wait for the transaction to be mined and return the receipt
+      return await tx.wait();
+    } catch (e) {
+      console.error("Error in createTradeDeal:", e);
       throw e;
     }
   }
