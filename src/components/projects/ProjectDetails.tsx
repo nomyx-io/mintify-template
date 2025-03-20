@@ -381,7 +381,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     </Button>
                     <Button
                       type="primary"
-                      className="bg-blue-500 hover:!bg-blue-600"
+                      className="bg-blue-500 hover:!bg-blue-600 mr-4"
                       onClick={() => router.push({ pathname: "/nft-create", query: { projectId: project.id } })}
                     >
                       Add Stock Certificate
