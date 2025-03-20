@@ -286,24 +286,68 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                   <p className="text-sm mt-2 max-w-md break-words !text-nomyx-dark2-light dark:nomyx-dark2-dark">{project.description}</p>
                 </div>
 
-                {/* Project Stats (Move below on small screens) */}
-                <div
-                  className={`mt-6 md:mt-0 flex flex-col md:flex-row md:flex-nowrap space-y-4 md:space-y-0 md:space-x-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100`}
-                  style={{ maxWidth: "100%", overflow: "hidden" }}
-                >
-                  <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                    <span className="text-sm">Total Value</span>
-                    <h2 className="text-lg font-bold">{Intl.NumberFormat("en-US").format(project.totalValue)}</h2>
+                {/* Project Stats */}
+                {project.industryTemplate === Industries.TRADE_FINANCE ? (
+                  <div
+                    className={`mt-6 md:mt-0 grid grid-cols-2 md:grid-cols-4 gap-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100`}
+                    style={{ maxWidth: "100%", overflow: "hidden" }}
+                  >
+                    {/* Top Row */}
+                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                      <span className="text-sm">Development method</span>
+                      <h2 className="text-lg font-bold">52.53%</h2>
+                    </div>
+                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                      <span className="text-sm">Newera Score</span>
+                      <h2 className="text-lg font-bold">4/5</h2>
+                    </div>
+                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                      <span className="text-sm">Fund Size</span>
+                      <h2 className="text-lg font-bold">200 M</h2>
+                    </div>
+                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                      <span className="text-sm">Generation</span>
+                      <h2 className="text-lg font-bold">03</h2>
+                    </div>
+
+                    {/* Bottom Row */}
+                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                      <span className="text-sm">Economics</span>
+                      <h2 className="text-lg font-bold">2% - 20%</h2>
+                    </div>
+                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                      <span className="text-sm">Target return</span>
+                      <h2 className="text-lg font-bold">3-4x Gross</h2>
+                    </div>
+                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                      <span className="text-sm">Category</span>
+                      <h2 className="text-lg font-bold">Venture</h2>
+                    </div>
+                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                      <span className="text-sm">Stage</span>
+                      <h2 className="text-lg font-bold">Early/Venture</h2>
+                      <span className="text-sm text-gray-400">Closing soon</span>
+                    </div>
                   </div>
-                  <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                    <span className="text-sm">Project Creation Date</span>
-                    <h2 className="text-lg font-bold">{project.createdAt?.toLocaleDateString()}</h2>
+                ) : (
+                  <div
+                    className={`mt-6 md:mt-0 flex flex-col md:flex-row md:flex-nowrap space-y-4 md:space-y-0 md:space-x-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100`}
+                    style={{ maxWidth: "100%", overflow: "hidden" }}
+                  >
+                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                      <span className="text-sm">Total Value</span>
+                      <h2 className="text-lg font-bold">{Intl.NumberFormat("en-US").format(project.totalValue)}</h2>
+                    </div>
+                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                      <span className="text-sm">Project Creation Date</span>
+                      <h2 className="text-lg font-bold">{project.createdAt?.toLocaleDateString()}</h2>
+                    </div>
+                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                      <span className="text-sm">Total Tokens</span>
+                      <h2 className="text-lg font-bold">{totalTokens}</h2>
+                    </div>
                   </div>
-                  <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                    <span className="text-sm">Total Tokens</span>
-                    <h2 className="text-lg font-bold">{totalTokens}</h2>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 
