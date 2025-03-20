@@ -101,7 +101,7 @@ class DfnsService {
         dfns_token: dfnsToken,
         deposits: depositData,
       });
-      
+
       console.log("Pending deposit request:", initiateResponse);
 
       // Step 2: Sign the challenge
@@ -198,6 +198,60 @@ class DfnsService {
       return { completeResponse, error: null };
     } catch (error: any) {
       console.error("Error delisting item:", error);
+      return { completeResponse: null, error: error.message };
+    }
+  }
+
+  public async dfnsCreateTradeDeal(
+    walletId: string,
+    dfnsToken: string,
+    name: string,
+    symbol: string,
+    interestRate: number,
+    vabbToVabiRatio: number,
+    requiredClaimTopics: number[],
+    vabbAddress: string,
+    vabiAddress: string,
+    usdcAddress: string
+  ) {
+    if (!walletId || !dfnsToken || !name || !symbol || !vabbAddress || !vabiAddress || !usdcAddress) {
+      throw new Error("Missing required parameters for creating trade deal.");
+    }
+
+    try {
+      // Step 1: Initiate trade deal creation
+      const initiateResponse = await Parse.Cloud.run("dfnsInitCreateTradeDeal", {
+        walletId,
+        dfns_token: dfnsToken,
+        name,
+        symbol,
+        interestRate,
+        vabbToVabiRatio,
+        requiredClaimTopics,
+        vabbAddress,
+        vabiAddress,
+        usdcAddress,
+      });
+      console.log("Pending trade deal creation request:", initiateResponse);
+
+      // Step 2: Sign the challenge
+      const webauthn = new WebAuthnSigner();
+      const assertion = await webauthn.sign(initiateResponse.challenge);
+
+      // Step 3: Complete trade deal creation
+      const completeResponse = await Parse.Cloud.run("dfnsCompleteCreateTradeDeal", {
+        walletId,
+        dfns_token: dfnsToken,
+        signedChallenge: {
+          challengeIdentifier: initiateResponse.challenge.challengeIdentifier,
+          firstFactor: assertion,
+        },
+        requestBody: initiateResponse.requestBody,
+      });
+
+      return { completeResponse, error: null };
+    } catch (error: any) {
+      console.error("Error creating trade deal:", error);
       return { completeResponse: null, error: error.message };
     }
   }
