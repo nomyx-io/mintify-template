@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from "react";
 
-import { message } from "antd";
+import { message, Modal } from "antd";
 import { Button, Card, Tabs } from "antd";
 import { SearchNormal1, Category, RowVertical, ArrowLeft, Copy } from "iconsax-react";
 import Image from "next/image";
@@ -31,6 +31,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const [showStats, setShowStats] = useState(true);
   const [selectedToken, setSelectedToken] = useState<any | null>(null);
   const [refresh, setRefresh] = useState(false);
+  const [isWithdrawModalVisible, setIsWithdrawModalVisible] = useState(false);
 
   const mockInterestTokenHistory = [
     {
@@ -368,11 +369,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
               <div className="flex items-center">
                 {project.industryTemplate === Industries.TRADE_FINANCE ? (
                   <div className="flex gap-2">
-                    <Button
-                      type="primary"
-                      className="bg-red-500 hover:!bg-red-600"
-                      onClick={() => router.push({ pathname: "/withdraw-pool", query: { projectId: project.id } })}
-                    >
+                    <Button type="primary" className="bg-red-500 hover:!bg-red-600" onClick={() => setIsWithdrawModalVisible(true)}>
                       Withdraw From Pool
                     </Button>
                     <Button
@@ -497,6 +494,28 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
           </div>
         </>
       )}
+
+      {/* Withdraw Modal */}
+      <Modal open={isWithdrawModalVisible} onCancel={() => setIsWithdrawModalVisible(false)} footer={null} width={500} className="withdraw-modal">
+        <div className="text-center py-4">
+          <h3 className="text-lg font-medium mb-4">Are you sure you want to withdraw from pool?</h3>
+          <div className="flex justify-center gap-4">
+            <Button onClick={() => setIsWithdrawModalVisible(false)} className="px-8 text-blue-500">
+              Cancel
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                setIsWithdrawModalVisible(false);
+                router.push({ pathname: "/withdraw-pool", query: { projectId: project.id } });
+              }}
+              className="bg-blue-500 hover:!bg-blue-600 px-8"
+            >
+              Confirm
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
