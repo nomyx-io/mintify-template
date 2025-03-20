@@ -202,6 +202,42 @@ class DfnsService {
     }
   }
 
+  public async dfnsActivateTradeDeal(walletId: string, dfnsToken: string, tradeDealId: number) {
+    if (!walletId || !dfnsToken || !tradeDealId) {
+      throw new Error("Missing required parameters for activating trade deal.");
+    }
+
+    try {
+      // Step 1: Initiate trade deal activation
+      const initiateResponse = await Parse.Cloud.run("dfnsInitActivateTradeDeal", {
+        walletId,
+        dfns_token: dfnsToken,
+        tradeDealId,
+      });
+      console.log("Pending trade deal activation request:", initiateResponse);
+
+      // Step 2: Sign the challenge
+      const webauthn = new WebAuthnSigner();
+      const assertion = await webauthn.sign(initiateResponse.challenge);
+
+      // Step 3: Complete trade deal activation
+      const completeResponse = await Parse.Cloud.run("dfnsCompleteActivateTradeDeal", {
+        walletId,
+        dfns_token: dfnsToken,
+        signedChallenge: {
+          challengeIdentifier: initiateResponse.challenge.challengeIdentifier,
+          firstFactor: assertion,
+        },
+        requestBody: initiateResponse.requestBody,
+      });
+
+      return { completeResponse, error: null };
+    } catch (error: any) {
+      console.error("Error activating trade deal:", error);
+      return { completeResponse: null, error: error.message };
+    }
+  }
+
   public async dfnsCreateTradeDeal(
     walletId: string,
     dfnsToken: string,
