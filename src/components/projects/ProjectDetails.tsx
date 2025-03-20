@@ -326,7 +326,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
                       <span className="text-sm">Stage</span>
                       <h2 className="text-lg font-bold">Early/Venture</h2>
-                      <span className="text-sm text-gray-400">Closing soon</span>
                     </div>
                   </div>
                 ) : (
