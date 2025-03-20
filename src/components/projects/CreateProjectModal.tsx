@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useContext } from "react";
 
 import { Button, Form, GetProp, Input, message, Modal, Select, UploadProps, Checkbox } from "antd";
 import { Rule } from "antd/es/form";
@@ -7,7 +8,14 @@ import { FormFinishInfo } from "rc-field-form/es/FormContext";
 import { toast } from "react-toastify";
 
 import { industryOptions, Industries } from "@/constants/constants";
+import { UserContext } from "@/context/UserContext";
+import BlockchainService from "@/services/BlockchainService";
 import { CustomerService } from "@/services/CustomerService";
+import DfnsService from "@/services/DfnsService";
+import { WalletPreference } from "@/utils/constants";
+
+const TRADE_DEAL_DEFAULT_INTEREST_RATE = 5; // 5%
+const TRADE_DEAL_DEFAULT_VABB_VABI_RATIO = 2; // 2:1 ratio
 
 import ImageBoxFormItem from "../molecules/ImageBox";
 
@@ -45,6 +53,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
   const [form] = Form.useForm();
   const [addFieldForm] = Form.useForm();
   const [addedFields, setAddedFields] = useState<AddedField[]>([]);
+  const { walletPreference, dfnsToken, user } = useContext(UserContext);
   const requiredRule = { required: true, message: "This field is required." };
   const uniqueRule: Rule = ({ getFieldValue }) => ({
     validator(_, value: string) {
@@ -106,7 +115,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
       setOpen(false);
     }
   };
-
   async function saveProject(values: FormValues) {
     if (!values?.logoUpload?.fileList) {
       message.error("Please upload a logo");
@@ -134,6 +142,99 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
       ),
     };
 
+    try {
+      // First create the project
+      const projectResult = await api.createProject(project);
+
+      // If it's a trade finance project, create and activate the trade deal
+      if (values.industryTemplate === Industries.TRADE_FINANCE) {
+        try {
+          const symbol = values.title.substring(0, 5).toUpperCase(); // symbol (first 5 chars of title)
+          const vabbAddress = process.env.NEXT_PUBLIC_HARDHAT_VABB_ADDRESS || "";
+          const vabiAddress = process.env.NEXT_PUBLIC_HARDHAT_VABI_ADDRESS || "";
+          const usdcAddress = process.env.NEXT_PUBLIC_HARDHAT_USDC_ADDRESS || "";
+          let tradeDealId: number;
+
+          if (walletPreference === WalletPreference.MANAGED) {
+            // Check DFNS credentials
+            const walletId = user?.walletId;
+            const safeDfnsToken = dfnsToken || "";
+
+            if (!walletId || !safeDfnsToken) {
+              throw new Error("Missing wallet credentials for DFNS transactions");
+            }
+
+            message.loading("Creating trade deal via DFNS...", 0);
+            // Create trade deal using DFNS
+            const tradeDealResult = await DfnsService.dfnsCreateTradeDeal(
+              walletId,
+              safeDfnsToken,
+              values.title,
+              symbol,
+              TRADE_DEAL_DEFAULT_INTEREST_RATE,
+              TRADE_DEAL_DEFAULT_VABB_VABI_RATIO,
+              [], // no required claim topics for now
+              vabbAddress,
+              vabiAddress,
+              usdcAddress
+            );
+
+            if (tradeDealResult.error) {
+              throw new Error(tradeDealResult.error);
+            }
+
+            // Get trade deal ID from response
+            tradeDealId = tradeDealResult.completeResponse.tradeDealId;
+
+            message.loading("Activating trade deal via DFNS...", 0);
+            // Activate trade deal using DFNS
+            const activateResult = await DfnsService.dfnsActivateTradeDeal(walletId, safeDfnsToken, tradeDealId);
+            if (activateResult.error) {
+              throw new Error(activateResult.error);
+            }
+          } else {
+            // Private wallet flow
+            const blockchainService = BlockchainService.getInstance();
+            if (!blockchainService) {
+              throw new Error("Blockchain service not available");
+            }
+
+            message.loading("Creating trade deal...", 0);
+            // Create trade deal with default values
+            const tradeDealTx = await blockchainService.createTradeDeal(
+              values.title,
+              symbol,
+              TRADE_DEAL_DEFAULT_INTEREST_RATE,
+              TRADE_DEAL_DEFAULT_VABB_VABI_RATIO,
+              [], // no required claim topics for now
+              vabbAddress,
+              vabiAddress,
+              usdcAddress
+            );
+
+            // Get the trade deal ID from the transaction receipt
+            tradeDealId = tradeDealTx.logs[0].args[0];
+
+            message.loading("Activating trade deal...", 0);
+            // Activate the trade deal
+            await blockchainService.activateTradeDeal(tradeDealId);
+          }
+
+          message.success("Trade deal created and activated successfully");
+        } catch (error) {
+          console.error("Error in trade deal creation:", error);
+          message.error("Failed to create trade deal: " + (error as Error).message);
+          throw error;
+        } finally {
+          message.destroy(); // Clear any loading messages
+        }
+      }
+
+      return projectResult;
+    } catch (error) {
+      console.error("Error in saveProject:", error);
+      throw error;
+    }
     return api.createProject(project);
   }
 
