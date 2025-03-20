@@ -14,8 +14,8 @@ import { CustomerService } from "@/services/CustomerService";
 import DfnsService from "@/services/DfnsService";
 import { WalletPreference } from "@/utils/constants";
 
-const TRADE_DEAL_DEFAULT_INTEREST_RATE = 5; // 5%
-const TRADE_DEAL_DEFAULT_VABB_VABI_RATIO = 2; // 2:1 ratio
+const TRADE_DEAL_DEFAULT_INTEREST_RATE = 0;
+const TRADE_DEAL_DEFAULT_VABB_VABI_RATIO = 1;
 
 import ImageBoxFormItem from "../molecules/ImageBox";
 
