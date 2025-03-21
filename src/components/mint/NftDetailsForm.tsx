@@ -106,11 +106,17 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
     if (project) {
       const projectFields = project.fields;
       const projectStartDate = project.startDate;
+      const tradeDealId = project.tradeDealId;
       if (projectStartDate) {
         form.setFieldsValue({
           projectStartDate,
           projectId,
-          tradeDealId: project.tradeDealId,
+        });
+      }
+
+      if (tradeDealId) {
+        form.setFieldsValue({
+          tradeDealId,
         });
       }
 
