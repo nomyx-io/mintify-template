@@ -315,7 +315,7 @@ export default class BlockchainService {
     }
   }
 
-  async tdDepositInvoice(tradePoolId: number, tokenId: number) {
+  async tdDepositInvoice(tradeDealId: number, tokenId: number) {
     try {
       if (!this.signer) {
         throw new Error("Signer is not available.");
@@ -324,7 +324,7 @@ export default class BlockchainService {
       const contractWithSigner: any = this.tradeDealService?.connect(this.signer);
 
       // Send the transaction
-      const tx = await contractWithSigner.tdDepositInvoice(tradePoolId, tokenId);
+      const tx = await contractWithSigner.tdDepositInvoice(tradeDealId, tokenId);
 
       // Wait for the transaction to be mined and return the receipt
       const receipt = await tx.wait();
