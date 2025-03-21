@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useContext, useMemo } from "react";
+import React, { useEffect, useState, useContext } from "react";
 
 import { Button, Form } from "antd";
 import { ethers } from "ethers";
@@ -14,7 +14,6 @@ import usePageUnloadGuard from "@/hooks/usePageUnloadGuard";
 import { getDashboardLayout } from "@/Layouts";
 import BlockchainService from "@/services/BlockchainService";
 import { CarbonCreditService } from "@/services/CarbonCreditService";
-import { CustomerService } from "@/services/CustomerService";
 import DfnsService from "@/services/DfnsService";
 import { TokenizedDebtService } from "@/services/TokenizedDebtService";
 import { TradeFinanceService } from "@/services/TradeFinanceService";
@@ -36,21 +35,7 @@ export default function Details({ service }: { service: BlockchainService }) {
   const [formData, setFormData] = useState<any>({});
   const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
   const [industry, setIndustry] = useState<Industries | null>(null);
-  const [projectList, setProjectList] = useState<any[]>([]);
   const blockchainService = BlockchainService.getInstance();
-  const customerService = useMemo(() => CustomerService(), []);
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const projects = await customerService.getProjects();
-        setProjectList(projects || []);
-      } catch (error) {
-        console.error("Failed to fetch projects:", error);
-      }
-    };
-    fetchProjects();
-  }, [customerService]);
 
   const listener = usePageUnloadGuard();
   listener.onBeforeUnload = () => {
@@ -180,10 +165,7 @@ export default function Details({ service }: { service: BlockchainService }) {
           break;
 
         case Industries.TRADE_FINANCE:
-          const selectedProject = projectList.find((project) => project.id === formData.projectId);
-          console.log("Selected Project:", selectedProject);
-          const tradeDealId = selectedProject?.attributes?.tradeDealId;
-          console.log("Trade Deal ID from project:", tradeDealId);
+          const tradeDealId = nftMetadata.find((value) => value.key === "tradeDealId")?.value;
           if (!tradeDealId) {
             toast.error("Trade deal ID is required for trade finance tokens");
             break;
