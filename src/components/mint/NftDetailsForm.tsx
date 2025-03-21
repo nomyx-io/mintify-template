@@ -155,7 +155,13 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       <Form
         form={form}
         layout="vertical"
-        onFinish={(values) => onFinish({ ...values, industryTemplate: projectList.find((p) => p.id === projectId)?.industryTemplate })}
+        onFinish={(values) =>
+          onFinish({
+            ...values,
+            industryTemplate: projectList.find((p) => p.id === projectId)?.industryTemplate,
+            tradeDealId: projectList.find((p) => p.id === projectId)?.tradeDealId,
+          })
+        }
       >
         <div className="flex flex-col divide-y divide-[#484848]">
           <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
