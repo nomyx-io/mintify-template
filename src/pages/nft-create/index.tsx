@@ -165,24 +165,24 @@ export default function Details({ service }: { service: BlockchainService }) {
           break;
 
         case Industries.TRADE_FINANCE:
-          const tradeDealId = nftMetadata.find((value) => value.key === "tradeDealId")?.value;
-          if (!tradeDealId) {
-            toast.error("Trade deal ID is required for trade finance tokens");
+          const tradePoolId = nftMetadata.find((value) => value.key === "tradePoolId")?.value;
+          if (!tradePoolId) {
+            toast.error("Trade pool ID is required for trade finance tokens");
             break;
           }
 
-          const depositToast = toast.loading("Depositing invoice to trade deal...");
+          const depositToast = toast.loading("Depositing invoice to trade pool...");
           try {
             if (walletPreference === WalletPreference.PRIVATE) {
-              await blockchainService.tdDepositInvoice(parseInt(tradeDealId), tokenId);
+              await blockchainService.tdDepositInvoice(parseInt(tradePoolId), tokenId);
             } else {
-              const depositResult = await DfnsService.dfnsTdDepositInvoice(walletId, safeDfnsToken, parseInt(tradeDealId), tokenId);
+              const depositResult = await DfnsService.dfnsTdDepositInvoice(walletId, safeDfnsToken, parseInt(tradePoolId), tokenId);
               if (depositResult.error) {
                 throw new Error(depositResult.error);
               }
             }
             toast.update(depositToast, {
-              render: `✅ Invoice successfully deposited to trade deal ${tradeDealId}`,
+              render: `✅ Invoice successfully deposited to trade pool ${tradePoolId}`,
               type: "success",
               isLoading: false,
               autoClose: 5000,

@@ -329,20 +329,20 @@ class DfnsService {
     }
   }
 
-  public async dfnsTdDepositInvoice(walletId: string, dfnsToken: string, tradeDealId: number, tokenId: number) {
-    if (!walletId || !dfnsToken || !tradeDealId || !tokenId) {
-      throw new Error("Missing required parameters for trade deal invoice deposit.");
+  public async dfnsTdDepositInvoice(walletId: string, dfnsToken: string, tradePoolId: number, tokenId: number) {
+    if (!walletId || !dfnsToken || !tradePoolId || !tokenId) {
+      throw new Error("Missing required parameters for trade pool invoice deposit.");
     }
 
     try {
-      // Step 1: Initiate trade deal invoice deposit
+      // Step 1: Initiate trade pool invoice deposit
       const initiateResponse = await Parse.Cloud.run("dfnsInitTdDepositInvoice", {
         walletId,
         dfns_token: dfnsToken,
-        tradeDealId,
+        tradePoolId,
         tokenId,
       });
-      console.log("Pending trade deal invoice deposit request:", initiateResponse);
+      console.log("Pending trade pool invoice deposit request:", initiateResponse);
 
       // Step 2: Sign the challenge
       const webauthn = new WebAuthnSigner();
