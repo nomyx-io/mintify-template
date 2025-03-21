@@ -165,7 +165,9 @@ export default function Details({ service }: { service: BlockchainService }) {
           break;
 
         case Industries.TRADE_FINANCE:
-          const tradeDealId = nftMetadata.find((value) => value.key === "tradeDealId")?.value;
+          // Get tradeDealId directly from the formData
+          const tradeDealId = formData.tradeDealId;
+
           if (!tradeDealId) {
             toast.error("Trade deal ID is required for trade finance tokens");
             break;

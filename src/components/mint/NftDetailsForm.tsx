@@ -47,6 +47,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       startDate: string;
       fields: string;
       industryTemplate: string;
+      tradeDealId?: number;
     }[]
   >([]);
 
@@ -71,6 +72,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
           startDate: project.createdAt.toLocaleDateString(),
           fields: project.attributes.fields,
           industryTemplate: project.attributes.industryTemplate,
+          tradeDealId: project.attributes.tradeDealId,
         })) || []
       );
     } catch (error) {
@@ -105,7 +107,11 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       const projectFields = project.fields;
       const projectStartDate = project.startDate;
       if (projectStartDate) {
-        form.setFieldsValue({ projectStartDate, projectId });
+        form.setFieldsValue({
+          projectStartDate,
+          projectId,
+          tradeDealId: project.tradeDealId,
+        });
       }
 
       let fields: NftDetailsInputField[] = [];
