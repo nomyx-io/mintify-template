@@ -259,13 +259,34 @@ export default class BlockchainService {
         interestRate,
         vabbToVabiRatio,
         requiredClaimTopics,
-        vabbAddress,
-        vabiAddress,
+        "0x0000000000000000000000000000000000000000",
+        "0x0000000000000000000000000000000000000000",
         usdcAddress
       );
 
-      // Wait for the transaction to be mined and return the receipt
-      return await tx.wait();
+      console.log("🚀 Transaction sent. TX Hash:", tx.hash);
+
+      // Wait for transaction receipt
+      // Wait for transaction receipt
+      const receipt = await tx.wait();
+
+      console.log("🔍 Full Transaction Receipt:", receipt);
+      console.log("🔍 Logs:", receipt.logs);
+
+      const tradeDealEvent = receipt.logs.find((log: any, index: any) => log.topics.length >= 2 && index === 2);
+
+      if (!tradeDealEvent) {
+        throw new Error("TradeDealCreated event not found in logs.");
+      }
+
+      console.log("📜 Trade Deal Event Topics:", tradeDealEvent.topics);
+
+      // Extract tradeDealId from topics[1]
+      const tradeDealId = parseInt(tradeDealEvent.topics[1], 16);
+
+      console.log("Extracted Trade Deal ID:", tradeDealId);
+
+      return { receipt, tradeDealId }; // Return both the receipt and extracted tradeDealId
     } catch (e) {
       console.error("Error in createTradeDeal:", e);
       throw e;

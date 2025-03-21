@@ -146,17 +146,17 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
       // First create the project
       const projectResult = await api.createProject(project);
 
-      // If it's a trade finance project, create and activate the trade deal
       if (values.industryTemplate === Industries.TRADE_FINANCE) {
         try {
           const symbol = values.title.substring(0, 5).toUpperCase(); // symbol (first 5 chars of title)
+          const tradeDealName = values.title.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 32);
           const vabbAddress = process.env.NEXT_PUBLIC_HARDHAT_VABB_ADDRESS || "";
           const vabiAddress = process.env.NEXT_PUBLIC_HARDHAT_VABI_ADDRESS || "";
           const usdcAddress = process.env.NEXT_PUBLIC_HARDHAT_USDC_ADDRESS || "";
           let tradeDealId: number;
 
           if (walletPreference === WalletPreference.MANAGED) {
-            // Check DFNS credentials
+            // DFNS Wallet Flow
             const walletId = user?.walletId;
             const safeDfnsToken = dfnsToken || "";
 
@@ -165,15 +165,15 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             }
 
             message.loading("Creating trade deal via DFNS...", 0);
-            // Create trade deal using DFNS
+
             const tradeDealResult = await DfnsService.dfnsCreateTradeDeal(
               walletId,
               safeDfnsToken,
-              values.title,
+              tradeDealName, // Use sanitized name
               symbol,
               TRADE_DEAL_DEFAULT_INTEREST_RATE,
               TRADE_DEAL_DEFAULT_VABB_VABI_RATIO,
-              [], // no required claim topics for now
+              [],
               vabbAddress,
               vabiAddress,
               usdcAddress
@@ -183,41 +183,44 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
               throw new Error(tradeDealResult.error);
             }
 
-            // Get trade deal ID from response
             tradeDealId = tradeDealResult.completeResponse.tradeDealId;
 
             message.loading("Activating trade deal via DFNS...", 0);
-            // Activate trade deal using DFNS
             const activateResult = await DfnsService.dfnsActivateTradeDeal(walletId, safeDfnsToken, tradeDealId);
             if (activateResult.error) {
               throw new Error(activateResult.error);
             }
           } else {
-            // Private wallet flow
+            // Private Wallet Flow
             const blockchainService = BlockchainService.getInstance();
             if (!blockchainService) {
               throw new Error("Blockchain service not available");
             }
 
             message.loading("Creating trade deal...", 0);
-            // Create trade deal with default values
-            const tradeDealTx = await blockchainService.createTradeDeal(
-              values.title,
+
+            const { receipt, tradeDealId } = await blockchainService.createTradeDeal(
+              tradeDealName, // Use sanitized name
               symbol,
               TRADE_DEAL_DEFAULT_INTEREST_RATE,
               TRADE_DEAL_DEFAULT_VABB_VABI_RATIO,
-              [], // no required claim topics for now
+              [],
               vabbAddress,
               vabiAddress,
               usdcAddress
             );
 
-            // Get the trade deal ID from the transaction receipt
-            tradeDealId = tradeDealTx.logs[0].args[0];
+            console.log("Trade Deal Created - TX Receipt:", receipt);
+            console.log("Trade Deal ID Extracted:", tradeDealId);
+
+            if (!tradeDealId) {
+              throw new Error("Trade deal ID extraction failed.");
+            }
 
             message.loading("Activating trade deal...", 0);
-            // Activate the trade deal
             await blockchainService.activateTradeDeal(tradeDealId);
+
+            message.success("Trade deal created and activated successfully");
           }
 
           message.success("Trade deal created and activated successfully");
@@ -229,7 +232,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           message.destroy(); // Clear any loading messages
         }
       }
-
       return projectResult;
     } catch (error) {
       console.error("Error in saveProject:", error);
