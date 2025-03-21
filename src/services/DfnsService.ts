@@ -328,6 +328,43 @@ class DfnsService {
       return { completeResponse: null, error: error.message };
     }
   }
+
+  public async dfnsTdDepositInvoice(walletId: string, dfnsToken: string, tradeDealId: number, tokenId: number) {
+    if (!walletId || !dfnsToken || !tradeDealId || !tokenId) {
+      throw new Error("Missing required parameters for trade deal invoice deposit.");
+    }
+
+    try {
+      // Step 1: Initiate trade deal invoice deposit
+      const initiateResponse = await Parse.Cloud.run("dfnsInitTdDepositInvoice", {
+        walletId,
+        dfns_token: dfnsToken,
+        tradeDealId,
+        tokenId,
+      });
+      console.log("Pending trade deal invoice deposit request:", initiateResponse);
+
+      // Step 2: Sign the challenge
+      const webauthn = new WebAuthnSigner();
+      const assertion = await webauthn.sign(initiateResponse.challenge);
+
+      // Step 3: Complete trade deal invoice deposit
+      const completeResponse = await Parse.Cloud.run("dfnsCompleteTdDepositInvoice", {
+        walletId,
+        dfns_token: dfnsToken,
+        signedChallenge: {
+          challengeIdentifier: initiateResponse.challenge.challengeIdentifier,
+          firstFactor: assertion,
+        },
+        requestBody: initiateResponse.requestBody,
+      });
+
+      return { completeResponse, error: null };
+    } catch (error: any) {
+      console.error("Error depositing trade deal invoice:", error);
+      return { completeResponse: null, error: error.message };
+    }
+  }
 }
 
 export default DfnsService.instance;

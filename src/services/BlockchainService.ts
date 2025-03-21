@@ -315,6 +315,26 @@ export default class BlockchainService {
     }
   }
 
+  async tdDepositInvoice(tradeDealId: number, tokenId: number) {
+    try {
+      if (!this.signer) {
+        throw new Error("Signer is not available.");
+      }
+
+      const contractWithSigner: any = this.tradeDealService?.connect(this.signer);
+
+      // Send the transaction
+      const tx = await contractWithSigner.tdDepositInvoice(tradeDealId, tokenId);
+
+      // Wait for the transaction to be mined and return the receipt
+      const receipt = await tx.wait();
+      return receipt;
+    } catch (e) {
+      console.error("Error in tdDepositInvoice:", e);
+      throw e;
+    }
+  }
+
   /**
    * The static method that controls the access to the singleton instance.
    *
