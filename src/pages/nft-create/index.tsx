@@ -204,52 +204,59 @@ export default function Details({ service }: { service: BlockchainService }) {
           break;
       }
 
-      // **Introduce another short delay before listing**
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // **Proceed with Listing**
-      const price = nftMetadata.find((value) => value.key === "price")?.value || "0";
-      const usdcPrice = ethers.parseUnits(price, 6);
-      toast.info(`ℹ️ Calculated total price in USDC: ${price || "0"}`, { autoClose: 3000 });
-
-      const listingToast = toast.loading("Listing token on the marketplace...");
-
-      let listingResponse;
-      try {
-        if (walletPreference === WalletPreference.PRIVATE) {
-          await blockchainService.listItem(mintAddress, tokenId, usdcPrice, true);
-        } else {
-          listingResponse = await DfnsService.dfnsListItem(walletId, safeDfnsToken, mintAddress, tokenId, price, true);
-        }
-
-        console.log("✅ DFNS Listing Response:", listingResponse);
-
-        if (listingResponse?.error) {
-          throw new Error(`DFNS Listing Error: ${listingResponse.error}`);
-        }
-
-        toast.update(listingToast, {
-          render: `✅ Token successfully listed with ID: ${tokenId}`,
-          type: "success",
-          isLoading: false,
-          autoClose: 5000,
-        });
-
-        // **Introduce a final short delay after listing**
+      // Skip listing for trade finance projects
+      if (industry !== Industries.TRADE_FINANCE) {
+        // **Introduce another short delay before listing**
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        resetFormStates();
-        toast.success(`🎉 Successfully minted and listed NFT with Token ID: ${tokenId}`);
-        return tokenId;
-      } catch (error) {
-        toast.update(listingToast, {
-          render: `❌ Error during listing: ${error}`,
-          type: "error",
-          isLoading: false,
-          autoClose: 5000,
-        });
-        throw error;
+        // **Proceed with Listing**
+        const price = nftMetadata.find((value) => value.key === "price")?.value || "0";
+        const usdcPrice = ethers.parseUnits(price, 6);
+        toast.info(`ℹ️ Calculated total price in USDC: ${price || "0"}`, { autoClose: 3000 });
+
+        const listingToast = toast.loading("Listing token on the marketplace...");
+
+        let listingResponse;
+        try {
+          if (walletPreference === WalletPreference.PRIVATE) {
+            await blockchainService.listItem(mintAddress, tokenId, usdcPrice, true);
+          } else {
+            listingResponse = await DfnsService.dfnsListItem(walletId, safeDfnsToken, mintAddress, tokenId, price, true);
+          }
+
+          console.log("✅ DFNS Listing Response:", listingResponse);
+
+          if (listingResponse?.error) {
+            throw new Error(`DFNS Listing Error: ${listingResponse.error}`);
+          }
+
+          toast.update(listingToast, {
+            render: `✅ Token successfully listed with ID: ${tokenId}`,
+            type: "success",
+            isLoading: false,
+            autoClose: 5000,
+          });
+
+          // **Introduce a final short delay after listing**
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        } catch (error) {
+          toast.update(listingToast, {
+            render: `❌ Error during listing: ${error}`,
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+          });
+          throw error;
+        }
       }
+
+      resetFormStates();
+      const successMessage =
+        industry === Industries.TRADE_FINANCE
+          ? `🎉 Successfully minted NFT with Token ID: ${tokenId}`
+          : `🎉 Successfully minted and listed NFT with Token ID: ${tokenId}`;
+      toast.success(successMessage);
+      return tokenId;
     } catch (e) {
       let errorMessage = "An error occurred during the minting/listing process.";
       if (e instanceof Error) {
