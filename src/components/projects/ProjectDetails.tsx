@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
 
 import { message, Modal } from "antd";
 import { Button, Card, Tabs } from "antd";
 import { SearchNormal1, Category, RowVertical, ArrowLeft, Copy } from "iconsax-react";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import Parse from "parse";
 import { toast } from "react-toastify";
 
 import projectBackground from "@/assets/projects_background.png";
@@ -14,7 +15,11 @@ import InvestorListView from "@/components/projects/InvestorListView";
 import TokenCardView from "@/components/projects/TokenCardView";
 import TokenListView from "@/components/projects/TokenListView";
 import { Industries } from "@/constants/constants";
+import { UserContext } from "@/context/UserContext";
+import BlockchainService from "@/services/BlockchainService";
 import { CustomerService } from "@/services/CustomerService";
+import DfnsService from "@/services/DfnsService";
+import { WalletPreference } from "@/utils/constants";
 
 interface ProjectDetailsProps {
   project: Project;
@@ -23,6 +28,7 @@ interface ProjectDetailsProps {
 
 const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const router = useRouter();
+  const { walletPreference, dfnsToken, user } = useContext(UserContext);
   const [listings, setListings] = useState<any[]>([]);
   const [sales, setSales] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("1");
@@ -592,11 +598,51 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
               </Button>
               <Button
                 type="primary"
-                onClick={() => {
-                  // Handle deposit action here
-                  message.success("Stocks deposited successfully");
-                  setIsPaybackModalVisible(false);
-                  setSelectedStocks([]);
+                onClick={async () => {
+                  try {
+                    // Hardcoded amount for testing
+                    const depositAmount = "200";
+
+                    // Create deposit data array with selected stocks
+                    const depositData = selectedStocks.map((stockId) => ({
+                      tokenId: stockId,
+                      amount: depositAmount,
+                    }));
+
+                    if (walletPreference === WalletPreference.PRIVATE) {
+                      // Use BlockchainService for private wallet
+                      const blockchainService = BlockchainService.getInstance();
+                      if (!blockchainService) {
+                        throw new Error("Blockchain service not initialized");
+                      }
+                      await blockchainService.deposit(depositData);
+                    } else {
+                      if (!user?.walletId || !dfnsToken) {
+                        throw new Error("Wallet credentials not found");
+                      }
+
+                      // First approve USDC
+                      const approvalResult = await DfnsService.dfnsApproveUSDC(user.walletId, dfnsToken, depositAmount);
+
+                      if (approvalResult.error) {
+                        throw new Error(`USDC approval failed: ${approvalResult.error}`);
+                      }
+
+                      // Then deposit
+                      const depositResult = await DfnsService.dfnsDeposit(user.walletId, dfnsToken, depositData);
+
+                      if (depositResult.error) {
+                        throw new Error(`Deposit failed: ${depositResult.error}`);
+                      }
+                    }
+
+                    message.success("Stocks deposited successfully");
+                    setIsPaybackModalVisible(false);
+                    setSelectedStocks([]);
+                  } catch (error: any) {
+                    console.error("Deposit error:", error);
+                    message.error(`Failed to deposit: ${error.message}`);
+                  }
                 }}
                 disabled={selectedStocks.length === 0}
                 className="!bg-[#2E5BFF] hover:!bg-[#2E5BFF]/80 disabled:!bg-[#D3D3D3] disabled:opacity-100 disabled:!text-[#4A4A4A]"
