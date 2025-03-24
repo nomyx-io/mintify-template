@@ -512,9 +512,45 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
             </Button>
             <Button
               type="primary"
-              onClick={() => {
-                setIsWithdrawModalVisible(false);
-                router.push({ pathname: "/withdraw-pool", query: { projectId: project.id } });
+              onClick={async () => {
+                try {
+                  // Get and validate tradeDealId
+                  if (!project.tradeDealId || typeof project.tradeDealId !== "number") {
+                    throw new Error("Trade deal ID not found or invalid");
+                  }
+                  // Type assertion after validation
+                  const tradeDealId = project.tradeDealId as number;
+
+                  if (walletPreference === WalletPreference.PRIVATE) {
+                    // Use BlockchainService for private wallet
+                    const blockchainService = BlockchainService.getInstance();
+                    if (!blockchainService) {
+                      throw new Error("Blockchain service not initialized");
+                    }
+                    // Non-null assertion after check
+                    await blockchainService!.tdWithdrawUSDC(tradeDealId, 200);
+                  } else {
+                    // Validate wallet credentials
+                    if (!user?.walletId || !dfnsToken) {
+                      throw new Error("Wallet credentials not found");
+                    }
+                    // Type assertions after validation
+                    const walletId = user.walletId as string;
+                    const token = dfnsToken as string;
+
+                    const withdrawResult = await DfnsService.dfnsTdWithdrawUSDC(walletId, token, tradeDealId, "200");
+
+                    if (withdrawResult.error) {
+                      throw new Error(`Withdrawal failed: ${withdrawResult.error}`);
+                    }
+                  }
+
+                  message.success("USDC withdrawn successfully");
+                  setIsWithdrawModalVisible(false);
+                } catch (error: any) {
+                  console.error("Withdrawal error:", error);
+                  message.error(`Failed to withdraw: ${error.message}`);
+                }
               }}
               className="bg-blue-500 hover:!bg-blue-600 px-8"
             >
