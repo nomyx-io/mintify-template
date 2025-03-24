@@ -601,8 +601,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 type="primary"
                 onClick={async () => {
                   try {
-                    console.log("project", project);
-                    return;
                     // Get and validate tradeDealId
                     if (!project.tradeDealId || typeof project.tradeDealId !== "number") {
                       throw new Error("Trade deal ID not found or invalid");
