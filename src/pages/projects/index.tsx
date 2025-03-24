@@ -48,6 +48,7 @@ export default function Projects() {
             totalTokens: projectTokens?.length || 0,
             createdAt: project.createdAt,
             industryTemplate: project.attributes.industryTemplate,
+            tradeDealId: project.attributes.tradeDealId,
           };
         }) || []
       );
