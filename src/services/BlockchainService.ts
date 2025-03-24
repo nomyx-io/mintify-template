@@ -335,6 +335,31 @@ export default class BlockchainService {
     }
   }
 
+  async tdDepositUSDC(tradeDealId: number, amount: number) {
+    try {
+      if (!this.signer) {
+        throw new Error("Signer is not available.");
+      }
+
+      // First approve USDC transfer
+      const usdcContractWithSigner: any = this.usdcService?.connect(this.signer);
+      const parsedAmount = parseUnits(amount.toString(), 6); // USDC has 6 decimals
+      let tx = await usdcContractWithSigner.approve(this.contractAddress, parsedAmount);
+      await tx.wait();
+
+      // Then make the deposit
+      const contractWithSigner: any = this.tradeDealService?.connect(this.signer);
+      tx = await contractWithSigner.tdDepositUSDC(tradeDealId, parsedAmount);
+
+      // Wait for the transaction to be mined and return the receipt
+      const receipt = await tx.wait();
+      return receipt;
+    } catch (e) {
+      console.error("Error in tdDepositUSDC:", e);
+      throw e;
+    }
+  }
+
   /**
    * The static method that controls the access to the singleton instance.
    *
