@@ -425,6 +425,43 @@ class DfnsService {
       return { completeResponse: null, error: error.message };
     }
   }
+
+  public async dfnsTdWithdrawUSDC(walletId: string, dfnsToken: string, tradeDealId: number, amount: string) {
+    if (!walletId || !dfnsToken || !tradeDealId || !amount) {
+      throw new Error("Missing required parameters for trade deal USDC withdrawal.");
+    }
+
+    try {
+      // Step 1: Initiate USDC withdrawal
+      const initiateResponse = await Parse.Cloud.run("dfnsInitTdWithdrawUSDC", {
+        walletId,
+        dfns_token: dfnsToken,
+        tradeDealId,
+        amount,
+      });
+      console.log("Pending USDC withdrawal request:", initiateResponse);
+
+      // Step 2: Sign the challenge
+      const webauthn = new WebAuthnSigner();
+      const assertion = await webauthn.sign(initiateResponse.challenge);
+
+      // Step 3: Complete USDC withdrawal
+      const completeResponse = await Parse.Cloud.run("dfnsCompleteTdWithdrawUSDC", {
+        walletId,
+        dfns_token: dfnsToken,
+        signedChallenge: {
+          challengeIdentifier: initiateResponse.challenge.challengeIdentifier,
+          firstFactor: assertion,
+        },
+        requestBody: initiateResponse.requestBody,
+      });
+
+      return { completeResponse, error: null };
+    } catch (error: any) {
+      console.error("Error withdrawing USDC from trade deal:", error);
+      return { completeResponse: null, error: error.message };
+    }
+  }
 }
 
 export default DfnsService.instance;

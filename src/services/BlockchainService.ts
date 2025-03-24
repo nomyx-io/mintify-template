@@ -359,6 +359,24 @@ export default class BlockchainService {
     }
   }
 
+  async tdWithdrawUSDC(tradeDealId: number, amount: number) {
+    try {
+      if (!this.signer) {
+        throw new Error("Signer is not available.");
+      }
+
+      const contractWithSigner: any = this.tradeDealService?.connect(this.signer);
+      const tx = await contractWithSigner.tdWithdrawUSDC(tradeDealId, amount);
+
+      // Wait for the transaction to be mined and return the receipt
+      const receipt = await tx.wait();
+      return receipt;
+    } catch (e) {
+      console.error("Error in tdWithdrawUSDC:", e);
+      throw e;
+    }
+  }
+
   /**
    * The static method that controls the access to the singleton instance.
    *
