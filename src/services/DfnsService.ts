@@ -365,6 +365,66 @@ class DfnsService {
       return { completeResponse: null, error: error.message };
     }
   }
+
+  public async dfnsTdDepositUSDC(walletId: string, dfnsToken: string, tradeDealId: number, amount: string) {
+    if (!walletId || !dfnsToken || !tradeDealId || !amount) {
+      throw new Error("Missing required parameters for trade deal USDC deposit.");
+    }
+
+    try {
+      // Step 1: Initiate USDC approval
+      const approvalInitResponse = await Parse.Cloud.run("dfnsInitTdUSDCApproval", {
+        walletId,
+        dfns_token: dfnsToken,
+        tradeDealId,
+        amount,
+      });
+      console.log("Pending USDC approval request:", approvalInitResponse);
+
+      // Step 2: Sign the approval challenge
+      const webauthn = new WebAuthnSigner();
+      const approvalAssertion = await webauthn.sign(approvalInitResponse.challenge);
+
+      // Step 3: Complete USDC approval
+      const approvalCompleteResponse = await Parse.Cloud.run("dfnsCompleteTdUSDCApproval", {
+        walletId,
+        dfns_token: dfnsToken,
+        signedChallenge: {
+          challengeIdentifier: approvalInitResponse.challenge.challengeIdentifier,
+          firstFactor: approvalAssertion,
+        },
+        requestBody: approvalInitResponse.requestBody,
+      });
+
+      // Step 4: Initiate USDC deposit
+      const depositInitResponse = await Parse.Cloud.run("dfnsInitTdDepositUSDC", {
+        walletId,
+        dfns_token: dfnsToken,
+        tradeDealId,
+        amount,
+      });
+      console.log("Pending USDC deposit request:", depositInitResponse);
+
+      // Step 5: Sign the deposit challenge
+      const depositAssertion = await webauthn.sign(depositInitResponse.challenge);
+
+      // Step 6: Complete USDC deposit
+      const depositCompleteResponse = await Parse.Cloud.run("dfnsCompleteTdDepositUSDC", {
+        walletId,
+        dfns_token: dfnsToken,
+        signedChallenge: {
+          challengeIdentifier: depositInitResponse.challenge.challengeIdentifier,
+          firstFactor: depositAssertion,
+        },
+        requestBody: depositInitResponse.requestBody,
+      });
+
+      return { completeResponse: depositCompleteResponse, error: null };
+    } catch (error: any) {
+      console.error("Error depositing USDC to trade deal:", error);
+      return { completeResponse: null, error: error.message };
+    }
+  }
 }
 
 export default DfnsService.instance;
