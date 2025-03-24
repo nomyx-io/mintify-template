@@ -90,6 +90,7 @@ interface Project {
   totalValue: number;
   createdAt: Date;
   industryTemplate?: string;
+  tradeDealId?: number;
 }
 
 interface ProjectSaveData {

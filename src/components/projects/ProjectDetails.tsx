@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
 
+import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import { message, Modal } from "antd";
 import { Button, Card, Tabs } from "antd";
 import { SearchNormal1, Category, RowVertical, ArrowLeft, Copy } from "iconsax-react";
@@ -600,14 +601,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 type="primary"
                 onClick={async () => {
                   try {
-                    // Hardcoded amount for testing
-                    const depositAmount = "200";
-
-                    // Create deposit data array with selected stocks
-                    const depositData = selectedStocks.map((stockId) => ({
-                      tokenId: stockId,
-                      amount: depositAmount,
-                    }));
+                    console.log("project", project);
+                    return;
+                    // Get and validate tradeDealId
+                    if (!project.tradeDealId || typeof project.tradeDealId !== "number") {
+                      throw new Error("Trade deal ID not found or invalid");
+                    }
+                    // Type assertion after validation
+                    const tradeDealId = project.tradeDealId as number;
 
                     if (walletPreference === WalletPreference.PRIVATE) {
                       // Use BlockchainService for private wallet
@@ -615,28 +616,25 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       if (!blockchainService) {
                         throw new Error("Blockchain service not initialized");
                       }
-                      await blockchainService.deposit(depositData);
+                      // Non-null assertion after check
+                      await blockchainService!.tdDepositUSDC(tradeDealId, 200);
                     } else {
+                      // Validate wallet credentials
                       if (!user?.walletId || !dfnsToken) {
                         throw new Error("Wallet credentials not found");
                       }
+                      // Type assertions after validation
+                      const walletId = user.walletId as string;
+                      const token = dfnsToken as string;
 
-                      // First approve USDC
-                      const approvalResult = await DfnsService.dfnsApproveUSDC(user.walletId, dfnsToken, depositAmount);
-
-                      if (approvalResult.error) {
-                        throw new Error(`USDC approval failed: ${approvalResult.error}`);
-                      }
-
-                      // Then deposit
-                      const depositResult = await DfnsService.dfnsDeposit(user.walletId, dfnsToken, depositData);
+                      const depositResult = await DfnsService.dfnsTdDepositUSDC(walletId, token, tradeDealId, "200");
 
                       if (depositResult.error) {
                         throw new Error(`Deposit failed: ${depositResult.error}`);
                       }
                     }
 
-                    message.success("Stocks deposited successfully");
+                    message.success("USDC deposited successfully");
                     setIsPaybackModalVisible(false);
                     setSelectedStocks([]);
                   } catch (error: any) {
