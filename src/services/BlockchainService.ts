@@ -343,13 +343,12 @@ export default class BlockchainService {
 
       // First approve USDC transfer
       const usdcContractWithSigner: any = this.usdcService?.connect(this.signer);
-      const parsedAmount = parseUnits(amount.toString(), 6); // USDC has 6 decimals
-      let tx = await usdcContractWithSigner.approve(this.contractAddress, parsedAmount);
+      let tx = await usdcContractWithSigner.approve(this.contractAddress, amount);
       await tx.wait();
 
       // Then make the deposit
       const contractWithSigner: any = this.tradeDealService?.connect(this.signer);
-      tx = await contractWithSigner.tdDepositUSDC(tradeDealId, parsedAmount);
+      tx = await contractWithSigner.tdDepositUSDC(tradeDealId, amount);
 
       // Wait for the transaction to be mined and return the receipt
       const receipt = await tx.wait();
