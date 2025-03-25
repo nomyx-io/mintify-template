@@ -243,7 +243,8 @@ export default class BlockchainService {
     requiredClaimTopics: number[],
     vabbAddress: string,
     vabiAddress: string,
-    usdcAddress: string
+    usdcAddress: string,
+    fundingTarget: number
   ) {
     try {
       if (!this.signer) {
@@ -261,7 +262,8 @@ export default class BlockchainService {
         requiredClaimTopics,
         "0x0000000000000000000000000000000000000000",
         "0x0000000000000000000000000000000000000000",
-        usdcAddress
+        usdcAddress,
+        fundingTarget
       );
 
       console.log("🚀 Transaction sent. TX Hash:", tx.hash);
@@ -373,6 +375,102 @@ export default class BlockchainService {
       return receipt;
     } catch (e) {
       console.error("Error in tdWithdrawUSDC:", e);
+      throw e;
+    }
+  }
+
+  async getTradeDealFullStatus(tradeDealId: number) {
+    try {
+      if (!this.dedicatedProvider) {
+        throw new Error("Provider is not available.");
+      }
+
+      const contractWithProvider: any = this.tradeDealService?.connect(this.dedicatedProvider);
+      return await contractWithProvider.getTradeDealFullStatus(tradeDealId);
+    } catch (e) {
+      console.error("Error in getTradeDealFullStatus:", e);
+      throw e;
+    }
+  }
+
+  async isTradeDealFunded(tradeDealId: number) {
+    try {
+      if (!this.dedicatedProvider) {
+        throw new Error("Provider is not available.");
+      }
+
+      const contractWithProvider: any = this.tradeDealService?.connect(this.dedicatedProvider);
+      return await contractWithProvider.isTradeDealFunded(tradeDealId);
+    } catch (e) {
+      console.error("Error in isTradeDealFunded:", e);
+      throw e;
+    }
+  }
+
+  async isTradeDealRepaid(tradeDealId: number) {
+    try {
+      if (!this.dedicatedProvider) {
+        throw new Error("Provider is not available.");
+      }
+
+      const contractWithProvider: any = this.tradeDealService?.connect(this.dedicatedProvider);
+      return await contractWithProvider.isTradeDealRepaid(tradeDealId);
+    } catch (e) {
+      console.error("Error in isTradeDealRepaid:", e);
+      throw e;
+    }
+  }
+
+  async redeemVABBTokens(tradeDealId: number, vabbAmount: number) {
+    try {
+      if (!this.signer) {
+        throw new Error("Signer is not available.");
+      }
+
+      const contractWithSigner: any = this.tradeDealService?.connect(this.signer);
+      const tx = await contractWithSigner.redeemVABBTokens(tradeDealId, vabbAmount);
+
+      // Wait for the transaction to be mined and return the receipt
+      const receipt = await tx.wait();
+      return receipt;
+    } catch (e) {
+      console.error("Error in redeemVABBTokens:", e);
+      throw e;
+    }
+  }
+
+  async repayTradeDeal(tradeDealId: number, amount: number) {
+    try {
+      if (!this.signer) {
+        throw new Error("Signer is not available.");
+      }
+
+      const contractWithSigner: any = this.tradeDealService?.connect(this.signer);
+      const tx = await contractWithSigner.repayTradeDeal(tradeDealId, amount);
+
+      // Wait for the transaction to be mined and return the receipt
+      const receipt = await tx.wait();
+      return receipt;
+    } catch (e) {
+      console.error("Error in repayTradeDeal:", e);
+      throw e;
+    }
+  }
+
+  async withdrawTradeDealFunding(tradeDealId: number) {
+    try {
+      if (!this.signer) {
+        throw new Error("Signer is not available.");
+      }
+
+      const contractWithSigner: any = this.tradeDealService?.connect(this.signer);
+      const tx = await contractWithSigner.withdrawTradeDealFunding(tradeDealId);
+
+      // Wait for the transaction to be mined and return the receipt
+      const receipt = await tx.wait();
+      return receipt;
+    } catch (e) {
+      console.error("Error in withdrawTradeDealFunding:", e);
       throw e;
     }
   }
