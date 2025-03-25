@@ -248,7 +248,8 @@ class DfnsService {
     requiredClaimTopics: number[],
     vabbAddress: string,
     vabiAddress: string,
-    usdcAddress: string
+    usdcAddress: string,
+    fundingTarget: number
   ) {
     if (!walletId || !dfnsToken || !name || !symbol || !vabbAddress || !vabiAddress || !usdcAddress) {
       throw new Error("Missing required parameters for creating trade deal.");
@@ -267,6 +268,7 @@ class DfnsService {
         vabbAddress,
         vabiAddress,
         usdcAddress,
+        fundingTarget,
       });
       console.log("Pending trade deal creation request:", initiateResponse);
 
@@ -459,6 +461,116 @@ class DfnsService {
       return { completeResponse, error: null };
     } catch (error: any) {
       console.error("Error withdrawing USDC from trade deal:", error);
+      return { completeResponse: null, error: error.message };
+    }
+  }
+
+  public async dfnsRedeemVABBTokens(walletId: string, dfnsToken: string, tradeDealId: number, vabbAmount: string) {
+    if (!walletId || !dfnsToken || !tradeDealId || !vabbAmount) {
+      throw new Error("Missing required parameters for VABB token redemption.");
+    }
+
+    try {
+      // Step 1: Initiate VABB token redemption
+      const initiateResponse = await Parse.Cloud.run("dfnsInitRedeemVABBTokens", {
+        walletId,
+        dfns_token: dfnsToken,
+        tradeDealId,
+        vabbAmount,
+      });
+      console.log("Pending VABB token redemption request:", initiateResponse);
+
+      // Step 2: Sign the challenge
+      const webauthn = new WebAuthnSigner();
+      const assertion = await webauthn.sign(initiateResponse.challenge);
+
+      // Step 3: Complete VABB token redemption
+      const completeResponse = await Parse.Cloud.run("dfnsCompleteRedeemVABBTokens", {
+        walletId,
+        dfns_token: dfnsToken,
+        signedChallenge: {
+          challengeIdentifier: initiateResponse.challenge.challengeIdentifier,
+          firstFactor: assertion,
+        },
+        requestBody: initiateResponse.requestBody,
+      });
+
+      return { completeResponse, error: null };
+    } catch (error: any) {
+      console.error("Error redeeming VABB tokens:", error);
+      return { completeResponse: null, error: error.message };
+    }
+  }
+
+  public async dfnsRepayTradeDeal(walletId: string, dfnsToken: string, tradeDealId: number, amount: string) {
+    if (!walletId || !dfnsToken || !tradeDealId || !amount) {
+      throw new Error("Missing required parameters for trade deal repayment.");
+    }
+
+    try {
+      // Step 1: Initiate trade deal repayment
+      const initiateResponse = await Parse.Cloud.run("dfnsInitRepayTradeDeal", {
+        walletId,
+        dfns_token: dfnsToken,
+        tradeDealId,
+        amount,
+      });
+      console.log("Pending trade deal repayment request:", initiateResponse);
+
+      // Step 2: Sign the challenge
+      const webauthn = new WebAuthnSigner();
+      const assertion = await webauthn.sign(initiateResponse.challenge);
+
+      // Step 3: Complete trade deal repayment
+      const completeResponse = await Parse.Cloud.run("dfnsCompleteRepayTradeDeal", {
+        walletId,
+        dfns_token: dfnsToken,
+        signedChallenge: {
+          challengeIdentifier: initiateResponse.challenge.challengeIdentifier,
+          firstFactor: assertion,
+        },
+        requestBody: initiateResponse.requestBody,
+      });
+
+      return { completeResponse, error: null };
+    } catch (error: any) {
+      console.error("Error repaying trade deal:", error);
+      return { completeResponse: null, error: error.message };
+    }
+  }
+
+  public async dfnsWithdrawTradeDealFunding(walletId: string, dfnsToken: string, tradeDealId: number) {
+    if (!walletId || !dfnsToken || !tradeDealId) {
+      throw new Error("Missing required parameters for trade deal funding withdrawal.");
+    }
+
+    try {
+      // Step 1: Initiate funding withdrawal
+      const initiateResponse = await Parse.Cloud.run("dfnsInitWithdrawTradeDealFunding", {
+        walletId,
+        dfns_token: dfnsToken,
+        tradeDealId,
+      });
+      console.log("Pending funding withdrawal request:", initiateResponse);
+
+      // Step 2: Sign the challenge
+      const webauthn = new WebAuthnSigner();
+      const assertion = await webauthn.sign(initiateResponse.challenge);
+
+      // Step 3: Complete funding withdrawal
+      const completeResponse = await Parse.Cloud.run("dfnsCompleteWithdrawTradeDealFunding", {
+        walletId,
+        dfns_token: dfnsToken,
+        signedChallenge: {
+          challengeIdentifier: initiateResponse.challenge.challengeIdentifier,
+          firstFactor: assertion,
+        },
+        requestBody: initiateResponse.requestBody,
+      });
+
+      return { completeResponse, error: null };
+    } catch (error: any) {
+      console.error("Error withdrawing trade deal funding:", error);
       return { completeResponse: null, error: error.message };
     }
   }
