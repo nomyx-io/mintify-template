@@ -183,7 +183,8 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
               [],
               vabbAddress,
               vabiAddress,
-              usdcAddress
+              usdcAddress,
+              400 // TODO: Hardcoded fundingTarget for now
             );
 
             if (tradeDealResult.error) {
@@ -218,7 +219,8 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
               [],
               vabbAddress,
               vabiAddress,
-              usdcAddress
+              usdcAddress,
+              400 // TODO: Hardcoded fundingTarget for now
             );
 
             console.log("Trade Deal Created - TX Receipt:", result.receipt);
