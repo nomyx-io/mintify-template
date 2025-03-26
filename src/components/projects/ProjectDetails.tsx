@@ -564,11 +564,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     }
                   }
 
-                  message.success("USDC withdrawn successfully");
+                  toast.success("USDC withdrawn successfully");
                   setIsWithdrawModalVisible(false);
                 } catch (error: any) {
                   console.error("Withdrawal error:", error);
-                  message.error(`Failed to withdraw: ${error.message}`);
+                  toast.error(`Failed to withdraw: ${error.message}`);
                 }
               }}
               className="bg-blue-500 hover:!bg-blue-600 px-8"
@@ -687,12 +687,12 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       }
                     }
 
-                    message.success("Trade deal repaid successfully");
+                    toast.success("Trade deal repaid successfully");
                     setIsPaybackModalVisible(false);
                     setSelectedStocks([]);
                   } catch (error: any) {
                     console.error("Deposit error:", error);
-                    message.error(`Failed to repay: ${error.message}`);
+                    toast.error(`Failed to repay: ${error.message}`);
                   }
                 }}
                 disabled={selectedStocks.length === 0}
