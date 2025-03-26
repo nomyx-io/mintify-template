@@ -461,14 +461,16 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     const nonNullColumns: Record<string, ColumnConfig> = {};
 
     tokens.forEach((token) => {
-      // Skip tokens with no token property or non-object token property
-      if (!token || !token.token || typeof token.token !== "object") {
-        console.warn("Skipping token with missing or invalid token property:", token);
+      const tokenData = industryTemplate === Industries.TRADE_FINANCE ? token : token.token;
+
+      // Skip tokens with invalid data
+      if (!token || !tokenData || typeof tokenData !== "object") {
+        console.warn("Skipping token with missing or invalid data:", token);
         return; // Skip this iteration
       }
 
       try {
-        Object.entries(token.token).forEach(([key, value]) => {
+        Object.entries(tokenData).forEach(([key, value]) => {
           // Check if the column is non-null, non-undefined, not already in nonNullColumns, and not excluded
           if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
             nonNullColumns[key] = {
@@ -491,11 +493,11 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   const createColumns = (nonNullColumns: ColumnConfig[]) => {
     return nonNullColumns.map(({ title, key }) => ({
       title,
-      dataIndex: ["token", key] as [string, string],
+      dataIndex: industryTemplate === Industries.TRADE_FINANCE ? key : ["token", key],
       render: (value: any) => (typeof value === "object" ? "N/A" : <span>{value}</span>),
       sorter: (a: any, b: any) => {
-        const aValue = a.token[key];
-        const bValue = b.token[key];
+        const aValue = industryTemplate === Industries.TRADE_FINANCE ? a[key] : a.token[key];
+        const bValue = industryTemplate === Industries.TRADE_FINANCE ? b[key] : b.token[key];
         return typeof aValue === "string" && typeof bValue === "string" ? aValue.localeCompare(bValue) : 0;
       },
     }));
@@ -511,22 +513,27 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
       dataIndex: "tokenId",
       render: (tokenId: string, record: any) => {
         const color = hashToColor(tokenId);
+        const title = industryTemplate === Industries.TRADE_FINANCE ? record.nftTitle : record.token?.nftTitle;
+        const description = industryTemplate === Industries.TRADE_FINANCE ? record.description : record.token?.description;
         return (
           <>
             <div style={{ display: "flex", alignItems: "center" }}>
               <div className="w-6 h-6">
                 <GenerateSvgIcon color={color} />
               </div>
-              <span style={{ marginLeft: "10px", fontWeight: "bold" }}>{record.token?.nftTitle}</span>{" "}
+              <span style={{ marginLeft: "10px", fontWeight: "bold" }}>{title}</span>{" "}
             </div>
             <p className="text-xs !text-gray-500">
-              {record.token?.description ||
-                "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
+              {description || "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
             </p>
           </>
         );
       },
-      sorter: (a: any, b: any) => a.token.nftTitle.localeCompare(b.token.nftTitle),
+      sorter: (a: any, b: any) => {
+        const aTitle = industryTemplate === Industries.TRADE_FINANCE ? a.nftTitle : a.token?.nftTitle;
+        const bTitle = industryTemplate === Industries.TRADE_FINANCE ? b.nftTitle : b.token?.nftTitle;
+        return (aTitle || "").localeCompare(bTitle || "");
+      },
     },
     // {
     //   title: "Description",
