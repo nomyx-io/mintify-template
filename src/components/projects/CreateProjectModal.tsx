@@ -117,11 +117,11 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
   };
   async function saveProject(values: FormValues) {
     if (!values?.logoUpload?.fileList) {
-      message.error("Please upload a logo");
+      toast.error("Please upload a logo");
       return Promise.reject();
     }
     if (!values?.coverImageUpload?.fileList) {
-      message.error("Please upload a cover image");
+      toast.error("Please upload a cover image");
       return Promise.reject();
     }
 
@@ -171,33 +171,50 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
               throw new Error("Missing wallet credentials for DFNS transactions");
             }
 
-            message.loading("Creating trade deal via DFNS...", 0);
+            const createToastId = toast.loading("Creating trade deal via DFNS...");
 
-            const tradeDealResult = await DfnsService.dfnsCreateTradeDeal(
-              walletId,
-              safeDfnsToken,
-              tradeDealName, // Use sanitized name
-              symbol,
-              TRADE_DEAL_DEFAULT_INTEREST_RATE,
-              TRADE_DEAL_DEFAULT_VABB_VABI_RATIO,
-              [],
-              vabbAddress,
-              vabiAddress,
-              usdcAddress,
-              400 // TODO: Hardcoded fundingTarget for now
-            );
+            try {
+              const tradeDealResult = await DfnsService.dfnsCreateTradeDeal(
+                walletId,
+                safeDfnsToken,
+                tradeDealName, // Use sanitized name
+                symbol,
+                TRADE_DEAL_DEFAULT_INTEREST_RATE,
+                TRADE_DEAL_DEFAULT_VABB_VABI_RATIO,
+                [],
+                vabbAddress,
+                vabiAddress,
+                usdcAddress,
+                400 // TODO: Hardcoded fundingTarget for now
+              );
 
-            if (tradeDealResult.error) {
-              throw new Error(tradeDealResult.error);
+              if (tradeDealResult.error) {
+                throw new Error(tradeDealResult.error);
+              }
+
+              const extractedTradeDealId = tradeDealResult.completeResponse.tradeDealId;
+              if (!extractedTradeDealId) {
+                throw new Error("Failed to extract trade deal ID from DFNS response");
+              }
+              tradeDealId = extractedTradeDealId;
+
+              toast.update(createToastId, {
+                render: "Trade deal created successfully",
+                type: "success",
+                isLoading: false,
+                autoClose: 2000,
+              });
+            } catch (error) {
+              toast.update(createToastId, {
+                render: "Failed to create trade deal",
+                type: "error",
+                isLoading: false,
+                autoClose: 2000,
+              });
+              throw error;
             }
 
-            const extractedTradeDealId = tradeDealResult.completeResponse.tradeDealId;
-            if (!extractedTradeDealId) {
-              throw new Error("Failed to extract trade deal ID from DFNS response");
-            }
-            tradeDealId = extractedTradeDealId;
-
-            message.loading("Activating trade deal via DFNS...", 0);
+            const activateToastId = toast.loading("Activating trade deal via DFNS...");
             const activateResult = await DfnsService.dfnsActivateTradeDeal(walletId, safeDfnsToken, extractedTradeDealId);
             if (activateResult.error) {
               throw new Error(activateResult.error);
@@ -209,33 +226,65 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
               throw new Error("Blockchain service not available");
             }
 
-            message.loading("Creating trade deal...", 0);
+            const createToastId = toast.loading("Creating trade deal...");
 
-            const result = await blockchainService.createTradeDeal(
-              tradeDealName, // Use sanitized name
-              symbol,
-              TRADE_DEAL_DEFAULT_INTEREST_RATE,
-              TRADE_DEAL_DEFAULT_VABB_VABI_RATIO,
-              [],
-              vabbAddress,
-              vabiAddress,
-              usdcAddress,
-              400 // TODO: Hardcoded fundingTarget for now
-            );
+            try {
+              const result = await blockchainService.createTradeDeal(
+                tradeDealName, // Use sanitized name
+                symbol,
+                TRADE_DEAL_DEFAULT_INTEREST_RATE,
+                TRADE_DEAL_DEFAULT_VABB_VABI_RATIO,
+                [],
+                vabbAddress,
+                vabiAddress,
+                usdcAddress,
+                400 // TODO: Hardcoded fundingTarget for now
+              );
 
-            console.log("Trade Deal Created - TX Receipt:", result.receipt);
-            console.log("Trade Deal ID Extracted:", result.tradeDealId);
+              console.log("Trade Deal Created - TX Receipt:", result.receipt);
+              console.log("Trade Deal ID Extracted:", result.tradeDealId);
 
-            if (!result.tradeDealId) {
-              throw new Error("Trade deal ID extraction failed.");
+              if (!result.tradeDealId) {
+                throw new Error("Trade deal ID extraction failed.");
+              }
+
+              tradeDealId = result.tradeDealId;
+
+              toast.update(createToastId, {
+                render: "Trade deal created successfully",
+                type: "success",
+                isLoading: false,
+                autoClose: 2000,
+              });
+
+              const activateToastId = toast.loading("Activating trade deal...");
+
+              try {
+                await blockchainService.activateTradeDeal(result.tradeDealId);
+                toast.update(activateToastId, {
+                  render: "Trade deal activated successfully",
+                  type: "success",
+                  isLoading: false,
+                  autoClose: 2000,
+                });
+              } catch (error) {
+                toast.update(activateToastId, {
+                  render: "Failed to activate trade deal",
+                  type: "error",
+                  isLoading: false,
+                  autoClose: 2000,
+                });
+                throw error;
+              }
+            } catch (error) {
+              toast.update(createToastId, {
+                render: "Failed to create trade deal",
+                type: "error",
+                isLoading: false,
+                autoClose: 2000,
+              });
+              throw error;
             }
-
-            tradeDealId = result.tradeDealId;
-
-            message.loading("Activating trade deal...", 0);
-            await blockchainService.activateTradeDeal(result.tradeDealId);
-
-            message.success("Trade deal created and activated successfully");
           }
 
           if (!tradeDealId) {
@@ -245,14 +294,10 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           // Create project with tradeDealId
           project.tradeDealId = tradeDealId;
           projectResult = await api.createProject(project);
-
-          message.success("Trade deal created and activated successfully");
         } catch (error) {
           console.error("Error in trade deal creation:", error);
-          message.error("Failed to create trade deal: " + (error as Error).message);
+          toast.error("Failed to create trade deal: " + (error as Error).message);
           throw error;
-        } finally {
-          message.destroy(); // Clear any loading messages
         }
       } else {
         // For non-trade finance projects, just create the project
