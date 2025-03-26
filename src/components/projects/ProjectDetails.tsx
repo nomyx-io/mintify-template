@@ -573,7 +573,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
       >
         <div className="py-4">
           <h3 className="text-xl font-medium mb-4">Payback Pool</h3>
-          <p className="mb-4">Select Stocks to repay</p>
+          <p className="mb-4">Select Stocks to deposit</p>
 
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -680,7 +680,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 className="!bg-[#2E5BFF] hover:!bg-[#2E5BFF]/80 disabled:!bg-[#D3D3D3] disabled:opacity-100 disabled:!text-[#4A4A4A]"
                 style={{ width: "200px", borderRadius: "8px" }}
               >
-                Repay
+                Deposit
               </Button>
             </div>
           </div>
