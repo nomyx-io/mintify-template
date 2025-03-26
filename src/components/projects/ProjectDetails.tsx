@@ -32,6 +32,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const { walletPreference, dfnsToken, user } = useContext(UserContext);
   const [listings, setListings] = useState<any[]>([]);
   const [sales, setSales] = useState<any[]>([]);
+  const [projectStockList, setProjectStockList] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("1");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [viewMode, setViewMode] = useState<string>("table");
@@ -153,7 +154,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     return searchInObject(item);
   };
 
-  // Memoize the filtered listings and sales
+  // Memoize the filtered listings, sales, and stocks
   const filteredListings = useMemo(() => {
     return listings.filter((listing) => searchAllProperties(listing, searchQuery));
   }, [listings, searchQuery]);
@@ -161,6 +162,10 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const filteredSales = useMemo(() => {
     return sales.filter((sale) => searchAllProperties(sale, searchQuery));
   }, [sales, searchQuery]);
+
+  const filteredStocks = useMemo(() => {
+    return projectStockList.filter((stock) => searchAllProperties(stock, searchQuery));
+  }, [projectStockList, searchQuery]);
 
   // Handle search bar input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,7 +195,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     const fetchData = async () => {
       try {
         const projectTokens = await api.getProjectTokens(["projectId"], [project.id]);
-        await Promise.all([fetchListings(projectTokens), fetchSales(projectTokens)]);
+
+        if (project.industryTemplate === Industries.TRADE_FINANCE) {
+          // For trade finance template, populate projectStockList
+          setProjectStockList(projectTokens);
+        } else {
+          // For other templates, fetch listings and sales as before
+          await Promise.all([fetchListings(projectTokens), fetchSales(projectTokens)]);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -249,8 +261,15 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     console.log("Fetching data for project:", project);
     const fetchData = async () => {
       const projectTokens = await api.getProjectTokens(["projectId"], [project.id]);
-      fetchListings(projectTokens);
-      fetchSales(projectTokens);
+
+      if (project.industryTemplate === Industries.TRADE_FINANCE) {
+        // For trade finance template, populate projectStockList
+        setProjectStockList(projectTokens);
+      } else {
+        // For other templates, fetch listings and sales as before
+        fetchListings(projectTokens);
+        fetchSales(projectTokens);
+      }
     };
     fetchData();
   }, [api, project, project.id, project.title, fetchListings, fetchSales]);
@@ -436,14 +455,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       <>
                         {viewMode === "table" ? (
                           <TokenListView
-                            tokens={filteredListings}
+                            tokens={project.industryTemplate === Industries.TRADE_FINANCE ? filteredStocks : filteredListings}
                             isSalesHistory={false}
                             industryTemplate={project.industryTemplate}
                             setRefresh={setRefresh}
                           />
                         ) : (
                           <TokenCardView
-                            tokens={filteredListings}
+                            tokens={project.industryTemplate === Industries.TRADE_FINANCE ? filteredStocks : filteredListings}
                             isSalesHistory={false}
                             industryTemplate={project.industryTemplate}
                             setRefresh={setRefresh}
