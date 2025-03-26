@@ -573,7 +573,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
       >
         <div className="py-4">
           <h3 className="text-xl font-medium mb-4">Payback Pool</h3>
-          <p className="mb-4">Select Stocks to deposit</p>
+          <p className="mb-4">Select Stocks to repay</p>
 
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -651,7 +651,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                         throw new Error("Blockchain service not initialized");
                       }
                       // Non-null assertion after check
-                      await blockchainService!.tdDepositUSDC(tradeDealId, 200);
+                      await blockchainService!.repayTradeDeal(tradeDealId, 200);
                     } else {
                       // Validate wallet credentials
                       if (!user?.walletId || !dfnsToken) {
@@ -661,26 +661,26 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       const walletId = user.walletId as string;
                       const token = dfnsToken as string;
 
-                      const depositResult = await DfnsService.dfnsTdDepositUSDC(walletId, token, tradeDealId, "200");
+                      const repayResult = await DfnsService.dfnsRepayTradeDeal(walletId, token, tradeDealId, "200");
 
-                      if (depositResult.error) {
-                        throw new Error(`Deposit failed: ${depositResult.error}`);
+                      if (repayResult.error) {
+                        throw new Error(`Repayment failed: ${repayResult.error}`);
                       }
                     }
 
-                    message.success("USDC deposited successfully");
+                    message.success("Trade deal repaid successfully");
                     setIsPaybackModalVisible(false);
                     setSelectedStocks([]);
                   } catch (error: any) {
                     console.error("Deposit error:", error);
-                    message.error(`Failed to deposit: ${error.message}`);
+                    message.error(`Failed to repay: ${error.message}`);
                   }
                 }}
                 disabled={selectedStocks.length === 0}
                 className="!bg-[#2E5BFF] hover:!bg-[#2E5BFF]/80 disabled:!bg-[#D3D3D3] disabled:opacity-100 disabled:!text-[#4A4A4A]"
                 style={{ width: "200px", borderRadius: "8px" }}
               >
-                Deposit
+                Repay
               </Button>
             </div>
           </div>
