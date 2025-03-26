@@ -547,7 +547,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       throw new Error("Blockchain service not initialized");
                     }
                     // Non-null assertion after check
-                    await blockchainService!.tdWithdrawUSDC(tradeDealId, 200);
+                    await blockchainService!.withdrawTradeDealFunding(tradeDealId);
                   } else {
                     // Validate wallet credentials
                     if (!user?.walletId || !dfnsToken) {
@@ -557,7 +557,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     const walletId = user.walletId as string;
                     const token = dfnsToken as string;
 
-                    const withdrawResult = await DfnsService.dfnsTdWithdrawUSDC(walletId, token, tradeDealId, "200");
+                    const withdrawResult = await DfnsService.dfnsWithdrawTradeDealFunding(walletId, token, tradeDealId);
 
                     if (withdrawResult.error) {
                       throw new Error(`Withdrawal failed: ${withdrawResult.error}`);
