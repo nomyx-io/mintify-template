@@ -508,31 +508,54 @@ class DfnsService {
     }
 
     try {
-      // Step 1: Initiate trade deal repayment
-      const initiateResponse = await Parse.Cloud.run("dfnsInitRepayTradeDeal", {
+      // Step 1: Initiate USDC approval
+      const approvalInitResponse = await Parse.Cloud.run("dfnsInitTdUSDCApproval", {
         walletId,
         dfns_token: dfnsToken,
         tradeDealId,
         amount,
       });
-      console.log("Pending trade deal repayment request:", initiateResponse);
+      console.log("Pending USDC approval request:", approvalInitResponse);
 
-      // Step 2: Sign the challenge
+      // Step 2: Sign the approval challenge
       const webauthn = new WebAuthnSigner();
-      const assertion = await webauthn.sign(initiateResponse.challenge);
+      const approvalAssertion = await webauthn.sign(approvalInitResponse.challenge);
 
-      // Step 3: Complete trade deal repayment
-      const completeResponse = await Parse.Cloud.run("dfnsCompleteRepayTradeDeal", {
+      // Step 3: Complete USDC approval
+      const approvalCompleteResponse = await Parse.Cloud.run("dfnsCompleteTdUSDCApproval", {
         walletId,
         dfns_token: dfnsToken,
         signedChallenge: {
-          challengeIdentifier: initiateResponse.challenge.challengeIdentifier,
-          firstFactor: assertion,
+          challengeIdentifier: approvalInitResponse.challenge.challengeIdentifier,
+          firstFactor: approvalAssertion,
         },
-        requestBody: initiateResponse.requestBody,
+        requestBody: approvalInitResponse.requestBody,
       });
 
-      return { completeResponse, error: null };
+      // Step 4: Initiate trade deal repayment
+      const repayInitResponse = await Parse.Cloud.run("dfnsInitRepayTradeDeal", {
+        walletId,
+        dfns_token: dfnsToken,
+        tradeDealId,
+        amount,
+      });
+      console.log("Pending trade deal repayment request:", repayInitResponse);
+
+      // Step 5: Sign the repayment challenge
+      const repayAssertion = await webauthn.sign(repayInitResponse.challenge);
+
+      // Step 6: Complete trade deal repayment
+      const repayCompleteResponse = await Parse.Cloud.run("dfnsCompleteRepayTradeDeal", {
+        walletId,
+        dfns_token: dfnsToken,
+        signedChallenge: {
+          challengeIdentifier: repayInitResponse.challenge.challengeIdentifier,
+          firstFactor: repayAssertion,
+        },
+        requestBody: repayInitResponse.requestBody,
+      });
+
+      return { completeResponse: repayCompleteResponse, error: null };
     } catch (error: any) {
       console.error("Error repaying trade deal:", error);
       return { completeResponse: null, error: error.message };

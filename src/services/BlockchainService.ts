@@ -445,8 +445,14 @@ export default class BlockchainService {
         throw new Error("Signer is not available.");
       }
 
+      // First approve USDC transfer
+      const usdcContractWithSigner: any = this.usdcService?.connect(this.signer);
+      let tx = await usdcContractWithSigner.approve(this.contractAddress, amount);
+      await tx.wait();
+
+      // Then make the repayment
       const contractWithSigner: any = this.tradeDealService?.connect(this.signer);
-      const tx = await contractWithSigner.repayTradeDeal(tradeDealId, amount);
+      tx = await contractWithSigner.repayTradeDeal(tradeDealId, amount);
 
       // Wait for the transaction to be mined and return the receipt
       const receipt = await tx.wait();
