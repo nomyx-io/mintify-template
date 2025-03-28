@@ -172,7 +172,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             }
 
             const createToastId = toast.loading("Creating trade deal via DFNS...");
-
+            let extractedTradeDealId;
             try {
               const tradeDealResult = await DfnsService.dfnsCreateTradeDeal(
                 walletId,
@@ -192,7 +192,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
                 throw new Error(tradeDealResult.error);
               }
 
-              const extractedTradeDealId = tradeDealResult.completeResponse.tradeDealId;
+              extractedTradeDealId = tradeDealResult.completeResponse.tradeDealId;
               if (!extractedTradeDealId) {
                 throw new Error("Failed to extract trade deal ID from DFNS response");
               }
