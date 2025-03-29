@@ -255,6 +255,8 @@ class DfnsService {
       throw new Error("Missing required parameters for creating trade deal.");
     }
 
+    console.log("starting creation process ...");
+
     try {
       // Step 1: Initiate trade deal creation
       const initiateResponse = await Parse.Cloud.run("dfnsInitCreateTradeDeal", {
@@ -268,7 +270,7 @@ class DfnsService {
         vabbAddress,
         vabiAddress,
         usdcAddress,
-        fundingTarget,
+        fundingTarget: 400000000,
       });
       console.log("Pending trade deal creation request:", initiateResponse);
 

@@ -158,14 +158,15 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           let tradeDealId: number | undefined;
           const symbol = values.title.substring(0, 5).toUpperCase(); // symbol (first 5 chars of title)
           const tradeDealName = values.title.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 32);
-          const vabbAddress = process.env.NEXT_PUBLIC_HARDHAT_VABB_ADDRESS || "";
-          const vabiAddress = process.env.NEXT_PUBLIC_HARDHAT_VABI_ADDRESS || "";
+          const vabbAddress = "0x0000000000000000000000000000000000000000";
+          const vabiAddress = "0x0000000000000000000000000000000000000000";
           const usdcAddress = process.env.NEXT_PUBLIC_HARDHAT_USDC_ADDRESS || "";
 
           if (walletPreference === WalletPreference.MANAGED) {
             // DFNS Wallet Flow
             const walletId = user?.walletId;
             const safeDfnsToken = dfnsToken || "";
+            console.log("🧪 DFNS Token:", safeDfnsToken);
 
             if (!walletId || !safeDfnsToken) {
               throw new Error("Missing wallet credentials for DFNS transactions");
