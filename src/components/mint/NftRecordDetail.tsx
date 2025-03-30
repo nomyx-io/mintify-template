@@ -138,25 +138,27 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
         <div className="mb-4">
           <div className="p-2 font-bold">Token Data</div>
           <div className="grid grid-cols-2 border-t border-b border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
-            {Object.entries(metadata).map(([key, value], index) => {
-              return (
-                <div
-                  key={`field-${index}`}
-                  className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
-                >
-                  <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">{capitalizeEveryWord(key.replace("_", " "))}</div>
-                  <div className="card-value truncate">
-                    {tradeFinanceDocumentationFields.find((field: { name: string; type: string }) => field.name === key)?.type === "file" ? (
-                      <button onClick={() => window.open(value as string, "_blank")} className="text-blue-500 hover:text-blue-700">
-                        View Document
-                      </button>
-                    ) : (
-                      (value as string)
-                    )}
+            {Object.entries(metadata)
+              .filter(([_, value]) => value !== undefined)
+              .map(([key, value], index) => {
+                return (
+                  <div
+                    key={`field-${index}`}
+                    className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
+                  >
+                    <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">{capitalizeEveryWord(key.replace("_", " "))}</div>
+                    <div className="card-value truncate">
+                      {tradeFinanceDocumentationFields.find((field: { name: string; type: string }) => field.name === key)?.type === "file" ? (
+                        <button onClick={() => window.open(value as string, "_blank")} className="text-blue-500 hover:text-blue-700">
+                          View Document
+                        </button>
+                      ) : (
+                        (value as string)
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
           </div>
         </div>
 
