@@ -288,7 +288,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             }
           }
 
-          if (!tradeDealId) {
+          if (!tradeDealId && tradeDealId !== 0) {
             throw new Error("Failed to obtain trade deal ID");
           }
 

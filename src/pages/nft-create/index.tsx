@@ -168,7 +168,7 @@ export default function Details({ service }: { service: BlockchainService }) {
           // Get tradeDealId directly from the formData
           const tradeDealId = formData.tradeDealId;
 
-          if (!tradeDealId) {
+          if (!tradeDealId && tradeDealId !== 0) {
             toast.error("Trade deal ID is required for trade finance tokens");
             break;
           }
