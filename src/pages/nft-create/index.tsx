@@ -87,6 +87,7 @@ export default function Details({ service }: { service: BlockchainService }) {
     }
 
     const nftMetadata = generateMetadata(formData);
+    console.log("nft Metadata: ", nftMetadata);
     const mintAddress = nftMetadata.find((value) => value.key === "mintAddress")?.value;
 
     if (!mintAddress) {
@@ -105,6 +106,44 @@ export default function Details({ service }: { service: BlockchainService }) {
         throw new Error("Missing wallet credentials for DFNS transactions.");
       }
 
+      const testMetadata = [
+        {
+          key: "nftTitle",
+          attributeType: 1,
+          value: "Test DFNS Mint NFT",
+        },
+        {
+          key: "description",
+          attributeType: 1,
+          value: "This is a test NFT to verify DFNS minting flow.",
+        },
+        {
+          key: "projectId",
+          attributeType: 1,
+          value: "TEST12345",
+        },
+        {
+          key: "mintAddress",
+          attributeType: 1,
+          value: "0x3AAF0e6023A2745FB62052c1954260559fFF4947", // replace with your own if needed
+        },
+        {
+          key: "price",
+          attributeType: 1,
+          value: "1", // USDC
+        },
+        {
+          key: "industryTemplate",
+          attributeType: 1,
+          value: "tokenized_debt",
+        },
+        {
+          key: "claimTopics",
+          attributeType: 0,
+          value: "1,2",
+        },
+      ];
+
       // Start minting process
       const mintingToast = toast.loading("Minting token...");
       let tokenId, transactionHash;
@@ -114,7 +153,7 @@ export default function Details({ service }: { service: BlockchainService }) {
         ({ tokenId, transactionHash } = await blockchainService.gemforceMint(nftMetadata));
       } else {
         // **MANAGED WALLET: Use DFNS Service**
-        const response = await DfnsService.dfnsGemforceMint(walletId, safeDfnsToken, nftMetadata);
+        const response = await DfnsService.dfnsGemforceMint(walletId, safeDfnsToken, testMetadata);
         console.log("✅ DFNS Mint Complete Response:", response);
 
         if (response.completeResponse) {
