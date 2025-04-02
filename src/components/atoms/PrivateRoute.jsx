@@ -15,11 +15,14 @@ function PrivateRoute({ children, onConnect, role, forceLogout, handleForecLogou
   };
 
   useEffect(() => {
-    if (!isConnected && !address) {
+    // Allowed routes that shouldn't redirect to /login
+    const allowedRoutes = ["/forgot-password", "/reset-password/[token]"];
+    // Check if the current route is an allowed route
+    const isAllowedRoute = allowedRoutes.includes(router.pathname) || router.pathname.startsWith("/reset-password/");
+    if (!isConnected && !address && !isAllowedRoute) {
       router.push("/login");
     }
-
-    if (isConnected && role.length == 0) {
+    if (isConnected && role.length === 0) {
       onConnect();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
