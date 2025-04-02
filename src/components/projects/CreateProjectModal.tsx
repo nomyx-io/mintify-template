@@ -216,9 +216,25 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             }
 
             const activateToastId = toast.loading("Activating trade deal via DFNS...");
-            const activateResult = await DfnsService.dfnsActivateTradeDeal(walletId, safeDfnsToken, extractedTradeDealId);
-            if (activateResult.error) {
-              throw new Error(activateResult.error);
+            try {
+              const activateResult = await DfnsService.dfnsActivateTradeDeal(walletId, safeDfnsToken, extractedTradeDealId);
+              if (activateResult.error) {
+                throw new Error(activateResult.error);
+              }
+              toast.update(activateToastId, {
+                render: "Trade deal activated successfully",
+                type: "success",
+                isLoading: false,
+                autoClose: 2000,
+              });
+            } catch (error) {
+              toast.update(activateToastId, {
+                render: "Failed to activate trade deal",
+                type: "error",
+                isLoading: false,
+                autoClose: 2000,
+              });
+              throw error;
             }
           } else {
             // Private Wallet Flow
