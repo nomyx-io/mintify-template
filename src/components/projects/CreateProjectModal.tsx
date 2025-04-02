@@ -194,7 +194,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
               }
 
               extractedTradeDealId = tradeDealResult.completeResponse.tradeDealId;
-              if (!extractedTradeDealId) {
+              if (!extractedTradeDealId && extractedTradeDealId !== 0) {
                 throw new Error("Failed to extract trade deal ID from DFNS response");
               }
               tradeDealId = extractedTradeDealId;
