@@ -254,27 +254,6 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
             </div>
           )} */}
 
-          {/* Related Documentation Section for Trade Finance */}
-          {showTradeFinanceFields && (
-            <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
-              <p className="col-span-2 font-bold pb-6">Related Documentation</p>
-              {tradeFinanceDocumentationFields.map((field, index) => (
-                <VariableFormInput
-                  key={`documentation-${index}`}
-                  name={field.name}
-                  label={field.label}
-                  type={field.type}
-                  rules={field.rules ?? [requiredRule]}
-                  disabled={field.disabled}
-                  prefix={field.prefix || ""}
-                  placeHolder={field.placeHolder}
-                  options={field.options}
-                  className={field.className}
-                />
-              ))}
-            </div>
-          )}
-
           {additionalFields.length > 0 && (
             <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
               <p className="col-span-2 font-bold pb-6">Token Fields</p>
@@ -294,6 +273,27 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
                   />
                 );
               })}
+            </div>
+          )}
+
+          {/* Related Documentation Section for Trade Finance */}
+          {showTradeFinanceFields && (
+            <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
+              <p className="col-span-2 font-bold pb-6">Related Documentation</p>
+              {tradeFinanceDocumentationFields.map((field, index) => (
+                <VariableFormInput
+                  key={`documentation-${index}`}
+                  name={field.name}
+                  label={field.label}
+                  type={field.type}
+                  rules={field.rules ?? [requiredRule]}
+                  disabled={field.disabled}
+                  prefix={field.prefix || ""}
+                  placeHolder={field.placeHolder}
+                  options={field.options}
+                  className={field.className}
+                />
+              ))}
             </div>
           )}
         </div>
