@@ -234,7 +234,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
           </div>
 
           {/* Stock Information Section for Trade Finance */}
-          {showTradeFinanceFields && (
+          {/* {showTradeFinanceFields && (
             <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
               <p className="col-span-2 font-bold pb-6">Stock Information</p>
               {tradeFinanceStockInfoFields.map((field, index) => (
@@ -252,7 +252,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
                 />
               ))}
             </div>
-          )}
+          )} */}
 
           {/* Related Documentation Section for Trade Finance */}
           {showTradeFinanceFields && (
