@@ -377,7 +377,7 @@ class DfnsService {
 
     try {
       // Step 1: Initiate USDC approval
-      const approvalInitResponse = await Parse.Cloud.run("dfnsInitTdUSDCApproval", {
+      const approvalInitResponse = await Parse.Cloud.run("dfnsInitApproval", {
         walletId,
         dfns_token: dfnsToken,
         tradeDealId,
@@ -390,7 +390,7 @@ class DfnsService {
       const approvalAssertion = await webauthn.sign(approvalInitResponse.challenge);
 
       // Step 3: Complete USDC approval
-      const approvalCompleteResponse = await Parse.Cloud.run("dfnsCompleteTdUSDCApproval", {
+      const approvalCompleteResponse = await Parse.Cloud.run("dfnsCompleteApproval", {
         walletId,
         dfns_token: dfnsToken,
         signedChallenge: {
@@ -511,11 +511,10 @@ class DfnsService {
 
     try {
       // Step 1: Initiate USDC approval
-      const approvalInitResponse = await Parse.Cloud.run("dfnsInitTdUSDCApproval", {
+      const approvalInitResponse = await Parse.Cloud.run("dfnsInitApproval", {
         walletId,
         dfns_token: dfnsToken,
-        tradeDealId,
-        amount,
+        price: amount,
       });
       console.log("Pending USDC approval request:", approvalInitResponse);
 
@@ -524,7 +523,7 @@ class DfnsService {
       const approvalAssertion = await webauthn.sign(approvalInitResponse.challenge);
 
       // Step 3: Complete USDC approval
-      const approvalCompleteResponse = await Parse.Cloud.run("dfnsCompleteTdUSDCApproval", {
+      const approvalCompleteResponse = await Parse.Cloud.run("dfnsCompleteApproval", {
         walletId,
         dfns_token: dfnsToken,
         signedChallenge: {
