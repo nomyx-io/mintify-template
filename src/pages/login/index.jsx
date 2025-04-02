@@ -3,6 +3,7 @@ import { useContext, useEffect, useState, useRef } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Spin, Layout, Card, Radio, Form, Input, Button } from "antd";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAccount, useDisconnect } from "wagmi";
 
@@ -158,18 +159,15 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                         </Form.Item>
 
                         <Form.Item>
-                          <div className="flex justify-end">
+                          <div className="flex justify-between items-center">
+                            <Link href="/forgot-password" className="font-semibold text-blue-600">
+                              Forgot Password?
+                            </Link>
                             <Button type="primary" htmlType="submit" className="signup-button">
                               Log in
                             </Button>
                           </div>
                         </Form.Item>
-
-                        {/* <div className="flex justify-between">
-                  <a href="/forgot-password" className="text-blue-600 font-bold">
-                    Forgot Password?
-                  </a>
-                </div> */}
                       </Form>
                     ) : (
                       <div className="flex flex-col items-center">
