@@ -120,7 +120,7 @@ export default function Details({ service }: { service: BlockchainService }) {
         {
           key: "projectId",
           attributeType: 1,
-          value: "TEST12345",
+          value: nftMetadata.find((value) => value.key === "projectId")?.value,
         },
         {
           key: "mintAddress",
