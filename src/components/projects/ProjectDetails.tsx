@@ -478,16 +478,16 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                           label: "Investors",
                           children: <InvestorListView investors={mockInvestors} />,
                         },
-                        {
-                          key: "3",
-                          label: "Collateral Token History",
-                          children: <CollateralTokenHistoryView records={mockCollateralTokenHistory} />,
-                        },
-                        {
-                          key: "4",
-                          label: "Interest Token History",
-                          children: <InterestTokenHistoryView records={mockInterestTokenHistory} />,
-                        },
+                        // {
+                        //   key: "3",
+                        //   label: "Collateral Token History",
+                        //   children: <CollateralTokenHistoryView records={mockCollateralTokenHistory} />,
+                        // },
+                        // {
+                        //   key: "4",
+                        //   label: "Interest Token History",
+                        //   children: <InterestTokenHistoryView records={mockInterestTokenHistory} />,
+                        // },
                       ]
                     : []),
                   ...(project.industryTemplate !== Industries.TRADE_FINANCE
