@@ -602,6 +602,42 @@ export default class ParseClient {
   }
 
   /**
+   * Updates token URLs for a given token ID after polling for its publication
+   * @param tokenId The ID of the token to update
+   * @param urlFields Object containing URL fields to update (image, animation_url, external_url)
+   * @returns Updated Parse.Object or undefined if token not found
+   */
+  static async updateTokenUrls(tokenId: number, tokenUrlFields: { [key: string]: string }): Promise<Parse.Object | undefined> {
+    try {
+      // Poll for token publication
+      let token;
+      let attempts = 0;
+      const maxAttempts = 10;
+      const pollingInterval = 2000; // 2 seconds
+
+      while (attempts < maxAttempts) {
+        token = await ParseClient.getRecord("Token", ["tokenId"], [tokenId]);
+
+        if (token) {
+          break;
+        }
+
+        await new Promise((resolve) => setTimeout(resolve, pollingInterval));
+        attempts++;
+      }
+
+      if (!token) {
+        throw new Error(`Token with ID ${tokenId} not found after ${maxAttempts} attempts`);
+      }
+
+      return await ParseClient.updateExistingRecord("Token", ["tokenId"], [tokenId], tokenUrlFields);
+    } catch (error) {
+      console.error("Error updating token URLs:", error);
+      throw error;
+    }
+  }
+
+  /**
    * update a record in the parse database
    * @param collName
    * @param existingRecordId
