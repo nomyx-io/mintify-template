@@ -1,9 +1,10 @@
 import { useState } from "react";
 
 import { UploadOutlined } from "@ant-design/icons";
-import { Checkbox, DatePicker, Form, FormRule, Input, Select, Upload, Button, message } from "antd";
+import { Checkbox, DatePicker, Form, FormRule, Input, Select, Upload, Button } from "antd";
 import dayjs from "dayjs";
 import Parse from "parse";
+import { toast } from "react-toastify";
 
 interface VariableFormInputProps {
   type: string;
@@ -113,9 +114,9 @@ export default function VariableFormInput({
                     },
                   ]);
 
-                  message.success("File uploaded successfully");
+                  toast.success("File uploaded successfully");
                 } catch (error) {
-                  message.error("Error uploading file");
+                  toast.error("Error uploading file");
                   console.error("Upload error:", error);
                   setFileList([]);
                 }
