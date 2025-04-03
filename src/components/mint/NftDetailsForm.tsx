@@ -106,17 +106,10 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
     if (project) {
       const projectFields = project.fields;
       const projectStartDate = project.startDate;
-      const tradeDealId = project.tradeDealId;
       if (projectStartDate) {
         form.setFieldsValue({
           projectStartDate,
           projectId,
-        });
-      }
-
-      if (tradeDealId || tradeDealId === 0) {
-        form.setFieldsValue({
-          tradeDealId,
         });
       }
 
@@ -161,13 +154,14 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       <Form
         form={form}
         layout="vertical"
-        onFinish={(values) =>
+        onFinish={(values) => {
+          const project = projectList.find((p) => p.id === projectId);
           onFinish({
             ...values,
-            industryTemplate: projectList.find((p) => p.id === projectId)?.industryTemplate,
-            tradeDealId: projectList.find((p) => p.id === projectId)?.tradeDealId,
-          })
-        }
+            industryTemplate: project?.industryTemplate,
+            _tradeDealId: project?.tradeDealId, // Prefix with _ to indicate it's not part of form data
+          });
+        }}
       >
         <div className="flex flex-col divide-y divide-[#484848]">
           <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">

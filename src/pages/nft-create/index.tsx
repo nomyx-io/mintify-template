@@ -86,6 +86,10 @@ export default function Details({ service }: { service: BlockchainService }) {
       return;
     }
 
+    // Extract tradeDealId before generating metadata
+    const tradeDealId = formData._tradeDealId;
+    delete formData._tradeDealId; // Remove from formData so it's not included in metadata
+
     const nftMetadata = generateMetadata(formData);
     console.log("nft Metadata: ", nftMetadata);
     const mintAddress = nftMetadata.find((value) => value.key === "mintAddress")?.value;
@@ -216,9 +220,7 @@ export default function Details({ service }: { service: BlockchainService }) {
           break;
 
         case Industries.TRADE_FINANCE:
-          // Get tradeDealId directly from the formData
-          const tradeDealId = formData.tradeDealId;
-
+          // Verify tradeDealId exists
           if (!tradeDealId && tradeDealId !== 0) {
             toast.error("Trade deal ID is required for trade finance tokens");
             break;
