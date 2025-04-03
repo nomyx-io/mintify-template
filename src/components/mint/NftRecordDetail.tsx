@@ -5,7 +5,7 @@ import { Button, Card, Checkbox } from "antd";
 import { useRouter } from "next/router";
 
 import { ShareIcon } from "@/assets";
-import { tradeFinanceDocumentationFields } from "@/constants/constants";
+import { Industries, tradeFinanceDocumentationFields } from "@/constants/constants";
 import BlockchainService from "@/services/BlockchainService";
 import ParseClient from "@/services/ParseClient";
 import { hashToColor } from "@/utils/colorUtils";
@@ -29,6 +29,7 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
   const [allTopics, setAllTopics] = React.useState<ClaimTopic[]>();
   const [projectName, setProjectName] = React.useState<string>();
   const [identityDetail, setIdentityDetail] = React.useState<string>();
+  const [projectType, setProjectType] = React.useState<string>();
 
   const { transactionHash, claimTopics, id, nftTitle, description, price, projectId, projectStartDate, mintAddress, ...metadata } = data;
 
@@ -61,6 +62,7 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
     const project = await ParseClient.getRecord("TokenProject", ["objectId"], [projectId as string]);
     if (project) {
       setProjectName(project.attributes.title as string);
+      setProjectType(project.attributes.industryTemplate as string);
     }
   }, [projectId]);
 
@@ -128,10 +130,12 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
               <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Mint To</div>
               <div className="card-value truncate">{identityDetail}</div>
             </div>
-            <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
-              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Price</div>
-              <div className="card-value truncate">{formatPrice(parseFloat(price as string))}</div>
-            </div>
+            {projectType !== Industries.TRADE_FINANCE && (
+              <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+                <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Price</div>
+                <div className="card-value truncate">{formatPrice(parseFloat(price as string))}</div>
+              </div>
+            )}
           </div>
         </div>
 
