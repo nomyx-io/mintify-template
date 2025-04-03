@@ -230,7 +230,9 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
                 <VariableFormInput type="text" name="mintAddress" label="" placeholder="Enter Wallet Address" rules={[walletAddressRule]} />
               )}
             </div>
-            <VariableFormInput type="text" name="price" label="Price" placeholder="Enter Price" rules={[requiredRule, numberRule]} prefix="$" />
+            {projectList.find((p) => p.id === projectId)?.industryTemplate !== Industries.TRADE_FINANCE && (
+              <VariableFormInput type="text" name="price" label="Price" placeholder="Enter Price" rules={[requiredRule, numberRule]} prefix="$" />
+            )}
           </div>
 
           {/* Stock Information Section for Trade Finance */}
