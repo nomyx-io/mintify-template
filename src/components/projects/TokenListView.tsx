@@ -457,7 +457,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     }
   };
 
-  const getDynamicColumns = (maxColumns = 7): ColumnConfig[] => {
+  const getDynamicColumns = (maxColumns = 16): ColumnConfig[] => {
     const nonNullColumns: Record<string, ColumnConfig> = {};
 
     tokens.forEach((token) => {
