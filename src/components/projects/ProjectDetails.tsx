@@ -27,6 +27,11 @@ interface ProjectDetailsProps {
   onBack: () => void;
 }
 
+interface ProjectInfoField {
+  key: string;
+  value: string;
+}
+
 const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const router = useRouter();
   const { walletPreference, dfnsToken, user } = useContext(UserContext);
@@ -42,6 +47,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const [isWithdrawModalVisible, setIsWithdrawModalVisible] = useState(false);
   const [isPaybackModalVisible, setIsPaybackModalVisible] = useState(false);
   const [selectedStocks, setSelectedStocks] = useState<string[]>([]);
+  const [projectInfo, setProjectInfo] = useState<ProjectInfoField[]>([]);
 
   const mockInterestTokenHistory = [
     {
@@ -195,10 +201,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     const fetchData = async () => {
       try {
         const projectTokens = await api.getProjectTokens(["projectId"], [project.id]);
-
         if (project.industryTemplate === Industries.TRADE_FINANCE) {
           // For trade finance template, populate projectStockList
           setProjectStockList(projectTokens);
+          const parsedProjectInfo = JSON.parse(project?.projectInfo);
+          setProjectInfo(parsedProjectInfo);
         } else {
           // For other templates, fetch listings and sales as before
           await Promise.all([fetchListings(projectTokens), fetchSales(projectTokens)]);
@@ -317,46 +324,21 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
                 {/* Project Stats */}
                 {project.industryTemplate === Industries.TRADE_FINANCE ? (
-                  <div
-                    className={`mt-6 md:mt-0 grid grid-cols-2 md:grid-cols-4 gap-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100`}
-                    style={{ maxWidth: "100%", overflow: "hidden" }}
-                  >
-                    {/* Top Row */}
-                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Development method</span>
-                      <h2 className="text-lg font-bold">52.53%</h2>
-                    </div>
-                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Newera Score</span>
-                      <h2 className="text-lg font-bold">4/5</h2>
-                    </div>
-                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Fund Size</span>
-                      <h2 className="text-lg font-bold">200 M</h2>
-                    </div>
-                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Generation</span>
-                      <h2 className="text-lg font-bold">03</h2>
-                    </div>
-
-                    {/* Bottom Row */}
-                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Economics</span>
-                      <h2 className="text-lg font-bold">2% - 20%</h2>
-                    </div>
-                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Target return</span>
-                      <h2 className="text-lg font-bold">3-4x Gross</h2>
-                    </div>
-                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Category</span>
-                      <h2 className="text-lg font-bold">Venture</h2>
-                    </div>
-                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Stage</span>
-                      <h2 className="text-lg font-bold">Early/Venture</h2>
-                    </div>
-                  </div>
+                  <>
+                    {Array.isArray(projectInfo) && projectInfo.length > 0 && (
+                      <div
+                        className={`mt-6 md:mt-0 grid grid-cols-2 md:grid-cols-4 gap-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100`}
+                        style={{ maxWidth: "100%", overflow: "hidden" }}
+                      >
+                        {projectInfo.map((item, index) => (
+                          <div key={index} className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                            <span className="text-sm">{item.key}</span>
+                            <h2 className="text-lg font-bold">{item.value}</h2>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
                 ) : (
                   <div
                     className={`mt-6 md:mt-0 flex flex-col md:flex-row md:flex-nowrap space-y-4 md:space-y-0 md:space-x-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100`}

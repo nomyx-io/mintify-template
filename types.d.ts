@@ -91,6 +91,7 @@ interface Project {
   createdAt: Date;
   industryTemplate?: string;
   tradeDealId?: number;
+  projectInfo: string;
 }
 
 interface ProjectSaveData {

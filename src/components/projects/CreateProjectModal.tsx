@@ -32,11 +32,16 @@ interface FormValues {
   description: string;
   industryTemplate: Industries;
   additionalFields?: AddedField[];
+  projectInfo: ProjectInfoField[];
 }
 
 interface AddedField {
   fieldName: string;
   fieldType: string;
+}
+interface ProjectInfoField {
+  key: string;
+  value: string;
 }
 
 type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
@@ -52,7 +57,9 @@ const getBase64 = (file: FileType): Promise<string> =>
 export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: CreateProjectModalProps) {
   const [form] = Form.useForm();
   const [addFieldForm] = Form.useForm();
+  const [projectInfoForm] = Form.useForm();
   const [addedFields, setAddedFields] = useState<AddedField[]>([]);
+  const [projectInfoFields, setProjectInfoFields] = useState<ProjectInfoField[]>([]);
   const { walletPreference, dfnsToken, user } = useContext(UserContext);
   const requiredRule = { required: true, message: "This field is required." };
   const uniqueRule: Rule = ({ getFieldValue }) => ({
@@ -100,6 +107,15 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
       setAddedFields(newFieldValues);
       addFieldForm.resetFields();
     }
+    if (name === "projectInfoForm") {
+      const { createProjectForm } = forms;
+      const fieldValues: ProjectInfoField[] = createProjectForm.getFieldValue("projectInfo") || [];
+
+      const newFieldValues = [...fieldValues, values as ProjectInfoField];
+      createProjectForm.setFieldsValue({ projectInfo: newFieldValues });
+      setProjectInfoFields(newFieldValues);
+      projectInfoForm.resetFields();
+    }
     if (name === "createProjectForm") {
       const savePromise = saveProject(values as FormValues);
       toast.promise(savePromise, {
@@ -115,6 +131,18 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
       setOpen(false);
     }
   };
+
+  const handleAddKeyValue = (values: { key: string; value: string }) => {
+    setProjectInfoFields((prev) => [...prev, values]);
+    projectInfoForm.resetFields();
+  };
+
+  const handleRemoveKeyValue = (index: number) => {
+    const newInfo = projectInfoFields.filter((_, i) => i !== index);
+    setProjectInfoFields(newInfo);
+    form.setFieldsValue({ projectInfo: newInfo });
+  };
+
   async function saveProject(values: FormValues) {
     if (!values?.logoUpload?.fileList) {
       toast.error("Please upload a logo");
@@ -132,6 +160,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
       logo: string;
       coverImage: string;
       fields: string;
+      projectInfo: string;
       tradeDealId?: number;
     } = {
       title: values.title,
@@ -145,6 +174,14 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             name: field.fieldName,
             type: field.fieldType,
             key: field.fieldName.replaceAll(" ", "_").toLowerCase(),
+          };
+        })
+      ),
+      projectInfo: JSON.stringify(
+        values.projectInfo?.map((field) => {
+          return {
+            key: field.key,
+            value: field.value,
           };
         })
       ),
@@ -353,6 +390,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             <Input.TextArea placeholder="Add Project Description" autoSize={{ minRows: 3, maxRows: 5 }} />
           </Form.Item>
           <Form.Item name="additionalFields" noStyle />
+          <Form.Item name="projectInfo" noStyle />
         </div>
       </Form>
       <span className="">Add Token Metadata</span>
@@ -395,6 +433,50 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
                     <td className="px-4 py-2">{field.fieldType}</td>
                     <td className="px-4 py-2">
                       <button onClick={() => handleRemoveField(index)} className="text-red-500 hover:text-red-700">
+                        <Trash className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+      <span className="">Project Info</span>
+      <div className="flex flex-col p-2 gap-2 pb-4 mb-6 border rounded-md border-nomyx-dark1-dark dark:border-nomyx-gray4-dark">
+        <Form name="projectInfoForm" form={projectInfoForm} className="flex gap-2">
+          <Form.Item name="key" className="grow" rules={[{ required: true, message: "Key is required" }]}>
+            <Input placeholder="Enter Key" />
+          </Form.Item>
+          <Form.Item name="value" className="grow" rules={[{ required: true, message: "Value is required" }]}>
+            <Input placeholder="Enter Value" />
+          </Form.Item>
+          <Form.Item>
+            <Button htmlType="submit" className="bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark">
+              Add
+            </Button>
+          </Form.Item>
+        </Form>
+
+        {projectInfoFields.length > 0 && (
+          <div>
+            <h3>Added Key-Value Pairs:</h3>
+            <table className="w-full text-left rounded-lg">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2">Key</th>
+                  <th className="px-4 py-2">Value</th>
+                  <th className="px-4 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectInfoFields.map((pair, index) => (
+                  <tr key={index} className="border rounded-lg border-nomyx-gray1-light dark:border-nomyx-gray4-dark">
+                    <td className="px-4 py-2">{pair.key}</td>
+                    <td className="px-4 py-2">{pair.value}</td>
+                    <td className="px-4 py-2">
+                      <button onClick={() => handleRemoveKeyValue(index)} className="text-red-500 hover:text-red-700">
                         <Trash className="w-5 h-5" />
                       </button>
                     </td>
