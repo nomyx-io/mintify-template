@@ -145,8 +145,9 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
           <div className="p-2 font-bold">Token Data</div>
           <div className="grid grid-cols-2 border-t border-b border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
             {Object.entries(metadata)
-              .filter(([key, value]) => key !== "tradeDealId")
+              .filter(([key, value]) => key !== "_tradeDealId" && key !== "industryTemplate")
               .map(([key, value], index) => {
+                console.log("metadata entry", key, value, index);
                 return (
                   <div
                     key={`field-${index}`}
