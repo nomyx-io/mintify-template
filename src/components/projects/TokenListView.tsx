@@ -585,35 +585,39 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
                 },
               ]
             : []),
-          {
-            title: "Status",
-            dataIndex: ["token", "status"],
-            render: (status: string, record: any) => (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  width: "160px",
-                }}
-              >
-                <span
-                  className={`py-1 px-2 mr-10 w-20 text-center rounded border ${
-                    status === "listed"
-                      ? "border-nomyx-success-light text-nomyx-success-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
-                      : "border-nomyx-danger-light text-nomyx-danger-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
-                  }`}
-                >
-                  {status}
-                </span>
-                <Switch
-                  className="status-toggle-switch"
-                  checked={status === "listed"}
-                  onChange={(checked) => handleStatusChange(record.tokenId, checked)}
-                />
-              </div>
-            ),
-            sorter: (a: any, b: any) => a.token.status.localeCompare(b.token.status),
-          },
+          ...(industryTemplate !== Industries.TRADE_FINANCE
+            ? [
+                {
+                  title: "Status",
+                  dataIndex: ["token", "status"],
+                  render: (status: string, record: any) => (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        width: "160px",
+                      }}
+                    >
+                      <span
+                        className={`py-1 px-2 mr-10 w-20 text-center rounded border ${
+                          status === "listed"
+                            ? "border-nomyx-success-light text-nomyx-success-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
+                            : "border-nomyx-danger-light text-nomyx-danger-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
+                        }`}
+                      >
+                        {status}
+                      </span>
+                      <Switch
+                        className="status-toggle-switch"
+                        checked={status === "listed"}
+                        onChange={(checked) => handleStatusChange(record.tokenId, checked)}
+                      />
+                    </div>
+                  ),
+                  sorter: (a: any, b: any) => a.token.status.localeCompare(b.token.status),
+                },
+              ]
+            : []),
         ]),
   ];
 
