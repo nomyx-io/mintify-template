@@ -156,11 +156,17 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
         layout="vertical"
         onFinish={(values) => {
           const project = projectList.find((p) => p.id === projectId);
-          onFinish({
+          const formData = {
             ...values,
-            industryTemplate: project?.industryTemplate,
             _tradeDealId: project?.tradeDealId, // Prefix with _ to indicate it's not part of form data
-          });
+          };
+
+          // Only add industryTemplate if it's not a trade finance project
+          if (project?.industryTemplate !== Industries.TRADE_FINANCE) {
+            formData.industryTemplate = project?.industryTemplate;
+          }
+
+          onFinish(formData);
         }}
       >
         <div className="flex flex-col divide-y divide-[#484848]">
