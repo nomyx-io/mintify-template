@@ -194,7 +194,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
               }
 
               extractedTradeDealId = tradeDealResult.completeResponse.tradeDealId;
-              if (!extractedTradeDealId && extractedTradeDealId !== 0) {
+              if (!extractedTradeDealId || typeof extractedTradeDealId !== "number") {
                 throw new Error("Failed to extract trade deal ID from DFNS response");
               }
               tradeDealId = extractedTradeDealId;
@@ -261,7 +261,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
               console.log("Trade Deal Created - TX Receipt:", result.receipt);
               console.log("Trade Deal ID Extracted:", result.tradeDealId);
 
-              if (!result.tradeDealId) {
+              if (!result.tradeDealId || typeof result.tradeDealId !== "number") {
                 throw new Error("Trade deal ID extraction failed.");
               }
 
@@ -304,7 +304,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             }
           }
 
-          if (!tradeDealId && tradeDealId !== 0) {
+          if (!tradeDealId || typeof tradeDealId !== "number") {
             throw new Error("Failed to obtain trade deal ID");
           }
 

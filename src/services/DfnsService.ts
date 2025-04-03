@@ -203,7 +203,7 @@ class DfnsService {
   }
 
   public async dfnsActivateTradeDeal(walletId: string, dfnsToken: string, tradeDealId: number) {
-    if (!walletId || !dfnsToken || (!tradeDealId && tradeDealId !== 0)) {
+    if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number") {
       throw new Error("Missing required parameters for activating trade deal.");
     }
 
@@ -334,7 +334,7 @@ class DfnsService {
   }
 
   public async dfnsTdDepositInvoice(walletId: string, dfnsToken: string, tradeDealId: number, tokenId: number) {
-    if (!walletId || !dfnsToken || (!tradeDealId && tradeDealId !== 0) || !tokenId) {
+    if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number" || !tokenId) {
       throw new Error("Missing required parameters for trade deal invoice deposit.");
     }
 
@@ -371,7 +371,7 @@ class DfnsService {
   }
 
   public async dfnsTdDepositUSDC(walletId: string, dfnsToken: string, tradeDealId: number, amount: string) {
-    if (!walletId || !dfnsToken || (!tradeDealId && tradeDealId !== 0) || !amount) {
+    if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number" || !amount) {
       throw new Error("Missing required parameters for trade deal USDC deposit.");
     }
 
@@ -431,7 +431,7 @@ class DfnsService {
   }
 
   public async dfnsTdWithdrawUSDC(walletId: string, dfnsToken: string, tradeDealId: number, amount: string) {
-    if (!walletId || !dfnsToken || (!tradeDealId && tradeDealId !== 0) || !amount) {
+    if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number" || !amount) {
       throw new Error("Missing required parameters for trade deal USDC withdrawal.");
     }
 
@@ -468,7 +468,7 @@ class DfnsService {
   }
 
   public async dfnsRedeemVABBTokens(walletId: string, dfnsToken: string, tradeDealId: number, vabbAmount: string) {
-    if (!walletId || !dfnsToken || (!tradeDealId && tradeDealId !== 0) || !vabbAmount) {
+    if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number" || !vabbAmount) {
       throw new Error("Missing required parameters for VABB token redemption.");
     }
 
@@ -505,7 +505,7 @@ class DfnsService {
   }
 
   public async dfnsRepayTradeDeal(walletId: string, dfnsToken: string, tradeDealId: number, amount: string) {
-    if (!walletId || !dfnsToken || (!tradeDealId && tradeDealId !== 0) || !amount) {
+    if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number" || !amount) {
       throw new Error("Missing required parameters for trade deal repayment.");
     }
 
@@ -564,7 +564,7 @@ class DfnsService {
   }
 
   public async dfnsWithdrawTradeDealFunding(walletId: string, dfnsToken: string, tradeDealId: number) {
-    if (!walletId || !dfnsToken || (!tradeDealId && tradeDealId !== 0)) {
+    if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number") {
       throw new Error("Missing required parameters for trade deal funding withdrawal.");
     }
 

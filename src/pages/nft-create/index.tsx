@@ -221,7 +221,7 @@ export default function Details({ service }: { service: BlockchainService }) {
 
         case Industries.TRADE_FINANCE:
           // Verify tradeDealId exists
-          if (!tradeDealId && tradeDealId !== 0) {
+          if (!tradeDealId || typeof tradeDealId !== "number") {
             toast.error("Trade deal ID is required for trade finance tokens");
             break;
           }
