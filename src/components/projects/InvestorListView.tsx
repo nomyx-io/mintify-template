@@ -36,25 +36,25 @@ const InvestorListView: React.FC<InvestorListViewProps> = ({ investors }) => {
       sorter: (a, b) => a.amountDeposited - b.amountDeposited,
       render: (value) => value.toLocaleString(),
     },
-    {
-      title: "Collateral Token Issued",
-      dataIndex: "collateralTokenIssued",
-      key: "collateralTokenIssued",
-      sorter: (a, b) => a.collateralTokenIssued - b.collateralTokenIssued,
-      render: (value) => value.toLocaleString(),
-    },
-    {
-      title: "Collateral Token Lockup Period",
-      dataIndex: "collateralTokenLockupPeriod",
-      key: "collateralTokenLockupPeriod",
-    },
-    {
-      title: "Interest Tokens Issued",
-      dataIndex: "interestTokensIssued",
-      key: "interestTokensIssued",
-      sorter: (a, b) => a.interestTokensIssued - b.interestTokensIssued,
-      render: (value) => value.toLocaleString(),
-    },
+    // {
+    //   title: "Collateral Token Issued",
+    //   dataIndex: "collateralTokenIssued",
+    //   key: "collateralTokenIssued",
+    //   sorter: (a, b) => a.collateralTokenIssued - b.collateralTokenIssued,
+    //   render: (value) => value.toLocaleString(),
+    // },
+    // {
+    //   title: "Collateral Token Lockup Period",
+    //   dataIndex: "collateralTokenLockupPeriod",
+    //   key: "collateralTokenLockupPeriod",
+    // },
+    // {
+    //   title: "Interest Tokens Issued",
+    //   dataIndex: "interestTokensIssued",
+    //   key: "interestTokensIssued",
+    //   sorter: (a, b) => a.interestTokensIssued - b.interestTokensIssued,
+    //   render: (value) => value.toLocaleString(),
+    // },
   ];
 
   return (
