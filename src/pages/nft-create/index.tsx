@@ -88,6 +88,7 @@ export default function Details({ service }: { service: BlockchainService }) {
 
     // Extract tradeDealId before generating metadata
     const tradeDealId = formData._tradeDealId;
+    console.log("🔍 ##### Extracted tradeDealId from formData:", tradeDealId);
 
     // Remove unncessary fields from formData before generating metadata
     delete formData._tradeDealId;
@@ -113,44 +114,6 @@ export default function Details({ service }: { service: BlockchainService }) {
       if (walletPreference === WalletPreference.MANAGED && (!walletId || !dfnsToken)) {
         throw new Error("Missing wallet credentials for DFNS transactions.");
       }
-
-      const testMetadata = [
-        {
-          key: "nftTitle",
-          attributeType: 1,
-          value: "Test DFNS Mint NFT",
-        },
-        {
-          key: "description",
-          attributeType: 1,
-          value: "This is a test NFT to verify DFNS minting flow.",
-        },
-        {
-          key: "projectId",
-          attributeType: 1,
-          value: nftMetadata.find((value) => value.key === "projectId")?.value,
-        },
-        {
-          key: "mintAddress",
-          attributeType: 1,
-          value: "0x3AAF0e6023A2745FB62052c1954260559fFF4947", // replace with your own if needed
-        },
-        {
-          key: "price",
-          attributeType: 1,
-          value: "1", // USDC
-        },
-        {
-          key: "industryTemplate",
-          attributeType: 1,
-          value: "tokenized_debt",
-        },
-        {
-          key: "claimTopics",
-          attributeType: 0,
-          value: "1,2",
-        },
-      ];
 
       // Start minting process
       const mintingToast = toast.loading("Minting token...");
