@@ -88,7 +88,11 @@ export default function Details({ service }: { service: BlockchainService }) {
 
     // Extract tradeDealId before generating metadata
     const tradeDealId = formData._tradeDealId;
-    delete formData._tradeDealId; // Remove from formData so it's not included in metadata
+
+    // Remove unncessary fields from formData before generating metadata
+    delete formData._tradeDealId;
+    delete formData.industryTemplate;
+    delete formData.tradeAmount;
 
     const nftMetadata = generateMetadata(formData);
     console.log("nft Metadata: ", nftMetadata);

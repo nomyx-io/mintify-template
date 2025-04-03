@@ -159,13 +159,10 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
           const formData = {
             ...values,
           };
-
-          // Only add industryTemplate and _tradeDealId if it's not a trade finance project
-          if (project?.industryTemplate !== Industries.TRADE_FINANCE) {
-            formData.industryTemplate = project?.industryTemplate;
+          // add tradeDealId to formData if the project is Trade Finance
+          if (project?.industryTemplate === Industries.TRADE_FINANCE) {
             formData._tradeDealId = project?.tradeDealId;
           }
-
           onFinish(formData);
         }}
       >
