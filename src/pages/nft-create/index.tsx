@@ -196,9 +196,9 @@ export default function Details({ service }: { service: BlockchainService }) {
           const depositToast = toast.loading("Depositing invoice to trade deal...");
           try {
             if (walletPreference === WalletPreference.PRIVATE) {
-              await blockchainService.tdDepositInvoice(parseInt(tradeDealId), tokenId);
+              await blockchainService.tdDepositInvoice(tradeDealId, tokenId);
             } else {
-              const depositResult = await DfnsService.dfnsTdDepositInvoice(walletId, safeDfnsToken, parseInt(tradeDealId), tokenId);
+              const depositResult = await DfnsService.dfnsTdDepositInvoice(walletId, safeDfnsToken, tradeDealId, tokenId);
               if (depositResult.error) {
                 throw new Error(depositResult.error);
               }
