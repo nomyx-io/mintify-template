@@ -132,7 +132,6 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
         case Industries.TOKENIZED_DEBT:
           break;
         case Industries.TRADE_FINANCE:
-          fields = [...fields, ...tradeFinanceFields];
           break;
         default:
           break;
@@ -177,13 +176,15 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
               placeholder="Enter Token Title"
               rules={[requiredRule, alphaNumericRule, { max: 30 }]}
             />
-            <VariableFormInput
-              type="text"
-              name="description"
-              label="Description"
-              placeholder="Add a description for the NFT"
-              rules={[requiredRule, { max: 256 }]}
-            />
+            {projectList.find((p) => p.id === projectId)?.industryTemplate !== Industries.TRADE_FINANCE && (
+              <VariableFormInput
+                type="text"
+                name="description"
+                label="Description"
+                placeholder="Add a description for the NFT"
+                rules={[requiredRule, { max: 256 }]}
+              />
+            )}
             <VariableFormInput
               type="select"
               name="projectId"

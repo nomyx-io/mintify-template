@@ -111,7 +111,9 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
             </div>
             <div className="p-4 py-8">
               <h1 className="text-3xl font bold">{nftTitle as string}</h1>
-              <p className="!text-nomyx-gray1-light dark:!text-nomyx-gray1-dark">{description as string}</p>
+              {projectType !== Industries.TRADE_FINANCE && (
+                <p className="!text-nomyx-gray1-light dark:!text-nomyx-gray1-dark">{description as string}</p>
+              )}
             </div>
           </div>
         </div>
