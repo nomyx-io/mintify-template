@@ -602,14 +602,17 @@ export default class ParseClient {
   }
 
   /**
-   * Updates token URLs for a given token ID after polling for its publication
+   *
    * @param tokenId The ID of the token to update
-   * @param urlFields Object containing URL fields to update (image, animation_url, external_url)
+   * @param urlFields Object containing URL fields
    * @returns Updated Parse.Object or undefined if token not found
    */
   static async updateTokenUrls(tokenId: number, tokenUrlFields: { [key: string]: string }): Promise<Parse.Object | undefined> {
     try {
-      const token = await ParseClient.getRecord("Token", ["tokenId"], [tokenId]);
+      // Query Token class to find the token object with the given tokenId
+      const tokenQuery = new Parse.Query("Token");
+      tokenQuery.equalTo("tokenId", tokenId);
+      const token = await tokenQuery.first();
 
       if (!token) {
         throw new Error(`Token with ID ${tokenId} not found`);
