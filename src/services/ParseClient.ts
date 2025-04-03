@@ -609,25 +609,10 @@ export default class ParseClient {
    */
   static async updateTokenUrls(tokenId: number, tokenUrlFields: { [key: string]: string }): Promise<Parse.Object | undefined> {
     try {
-      // Poll for token publication
-      let token;
-      let attempts = 0;
-      const maxAttempts = 10;
-      const pollingInterval = 2000; // 2 seconds
-
-      while (attempts < maxAttempts) {
-        token = await ParseClient.getRecord("Token", ["tokenId"], [tokenId]);
-
-        if (token) {
-          break;
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, pollingInterval));
-        attempts++;
-      }
+      const token = await ParseClient.getRecord("Token", ["tokenId"], [tokenId]);
 
       if (!token) {
-        throw new Error(`Token with ID ${tokenId} not found after ${maxAttempts} attempts`);
+        throw new Error(`Token with ID ${tokenId} not found`);
       }
 
       return await ParseClient.updateExistingRecord("Token", ["tokenId"], [tokenId], tokenUrlFields);
