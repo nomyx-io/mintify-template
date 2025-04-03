@@ -114,7 +114,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
         });
       }
 
-      if (tradeDealId) {
+      if (tradeDealId || tradeDealId === 0) {
         form.setFieldsValue({
           tradeDealId,
         });
