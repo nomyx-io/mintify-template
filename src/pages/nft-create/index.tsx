@@ -153,7 +153,19 @@ export default function Details({ service }: { service: BlockchainService }) {
         ({ tokenId, transactionHash } = await blockchainService.gemforceMint(nftMetadata));
       } else {
         // **MANAGED WALLET: Use DFNS Service**
-        const response = await DfnsService.dfnsGemforceMint(walletId, safeDfnsToken, testMetadata);
+
+        // TODO: dfns has limitations on the lenghth of the metadata it can accept
+        // const response = await DfnsService.dfnsGemforceMint(walletId, safeDfnsToken, testMetadata);
+        const modifiedNftMetadata = nftMetadata
+          .map((item) => {
+            if (typeof item.value === "string" && item.value.match(/^(http:\/\/|ipfs:\/\/)[^\s]+$/)) {
+              return undefined;
+            }
+            return item;
+          })
+          .filter((item) => item !== undefined);
+        console.log("Modified NFT Metadata:", modifiedNftMetadata);
+        const response = await DfnsService.dfnsGemforceMint(walletId, safeDfnsToken, modifiedNftMetadata);
         console.log("✅ DFNS Mint Complete Response:", response);
 
         if (response.completeResponse) {
