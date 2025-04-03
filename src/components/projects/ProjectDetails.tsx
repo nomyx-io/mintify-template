@@ -20,6 +20,7 @@ import { UserContext } from "@/context/UserContext";
 import BlockchainService from "@/services/BlockchainService";
 import { CustomerService } from "@/services/CustomerService";
 import DfnsService from "@/services/DfnsService";
+import ParseClient from "@/services/ParseClient";
 import { WalletPreference } from "@/utils/constants";
 
 interface ProjectDetailsProps {
@@ -42,6 +43,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const [isWithdrawModalVisible, setIsWithdrawModalVisible] = useState(false);
   const [isPaybackModalVisible, setIsPaybackModalVisible] = useState(false);
   const [selectedStocks, setSelectedStocks] = useState<string[]>([]);
+  const [investors, setInvestors] = useState<any[]>([]);
 
   const mockInterestTokenHistory = [
     {
@@ -209,6 +211,29 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     };
     fetchData();
   }, [refresh, project.id]);
+
+  useEffect(() => {
+    const loadInvestors = async () => {
+      console.log("[UI] Calling cloud function getTradeDealInvestorSummary with ID:", project.tradeDealId);
+
+      try {
+        // admin role restricted route to grab call _Users table
+        const { investors: investorData } = await Parse.Cloud.run("getTradeDealInvestorSummary", {
+          tradeDealId: String(project.tradeDealId),
+        });
+
+        console.log("[UI] Received investor data from cloud function:", investorData);
+        setInvestors(investorData);
+      } catch (error) {
+        console.error("[UI] Error fetching investors from cloud function:", error);
+        toast.error("Failed to load investor data.");
+      }
+    };
+
+    if (project.industryTemplate === Industries.TRADE_FINANCE && project.tradeDealId) {
+      loadInvestors();
+    }
+  }, [project.tradeDealId, project.industryTemplate]);
 
   const fetchListings = useCallback(
     async (projectTokens: any) => {
@@ -476,7 +501,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                         {
                           key: "2",
                           label: "Investors",
-                          children: <InvestorListView investors={mockInvestors} />,
+                          children: <InvestorListView investors={investors} />,
                         },
                         // {
                         //   key: "3",
