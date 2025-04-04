@@ -686,8 +686,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       // Type assertions after validation
                       const walletId = user.walletId as string;
                       const token = dfnsToken as string;
+                      const borrower = user.walletAddress as string;
 
-                      const repayResult = await DfnsService.dfnsRepayTradeDeal(walletId, token, tradeDealId, "200");
+                      const repayResult = await DfnsService.dfnsRepayTradeDeal(walletId, token, tradeDealId, "200", borrower);
 
                       if (repayResult.error) {
                         throw new Error(`Repayment failed: ${repayResult.error}`);

@@ -504,7 +504,7 @@ class DfnsService {
     }
   }
 
-  public async dfnsRepayTradeDeal(walletId: string, dfnsToken: string, tradeDealId: number, amount: string) {
+  public async dfnsRepayTradeDeal(walletId: string, dfnsToken: string, tradeDealId: number, amount: string, borrower: string) {
     if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number" || !amount) {
       throw new Error("Missing required parameters for trade deal repayment.");
     }
@@ -539,6 +539,7 @@ class DfnsService {
         dfns_token: dfnsToken,
         tradeDealId,
         amount,
+        borrower,
       });
       console.log("Pending trade deal repayment request:", repayInitResponse);
 
