@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo, useCallback, useContext } from "react";
 
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
-import { message, Modal } from "antd";
+import { Form, InputNumber, message, Modal } from "antd";
 import { Button, Card, Tabs } from "antd";
 import { SearchNormal1, Category, RowVertical, ArrowLeft, Copy } from "iconsax-react";
 import Image from "next/image";
@@ -50,6 +50,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const [selectedStocks, setSelectedStocks] = useState<string[]>([]);
   const [investors, setInvestors] = useState<any[]>([]);
   const [projectInfo, setProjectInfo] = useState<ProjectInfoField[]>([]);
+  const requiredRule = { required: true, message: "This field is required." };
+  const [paybackPoolform] = Form.useForm();
+  const [isDepositEnabled, setIsDepositEnabled] = useState(false);
 
   const mockInterestTokenHistory = [
     {
@@ -544,7 +547,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     (async () => {
                       // Get and validate tradeDealId
                       if (!project.tradeDealId || typeof project.tradeDealId !== "number") {
-                        throw new Error("Trade deal ID not found or invalid");
+                        throw "Trade deal ID not found or invalid";
                       }
                       // Type assertion after validation
                       const tradeDealId = project.tradeDealId as number;
@@ -553,14 +556,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                         // Use BlockchainService for private wallet
                         const blockchainService = BlockchainService.getInstance();
                         if (!blockchainService) {
-                          throw new Error("Blockchain service not initialized");
+                          throw "Blockchain service not initialized";
                         }
                         // Non-null assertion after check
                         await blockchainService.withdrawTradeDealFunding(tradeDealId);
                       } else {
                         // Validate wallet credentials
                         if (!user?.walletId || !dfnsToken) {
-                          throw new Error("Wallet credentials not found");
+                          throw "Wallet credentials not found";
                         }
                         // Type assertions after validation
                         const walletId = user.walletId as string;
@@ -569,7 +572,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                         const withdrawResult = await DfnsService.dfnsWithdrawTradeDealFunding(walletId, token, tradeDealId);
 
                         if (withdrawResult.error) {
-                          throw new Error(`Withdrawal failed: ${withdrawResult.error}`);
+                          throw `Withdrawal failed: ${withdrawResult.error}`;
                         }
                       }
                     })(),
@@ -610,10 +613,10 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
       >
         <div className="py-4">
           <h3 className="text-xl font-medium mb-4">Payback Pool</h3>
-          <p className="mb-4">Select Stocks to deposit</p>
+          {/* <p className="mb-4">Select Stocks to deposit</p> */}
 
           <div className="overflow-x-auto">
-            <table className="w-full">
+            {/* <table className="w-full">
               <thead>
                 <tr className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark">
                   <th className="p-3 text-left"></th>
@@ -645,21 +648,42 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table> */}
           </div>
 
-          <div className="mt-4 flex justify-between items-center">
-            <div>
-              <p>Selected: {selectedStocks.length}</p>
+          <div className="mb-14">
+            {/* mt-4 flex justify-between items-center */}
+            <div className="w-1/2">
+              {/* <p>Selected: {selectedStocks.length}</p>
               <p>
                 Total Amount:{" "}
                 {mockInterestTokenHistory
                   .filter((token) => selectedStocks.includes(token.id))
                   .reduce((sum, token) => sum + token.total, 0)
                   .toLocaleString()}
-              </p>
+              </p> */}
+              <Form
+                form={paybackPoolform}
+                layout="vertical"
+                onValuesChange={(_, allValues) => {
+                  const value = allValues.paybackPool;
+                  setIsDepositEnabled(typeof value === "number" && value > 0);
+                }}
+              >
+                <Form.Item rules={[requiredRule]} label="Payback Pool" name="paybackPool">
+                  <InputNumber
+                    placeholder="Enter Payback Pool"
+                    className="w-full"
+                    onKeyPress={(event) => {
+                      if (!/[0-9]/.test(event.key)) {
+                        event.preventDefault();
+                      }
+                    }}
+                  />
+                </Form.Item>
+              </Form>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-4 float-end">
               <Button
                 type="text"
                 onClick={() => {
@@ -678,33 +702,34 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       (async () => {
                         // Get and validate tradeDealId
                         if (!project.tradeDealId || typeof project.tradeDealId !== "number") {
-                          throw new Error("Trade deal ID not found or invalid");
+                          throw "Trade deal ID not found or invalid";
                         }
                         // Type assertion after validation
                         const tradeDealId = project.tradeDealId as number;
-
+                        const paybackPoolValue = paybackPoolform.getFieldValue("paybackPool");
+                        const paybackPool = (paybackPoolValue ?? 0) * 1_000_000;
                         if (walletPreference === WalletPreference.PRIVATE) {
                           // Use BlockchainService for private wallet
                           const blockchainService = BlockchainService.getInstance();
                           if (!blockchainService) {
-                            throw new Error("Blockchain service not initialized");
+                            throw "Blockchain service not initialized";
                           }
                           // Non-null assertion after check
-                          await blockchainService.repayTradeDeal(tradeDealId, 200);
+                          await blockchainService.repayTradeDeal(tradeDealId, paybackPool);
                         } else {
                           // Validate wallet credentials
                           if (!user?.walletId || !dfnsToken) {
-                            throw new Error("Wallet credentials not found");
+                            throw "Wallet credentials not found";
                           }
                           // Type assertions after validation
                           const walletId = user.walletId as string;
                           const token = dfnsToken as string;
                           const borrower = user.walletAddress as string;
 
-                          const repayResult = await DfnsService.dfnsRepayTradeDeal(walletId, token, tradeDealId, "200", borrower);
+                          const repayResult = await DfnsService.dfnsRepayTradeDeal(walletId, token, tradeDealId, paybackPool.toString(), borrower);
 
                           if (repayResult.error) {
-                            throw new Error(`Repayment failed: ${repayResult.error}`);
+                            throw `Repayment failed: ${repayResult.error}`;
                           }
                         }
                       })(),
@@ -725,7 +750,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     console.error("Repayment error:", error);
                   }
                 }}
-                disabled={selectedStocks.length === 0}
+                disabled={!isDepositEnabled}
                 className="!bg-[#2E5BFF] hover:!bg-[#2E5BFF]/80 disabled:!bg-[#D3D3D3] disabled:opacity-100 disabled:!text-[#4A4A4A]"
                 style={{ width: "200px", borderRadius: "8px" }}
               >
