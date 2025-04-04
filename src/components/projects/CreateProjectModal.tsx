@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useContext } from "react";
 
-import { Button, Form, GetProp, Input, message, Modal, Select, UploadProps, Checkbox } from "antd";
+import { Button, Form, GetProp, Input, message, Modal, Select, UploadProps, Checkbox, InputNumber } from "antd";
 import { Rule } from "antd/es/form";
+import { useWatch } from "antd/es/form/Form";
 import { Trash } from "iconsax-react";
 import { FormFinishInfo } from "rc-field-form/es/FormContext";
 import { toast } from "react-toastify";
@@ -17,6 +18,7 @@ import { WalletPreference } from "@/utils/constants";
 const TRADE_DEAL_DEFAULT_INTEREST_RATE = 0;
 const TRADE_DEAL_DEFAULT_VABB_VABI_RATIO = 1;
 
+import Compliance from "../molecules/Compliance";
 import ImageBoxFormItem from "../molecules/ImageBox";
 
 interface CreateProjectModalProps {
@@ -33,6 +35,7 @@ interface FormValues {
   industryTemplate: Industries;
   additionalFields?: AddedField[];
   projectInfo: ProjectInfoField[];
+  fundingTarget: number;
 }
 
 interface AddedField {
@@ -58,8 +61,10 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
   const [form] = Form.useForm();
   const [addFieldForm] = Form.useForm();
   const [projectInfoForm] = Form.useForm();
+  const selectedIndustry = useWatch("industryTemplate", form);
   const [addedFields, setAddedFields] = useState<AddedField[]>([]);
   const [projectInfoFields, setProjectInfoFields] = useState<ProjectInfoField[]>([]);
+  const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
   const { walletPreference, dfnsToken, user } = useContext(UserContext);
   const requiredRule = { required: true, message: "This field is required." };
   const uniqueRule: Rule = ({ getFieldValue }) => ({
@@ -162,12 +167,16 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
       fields: string;
       projectInfo: string;
       tradeDealId?: number;
+      fundingTarget: number;
+      requiredClaimTopics: number[];
     } = {
       title: values.title,
       description: values.description,
       industryTemplate: values.industryTemplate,
       logo: await getBase64(values.logoUpload.fileList[0].originFileObj as FileType),
       coverImage: await getBase64(values.coverImageUpload.fileList[0].originFileObj as FileType),
+      fundingTarget: values?.fundingTarget,
+      requiredClaimTopics: selectedClaims ? selectedClaims.map(Number) : [],
       fields: JSON.stringify(
         values.additionalFields?.map((field) => {
           return {
@@ -198,6 +207,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           const vabbAddress = "0x0000000000000000000000000000000000000000";
           const vabiAddress = "0x0000000000000000000000000000000000000000";
           const usdcAddress = process.env.NEXT_PUBLIC_HARDHAT_USDC_ADDRESS || "";
+          let fundingTarget = values.fundingTarget;
 
           if (walletPreference === WalletPreference.MANAGED) {
             // DFNS Wallet Flow
@@ -219,11 +229,11 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
                 symbol,
                 TRADE_DEAL_DEFAULT_INTEREST_RATE,
                 TRADE_DEAL_DEFAULT_VABB_VABI_RATIO,
-                [],
+                selectedClaims ? selectedClaims.map(Number) : [],
                 vabbAddress,
                 vabiAddress,
                 usdcAddress,
-                400 // TODO: Hardcoded fundingTarget for now
+                fundingTarget
               );
 
               if (tradeDealResult.error) {
@@ -281,18 +291,18 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             }
 
             const createToastId = toast.loading("Creating trade deal...");
-
+            fundingTarget = fundingTarget * 1000000;
             try {
               const result = await blockchainService.createTradeDeal(
                 tradeDealName, // Use sanitized name
                 symbol,
                 TRADE_DEAL_DEFAULT_INTEREST_RATE,
                 TRADE_DEAL_DEFAULT_VABB_VABI_RATIO,
-                [],
+                selectedClaims ? selectedClaims.map(Number) : [],
                 vabbAddress,
                 vabiAddress,
                 usdcAddress,
-                400000000 // TODO: Hardcoded fundingTarget for now
+                fundingTarget
               );
 
               console.log("Trade Deal Created - TX Receipt:", result.receipt);
@@ -405,11 +415,28 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           <Form.Item rules={[requiredRule]} label="Description" name="description">
             <Input.TextArea placeholder="Add Project Description" autoSize={{ minRows: 3, maxRows: 5 }} />
           </Form.Item>
+          {selectedIndustry === Industries.TRADE_FINANCE && (
+            <>
+              <Form.Item rules={[requiredRule]} label="Funding Target" name="fundingTarget">
+                <InputNumber
+                  placeholder="Enter Funding Target"
+                  className="w-1/2"
+                  onKeyPress={(event) => {
+                    // Allow only digits
+                    if (!/[0-9]/.test(event.key)) {
+                      event.preventDefault();
+                    }
+                  }}
+                />
+              </Form.Item>
+              <Compliance selectedClaims={selectedClaims} setSelectedClaims={setSelectedClaims} />
+            </>
+          )}
           <Form.Item name="additionalFields" noStyle />
           <Form.Item name="projectInfo" noStyle />
         </div>
       </Form>
-      <span className="">Add Token Metadata</span>
+      <p className="mt-4 mb-1">Add Token Metadata</p>
       <div className="flex flex-col p-2 gap-2 pb-4 mb-6 border rounded-md border-nomyx-dark1-dark dark:border-nomyx-gray4-dark">
         <p className="text-xs">
           Gemforce tokens come with some standard fields to be set upon minting a token. Any additional data fields that need to be associated with a

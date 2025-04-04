@@ -112,7 +112,6 @@ export const CustomerService = () => {
       if (tokenRecords && tokenRecords.length > 0) {
         sanitizedRecords = JSON.parse(JSON.stringify(tokenRecords || []));
       }
-
       // Append depositAmount to each token record and correctly assign the updated array
       sanitizedRecords = sanitizedRecords.map((record: any) => ({
         ...record, // Retain all existing properties of the record

@@ -545,12 +545,16 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     //     </p>
     //   ),
     // },
-    {
-      title: "Price",
-      dataIndex: "price",
-      render: (price: number) => (isSalesHistory ? formatPrice(price, "USD") : formatPrice(price / 1_000_000, "USD")),
-      sorter: (a: any, b: any) => a.price - b.price,
-    },
+    ...(filteredTokens.some((row: any) => row.price > 0)
+      ? [
+          {
+            title: "Price",
+            dataIndex: "price",
+            render: (price: number) => (isSalesHistory ? formatPrice(price, "USD") : formatPrice(price / 1_000_000, "USD")),
+            sorter: (a: any, b: any) => a.price - b.price,
+          },
+        ]
+      : []),
     ...additionalColumns,
     // Conditionally add the "Status" column only if `isSalesHistory` is false
     ...(isSalesHistory

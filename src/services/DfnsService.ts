@@ -270,7 +270,7 @@ class DfnsService {
         vabbAddress,
         vabiAddress,
         usdcAddress,
-        fundingTarget: 400000000,
+        fundingTarget,
       });
       console.log("Pending trade deal creation request:", initiateResponse);
 

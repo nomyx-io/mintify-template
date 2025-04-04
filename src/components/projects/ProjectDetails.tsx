@@ -540,42 +540,53 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
               type="primary"
               onClick={async () => {
                 try {
-                  // Get and validate tradeDealId
-                  if (!project.tradeDealId || typeof project.tradeDealId !== "number") {
-                    throw new Error("Trade deal ID not found or invalid");
-                  }
-                  // Type assertion after validation
-                  const tradeDealId = project.tradeDealId as number;
+                  await toast.promise(
+                    (async () => {
+                      // Get and validate tradeDealId
+                      if (!project.tradeDealId || typeof project.tradeDealId !== "number") {
+                        throw new Error("Trade deal ID not found or invalid");
+                      }
+                      // Type assertion after validation
+                      const tradeDealId = project.tradeDealId as number;
 
-                  if (walletPreference === WalletPreference.PRIVATE) {
-                    // Use BlockchainService for private wallet
-                    const blockchainService = BlockchainService.getInstance();
-                    if (!blockchainService) {
-                      throw new Error("Blockchain service not initialized");
+                      if (walletPreference === WalletPreference.PRIVATE) {
+                        // Use BlockchainService for private wallet
+                        const blockchainService = BlockchainService.getInstance();
+                        if (!blockchainService) {
+                          throw new Error("Blockchain service not initialized");
+                        }
+                        // Non-null assertion after check
+                        await blockchainService.withdrawTradeDealFunding(tradeDealId);
+                      } else {
+                        // Validate wallet credentials
+                        if (!user?.walletId || !dfnsToken) {
+                          throw new Error("Wallet credentials not found");
+                        }
+                        // Type assertions after validation
+                        const walletId = user.walletId as string;
+                        const token = dfnsToken as string;
+
+                        const withdrawResult = await DfnsService.dfnsWithdrawTradeDealFunding(walletId, token, tradeDealId);
+
+                        if (withdrawResult.error) {
+                          throw new Error(`Withdrawal failed: ${withdrawResult.error}`);
+                        }
+                      }
+                    })(),
+                    {
+                      pending: "Withdrawing USDC...",
+                      success: "USDC withdrawn successfully",
+                      error: {
+                        render({ data }: { data: any }) {
+                          return <div>{data?.reason || data || "An error occurred during USDC withdraw."}</div>;
+                        },
+                      },
                     }
-                    // Non-null assertion after check
-                    await blockchainService!.withdrawTradeDealFunding(tradeDealId);
-                  } else {
-                    // Validate wallet credentials
-                    if (!user?.walletId || !dfnsToken) {
-                      throw new Error("Wallet credentials not found");
-                    }
-                    // Type assertions after validation
-                    const walletId = user.walletId as string;
-                    const token = dfnsToken as string;
+                  );
 
-                    const withdrawResult = await DfnsService.dfnsWithdrawTradeDealFunding(walletId, token, tradeDealId);
-
-                    if (withdrawResult.error) {
-                      throw new Error(`Withdrawal failed: ${withdrawResult.error}`);
-                    }
-                  }
-
-                  toast.success("USDC withdrawn successfully");
                   setIsWithdrawModalVisible(false);
-                } catch (error: any) {
+                } catch (error) {
                   console.error("Withdrawal error:", error);
-                  toast.error(`Failed to withdraw: ${error.message}`);
                 }
               }}
               className="bg-blue-500 hover:!bg-blue-600 px-8"
@@ -663,44 +674,55 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 type="primary"
                 onClick={async () => {
                   try {
-                    // Get and validate tradeDealId
-                    if (!project.tradeDealId || typeof project.tradeDealId !== "number") {
-                      throw new Error("Trade deal ID not found or invalid");
-                    }
-                    // Type assertion after validation
-                    const tradeDealId = project.tradeDealId as number;
+                    await toast.promise(
+                      (async () => {
+                        // Get and validate tradeDealId
+                        if (!project.tradeDealId || typeof project.tradeDealId !== "number") {
+                          throw new Error("Trade deal ID not found or invalid");
+                        }
+                        // Type assertion after validation
+                        const tradeDealId = project.tradeDealId as number;
 
-                    if (walletPreference === WalletPreference.PRIVATE) {
-                      // Use BlockchainService for private wallet
-                      const blockchainService = BlockchainService.getInstance();
-                      if (!blockchainService) {
-                        throw new Error("Blockchain service not initialized");
+                        if (walletPreference === WalletPreference.PRIVATE) {
+                          // Use BlockchainService for private wallet
+                          const blockchainService = BlockchainService.getInstance();
+                          if (!blockchainService) {
+                            throw new Error("Blockchain service not initialized");
+                          }
+                          // Non-null assertion after check
+                          await blockchainService.repayTradeDeal(tradeDealId, 200);
+                        } else {
+                          // Validate wallet credentials
+                          if (!user?.walletId || !dfnsToken) {
+                            throw new Error("Wallet credentials not found");
+                          }
+                          // Type assertions after validation
+                          const walletId = user.walletId as string;
+                          const token = dfnsToken as string;
+                          const borrower = user.walletAddress as string;
+
+                          const repayResult = await DfnsService.dfnsRepayTradeDeal(walletId, token, tradeDealId, "200", borrower);
+
+                          if (repayResult.error) {
+                            throw new Error(`Repayment failed: ${repayResult.error}`);
+                          }
+                        }
+                      })(),
+                      {
+                        pending: "Repaying trade deal...",
+                        success: "Trade deal repaid successfully",
+                        error: {
+                          render({ data }: { data: any }) {
+                            return <div>{data?.reason || data || "An error occurred during trade deal repaying."}</div>;
+                          },
+                        },
                       }
-                      // Non-null assertion after check
-                      await blockchainService!.repayTradeDeal(tradeDealId, 200);
-                    } else {
-                      // Validate wallet credentials
-                      if (!user?.walletId || !dfnsToken) {
-                        throw new Error("Wallet credentials not found");
-                      }
-                      // Type assertions after validation
-                      const walletId = user.walletId as string;
-                      const token = dfnsToken as string;
-                      const borrower = user.walletAddress as string;
+                    );
 
-                      const repayResult = await DfnsService.dfnsRepayTradeDeal(walletId, token, tradeDealId, "200", borrower);
-
-                      if (repayResult.error) {
-                        throw new Error(`Repayment failed: ${repayResult.error}`);
-                      }
-                    }
-
-                    toast.success("Trade deal repaid successfully");
                     setIsPaybackModalVisible(false);
                     setSelectedStocks([]);
-                  } catch (error: any) {
-                    console.error("Deposit error:", error);
-                    toast.error(`Failed to repay: ${error.message}`);
+                  } catch (error) {
+                    console.error("Repayment error:", error);
                   }
                 }}
                 disabled={selectedStocks.length === 0}

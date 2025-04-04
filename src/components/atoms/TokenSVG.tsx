@@ -13,12 +13,12 @@ const GenerateSvgIcon = ({ color }: { color: string }) => {
         y="50%" // Adjusted to bring text to vertical center
         fontFamily="Arial, sans-serif"
         fontWeight="bold"
-        fontSize="300" // Increased font size to make "KC" bigger
+        fontSize="220" // Increased font size to make "SGH" bigger
         fill="white"
         dominantBaseline="middle"
         textAnchor="middle"
       >
-        KC
+        SGH
       </text>
     </svg>
   );

@@ -80,14 +80,25 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
   const getDynamicColumns = (maxColumns = 5): ColumnConfig[] => {
     const nonNullColumns: Record<string, ColumnConfig> = {};
     tokens.forEach((token) => {
-      Object.entries(token.token).forEach(([key, value]) => {
-        if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
-          nonNullColumns[key] = {
-            title: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
-            key,
-          };
-        }
-      });
+      if (industryTemplate != Industries.TRADE_FINANCE) {
+        Object.entries(token.token).forEach(([key, value]) => {
+          if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
+            nonNullColumns[key] = {
+              title: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
+              key,
+            };
+          }
+        });
+      } else {
+        Object.entries(token).forEach(([key, value]) => {
+          if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
+            nonNullColumns[key] = {
+              title: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
+              key,
+            };
+          }
+        });
+      }
     });
     return Object.values(nonNullColumns).slice(0, maxColumns);
   };
@@ -106,7 +117,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
           // Create column data for each token
           const dynamicColumnData: ColumnData[] = dynamicColumns.map((column) => ({
             label: column.title,
-            value: token.token?.[column.key] || "-",
+            value: industryTemplate != Industries.TRADE_FINANCE ? token.token?.[column.key] : token?.[column.key] || "-",
           }));
 
           return (
@@ -142,19 +153,24 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
               {/* Content Section */}
               <div className="p-4">
                 {/* Title and Description */}
-                <h2 className="text-lg font-bold">{token.token?.nftTitle || "Token Title"}</h2>
+                <h2 className="text-lg font-bold">{token?.nftTitle || token.token?.nftTitle || "Token Title"}</h2>
                 <p className="text-sm text-gray-600 mt-1 line-clamp-1">
-                  {token.token?.description ||
+                  {token?.description ||
+                    token.token?.description ||
                     "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
                 </p>
 
                 {/* Token Details Section */}
                 <div className="mt-4 grid gap-2">
                   {[
-                    {
-                      label: "Total Price",
-                      value: isSalesHistory ? formatPrice(token.price, "USD") : formatPrice(token.price / 1_000_000, "USD"),
-                    },
+                    ...(token.price > 0
+                      ? [
+                          {
+                            label: "Total Price",
+                            value: isSalesHistory ? formatPrice(token.price, "USD") : formatPrice(token.price / 1_000_000, "USD"),
+                          },
+                        ]
+                      : []),
                     ...dynamicColumnData,
                   ].map((item, index) => (
                     <div key={index} className="flex items-center justify-between">
