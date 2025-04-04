@@ -15,6 +15,7 @@ import { getDashboardLayout } from "@/Layouts";
 import BlockchainService from "@/services/BlockchainService";
 import { CarbonCreditService } from "@/services/CarbonCreditService";
 import DfnsService from "@/services/DfnsService";
+import ParseClient from "@/services/ParseClient";
 import { TokenizedDebtService } from "@/services/TokenizedDebtService";
 import { TradeFinanceService } from "@/services/TradeFinanceService";
 
@@ -118,6 +119,7 @@ export default function Details({ service }: { service: BlockchainService }) {
       // Start minting process
       const mintingToast = toast.loading("Minting token...");
       let tokenId, transactionHash;
+      const tokenUrlFields: { [key: string]: string } = {};
 
       if (walletPreference === WalletPreference.PRIVATE) {
         // **PRIVATE WALLET: Use BlockchainService**
@@ -130,11 +132,15 @@ export default function Details({ service }: { service: BlockchainService }) {
         const modifiedNftMetadata = nftMetadata
           .map((item) => {
             if (typeof item.value === "string" && item.value.match(/^(http:\/\/|ipfs:\/\/)[^\s]+$/)) {
+              tokenUrlFields[item.key] = item.value; // Extract token URL fields from metadata
               return undefined;
             }
             return item;
           })
           .filter((item) => item !== undefined);
+
+        console.log("@ Token URL Fields ", tokenUrlFields);
+
         console.log("Modified NFT Metadata:", modifiedNftMetadata);
         const response = await DfnsService.dfnsGemforceMint(walletId, safeDfnsToken, modifiedNftMetadata);
         console.log("✅ DFNS Mint Complete Response:", response);
@@ -217,6 +223,16 @@ export default function Details({ service }: { service: BlockchainService }) {
               autoClose: 5000,
             });
             throw error;
+          }
+
+          // Update token URLs in Parse if any URL fields were found
+          if (Object.keys(tokenUrlFields).length > 0) {
+            try {
+              await ParseClient.updateTokenUrls(tokenId, tokenUrlFields);
+            } catch (error) {
+              console.error("Error updating token URLs:", error);
+              // Don't throw here, continue with the rest of the process
+            }
           }
           break;
 

@@ -607,7 +607,7 @@ export default class ParseClient {
    * @param urlFields Object containing URL fields
    * @returns Updated Parse.Object or undefined if token not found
    */
-  static async updateTokenUrls(tokenId: number, tokenUrlFields: { [key: string]: string }): Promise<Parse.Object | undefined> {
+  static async updateTokenUrls(tokenId: string, tokenUrlFields: { [key: string]: string }): Promise<Parse.Object | undefined> {
     try {
       // Query Token class to find the token object with the given tokenId
       const tokenQuery = new Parse.Query("Token");
