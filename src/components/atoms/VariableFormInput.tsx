@@ -114,7 +114,7 @@ export default function VariableFormInput({
                     },
                   ]);
 
-                  toast.success("File uploaded successfully");
+                  // toast.success("File uploaded successfully");
                 } catch (error) {
                   toast.error("Error uploading file");
                   console.error("Upload error:", error);
