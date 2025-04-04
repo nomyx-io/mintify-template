@@ -49,6 +49,7 @@ export default function Projects() {
             createdAt: project.createdAt,
             industryTemplate: project.attributes.industryTemplate,
             tradeDealId: project.attributes.tradeDealId,
+            projectInfo: project.attributes.projectInfo,
           };
         }) || []
       );
