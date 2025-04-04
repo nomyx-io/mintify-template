@@ -231,7 +231,6 @@ export default function Details({ service }: { service: BlockchainService }) {
               await ParseClient.updateTokenUrls(tokenId, tokenUrlFields);
             } catch (error) {
               console.error("Error updating token URLs:", error);
-              // Don't throw here, continue with the rest of the process
             }
           }
           break;
