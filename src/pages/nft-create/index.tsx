@@ -227,10 +227,34 @@ export default function Details({ service }: { service: BlockchainService }) {
 
           // Update token URLs in Parse if any URL fields were found
           if (Object.keys(tokenUrlFields).length > 0) {
-            try {
-              await ParseClient.updateTokenUrls(tokenId, tokenUrlFields);
-            } catch (error) {
-              console.error("Error updating token URLs:", error);
+            const MAX_ATTEMPTS = 3;
+            const DELAY_MS = 2000;
+            let attempt = 1;
+            let res;
+
+            while (attempt <= MAX_ATTEMPTS) {
+              try {
+                console.log(`Attempting to update token URLs (attempt ${attempt}/${MAX_ATTEMPTS})...`);
+                res = await ParseClient.updateTokenUrls(tokenId, tokenUrlFields);
+
+                if (res) {
+                  console.log(`Successfully updated token URLs on attempt ${attempt}`);
+                  break;
+                }
+
+                console.log(`Update returned undefined on attempt ${attempt}, retrying...`);
+                await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
+                attempt++;
+              } catch (error) {
+                console.error(`Error updating token URLs (attempt ${attempt}/${MAX_ATTEMPTS}):`, error);
+                if (attempt === MAX_ATTEMPTS) break;
+                await new Promise((resolve) => setTimeout(resolve, DELAY_MS));
+                attempt++;
+              }
+            }
+
+            if (!res) {
+              console.error(`Failed to update token URLs after ${MAX_ATTEMPTS} attempts`);
             }
           }
           break;
