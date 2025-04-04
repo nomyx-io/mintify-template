@@ -490,11 +490,30 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     return Object.values(nonNullColumns).slice(0, maxColumns);
   };
 
+  const isValidUrl = (str: string): boolean => {
+    try {
+      new URL(str);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const createColumns = (nonNullColumns: ColumnConfig[]) => {
     return nonNullColumns.map(({ title, key }) => ({
       title,
       dataIndex: industryTemplate === Industries.TRADE_FINANCE ? key : ["token", key],
-      render: (value: any) => (typeof value === "object" ? "N/A" : <span>{value}</span>),
+      render: (value: any) => {
+        if (typeof value === "object") return "N/A";
+        if (typeof value === "string" && isValidUrl(value)) {
+          return (
+            <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+              View Document
+            </a>
+          );
+        }
+        return <span>{value}</span>;
+      },
       sorter: (a: any, b: any) => {
         const aValue = industryTemplate === Industries.TRADE_FINANCE ? a[key] : a.token[key];
         const bValue = industryTemplate === Industries.TRADE_FINANCE ? b[key] : b.token[key];
