@@ -688,7 +688,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       const token = dfnsToken as string;
                       const borrower = user.walletAddress as string;
 
-                      const repayResult = await DfnsService.dfnsRepayTradeDeal(walletId, token, tradeDealId, "200", borrower);
+                      const repayResult = await DfnsService.dfnsRepayTradeDeal(walletId, token, tradeDealId, "399999800", borrower);
 
                       if (repayResult.error) {
                         throw new Error(`Repayment failed: ${repayResult.error}`);

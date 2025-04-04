@@ -1,4 +1,5 @@
 import { WebAuthnSigner } from "@dfns/sdk-browser";
+import { parseUnits } from "ethers";
 import Parse from "parse";
 
 class DfnsService {
@@ -514,7 +515,7 @@ class DfnsService {
       const approvalInitResponse = await Parse.Cloud.run("dfnsInitApproval", {
         walletId,
         dfns_token: dfnsToken,
-        price: amount,
+        price: parseUnits(amount.toString(), 6).toString(),
       });
       console.log("Pending USDC approval request:", approvalInitResponse);
 
