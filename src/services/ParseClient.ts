@@ -615,7 +615,7 @@ export default class ParseClient {
       const token = await tokenQuery.first();
 
       if (!token) {
-        throw new Error(`Token with ID ${tokenId} not found`);
+        return undefined; // Token not found, return undefined
       }
 
       return await ParseClient.updateExistingRecord("Token", ["tokenId"], [tokenId], tokenUrlFields);
