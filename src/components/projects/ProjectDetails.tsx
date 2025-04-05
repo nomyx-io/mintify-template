@@ -601,67 +601,79 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
       </Modal>
 
       {/* Payback Pool Modal */}
+      {/* Payback Pool Modal */}
       <Modal
         open={isPaybackModalVisible}
         onCancel={() => {
           setIsPaybackModalVisible(false);
           setSelectedStocks([]);
+          paybackPoolform.resetFields();
         }}
         footer={null}
-        width={800}
+        width={450} // Reduced width from 500 to 450
         className="payback-modal"
+        centered
       >
-        <div className="py-4">
-          <h3 className="text-xl font-medium mb-4">Payback Pool</h3>
+        <div className="py-2 px-2">
+          {" "}
+          {/* Reduced vertical padding */}
+          <h3 className="text-xl font-medium mb-2 text-center">Payback Pool</h3> {/* Smaller heading and margin */}
           {/* <p className="mb-4">Select Stocks to deposit</p> */}
-
           <div className="overflow-x-auto">
             {/* <table className="w-full">
-              <thead>
-                <tr className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark">
-                  <th className="p-3 text-left"></th>
-                  <th className="p-3 text-left">Stock ID</th>
-                  <th className="p-3 text-left">Token ID</th>
-                  <th className="p-3 text-left">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {mockInterestTokenHistory.map((token, index) => (
-                  <tr key={index} className="border-b border-nomyx-dark1-light dark:border-nomyx-dark1-dark">
-                    <td className="p-3">
-                      <input
-                        type="checkbox"
-                        checked={selectedStocks.includes(token.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedStocks([...selectedStocks, token.id]);
-                          } else {
-                            setSelectedStocks(selectedStocks.filter((id) => id !== token.id));
-                          }
-                        }}
-                        className="rounded"
-                      />
-                    </td>
-                    <td className="p-3">{token.id}</td>
-                    <td className="p-3">{token.id}</td>
-                    <td className="p-3">{token.total.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table> */}
+        <thead>
+          <tr className="bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark">
+            <th className="p-3 text-left"></th>
+            <th className="p-3 text-left">Stock ID</th>
+            <th className="p-3 text-left">Token ID</th>
+            <th className="p-3 text-left">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {mockInterestTokenHistory.map((token, index) => (
+            <tr key={index} className="border-b border-nomyx-dark1-light dark:border-nomyx-dark1-dark">
+              <td className="p-3">
+                <input
+                  type="checkbox"
+                  checked={selectedStocks.includes(token.id)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedStocks([...selectedStocks, token.id]);
+                    } else {
+                      setSelectedStocks(selectedStocks.filter((id) => id !== token.id));
+                    }
+                  }}
+                  className="rounded"
+                />
+              </td>
+              <td className="p-3">{token.id}</td>
+              <td className="p-3">{token.id}</td>
+              <td className="p-3">{token.total.toLocaleString()}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table> */}
           </div>
-
-          <div className="mb-14">
+          <div className="mb-2">
+            {" "}
+            {/* Reduced bottom margin */}
             {/* mt-4 flex justify-between items-center */}
-            <div className="w-1/2">
+            <div className="w-full">
               {/* <p>Selected: {selectedStocks.length}</p>
-              <p>
-                Total Amount:{" "}
-                {mockInterestTokenHistory
-                  .filter((token) => selectedStocks.includes(token.id))
-                  .reduce((sum, token) => sum + token.total, 0)
-                  .toLocaleString()}
-              </p> */}
+        <p>
+          Total Amount:{" "}
+          {mockInterestTokenHistory
+            .filter((token) => selectedStocks.includes(token.id))
+            .reduce((sum, token) => sum + token.total, 0)
+            .toLocaleString()}
+        </p> */}
+
+              <p className="text-sm text-gray-500 mb-3">
+                {" "}
+                {/* Smaller margin */}
+                Enter the amount you wish to repay to the trade deal pool. This will reduce the outstanding debt balance.
+              </p>
+
               <Form
                 form={paybackPoolform}
                 layout="vertical"
@@ -670,27 +682,37 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                   setIsDepositEnabled(typeof value === "number" && value > 0);
                 }}
               >
-                <Form.Item rules={[requiredRule]} label="Payback Pool" name="paybackPool">
+                <Form.Item rules={[requiredRule]} label={<span className="text-sm">Payback Amount (USDC)</span>} name="paybackPool" className="mb-1">
                   <InputNumber
-                    placeholder="Enter Payback Pool"
-                    className="w-full"
+                    placeholder="Enter amount"
+                    className="w-full h-8 text-base"
+                    min={0}
+                    precision={2}
                     onKeyPress={(event) => {
-                      if (!/[0-9]/.test(event.key)) {
+                      if (!/[0-9.]/.test(event.key)) {
                         event.preventDefault();
                       }
                     }}
+                    prefix="$"
+                    controls={{
+                      upIcon: <span className="text-xs">▲</span>,
+                      downIcon: <span className="text-xs">▼</span>,
+                    }}
+                    style={{ textAlign: "right" }}
                   />
                 </Form.Item>
               </Form>
             </div>
-            <div className="flex gap-4 float-end">
+            <div className="flex justify-end gap-3 mt-5">
+              {" "}
               <Button
                 type="text"
                 onClick={() => {
                   setIsPaybackModalVisible(false);
                   setSelectedStocks([]);
+                  paybackPoolform.resetFields();
                 }}
-                className="text-[#2E5BFF] hover:!text-black"
+                className="h-10 px-5"
               >
                 Cancel
               </Button>
@@ -734,7 +756,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                         }
                       })(),
                       {
-                        pending: "Repaying trade deal...",
+                        pending: "Processing repayment...",
                         success: "Trade deal repaid successfully",
                         error: {
                           render({ data }: { data: any }) {
@@ -746,13 +768,14 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
                     setIsPaybackModalVisible(false);
                     setSelectedStocks([]);
+                    paybackPoolform.resetFields();
                   } catch (error) {
                     console.error("Repayment error:", error);
                   }
                 }}
                 disabled={!isDepositEnabled}
-                className="!bg-[#2E5BFF] hover:!bg-[#2E5BFF]/80 disabled:!bg-[#D3D3D3] disabled:opacity-100 disabled:!text-[#4A4A4A]"
-                style={{ width: "200px", borderRadius: "8px" }}
+                className="h-10 px-6 !bg-[#2E5BFF] hover:!bg-[#2E5BFF]/80 disabled:!bg-[#D3D3D3] disabled:opacity-100 disabled:!text-[#4A4A4A]"
+                style={{ borderRadius: "8px", minWidth: "100px" }}
               >
                 Deposit
               </Button>
