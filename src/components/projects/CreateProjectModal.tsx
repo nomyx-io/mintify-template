@@ -219,6 +219,8 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
               throw new Error("Missing wallet credentials for DFNS transactions");
             }
 
+            fundingTarget = fundingTarget * 1000000;
+
             const createToastId = toast.loading("Creating trade deal via DFNS...");
             let extractedTradeDealId;
             try {
@@ -241,9 +243,19 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
               }
 
               extractedTradeDealId = tradeDealResult.completeResponse.tradeDealId;
-              if (!extractedTradeDealId || typeof extractedTradeDealId !== "number") {
-                throw new Error("Failed to extract trade deal ID from DFNS response");
+              console.log("extractedTradeDealId: ", extractedTradeDealId);
+
+              if (
+                extractedTradeDealId === undefined ||
+                extractedTradeDealId === null ||
+                typeof extractedTradeDealId !== "number" ||
+                isNaN(extractedTradeDealId)
+              ) {
+                console.warn("Warning: Received invalid trade deal ID from DFNS response");
+                extractedTradeDealId = 0; // TOUPDATE: fallback for handling trade deal 0 bug (temporary for pending delivery)
               }
+
+              console.log("fallback extractedTradeDealId : ", extractedTradeDealId);
               tradeDealId = extractedTradeDealId;
 
               toast.update(createToastId, {
@@ -351,7 +363,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             }
           }
 
-          if (!tradeDealId || typeof tradeDealId !== "number") {
+          if (tradeDealId === undefined || tradeDealId === null || typeof tradeDealId !== "number" || isNaN(tradeDealId)) {
             throw new Error("Failed to obtain trade deal ID");
           }
 

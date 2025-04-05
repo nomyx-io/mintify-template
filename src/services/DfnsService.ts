@@ -203,8 +203,8 @@ class DfnsService {
   }
 
   public async dfnsActivateTradeDeal(walletId: string, dfnsToken: string, tradeDealId: number) {
-    if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number") {
-      throw new Error("Missing required parameters for activating trade deal.");
+    if (!walletId || !dfnsToken || tradeDealId === undefined || tradeDealId === null || typeof tradeDealId !== "number" || isNaN(tradeDealId)) {
+      throw new Error("Missing or invalid parameters for activating trade deal.");
     }
 
     try {
@@ -270,7 +270,7 @@ class DfnsService {
         vabbAddress,
         vabiAddress,
         usdcAddress,
-        fundingTarget,
+        fundingTarget: 400000000,
       });
       console.log("Pending trade deal creation request:", initiateResponse);
 
@@ -508,6 +508,8 @@ class DfnsService {
     if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number" || !amount) {
       throw new Error("Missing required parameters for trade deal repayment.");
     }
+
+    console.log("borrower: ", borrower);
 
     try {
       // Step 1: Initiate USDC approval
