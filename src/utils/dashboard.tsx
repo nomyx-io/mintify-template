@@ -1,5 +1,7 @@
 import { Coin, Setting, ArrowUp, DollarSquare } from "iconsax-react";
 
+import { formatPrice } from "./currencyFormater";
+
 type KPIItem = {
   icon: JSX.Element;
   title: string;
@@ -21,7 +23,7 @@ export function getKPIs(data?: KPIs): KPIItem[] {
     {
       icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Funding",
-      value: data?.totalDepositAmount,
+      value: formatPrice(data?.totalDepositAmount || 0 / 1_000_000, "USD"),
     },
   ];
 
