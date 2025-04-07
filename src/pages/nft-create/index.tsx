@@ -3,6 +3,7 @@ import React, { useEffect, useState, useContext } from "react";
 
 import { Button, Form } from "antd";
 import { ethers } from "ethers";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useAccount } from "wagmi";
@@ -337,6 +338,9 @@ export default function Details({ service }: { service: BlockchainService }) {
 
   return (
     <>
+      <Head>
+        <title>Mintify - Mint Tokens</title>
+      </Head>
       {preview ? (
         <NftPreview data={{ ...formData, claimTopics: selectedClaims.join(",") }} handleBack={handleBack} handleMint={handleMint} />
       ) : (

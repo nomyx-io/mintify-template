@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 
+import Head from "next/head";
 import { useRouter } from "next/router";
 
 import { getDashboardLayout } from "@/Layouts";
@@ -25,6 +26,13 @@ export default function NftDetail() {
     }
   }, [api, id]);
 
-  return <div className="grid gap-3">{nftData && <NftRecordDetail detailView data={nftData} />}</div>;
+  return (
+    <>
+      <Head>
+        <title>Mintify - NFT Details</title>
+      </Head>
+      <div className="grid gap-3">{nftData && <NftRecordDetail detailView data={nftData} />}</div>
+    </>
+  );
 }
 NftDetail.getLayout = getDashboardLayout;
