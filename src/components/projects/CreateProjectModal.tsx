@@ -219,8 +219,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
               throw new Error("Missing wallet credentials for DFNS transactions");
             }
 
-            fundingTarget = fundingTarget * 1000000;
-
             const createToastId = toast.loading("Creating trade deal via DFNS...");
             let extractedTradeDealId;
             try {
@@ -235,7 +233,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
                 vabbAddress,
                 vabiAddress,
                 usdcAddress,
-                fundingTarget
+                fundingTarget * 1000000
               );
 
               if (tradeDealResult.error) {
