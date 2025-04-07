@@ -199,7 +199,7 @@ export default function Details({ service }: { service: BlockchainService }) {
             break;
           }
 
-          const depositToast = toast.loading("Depositing invoice to trade deal...");
+          const depositToast = toast.loading("Depositing Stock into Fund pool...");
           try {
             if (walletPreference === WalletPreference.PRIVATE) {
               await blockchainService.tdDepositInvoice(tradeDealId, tokenId);
@@ -217,7 +217,7 @@ export default function Details({ service }: { service: BlockchainService }) {
             });
           } catch (error) {
             toast.update(depositToast, {
-              render: `❌ Error depositing invoice: ${error}`,
+              render: `❌ Error depositing stock: ${error}`,
               type: "error",
               isLoading: false,
               autoClose: 5000,

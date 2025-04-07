@@ -34,7 +34,7 @@ export default function Projects() {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const [tokens, projects] = await Promise.all([api.getMintedNfts(), api.getProjects()]);
+      const [tokens, projects, tradeDealDeposits] = await Promise.all([api.getMintedNfts(), api.getProjects(), api.getTradeDealDeposits()]);
       setProjectList(
         projects?.map((project) => {
           const projectTokens = tokens?.filter((token) => token.attributes.projectId === project.id);
@@ -50,6 +50,11 @@ export default function Projects() {
             industryTemplate: project.attributes.industryTemplate,
             tradeDealId: project.attributes.tradeDealId,
             projectInfo: project.attributes.projectInfo,
+            totalDepositAmount:
+              tradeDealDeposits
+                ?.filter((t) => t.attributes.tradeDealId === project.attributes.tradeDealId)
+                .map((t) => Number(t.attributes.amount))
+                .reduce((acc, val) => acc + val, 0) || 0,
           };
         }) || []
       );

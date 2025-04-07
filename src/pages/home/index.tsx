@@ -23,19 +23,25 @@ export default function Home() {
 
       setkpisData(kpis);
       setEventDetails(events || {});
-
-      setTokenGraphValues({
-        labels: ["Total Tokens Issued", "Sales"],
-        values: [
-          kpis.tokens,
-          Object.values(events || {})
-            .flatMap((entry: any) => {
-              if (!entry?.data || !Array.isArray(entry.data)) return [];
-              return entry.data.filter((x: TokenEvent) => x.name === "Sales").map((x: TokenEvent) => x.value);
-            })
-            .reduce((acc: number, value: number) => acc + value, 0), // Calculate the total sum
-        ],
-      });
+      if (kpis?.totalDeposits > 0) {
+        setTokenGraphValues({
+          labels: ["Total Tokens Issued", "Total Deposits"],
+          values: [kpis.tokens, kpis.totalDeposits],
+        });
+      } else {
+        setTokenGraphValues({
+          labels: ["Total Tokens Issued", "Sales"],
+          values: [
+            kpis.tokens,
+            Object.values(events || {})
+              .flatMap((entry: any) => {
+                if (!entry?.data || !Array.isArray(entry.data)) return [];
+                return entry.data.filter((x: TokenEvent) => x.name === "Sales").map((x: TokenEvent) => x.value);
+              })
+              .reduce((acc: number, value: number) => acc + value, 0), // Calculate the total sum
+          ],
+        });
+      }
     } catch (error) {
       console.error(error);
     }
@@ -61,9 +67,7 @@ export default function Home() {
         {" "}
         {/* Chart container */}
         <div className="flex lg:grid grid-cols-2 gap-3 pb-3 flex-wrap">
-          {getKPIs(kpisData)?.map((kpi) => (
-            <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />
-          ))}
+          {getKPIs(kpisData)?.map((kpi) => <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />)}
         </div>
         <Card className="w-full flex-grow no-padding bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
           <Tabs items={items}></Tabs>

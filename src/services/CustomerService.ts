@@ -167,6 +167,8 @@ export const CustomerService = () => {
 
   const getKpis = async () => {
     const tokenRecords = await ParseClient.getRecords("Token", [], [], ["*"]);
+    const tradeDealDeposits = await ParseClient.getRecords("TradeDealUSDCDeposit", [], [], ["*"]);
+
     return {
       tokens: tokenRecords?.length || 0,
       issuedValue: formatPrice(
@@ -176,6 +178,8 @@ export const CustomerService = () => {
         }, 0) ?? 0,
         "USD"
       ),
+      totalDeposits: tradeDealDeposits?.length || 0,
+      totalDepositAmount: Array.isArray(tradeDealDeposits) ? tradeDealDeposits.reduce((acc, t) => acc + Number(t.attributes?.amount || 0), 0) : 0,
     };
   };
 
@@ -217,6 +221,11 @@ export const CustomerService = () => {
     }
   };
 
+  const getTradeDealDeposits = async () => {
+    let records = await ParseClient.getRecords("TradeDealUSDCDeposit", [], [], ["*"]);
+    return records;
+  };
+
   return {
     getEvents,
     getMintedNfts,
@@ -229,5 +238,6 @@ export const CustomerService = () => {
     createProject,
     getProjects,
     getIdentityRegisteredUser,
+    getTradeDealDeposits,
   };
 };

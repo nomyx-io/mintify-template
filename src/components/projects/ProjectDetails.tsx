@@ -22,6 +22,7 @@ import { CustomerService } from "@/services/CustomerService";
 import DfnsService from "@/services/DfnsService";
 import ParseClient from "@/services/ParseClient";
 import { WalletPreference } from "@/utils/constants";
+import { formatPrice } from "@/utils/currencyFormater";
 
 interface ProjectDetailsProps {
   project: Project;
@@ -407,6 +408,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
               <div className="flex items-center">
                 {project.industryTemplate === Industries.TRADE_FINANCE ? (
                   <div className="flex gap-2">
+                    <span className="mt-2 font-semibold">Current Funding: {formatPrice(project.totalDepositAmount || 0, "USD")} </span>
                     <Button type="primary" className="bg-red-500 hover:!bg-red-600" onClick={() => setIsWithdrawModalVisible(true)}>
                       Withdraw From Pool
                     </Button>

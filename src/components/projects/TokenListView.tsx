@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { EyeOutlined } from "@ant-design/icons";
 import { Table, Switch, Modal, Input, Button } from "antd";
 import { ethers } from "ethers";
-import { MoneyRecive } from "iconsax-react";
+import { MoneyRecive, Eye } from "iconsax-react";
 import { toast } from "react-toastify";
 
 import { Industries } from "@/constants/constants";
@@ -527,6 +527,11 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
 
   // Define columns conditionally based on `isSalesHistory`
   const listingColumns = [
+    // {
+    //   title: "",
+    //   dataIndex: "tokenId",
+    //   render: (tokenId: string) => <Eye className="cursor-pointer" onClick={() => handleDepositClick(tokenId)} />,
+    // },
     {
       title: () => <th style={{ width: "20%" }}>Title</th>,
       dataIndex: "tokenId",
@@ -538,6 +543,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
           <>
             <div style={{ display: "flex", alignItems: "center" }}>
               <div className="w-6 h-6">
+                <span></span>
                 <GenerateSvgIcon color={color} />
               </div>
               <span style={{ marginLeft: "10px", fontWeight: "bold" }}>{title}</span>{" "}
