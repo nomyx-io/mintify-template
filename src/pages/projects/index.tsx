@@ -52,8 +52,8 @@ export default function Projects() {
             projectInfo: project.attributes.projectInfo,
             totalDepositAmount:
               tradeDealDeposits
-                ?.filter((t) => t.attributes.tradeDealId === project.attributes.tradeDealId)
-                .map((t) => Number(t.attributes.amount))
+                ?.filter((t) => String(t.get("tradeDealId")) === String(project.attributes.tradeDealId))
+                .map((t) => Number(t.get("amount")) / 1_000_000)
                 .reduce((acc, val) => acc + val, 0) || 0,
           };
         }) || []
