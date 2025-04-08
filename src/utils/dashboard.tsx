@@ -4,6 +4,11 @@ type KPIItem = {
   icon: JSX.Element;
   title: string;
   value: number | string | undefined;
+  firstValue?: string | number | undefined;
+  firstLabel?: string | undefined;
+  secondValue?: string | number | undefined;
+  secondLabel?: string | undefined;
+  showToggle?: boolean;
 };
 
 export function getKPIs(data?: KPIs): KPIItem[] {
@@ -23,6 +28,16 @@ export function getKPIs(data?: KPIs): KPIItem[] {
       title: "Total Funding",
       value: data?.totalDepositAmount,
     },
+    // {
+    //   icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+    //   title: "SPV Pools",
+    //   value: undefined,
+    //   firstValue: 125,
+    //   firstLabel: "Active",
+    //   secondValue: 300,
+    //   secondLabel: "Total",
+    //   showToggle: true,
+    // },
   ];
 
   // Use type guard to ensure only KPIItem objects are returned

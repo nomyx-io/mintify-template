@@ -4,6 +4,7 @@ import { EyeOutlined } from "@ant-design/icons";
 import { Table, Switch, Modal, Input, Button } from "antd";
 import { ethers } from "ethers";
 import { MoneyRecive, Eye } from "iconsax-react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 import { Industries } from "@/constants/constants";
@@ -36,6 +37,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   const [amount, setAmount] = useState<string>(""); // State for the input value
   const [isSubmitting, setIsSubmitting] = useState(false); // For submission state
   const { walletPreference, dfnsToken, user } = useContext(UserContext);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -309,6 +311,10 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     setAmount("");
   };
 
+  const handleDetailView = (tokenId: string) => {
+    router.push(`/nft-detail/${tokenId}`);
+  };
+
   const pollDepositUpdate = async (tokenId: string, addedAmount: number, retries = 5, delay = 2000) => {
     let result = await depositService.getTotalDepositAmountAndTokenPrice(tokenId);
     let initialDepositAmount = result?.totalAmount / 1_000_000 || 0;
@@ -527,11 +533,11 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
 
   // Define columns conditionally based on `isSalesHistory`
   const listingColumns = [
-    // {
-    //   title: "",
-    //   dataIndex: "tokenId",
-    //   render: (tokenId: string) => <Eye className="cursor-pointer" onClick={() => handleDepositClick(tokenId)} />,
-    // },
+    {
+      title: "",
+      dataIndex: "tokenId",
+      render: (tokenId: string) => <Eye className="cursor-pointer" onClick={() => handleDetailView(tokenId)} />,
+    },
     {
       title: () => <th style={{ width: "20%" }}>Title</th>,
       dataIndex: "tokenId",
