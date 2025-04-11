@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "antd";
 import { useRouter } from "next/router";
-
+import Head from "next/head";
 import { TelescopeIcon } from "@/assets";
 import CreateProjectModal from "@/components/projects/CreateProjectModal";
 import ProjectCard from "@/components/projects/ProjectCard";
@@ -79,6 +79,9 @@ export default function Projects() {
 
   return (
     <>
+      <Head>
+        <title>Projects - Nomyx Mintify</title>
+      </Head>
       <CreateProjectModal open={open} setOpen={setOpen} onCreateSuccess={onCreateSuccess} />
       {!selectedProject && <ProjectsHeader setOpen={setOpen} />}
       {selectedProject ? (

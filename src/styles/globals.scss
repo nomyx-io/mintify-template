@@ -157,8 +157,8 @@
 .ant-radio-group {
   .ant-radio-button-wrapper.login-radio-button.ant-radio-button-wrapper-checked{
     color: #fff !important;
-    background: #3f206b !important;
-    border-color: #3f206b !important;
+    background: rgb(37 99 235) !important;
+    border-color: rgb(37 99 235) !important;
   }
   .ant-radio-button-wrapper.login-radio-button {
     border: 1px solid #878787 !important;
@@ -176,4 +176,10 @@
   }
   .dark .signup-input .anticon-eye-invisible, .dark .signup-input .anticon-eye {
     color: #808080 !important;
+  }
+  .ant-input-affix-wrapper .anticon.ant-input-password-icon {
+    color: #FFF !important;
+  }
+  .signup-card .ant-input-affix-wrapper >input.ant-input {
+    color: #FFF !important;
   }

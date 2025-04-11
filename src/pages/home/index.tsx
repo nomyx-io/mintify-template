@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Card, Tabs } from "antd";
-
+import Head from "next/head";
 import BarChart from "@/components/atoms/Graphs/Barchart";
 import KPI from "@/components/atoms/KPI";
 import { EventFeed } from "@/components/molecules/EventFeed";
@@ -100,10 +100,11 @@ export default function Home() {
   ];
 
   return (
-    <div className="w-full flex gap-3">
-      {" "}
-      {/* Flex container for layout control */}
-      <div className="lg:col-span-3 flex flex-col gap-3 flex-grow">
+    <>
+      <Head>
+        <title>Dashboard - Nomyx Mintify</title>
+      </Head>
+      <div className="w-full flex gap-3">
         {" "}
         {/* Chart container */}
         <div className="flex lg:grid grid-cols-4 gap-3 pb-3 flex-wrap">
@@ -118,7 +119,7 @@ export default function Home() {
         {/* Event feed container */}
         <EventFeed data={eventDetails} />
       </Card>
-    </div>
+    </>
   );
 }
 
