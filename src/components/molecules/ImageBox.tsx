@@ -33,9 +33,9 @@ const ImageBoxFormItem = ({ height, label, name, className }: ImageBoxProps) => 
     if (!isJpgOrPng) {
       message.error("You can only upload JPG/PNG file!");
     }
-    const isLt2M = file.size / 1024 / 1024 <= 1;
+    const isLt2M = file.size / 1024 / 1024 <= 2;
     if (!isLt2M) {
-      message.error("Image must smaller than 1MB!");
+      message.error("Image must smaller than 2MB!");
     }
     return (isJpgOrPng && isLt2M) || Upload.LIST_IGNORE;
   };
@@ -91,7 +91,7 @@ const ImageBoxFormItem = ({ height, label, name, className }: ImageBoxProps) => 
               </Button>
             </div>
             <p className="!text-nomyx-gray3-light dark:!text-nomyx-gray3-dark ">PNG, JPEG only</p>
-            <p className="!text-nomyx-gray3-light dark:!text-nomyx-gray3-dark ">Max file size is 1 MB</p>
+            <p className="!text-nomyx-gray3-light dark:!text-nomyx-gray3-dark ">Max file size is 2 MB</p>
           </div>
         )}
       </Upload.Dragger>

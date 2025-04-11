@@ -42,7 +42,7 @@ export default function NftDetail() {
   return (
     <>
       <Head>
-        <title>Mintify - NFT Details</title>
+        <title>NFT Details - Nomyx Mintify</title>
       </Head>
       <div className="grid gap-3">
         {nftData ? <NftRecordDetail detailView={true} data={nftData} /> : <div className="text-center text-gray-500">Loading NFT details...</div>}

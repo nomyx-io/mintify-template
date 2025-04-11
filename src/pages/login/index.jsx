@@ -62,7 +62,7 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
   return (
     <>
       <Head>
-        <title>Mintify - Login</title>
+        <title>Login - Nomyx Mintify</title>
       </Head>
       <div
         className="relative w-full min-h-screen overflow-hidden flex flex-col"
@@ -81,8 +81,7 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
             {/* Left Side */}
             <div className="w-full lg:w-1/2 flex flex-col items-center justify-center px-4 md:px-6 my-10">
               <div className="w-full max-w-2xl">
-                <Image src={logoLight} alt="Logo" width={630} height={240} priority className="block dark:hidden" />
-                <Image src={logoDark} alt="Logo" width={630} height={240} priority className="hidden dark:block" />
+                <Image src={logoDark} alt="Logo" width={630} height={240} priority className="" />
               </div>
             </div>
 
@@ -92,16 +91,16 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
               {/* The container that will hold the button in the middle */}
 
               <div className="flex-grow flex items-center justify-center w-full">
-                <div className="p-10 max-w-2xl items-center justify-center login-div w-full">
-                  <div className="w-full flex flex-col justify-center items-center p-4">
+                <div className="bg-nomyxDark1 bg-opacity-90 text-nomyxWhite shadow-lg rounded-lg p-4 max-w-2xl w-full">
+                  <div className="w-full flex flex-col justify-center items-center">
                     <Card
-                      title={<span className="text-black">Sign In</span>} // Set title color to black
+                      title={<span className="text-white">Sign In</span>} // Set title color to black
                       style={{
                         width: "100%",
                         maxWidth: "550px",
-                        border: "1px solid #BBBBBB",
+                        border: "none",
                       }}
-                      className="signup-card bg-[#3E81C833] shadow-lg rounded-lg wallet-setup-radio-group"
+                      className="signup-card bg-transparent shadow-lg rounded-lg wallet-setup-radio-group"
                       extra={
                         <Radio.Group value={loginPreference} onChange={(e) => setLoginPreference(e.target.value)} buttonStyle="solid">
                           <Radio.Button value={LoginPreference.USERNAME_PASSWORD} className="login-radio-button">
@@ -117,7 +116,7 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                         <Form layout="vertical" onFinish={handleStandardLogin} className="w-full" initialValues={{ email: "", password: "" }}>
                           <Form.Item
                             name="email"
-                            label={<span className="text-[#1F1F1F]">Email</span>}
+                            label={<span className="text-sm mb-2 text-nomyxGray1">Email</span>}
                             rules={[
                               {
                                 required: true,
@@ -126,21 +125,12 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                               },
                             ]}
                           >
-                            <Input
-                              type="email"
-                              placeholder="Enter your email"
-                              style={{
-                                color: "#1F1F1F",
-                                backgroundColor: "white",
-                                border: "1px solid #BBBBBB",
-                              }}
-                              className="signup-input"
-                            />
+                            <Input type="email" placeholder="Enter your email" className="input-field" />
                           </Form.Item>
 
                           <Form.Item
                             name="password"
-                            label={<span className="text-[#1F1F1F]">Password</span>}
+                            label={<span className="text-sm mb-2 text-nomyxGray1">Password</span>}
                             rules={[
                               {
                                 required: true,
@@ -148,20 +138,12 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                               },
                             ]}
                           >
-                            <Input.Password
-                              placeholder="Enter your password"
-                              style={{
-                                color: "#1F1F1F",
-                                backgroundColor: "white",
-                                border: "1px solid #BBBBBB",
-                              }}
-                              className="signup-input"
-                            />
+                            <Input.Password placeholder="Enter your password" className="input-field" />
                           </Form.Item>
 
                           <Form.Item>
                             <div className="flex justify-end">
-                              <Button type="primary" htmlType="submit" className="signup-button">
+                              <Button type="primary" htmlType="submit" className="signup-button bg-blue-600 hover:bg-blue-700 text-nomyxWhite">
                                 Log in
                               </Button>
                             </div>

@@ -37,7 +37,10 @@ export default function Details({ service }: { service: BlockchainService }) {
   const [formData, setFormData] = useState<any>({});
   const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
   const [industry, setIndustry] = useState<Industries | null>(null);
-  const blockchainService = BlockchainService.getInstance();
+  let blockchainService: any;
+  if (walletPreference == WalletPreference.PRIVATE) {
+    blockchainService = BlockchainService.getInstance();
+  }
 
   const listener = usePageUnloadGuard();
   listener.onBeforeUnload = () => {
@@ -339,7 +342,7 @@ export default function Details({ service }: { service: BlockchainService }) {
   return (
     <>
       <Head>
-        <title>Mintify - Mint Tokens</title>
+        <title>Mint Tokens - Nomyx Mintify</title>
       </Head>
       {preview ? (
         <NftPreview data={{ ...formData, claimTopics: selectedClaims.join(",") }} handleBack={handleBack} handleMint={handleMint} />

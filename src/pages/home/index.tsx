@@ -63,7 +63,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Mintify - Dashboard</title>
+        <title>Dashboard - Nomyx Mintify</title>
       </Head>
       <div className="w-full flex gap-3">
         {" "}

@@ -80,7 +80,7 @@ export default function Projects() {
   return (
     <>
       <Head>
-        <title>Mintify - Projects</title>
+        <title>Projects - Nomyx Mintify</title>
       </Head>
       <CreateProjectModal open={open} setOpen={setOpen} onCreateSuccess={onCreateSuccess} />
       {!selectedProject && <ProjectsHeader setOpen={setOpen} />}

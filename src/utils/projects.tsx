@@ -1,6 +1,8 @@
 import { Eye } from "iconsax-react";
 import Image from "next/image";
 
+import { formatPrice } from "./currencyFormater";
+
 export const projectColumns: any = (onProjectClick: (project: Project) => void) => [
   {
     title: "Title",
@@ -43,7 +45,9 @@ export const projectColumns: any = (onProjectClick: (project: Project) => void) 
     title: "Total Token Value",
     dataIndex: "totalValue",
     width: 300,
-    render: (totalValue: number) => "$ " + Intl.NumberFormat("en-US").format(totalValue),
+    render: (totalValue: number) => {
+      formatPrice(totalValue, "USD");
+    },
     sorter: (a: any, b: any) => a.totalValue - b.totalValue,
   },
 ];
