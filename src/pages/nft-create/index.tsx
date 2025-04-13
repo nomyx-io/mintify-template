@@ -91,6 +91,14 @@ export default function Details({ service }: { service: BlockchainService }) {
     const tradeDealId = formData._tradeDealId;
     console.log("🔍 ##### Extracted tradeDealId from formData:", tradeDealId);
 
+    // Convert totalAmount to USDC base units (if applicable)
+    if (industry === Industries.TRADE_FINANCE && formData.totalAmount) {
+      const parsed = parseFloat(formData.totalAmount);
+      if (!isNaN(parsed)) {
+        formData.totalAmount = (parsed * 1_000_000).toFixed(0);
+      }
+    }
+
     // Remove unncessary fields from formData before generating metadata
     delete formData._tradeDealId;
     delete formData.industryTemplate;
@@ -194,7 +202,7 @@ export default function Details({ service }: { service: BlockchainService }) {
 
         case Industries.TRADE_FINANCE:
           // Verify tradeDealId exists
-          if (!tradeDealId || typeof tradeDealId !== "number") {
+          if (typeof tradeDealId !== "number") {
             toast.error("Trade deal ID is required for trade finance tokens");
             break;
           }
