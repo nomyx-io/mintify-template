@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Layout } from "antd/es";
@@ -9,6 +9,8 @@ import { useAccount, useDisconnect } from "wagmi";
 import logoDark from "@/assets/nomyx_logo_dark.png";
 import logoLight from "@/assets/nomyx_logo_light.png";
 import ThemeToggle from "@/components/atoms/ThemeToggle";
+import { CustomerService } from "@/services/CustomerService";
+import { formatPrice } from "@/utils/currencyFormater";
 
 import { UserContext } from "../../context/UserContext";
 import { WalletPreference } from "../../utils/constants";
@@ -23,8 +25,11 @@ interface TopNavBarProps {
 }
 
 const TopNavBar: React.FC<TopNavBarProps> = ({ onDisconnect, onLogout }) => {
-  const { walletPreference } = useContext(UserContext);
+  const { walletPreference, dfnsToken, user } = useContext(UserContext);
   const { disconnect } = useDisconnect();
+
+  const [usdcBalance, setUsdcBalance] = useState("0.00");
+  const api = useMemo(() => CustomerService(), []);
 
   // Handle logout based on wallet preference
   const handleLogout = () => {
@@ -41,6 +46,21 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onDisconnect, onLogout }) => {
     },
   });
 
+  useEffect(() => {
+    async function getUSDCBalance(walletId: string, dfnsToken: string) {
+      const { balance, error } = await api.getUSDCBalance(walletId, dfnsToken);
+      if (error) {
+        console.error("Failed to get USDC balance:", error);
+        return;
+      }
+      const usdcBalance = balance?.balance && balance?.decimals ? parseFloat(balance.balance) / 10 ** parseFloat(balance.decimals) : 0;
+      setUsdcBalance(usdcBalance.toFixed(2));
+    }
+    if (dfnsToken && walletPreference === WalletPreference.MANAGED) {
+      getUSDCBalance(user.walletId, dfnsToken);
+    }
+  }, [user, walletPreference]);
+
   return (
     <Header className="w-full p-5 flex items-center justify-between bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark">
       <div>
@@ -52,12 +72,18 @@ const TopNavBar: React.FC<TopNavBarProps> = ({ onDisconnect, onLogout }) => {
       <div className="hidden sm:flex items-center justify-end gap-5">
         {walletPreference === WalletPreference.PRIVATE && <ConnectButton />}
         {walletPreference === WalletPreference.MANAGED && (
-          <button
-            onClick={handleLogout}
-            className="bg-black text-white px-4 py-2 rounded-md h-9 text-sm leading-normal dark:bg-white dark:text-black"
-          >
-            Logout
-          </button>
+          <>
+            <span className="border border-nomyx-main1-light dark:border-nomyx-main1-dark text-nomyx-text-light dark:text-nomyx-text-dark p-1 rounded-md mr-3 h-9 leading-normal">
+              Total Value: {formatPrice(parseFloat(usdcBalance), "USD")}
+              {/* USDC Value + current value of user's share in pool */}
+            </span>
+            <button
+              onClick={handleLogout}
+              className="bg-black text-white px-4 py-2 rounded-md h-9 text-sm leading-normal dark:bg-white dark:text-black"
+            >
+              Logout
+            </button>
+          </>
         )}
         <ThemeToggle />
       </div>

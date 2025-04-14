@@ -72,7 +72,19 @@ export default function Home() {
           {" "}
           {/* Chart container */}
           <div className="flex lg:grid grid-cols-2 gap-3 pb-3 flex-wrap">
-            {getKPIs(kpisData)?.map((kpi) => <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />)}
+            {getKPIs(kpisData)?.map((kpi) => (
+              <KPI
+                key={kpi.title}
+                icon={kpi.icon}
+                title={kpi.title}
+                value={kpi.value}
+                firstLabel={kpi.firstLabel}
+                firstValue={kpi.firstValue}
+                secondLabel={kpi.secondLabel}
+                secondValue={kpi.secondValue}
+                showToggle={kpi.showToggle}
+              />
+            ))}
           </div>
           <Card className="w-full flex-grow no-padding bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
             <Tabs items={items}></Tabs>
