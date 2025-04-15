@@ -134,7 +134,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   };
 
   const handleStatusChange = async (tokenId: number, checked: boolean) => {
-    if (!blockchainService) {
+    if (!blockchainService && walletPreference == WalletPreference.PRIVATE) {
       toast.error("Blockchain service is not available.");
       return;
     }

@@ -86,7 +86,7 @@ export default function Details({ service }: { service: BlockchainService }) {
   };
 
   const handleMint = async () => {
-    if (!blockchainService) {
+    if (!blockchainService && walletPreference == WalletPreference.PRIVATE) {
       toast.error("Blockchain service is not available.");
       return;
     }
