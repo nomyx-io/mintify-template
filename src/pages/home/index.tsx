@@ -78,6 +78,7 @@ export default function Home() {
                 icon={kpi.icon}
                 title={kpi.title}
                 value={kpi.value}
+                type={kpi.type}
                 firstLabel={kpi.firstLabel}
                 firstValue={kpi.firstValue}
                 secondLabel={kpi.secondLabel}

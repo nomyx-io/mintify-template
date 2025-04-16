@@ -13,6 +13,7 @@ interface IndicatorProps {
   secondLabel?: string;
   className?: string;
   showToggle?: boolean;
+  type: string;
 }
 
 const KPI: React.FC<IndicatorProps> = ({
@@ -25,13 +26,14 @@ const KPI: React.FC<IndicatorProps> = ({
   secondLabel = "Historical",
   className,
   showToggle = false,
+  type,
 }) => {
   const [showFirstValue, setShowFirstValue] = useState(true);
 
   const formatValue = (val: string | number | undefined) => {
     if (val === undefined) return "";
     const num = typeof val === "string" ? parseFloat(val.replace(/,/g, "")) : val;
-    return `$ ${num.toLocaleString("en-US")}`;
+    return type == "number" ? `${num.toLocaleString("en-US")}` : `$ ${num.toLocaleString("en-US")}`;
   };
 
   const valueColorClass = classNames({

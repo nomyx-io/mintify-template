@@ -9,6 +9,7 @@ type KPIItem = {
   secondValue?: string | number | undefined;
   secondLabel?: string | undefined;
   showToggle?: boolean;
+  type: string;
 };
 
 export function getKPIs(data?: KPIs): KPIItem[] {
@@ -17,16 +18,19 @@ export function getKPIs(data?: KPIs): KPIItem[] {
       icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Assets",
       value: data?.tokens,
+      type: "number",
     },
     parseFloat(data?.issuedValue || "0") > 0 && {
       icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Issued Value",
       value: data?.issuedValue,
+      type: "price",
     },
     {
       icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Funding",
       value: data?.totalDepositAmount,
+      type: "price",
     },
     // {
     //   icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
