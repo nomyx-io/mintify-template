@@ -602,6 +602,30 @@ export default class ParseClient {
   }
 
   /**
+   *
+   * @param tokenId The ID of the token to update
+   * @param urlFields Object containing URL fields
+   * @returns Updated Parse.Object or undefined if token not found
+   */
+  static async updateTokenUrls(tokenId: string, tokenUrlFields: { [key: string]: string }): Promise<Parse.Object | undefined> {
+    try {
+      // Query Token class to find the token object with the given tokenId
+      const tokenQuery = new Parse.Query("Token");
+      tokenQuery.equalTo("tokenId", tokenId);
+      const token = await tokenQuery.first();
+
+      if (!token) {
+        return undefined; // Token not found, return undefined
+      }
+
+      return await ParseClient.updateExistingRecord("Token", ["tokenId"], [tokenId], tokenUrlFields);
+    } catch (error) {
+      console.error("Error updating token URLs:", error);
+      throw error;
+    }
+  }
+
+  /**
    * update a record in the parse database
    * @param collName
    * @param existingRecordId

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "antd";
+import Head from "next/head";
 import { useRouter } from "next/router";
 
 import { TelescopeIcon } from "@/assets";
@@ -34,7 +35,7 @@ export default function Projects() {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const [tokens, projects] = await Promise.all([api.getMintedNfts(), api.getProjects()]);
+      const [tokens, projects, tradeDealDeposits] = await Promise.all([api.getMintedNfts(), api.getProjects(), api.getTradeDealDeposits()]);
       setProjectList(
         projects?.map((project) => {
           const projectTokens = tokens?.filter((token) => token.attributes.projectId === project.id);
@@ -48,6 +49,13 @@ export default function Projects() {
             totalTokens: projectTokens?.length || 0,
             createdAt: project.createdAt,
             industryTemplate: project.attributes.industryTemplate,
+            tradeDealId: project.attributes.tradeDealId,
+            projectInfo: project.attributes.projectInfo,
+            totalDepositAmount:
+              tradeDealDeposits
+                ?.filter((t) => t.attributes.tradeDealId === project.attributes.tradeDealId)
+                .map((t) => Number(t.attributes.amount))
+                .reduce((acc, val) => acc + val, 0) || 0,
           };
         }) || []
       );
@@ -71,6 +79,9 @@ export default function Projects() {
 
   return (
     <>
+      <Head>
+        <title>Projects - Nomyx Mintify</title>
+      </Head>
       <CreateProjectModal open={open} setOpen={setOpen} onCreateSuccess={onCreateSuccess} />
       {!selectedProject && <ProjectsHeader setOpen={setOpen} />}
       {selectedProject ? (

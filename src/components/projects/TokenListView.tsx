@@ -3,7 +3,8 @@ import React, { useState, useEffect, useContext } from "react";
 import { EyeOutlined } from "@ant-design/icons";
 import { Table, Switch, Modal, Input, Button } from "antd";
 import { ethers } from "ethers";
-import { MoneyRecive } from "iconsax-react";
+import { MoneyRecive, Eye } from "iconsax-react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 import { Industries } from "@/constants/constants";
@@ -36,6 +37,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   const [amount, setAmount] = useState<string>(""); // State for the input value
   const [isSubmitting, setIsSubmitting] = useState(false); // For submission state
   const { walletPreference, dfnsToken, user } = useContext(UserContext);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -132,7 +134,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   };
 
   const handleStatusChange = async (tokenId: number, checked: boolean) => {
-    if (!blockchainService) {
+    if (!blockchainService && walletPreference == WalletPreference.PRIVATE) {
       toast.error("Blockchain service is not available.");
       return;
     }
@@ -309,6 +311,10 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     setAmount("");
   };
 
+  const handleDetailView = (tokenId: string) => {
+    router.push(`/nft-detail/${tokenId}`);
+  };
+
   const pollDepositUpdate = async (tokenId: string, addedAmount: number, retries = 5, delay = 2000) => {
     let result = await depositService.getTotalDepositAmountAndTokenPrice(tokenId);
     let initialDepositAmount = result?.totalAmount / 1_000_000 || 0;
@@ -457,24 +463,27 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     }
   };
 
-  const getDynamicColumns = (maxColumns = 7): ColumnConfig[] => {
+  const getDynamicColumns = (maxColumns = 16): ColumnConfig[] => {
     const nonNullColumns: Record<string, ColumnConfig> = {};
 
     tokens.forEach((token) => {
-      // Skip tokens with no token property or non-object token property
-      if (!token || !token.token || typeof token.token !== "object") {
-        console.warn("Skipping token with missing or invalid token property:", token);
+      const tokenData = industryTemplate === Industries.TRADE_FINANCE ? token : token.token;
+
+      // Skip tokens with invalid data
+      if (!token || !tokenData || typeof tokenData !== "object") {
+        console.warn("Skipping token with missing or invalid data:", token);
         return; // Skip this iteration
       }
 
       try {
-        Object.entries(token.token).forEach(([key, value]) => {
+        Object.entries(tokenData).forEach(([key, value]) => {
           // Check if the column is non-null, non-undefined, not already in nonNullColumns, and not excluded
           if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
             nonNullColumns[key] = {
               title: key
-                .replace(/([A-Z])/g, " $1") // Add a space before uppercase letters
-                .replace(/^./, (str) => str.toUpperCase()), // Capitalize the first letter
+                .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+                .replaceAll("_", " ") // Replace underscores with spaces
+                .replace(/\b\w/g, (char) => char.toUpperCase()), // Capitalize first letter of every word
               key,
             };
           }
@@ -488,14 +497,33 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     return Object.values(nonNullColumns).slice(0, maxColumns);
   };
 
+  const isValidUrl = (str: string): boolean => {
+    try {
+      new URL(str);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const createColumns = (nonNullColumns: ColumnConfig[]) => {
     return nonNullColumns.map(({ title, key }) => ({
       title,
-      dataIndex: ["token", key] as [string, string],
-      render: (value: any) => (typeof value === "object" ? "N/A" : <span>{value}</span>),
+      dataIndex: industryTemplate === Industries.TRADE_FINANCE ? key : ["token", key],
+      render: (value: any) => {
+        if (typeof value === "object") return "N/A";
+        if (typeof value === "string" && isValidUrl(value)) {
+          return (
+            <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+              View Document
+            </a>
+          );
+        }
+        return <span>{value}</span>;
+      },
       sorter: (a: any, b: any) => {
-        const aValue = a.token[key];
-        const bValue = b.token[key];
+        const aValue = industryTemplate === Industries.TRADE_FINANCE ? a[key] : a.token[key];
+        const bValue = industryTemplate === Industries.TRADE_FINANCE ? b[key] : b.token[key];
         return typeof aValue === "string" && typeof bValue === "string" ? aValue.localeCompare(bValue) : 0;
       },
     }));
@@ -507,26 +535,37 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   // Define columns conditionally based on `isSalesHistory`
   const listingColumns = [
     {
+      title: "",
+      dataIndex: "tokenId",
+      render: (tokenId: string) => <Eye className="cursor-pointer" onClick={() => handleDetailView(tokenId)} />,
+    },
+    {
       title: () => <th style={{ width: "20%" }}>Title</th>,
       dataIndex: "tokenId",
       render: (tokenId: string, record: any) => {
         const color = hashToColor(tokenId);
+        const title = industryTemplate === Industries.TRADE_FINANCE ? record.nftTitle : record.token?.nftTitle;
+        const description = industryTemplate === Industries.TRADE_FINANCE ? record.description : record.token?.description;
         return (
           <>
             <div style={{ display: "flex", alignItems: "center" }}>
               <div className="w-6 h-6">
+                <span></span>
                 <GenerateSvgIcon color={color} />
               </div>
-              <span style={{ marginLeft: "10px", fontWeight: "bold" }}>{record.token?.nftTitle}</span>{" "}
+              <span style={{ marginLeft: "10px", fontWeight: "bold" }}>{title}</span>{" "}
             </div>
             <p className="text-xs !text-gray-500">
-              {record.token?.description ||
-                "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
+              {description || "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
             </p>
           </>
         );
       },
-      sorter: (a: any, b: any) => a.token.nftTitle.localeCompare(b.token.nftTitle),
+      sorter: (a: any, b: any) => {
+        const aTitle = industryTemplate === Industries.TRADE_FINANCE ? a.nftTitle : a.token?.nftTitle;
+        const bTitle = industryTemplate === Industries.TRADE_FINANCE ? b.nftTitle : b.token?.nftTitle;
+        return (aTitle || "").localeCompare(bTitle || "");
+      },
     },
     // {
     //   title: "Description",
@@ -538,12 +577,16 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     //     </p>
     //   ),
     // },
-    {
-      title: "Price",
-      dataIndex: "price",
-      render: (price: number) => (isSalesHistory ? formatPrice(price, "USD") : formatPrice(price / 1_000_000, "USD")),
-      sorter: (a: any, b: any) => a.price - b.price,
-    },
+    ...(filteredTokens.some((row: any) => row.price > 0)
+      ? [
+          {
+            title: "Price",
+            dataIndex: "price",
+            render: (price: number) => (isSalesHistory ? formatPrice(price, "USD") : formatPrice(price / 1_000_000, "USD")),
+            sorter: (a: any, b: any) => a.price - b.price,
+          },
+        ]
+      : []),
     ...additionalColumns,
     // Conditionally add the "Status" column only if `isSalesHistory` is false
     ...(isSalesHistory
@@ -578,35 +621,39 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
                 },
               ]
             : []),
-          {
-            title: "Status",
-            dataIndex: ["token", "status"],
-            render: (status: string, record: any) => (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  width: "160px",
-                }}
-              >
-                <span
-                  className={`py-1 px-2 mr-10 w-20 text-center rounded border ${
-                    status === "listed"
-                      ? "border-nomyx-success-light text-nomyx-success-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
-                      : "border-nomyx-danger-light text-nomyx-danger-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
-                  }`}
-                >
-                  {status}
-                </span>
-                <Switch
-                  className="status-toggle-switch"
-                  checked={status === "listed"}
-                  onChange={(checked) => handleStatusChange(record.tokenId, checked)}
-                />
-              </div>
-            ),
-            sorter: (a: any, b: any) => a.token.status.localeCompare(b.token.status),
-          },
+          ...(industryTemplate !== Industries.TRADE_FINANCE
+            ? [
+                {
+                  title: "Status",
+                  dataIndex: ["token", "status"],
+                  render: (status: string, record: any) => (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        width: "160px",
+                      }}
+                    >
+                      <span
+                        className={`py-1 px-2 mr-10 w-20 text-center rounded border ${
+                          status === "listed"
+                            ? "border-nomyx-success-light text-nomyx-success-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
+                            : "border-nomyx-danger-light text-nomyx-danger-light bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark"
+                        }`}
+                      >
+                        {status}
+                      </span>
+                      <Switch
+                        className="status-toggle-switch"
+                        checked={status === "listed"}
+                        onChange={(checked) => handleStatusChange(record.tokenId, checked)}
+                      />
+                    </div>
+                  ),
+                  sorter: (a: any, b: any) => a.token.status.localeCompare(b.token.status),
+                },
+              ]
+            : []),
         ]),
   ];
 
