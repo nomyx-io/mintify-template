@@ -251,8 +251,7 @@ class DfnsService {
     requiredClaimTopics: number[],
     vabbAddress: string,
     vabiAddress: string,
-    usdcAddress: string,
-    fundingTarget: number
+    usdcAddress: string
   ) {
     if (!walletId || !dfnsToken || !name || !symbol || !vabbAddress || !vabiAddress || !usdcAddress) {
       throw new Error("Missing required parameters for creating trade deal.");
@@ -273,7 +272,6 @@ class DfnsService {
         vabbAddress,
         vabiAddress,
         usdcAddress,
-        fundingTarget: fundingTarget,
       });
       console.log("Pending trade deal creation request:", initiateResponse);
 
@@ -338,7 +336,7 @@ class DfnsService {
   }
 
   public async dfnsTdDepositInvoice(walletId: string, dfnsToken: string, tradeDealId: number, tokenId: number) {
-    if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number" || !tokenId) {
+    if (walletId == null || dfnsToken == null || tradeDealId == null || typeof tradeDealId !== "number" || tokenId == null) {
       throw new Error("Missing required parameters for trade deal invoice deposit.");
     }
 
@@ -509,7 +507,7 @@ class DfnsService {
   }
 
   public async dfnsRepayTradeDeal(walletId: string, dfnsToken: string, tradeDealId: number, amount: string, borrower: string) {
-    if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number" || !amount) {
+    if (!walletId || !dfnsToken || tradeDealId === null || tradeDealId === undefined || typeof tradeDealId !== "number" || !amount) {
       throw new Error("Missing required parameters for trade deal repayment.");
     }
 
@@ -570,9 +568,9 @@ class DfnsService {
     }
   }
 
-  public async dfnsWithdrawTradeDealFunding(walletId: string, dfnsToken: string, tradeDealId: number) {
-    if (!walletId || !dfnsToken || !tradeDealId || typeof tradeDealId !== "number") {
-      throw new Error("Missing required parameters for trade deal funding withdrawal.");
+  public async dfnsWithdrawTradeDealFunding(walletId: string, dfnsToken: string, tradeDealId: number, address: string) {
+    if (!walletId || !dfnsToken || tradeDealId === undefined || tradeDealId === null || typeof tradeDealId !== "number" || !address) {
+      throw new Error("Missing or invalid parameters for trade deal funding withdrawal.");
     }
 
     try {
@@ -581,6 +579,7 @@ class DfnsService {
         walletId,
         dfns_token: dfnsToken,
         tradeDealId,
+        address,
       });
       console.log("Pending funding withdrawal request:", initiateResponse);
 

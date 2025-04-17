@@ -243,8 +243,7 @@ export default class BlockchainService {
     requiredClaimTopics: number[],
     vabbAddress: string,
     vabiAddress: string,
-    usdcAddress: string,
-    fundingTarget: number
+    usdcAddress: string
   ) {
     try {
       if (!this.signer) {
@@ -262,8 +261,7 @@ export default class BlockchainService {
         requiredClaimTopics,
         "0x0000000000000000000000000000000000000000",
         "0x0000000000000000000000000000000000000000",
-        usdcAddress,
-        fundingTarget
+        usdcAddress
       );
 
       console.log("🚀 Transaction sent. TX Hash:", tx.hash);

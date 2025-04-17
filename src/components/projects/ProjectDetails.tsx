@@ -549,8 +549,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                   await toast.promise(
                     (async () => {
                       // Get and validate tradeDealId
-                      if (!project.tradeDealId || typeof project.tradeDealId !== "number") {
-                        throw "Trade deal ID not found or invalid";
+                      if (project.tradeDealId == null || typeof project.tradeDealId !== "number") {
+                        throw new Error("Trade deal ID not found or invalid");
                       }
                       // Type assertion after validation
                       const tradeDealId = project.tradeDealId as number;
@@ -572,7 +572,15 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                         const walletId = user.walletId as string;
                         const token = dfnsToken as string;
 
-                        const withdrawResult = await DfnsService.dfnsWithdrawTradeDealFunding(walletId, token, tradeDealId);
+                        console.log("🔁 Calling dfnsWithdrawTradeDealFunding with:", {
+                          walletId,
+                          token,
+                          tradeDealId,
+                        });
+
+                        console.log("addressss", user.walletAddress);
+
+                        const withdrawResult = await DfnsService.dfnsWithdrawTradeDealFunding(walletId, token, tradeDealId, user.walletAddress);
 
                         if (withdrawResult.error) {
                           throw `Withdrawal failed: ${withdrawResult.error}`;
@@ -726,7 +734,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     await toast.promise(
                       (async () => {
                         // Get and validate tradeDealId
-                        if (!project.tradeDealId || typeof project.tradeDealId !== "number") {
+                        if (project.tradeDealId === null || project.tradeDealId === undefined || typeof project.tradeDealId !== "number") {
                           throw "Trade deal ID not found or invalid";
                         }
                         // Type assertion after validation

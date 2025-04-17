@@ -35,7 +35,6 @@ interface FormValues {
   industryTemplate: Industries;
   additionalFields?: AddedField[];
   projectInfo: ProjectInfoField[];
-  fundingTarget: number;
 }
 
 interface AddedField {
@@ -167,7 +166,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
       fields: string;
       projectInfo: string;
       tradeDealId?: number;
-      fundingTarget: number;
       requiredClaimTopics: number[];
     } = {
       title: values.title,
@@ -175,7 +173,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
       industryTemplate: values.industryTemplate,
       logo: await getBase64(values.logoUpload.fileList[0].originFileObj as FileType),
       coverImage: await getBase64(values.coverImageUpload.fileList[0].originFileObj as FileType),
-      fundingTarget: values?.fundingTarget,
       requiredClaimTopics: selectedClaims ? selectedClaims.map(Number) : [],
       fields: JSON.stringify(
         values.additionalFields?.map((field) => {
@@ -207,7 +204,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           const vabbAddress = "0x0000000000000000000000000000000000000000";
           const vabiAddress = "0x0000000000000000000000000000000000000000";
           const usdcAddress = process.env.NEXT_PUBLIC_HARDHAT_USDC_ADDRESS || "";
-          let fundingTarget = values.fundingTarget;
 
           if (walletPreference === WalletPreference.MANAGED) {
             // DFNS Wallet Flow
@@ -232,8 +228,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
                 selectedClaims ? selectedClaims.map(Number) : [],
                 vabbAddress,
                 vabiAddress,
-                usdcAddress,
-                fundingTarget * 1000000
+                usdcAddress
               );
 
               if (tradeDealResult.error) {
@@ -301,7 +296,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
             }
 
             const createToastId = toast.loading("Creating trade deal...");
-            fundingTarget = fundingTarget * 1000000;
             try {
               const result = await blockchainService.createTradeDeal(
                 tradeDealName, // Use sanitized name
@@ -311,8 +305,7 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
                 selectedClaims ? selectedClaims.map(Number) : [],
                 vabbAddress,
                 vabiAddress,
-                usdcAddress,
-                fundingTarget
+                usdcAddress
               );
 
               console.log("Trade Deal Created - TX Receipt:", result.receipt);
@@ -427,18 +420,6 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
           </Form.Item>
           {selectedIndustry === Industries.TRADE_FINANCE && (
             <>
-              <Form.Item rules={[requiredRule]} label="Funding Target" name="fundingTarget">
-                <InputNumber
-                  placeholder="Enter Funding Target"
-                  className="w-1/2"
-                  onKeyPress={(event) => {
-                    // Allow only digits
-                    if (!/[0-9]/.test(event.key)) {
-                      event.preventDefault();
-                    }
-                  }}
-                />
-              </Form.Item>
               <Compliance selectedClaims={selectedClaims} setSelectedClaims={setSelectedClaims} />
             </>
           )}
