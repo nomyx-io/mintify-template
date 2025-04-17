@@ -3,7 +3,6 @@ import React, { useEffect, useState, useContext } from "react";
 
 import { Button, Form } from "antd";
 import { ethers } from "ethers";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useAccount } from "wagmi";
@@ -37,10 +36,7 @@ export default function Details({ service }: { service: BlockchainService }) {
   const [formData, setFormData] = useState<any>({});
   const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
   const [industry, setIndustry] = useState<Industries | null>(null);
-  let blockchainService: any;
-  if (walletPreference == WalletPreference.PRIVATE) {
-    blockchainService = BlockchainService.getInstance();
-  }
+  const blockchainService = BlockchainService.getInstance();
 
   const listener = usePageUnloadGuard();
   listener.onBeforeUnload = () => {
@@ -86,7 +82,7 @@ export default function Details({ service }: { service: BlockchainService }) {
   };
 
   const handleMint = async () => {
-    if (!blockchainService && walletPreference == WalletPreference.PRIVATE) {
+    if (!blockchainService) {
       toast.error("Blockchain service is not available.");
       return;
     }
@@ -349,9 +345,6 @@ export default function Details({ service }: { service: BlockchainService }) {
 
   return (
     <>
-      <Head>
-        <title>Mint Tokens - Nomyx Mintify</title>
-      </Head>
       {preview ? (
         <NftPreview data={{ ...formData, claimTopics: selectedClaims.join(",") }} handleBack={handleBack} handleMint={handleMint} />
       ) : (

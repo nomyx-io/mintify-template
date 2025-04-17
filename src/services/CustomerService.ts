@@ -59,26 +59,9 @@ export const CustomerService = () => {
     let records = await ParseClient.getRecords("Token", undefined, undefined, ["*"]);
     return records;
   };
-
-  const getMintedNftDetails = async (id: string): Promise<{ [key: string]: string | string[] } | null> => {
-    const record = await ParseClient.getRecord("Token", ["tokenId"], [id], []);
-
-    if (!record) return null;
-
-    const raw = record.toJSON();
-    const data: { [key: string]: string | string[] } = {};
-
-    Object.entries(raw).forEach(([key, value]) => {
-      if (typeof value === "string") {
-        data[key] = value;
-      } else if (Array.isArray(value) && value.every((v) => typeof v === "string")) {
-        data[key] = value;
-      } else if (typeof value === "number" || value instanceof Date) {
-        data[key] = value.toString();
-      }
-    });
-
-    return data;
+  const getMintedNftDetails = async (id: string) => {
+    let records = await ParseClient.get("Token", id);
+    return JSON.parse(JSON.stringify(records));
   };
 
   const getListings = async (fieldNames: string[], fieldValues: any[]) => {
@@ -243,24 +226,6 @@ export const CustomerService = () => {
     return records;
   };
 
-  const getUSDCBalance = async (walletId: string, dfns_token: string) => {
-    if (!walletId) {
-      throw new Error("Wallet ID is required to get USDC balance.");
-    }
-
-    try {
-      const balance = await Parse.Cloud.run("dfnsGetUSDC", {
-        walletId,
-        dfns_token,
-      });
-
-      return { balance, error: null };
-    } catch (error: any) {
-      console.error("Error getting USDC balance:", error);
-      return { balance: null, error: error.message };
-    }
-  };
-
   return {
     getEvents,
     getMintedNfts,
@@ -274,6 +239,5 @@ export const CustomerService = () => {
     getProjects,
     getIdentityRegisteredUser,
     getTradeDealDeposits,
-    getUSDCBalance,
   };
 };
