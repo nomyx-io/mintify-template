@@ -229,12 +229,20 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
                 <VariableFormInput type="text" name="mintAddress" label="" placeholder="Enter Wallet Address" rules={[walletAddressRule]} />
               )}
             </div>
-            {projectList.find((p) => p.id === projectId)?.industryTemplate !== Industries.TRADE_FINANCE && (
+            <VariableFormInput
+              type="text"
+              name={projectList.find((p) => p.id === projectId)?.industryTemplate === Industries.TRADE_FINANCE ? "totalAmount" : "price"}
+              label={projectList.find((p) => p.id === projectId)?.industryTemplate === Industries.CARBON_CREDIT ? "Price Per Credit" : "Price"}
+              placeholder="Enter Price"
+              rules={[requiredRule, numberRule]}
+              prefix="$"
+            />
+           {/* {projectList.find((p) => p.id === projectId)?.industryTemplate !== Industries.TRADE_FINANCE && (
               <VariableFormInput type="text" name="price" label="Price" placeholder="Enter Price" rules={[requiredRule, numberRule]} prefix="$" />
             )}
             {projectList.find((p) => p.id === projectId)?.industryTemplate === Industries.TRADE_FINANCE && (
               <VariableFormInput type="number" name="totalAmount" label="Price" placeholder="Price" rules={[requiredRule, numberRule]} prefix="$" />
-            )}
+            )} */}
           </div>
 
           {/* Stock Information Section for Trade Finance */}

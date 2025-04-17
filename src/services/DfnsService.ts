@@ -67,6 +67,7 @@ class DfnsService {
       console.log("Pending USDC approval request:", initiateResponse);
 
       // Step 2: Sign the challenge
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const webauthn = new WebAuthnSigner();
       const assertion = await webauthn.sign(initiateResponse.challenge);
 
@@ -145,6 +146,7 @@ class DfnsService {
       console.log("Pending list request:", initiateResponse);
 
       // Step 2: Sign the challenge
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const webauthn = new WebAuthnSigner();
       const assertion = await webauthn.sign(initiateResponse.challenge);
 
@@ -181,6 +183,7 @@ class DfnsService {
       console.log("Pending delist request:", initiateResponse);
 
       // Step 2: Sign the challenge
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const webauthn = new WebAuthnSigner();
       const assertion = await webauthn.sign(initiateResponse.challenge);
 
@@ -310,6 +313,7 @@ class DfnsService {
       console.log("Pending carbon credit initialization request:", initiateResponse);
 
       // Step 2: Sign the challenge
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const webauthn = new WebAuthnSigner();
       const assertion = await webauthn.sign(initiateResponse.challenge);
 

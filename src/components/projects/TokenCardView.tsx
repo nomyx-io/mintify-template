@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import { Card, Modal, Input, Button } from "antd";
 import { MoneyRecive } from "iconsax-react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 import { Industries } from "@/constants/constants";
@@ -26,6 +27,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
   const [amount, setAmount] = useState<string>(""); // State for the input value
   const [isSubmitting, setIsSubmitting] = useState(false); // For submission state
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const router = useRouter();
 
   const handleDepositClick = (tokenId: string) => {
     console.log("tokenId", tokenId);
@@ -84,7 +86,10 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
         Object.entries(token.token).forEach(([key, value]) => {
           if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
             nonNullColumns[key] = {
-              title: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
+              title: key
+                .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+                .replaceAll("_", " ") // Replace underscores with spaces
+                .replace(/\b\w/g, (char) => char.toUpperCase()), // Capitalize first letter of every word,
               key,
             };
           }
@@ -93,7 +98,10 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
         Object.entries(token).forEach(([key, value]) => {
           if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
             nonNullColumns[key] = {
-              title: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
+              title: key
+                .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+                .replaceAll("_", " ") // Replace underscores with spaces
+                .replace(/\b\w/g, (char) => char.toUpperCase()), // Capitalize first letter of every word,
               key,
             };
           }
@@ -104,6 +112,10 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
   };
 
   const dynamicColumns = getDynamicColumns();
+
+  const handleDetailView = (tokenId: string) => {
+    router.push(`/nft-detail/${tokenId}`);
+  };
 
   return (
     <div className="grid gap-5 grid-cols-2 xl:grid-cols-3 mt-5 p-5">
@@ -195,6 +207,9 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                     </>
                   )}
                 </div>
+                <button className="float-right mt-4 mb-3 cursor text-blue-600" onClick={() => handleDetailView(token.tokenId)}>
+                  View Details
+                </button>
               </div>
             </Card>
           );

@@ -63,7 +63,7 @@ export default class BlockchainService {
 
     const chainConfig = process.env.NEXT_PUBLIC_HARDHAT_CHAIN_ID;
 
-    if (!chainConfig || chainConfig != chainId) {
+    if (network && (!chainConfig || chainConfig != chainId)) {
       throw new Error(`No chain config found for chainId: ${chainId}, chainConfig: ${chainConfig}`);
     }
 

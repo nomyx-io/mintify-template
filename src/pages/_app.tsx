@@ -206,6 +206,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     setForceLogout(false);
     setIsConnected(false);
     localStorage.removeItem("sessionToken");
+    localStorage.removeItem("tokenExpiration");
     //setBlockchainService(null);
 
     toast.success("Logged out successfully.");
@@ -216,11 +217,14 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     const { token, roles, walletPreference, user, dfnsToken } = await getToken({ email, password });
 
     if (roles.length > 0) {
+      const expirationTime = Date.now() + 60 * 30 * 1000; //30m
+
       setRole([...roles]);
       setUser(user);
       setDfnsToken(dfnsToken);
       setWalletPreference(walletPreference);
       localStorage.setItem("sessionToken", token);
+      localStorage.setItem("tokenExpiration", expirationTime.toString());
       setIsConnected(true);
       // Initialize blockchainService if required for standard login
       if ((window as any).ethereum) {
@@ -247,6 +251,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       } else {
         // Token is invalid or roles are empty
         localStorage.removeItem("sessionToken");
+        localStorage.removeItem("tokenExpiration");
         setForceLogout(true);
       }
     }
@@ -280,6 +285,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     setForceLogout(false);
     setIsConnected(false);
     localStorage.removeItem("sessionToken");
+    localStorage.removeItem("tokenExpiration");
   };
 
   const getLayout = Component.getLayout || ((page: React.ReactNode) => page);

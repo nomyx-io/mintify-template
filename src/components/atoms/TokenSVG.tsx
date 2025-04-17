@@ -18,7 +18,7 @@ const GenerateSvgIcon = ({ color }: { color: string }) => {
         dominantBaseline="middle"
         textAnchor="middle"
       >
-        SGH
+        N
       </text>
     </svg>
   );
