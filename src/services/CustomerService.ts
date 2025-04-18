@@ -169,8 +169,11 @@ export const CustomerService = () => {
     const tokenRecords = await ParseClient.getRecords("Token", [], [], ["*"]);
     const tradeDealDeposits = await ParseClient.getRecords("TradeDealUSDCDeposit", [], [], ["*"]);
 
+    const retiredTokens = tokenRecords?.filter((record) => record.attributes.isWithdrawn === true).length || 0;
+
     return {
       tokens: tokenRecords?.length || 0,
+      retiredTokens,
       issuedValue: formatPrice(
         tokenRecords?.reduce((acc: number, record: any) => {
           const price = parseFloat(record.attributes.price) || 0; // Safely parse the price

@@ -2,6 +2,14 @@ import { Coin, Setting, ArrowUp, DollarSquare } from "iconsax-react";
 
 import { formatPrice } from "./currencyFormater";
 
+type KPIs = {
+  tokens: number;
+  retiredTokens?: number;
+  issuedValue?: string;
+  totalDeposits?: number;
+  totalDepositAmount?: number;
+};
+
 type KPIItem = {
   icon: JSX.Element;
   title: string;
@@ -14,6 +22,11 @@ export function getKPIs(data?: KPIs): KPIItem[] {
       icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Assets",
       value: data?.tokens,
+    },
+    {
+      icon: <Setting className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Qty. Retired Stocks",
+      value: data?.retiredTokens,
     },
     parseFloat(data?.issuedValue || "0") > 0 && {
       icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
