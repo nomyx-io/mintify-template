@@ -171,6 +171,7 @@ export const CustomerService = () => {
 
     const retiredTokens = tokenRecords?.filter((record) => record.attributes.isWithdrawn === true).length || 0;
     const activeTokens = tokenRecords?.filter((record) => record.attributes.isWithdrawn !== true).length || 0;
+
     const totalRetiredAmount =
       tokenRecords?.reduce((acc: number, record: any) => {
         if (record.attributes.isWithdrawn === true) {
@@ -178,11 +179,25 @@ export const CustomerService = () => {
         }
         return acc;
       }, 0) || 0;
+    const activeTokenizedValue =
+      tokenRecords?.reduce((acc: number, record: any) => {
+        if (record.attributes.isWithdrawn !== true) {
+          return acc + (parseFloat(record.attributes.totalAmount) || 0);
+        }
+        return acc;
+      }, 0) || 0;
+
+    const totalTokenizedValue =
+      tokenRecords?.reduce((acc: number, record: any) => {
+        return acc + (parseFloat(record.attributes.totalAmount) || 0);
+      }, 0) || 0;
 
     return {
       tokens: tokenRecords?.length || 0,
       retiredTokens,
       activeTokens,
+      activeTokenizedValue: formatPrice(activeTokenizedValue, "USD"),
+      totalTokenizedValue: formatPrice(totalTokenizedValue, "USD"),
       totalRetiredAmount: formatPrice(totalRetiredAmount, "USD"),
       issuedValue: formatPrice(
         tokenRecords?.reduce((acc: number, record: any) => {
