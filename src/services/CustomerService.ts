@@ -207,17 +207,18 @@ export const CustomerService = () => {
     }, 0);
 
     return {
-      tokens: tokenRecords.length,
+      tokens: allTokens?.length || 0,
+      totalStocks: tokenRecords.length,
       retiredTokens,
       activeTokens,
       activeTokenizedValue: formatPrice(activeTokenizedValue, "USD"),
       totalTokenizedValue: formatPrice(totalTokenizedValue, "USD"),
       totalRetiredAmount: formatPrice(totalRetiredAmount, "USD"),
       issuedValue: formatPrice(
-        tokenRecords.reduce((acc: number, record: any) => {
+        allTokens?.reduce((acc: number, record: any) => {
           const price = parseFloat(record.attributes.price) || 0;
           return acc + price;
-        }, 0),
+        }, 0) || 0,
         "USD"
       ),
       totalDeposits: tradeDealDeposits?.length || 0,

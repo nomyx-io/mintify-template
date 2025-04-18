@@ -4,6 +4,7 @@ import { formatPrice } from "./currencyFormater";
 
 type KPIs = {
   tokens: number;
+  totalStocks?: number;
   retiredTokens?: number;
   activeTokens?: number;
   totalRetiredAmount?: string;
@@ -26,6 +27,11 @@ export function getKPIs(data?: KPIs): KPIItem[] {
       icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Assets",
       value: data?.tokens,
+    },
+    {
+      icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Total Stocks",
+      value: data?.totalStocks,
     },
     {
       icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
