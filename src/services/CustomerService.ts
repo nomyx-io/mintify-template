@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import moment from "moment";
 import Parse from "parse";
 
@@ -5,6 +6,15 @@ import { Industries } from "@/constants/constants";
 import { formatPrice } from "@/utils/currencyFormater";
 
 import ParseClient from "./ParseClient";
+
+const formatUSDC = (value: string | number): number => {
+  try {
+    return Number(ethers.formatUnits(value.toString(), 6));
+  } catch (error) {
+    console.error("Error formatting USDC value:", error);
+    return 0;
+  }
+};
 
 export const CustomerService = () => {
   ParseClient.initialize();
@@ -190,20 +200,20 @@ export const CustomerService = () => {
 
     const totalRetiredAmount = tokenRecords.reduce((acc: number, record: any) => {
       if (record.attributes.isWithdrawn === true) {
-        return acc + (parseFloat(record.attributes.totalAmount) || 0);
+        return acc + formatUSDC(record.attributes.totalAmount || "0");
       }
       return acc;
     }, 0);
 
     const activeTokenizedValue = tokenRecords.reduce((acc: number, record: any) => {
       if (record.attributes.isWithdrawn !== true) {
-        return acc + (parseFloat(record.attributes.totalAmount) || 0);
+        return acc + formatUSDC(record.attributes.totalAmount || "0");
       }
       return acc;
     }, 0);
 
     const totalTokenizedValue = tokenRecords.reduce((acc: number, record: any) => {
-      return acc + (parseFloat(record.attributes.totalAmount) || 0);
+      return acc + formatUSDC(record.attributes.totalAmount || "0");
     }, 0);
 
     return {
