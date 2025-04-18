@@ -66,7 +66,7 @@ export default function Home() {
       <div className="lg:col-span-3 flex flex-col gap-3 flex-grow">
         {" "}
         {/* Chart container */}
-        <div className="flex lg:grid grid-cols-2 gap-3 pb-3 flex-wrap">
+        <div className="flex lg:grid grid-cols-4 gap-3 pb-3 flex-wrap">
           {getKPIs(kpisData)?.map((kpi) => <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />)}
         </div>
         <Card className="w-full flex-grow no-padding bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
