@@ -1,6 +1,7 @@
 import moment from "moment";
 import Parse from "parse";
 
+import { Industries } from "@/constants/constants";
 import { formatPrice } from "@/utils/currencyFormater";
 
 import ParseClient from "./ParseClient";
@@ -166,44 +167,57 @@ export const CustomerService = () => {
   };
 
   const getKpis = async () => {
-    const tokenRecords = await ParseClient.getRecords("Token", [], [], ["*"]);
+    // Get all tokens and trade deal deposits
+    const allTokens = await ParseClient.getRecords("Token", [], [], ["*"]);
     const tradeDealDeposits = await ParseClient.getRecords("TradeDealUSDCDeposit", [], [], ["*"]);
 
-    const retiredTokens = tokenRecords?.filter((record) => record.attributes.isWithdrawn === true).length || 0;
-    const activeTokens = tokenRecords?.filter((record) => record.attributes.isWithdrawn !== true).length || 0;
+    // Get all projects and filter for trade finance template
+    const projects = await ParseClient.getRecords("TokenProject", [], [], ["*"]);
+    const tradeFinanceProjects = new Set(
+      projects?.filter((project) => project.attributes.industryTemplate === Industries.TRADE_FINANCE).map((project) => project.id) || []
+    );
 
-    const totalRetiredAmount =
-      tokenRecords?.reduce((acc: number, record: any) => {
-        if (record.attributes.isWithdrawn === true) {
-          return acc + (parseFloat(record.attributes.totalAmount) || 0);
-        }
-        return acc;
-      }, 0) || 0;
-    const activeTokenizedValue =
-      tokenRecords?.reduce((acc: number, record: any) => {
-        if (record.attributes.isWithdrawn !== true) {
-          return acc + (parseFloat(record.attributes.totalAmount) || 0);
-        }
-        return acc;
-      }, 0) || 0;
+    // Filter tokens to only include those from trade finance projects
+    const tokenRecords =
+      allTokens?.filter((token) => {
+        const projectId = token.attributes.projectId;
+        return tradeFinanceProjects.has(projectId);
+      }) || [];
 
-    const totalTokenizedValue =
-      tokenRecords?.reduce((acc: number, record: any) => {
+    // Calculate KPIs using filtered tokens
+    const retiredTokens = tokenRecords.filter((record) => record.attributes.isWithdrawn === true).length;
+    const activeTokens = tokenRecords.filter((record) => record.attributes.isWithdrawn !== true).length;
+
+    const totalRetiredAmount = tokenRecords.reduce((acc: number, record: any) => {
+      if (record.attributes.isWithdrawn === true) {
         return acc + (parseFloat(record.attributes.totalAmount) || 0);
-      }, 0) || 0;
+      }
+      return acc;
+    }, 0);
+
+    const activeTokenizedValue = tokenRecords.reduce((acc: number, record: any) => {
+      if (record.attributes.isWithdrawn !== true) {
+        return acc + (parseFloat(record.attributes.totalAmount) || 0);
+      }
+      return acc;
+    }, 0);
+
+    const totalTokenizedValue = tokenRecords.reduce((acc: number, record: any) => {
+      return acc + (parseFloat(record.attributes.totalAmount) || 0);
+    }, 0);
 
     return {
-      tokens: tokenRecords?.length || 0,
+      tokens: tokenRecords.length,
       retiredTokens,
       activeTokens,
       activeTokenizedValue: formatPrice(activeTokenizedValue, "USD"),
       totalTokenizedValue: formatPrice(totalTokenizedValue, "USD"),
       totalRetiredAmount: formatPrice(totalRetiredAmount, "USD"),
       issuedValue: formatPrice(
-        tokenRecords?.reduce((acc: number, record: any) => {
-          const price = parseFloat(record.attributes.price) || 0; // Safely parse the price
+        tokenRecords.reduce((acc: number, record: any) => {
+          const price = parseFloat(record.attributes.price) || 0;
           return acc + price;
-        }, 0) ?? 0,
+        }, 0),
         "USD"
       ),
       totalDeposits: tradeDealDeposits?.length || 0,
