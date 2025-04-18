@@ -5,6 +5,8 @@ import { formatPrice } from "./currencyFormater";
 type KPIs = {
   tokens: number;
   retiredTokens?: number;
+  activeTokens?: number;
+  totalRetiredAmount?: string;
   issuedValue?: string;
   totalDeposits?: number;
   totalDepositAmount?: number;
@@ -24,9 +26,19 @@ export function getKPIs(data?: KPIs): KPIItem[] {
       value: data?.tokens,
     },
     {
+      icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Total Active Stocks",
+      value: data?.activeTokens,
+    },
+    {
       icon: <Setting className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Qty. Retired Stocks",
       value: data?.retiredTokens,
+    },
+    {
+      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Retired Stocks",
+      value: data?.totalRetiredAmount,
     },
     parseFloat(data?.issuedValue || "0") > 0 && {
       icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,

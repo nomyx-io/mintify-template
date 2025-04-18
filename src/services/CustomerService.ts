@@ -170,10 +170,20 @@ export const CustomerService = () => {
     const tradeDealDeposits = await ParseClient.getRecords("TradeDealUSDCDeposit", [], [], ["*"]);
 
     const retiredTokens = tokenRecords?.filter((record) => record.attributes.isWithdrawn === true).length || 0;
+    const activeTokens = tokenRecords?.filter((record) => record.attributes.isWithdrawn !== true).length || 0;
+    const totalRetiredAmount =
+      tokenRecords?.reduce((acc: number, record: any) => {
+        if (record.attributes.isWithdrawn === true) {
+          return acc + (parseFloat(record.attributes.totalAmount) || 0);
+        }
+        return acc;
+      }, 0) || 0;
 
     return {
       tokens: tokenRecords?.length || 0,
       retiredTokens,
+      activeTokens,
+      totalRetiredAmount: formatPrice(totalRetiredAmount, "USD"),
       issuedValue: formatPrice(
         tokenRecords?.reduce((acc: number, record: any) => {
           const price = parseFloat(record.attributes.price) || 0; // Safely parse the price
