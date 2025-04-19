@@ -9,7 +9,7 @@ export enum Industries {
 export const industryOptions = [
   { label: "Carbon Credit", value: Industries.CARBON_CREDIT },
   { label: "Tokenized Debt", value: Industries.TOKENIZED_DEBT },
-  { label: "Stock Pool", value: Industries.TRADE_FINANCE },
+  { label: "Asset Management", value: Industries.TRADE_FINANCE },
 ];
 
 export const carbonCreditFields = [
