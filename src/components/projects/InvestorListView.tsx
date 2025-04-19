@@ -36,13 +36,17 @@ const InvestorListView: React.FC<InvestorListViewProps> = ({ investors }) => {
       sorter: (a, b) => a.amountDeposited - b.amountDeposited,
       render: (value) => (value / 1e6).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
     },
-    // {
-    //   title: "Collateral Token Issued",
-    //   dataIndex: "collateralTokenIssued",
-    //   key: "collateralTokenIssued",
-    //   sorter: (a, b) => a.collateralTokenIssued - b.collateralTokenIssued,
-    //   render: (value) => value.toLocaleString(),
-    // },
+    {
+      title: "Collateral Token Issued",
+      dataIndex: "collateralTokenIssued",
+      key: "collateralTokenIssued",
+      sorter: (a, b) => a.collateralTokenIssued - b.collateralTokenIssued,
+      render: (value) =>
+        value.toLocaleString(undefined, {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }),
+    },
     // {
     //   title: "Collateral Token Lockup Period",
     //   dataIndex: "collateralTokenLockupPeriod",
