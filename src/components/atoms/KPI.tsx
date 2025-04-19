@@ -23,9 +23,11 @@ const KPI: React.FC<IndicatorProps> = ({ icon, title, value, className }) => {
         title={<span className="text-nomyx-gray2-light dark:text-nomyx-gray2-dark">{title}</span>}
         value={value}
         formatter={() => (
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 overflow-hidden">
             {icon}
-            <span className={valueColorClass}>{value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
+            <span className={classNames(valueColorClass, "truncate text-lg sm:text-xl font-semibold max-w-[10rem]")} title={value?.toString()}>
+              {value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            </span>
           </div>
         )}
         style={{ textAlign: "center" }}
