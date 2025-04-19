@@ -55,6 +55,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const requiredRule = { required: true, message: "This field is required." };
   const [paybackPoolform] = Form.useForm();
   const [isDepositEnabled, setIsDepositEnabled] = useState(false);
+  const [collateralTokenHistory, setCollateralTokenHistory] = useState<any[]>([]);
 
   const mockInterestTokenHistory = [
     {
@@ -144,6 +145,23 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
       interestTokensIssued: 9000,
     },
   ];
+
+  useEffect(() => {
+    const fetchCollateralHistory = async () => {
+      try {
+        const data = await Parse.Cloud.run("getCollateralTokenHistory", {
+          tradeDealId: String(project.tradeDealId),
+        });
+        setCollateralTokenHistory(data);
+      } catch (err) {
+        console.error("Failed to load collateral token history:", err);
+      }
+    };
+
+    if (project.industryTemplate === Industries.TRADE_FINANCE && project.tradeDealId) {
+      fetchCollateralHistory();
+    }
+  }, [project.tradeDealId, project.industryTemplate]);
 
   const api = useMemo(() => CustomerService(), []);
 
@@ -491,16 +509,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                           label: "Investors",
                           children: <InvestorListView investors={investors} />,
                         },
-                        // {
-                        //   key: "3",
-                        //   label: "Collateral Token History",
-                        //   children: <CollateralTokenHistoryView records={mockCollateralTokenHistory} />,
-                        // },
-                        // {
-                        //   key: "4",
-                        //   label: "Interest Token History",
-                        //   children: <InterestTokenHistoryView records={mockInterestTokenHistory} />,
-                        // },
+                        {
+                          key: "3",
+                          label: "Collateral Token History",
+                          children: <CollateralTokenHistoryView records={collateralTokenHistory} />,
+                        },
                       ]
                     : []),
                   ...(project.industryTemplate !== Industries.TRADE_FINANCE
