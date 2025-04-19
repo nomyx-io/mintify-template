@@ -44,7 +44,7 @@ export default function Projects() {
             description: project.attributes.description,
             logo: project.attributes.logo,
             coverImage: project.attributes.coverImage,
-            totalValue: projectTokens?.reduce((acc, token) => acc + Number(token.attributes.price), 0) || 0,
+            totalValue: projectTokens?.reduce((acc, token) => acc + Number(token.attributes.totalAmount), 0) || 0,
             totalTokens: projectTokens?.length || 0,
             createdAt: project.createdAt,
             industryTemplate: project.attributes.industryTemplate,
