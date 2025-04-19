@@ -1,9 +1,20 @@
+import { ethers } from "ethers";
 import moment from "moment";
 import Parse from "parse";
 
+import { Industries } from "@/constants/constants";
 import { formatPrice } from "@/utils/currencyFormater";
 
 import ParseClient from "./ParseClient";
+
+const formatUSDC = (value: string | number): number => {
+  try {
+    return Number(ethers.formatUnits(value.toString(), 6));
+  } catch (error) {
+    console.error("Error formatting USDC value:", error);
+    return 0;
+  }
+};
 
 export const CustomerService = () => {
   ParseClient.initialize();
@@ -59,26 +70,9 @@ export const CustomerService = () => {
     let records = await ParseClient.getRecords("Token", undefined, undefined, ["*"]);
     return records;
   };
-
-  const getMintedNftDetails = async (id: string): Promise<{ [key: string]: string | string[] } | null> => {
-    const record = await ParseClient.getRecord("Token", ["tokenId"], [id], []);
-
-    if (!record) return null;
-
-    const raw = record.toJSON();
-    const data: { [key: string]: string | string[] } = {};
-
-    Object.entries(raw).forEach(([key, value]) => {
-      if (typeof value === "string") {
-        data[key] = value;
-      } else if (Array.isArray(value) && value.every((v) => typeof v === "string")) {
-        data[key] = value;
-      } else if (typeof value === "number" || value instanceof Date) {
-        data[key] = value.toString();
-      }
-    });
-
-    return data;
+  const getMintedNftDetails = async (id: string) => {
+    let records = await ParseClient.get("Token", id);
+    return JSON.parse(JSON.stringify(records));
   };
 
   const getListings = async (fieldNames: string[], fieldValues: any[]) => {
@@ -183,16 +177,58 @@ export const CustomerService = () => {
   };
 
   const getKpis = async () => {
-    const tokenRecords = await ParseClient.getRecords("Token", [], [], ["*"]);
+    // Get all tokens and trade deal deposits
+    const allTokens = await ParseClient.getRecords("Token", [], [], ["*"]);
     const tradeDealDeposits = await ParseClient.getRecords("TradeDealUSDCDeposit", [], [], ["*"]);
 
+    // Get all projects and filter for trade finance template
+    const projects = await ParseClient.getRecords("TokenProject", [], [], ["*"]);
+    const tradeFinanceProjects = new Set(
+      projects?.filter((project) => project.attributes.industryTemplate === Industries.TRADE_FINANCE).map((project) => project.id) || []
+    );
+
+    // Filter tokens to only include those from trade finance projects
+    const tokenRecords =
+      allTokens?.filter((token) => {
+        const projectId = token.attributes.projectId;
+        return tradeFinanceProjects.has(projectId);
+      }) || [];
+
+    // Calculate KPIs using filtered tokens
+    const retiredTokens = tokenRecords.filter((record) => record.attributes.isWithdrawn === true).length;
+    const activeTokens = tokenRecords.filter((record) => record.attributes.isWithdrawn !== true).length;
+
+    const totalRetiredAmount = tokenRecords.reduce((acc: number, record: any) => {
+      if (record.attributes.isWithdrawn === true) {
+        return acc + formatUSDC(record.attributes.totalAmount || "0");
+      }
+      return acc;
+    }, 0);
+
+    const activeTokenizedValue = tokenRecords.reduce((acc: number, record: any) => {
+      if (record.attributes.isWithdrawn !== true) {
+        return acc + formatUSDC(record.attributes.totalAmount || "0");
+      }
+      return acc;
+    }, 0);
+
+    const totalTokenizedValue = tokenRecords.reduce((acc: number, record: any) => {
+      return acc + formatUSDC(record.attributes.totalAmount || "0");
+    }, 0);
+
     return {
-      tokens: tokenRecords?.length || 0,
+      tokens: allTokens?.length || 0,
+      totalStocks: tokenRecords.length,
+      retiredTokens,
+      activeTokens,
+      activeTokenizedValue: formatPrice(activeTokenizedValue, "USD"),
+      totalTokenizedValue: formatPrice(totalTokenizedValue, "USD"),
+      totalRetiredAmount: formatPrice(totalRetiredAmount, "USD"),
       issuedValue: formatPrice(
-        tokenRecords?.reduce((acc: number, record: any) => {
-          const price = parseFloat(record.attributes.price) || 0; // Safely parse the price
+        allTokens?.reduce((acc: number, record: any) => {
+          const price = parseFloat(record.attributes.price) || 0;
           return acc + price;
-        }, 0) ?? 0,
+        }, 0) || 0,
         "USD"
       ),
       totalDeposits: tradeDealDeposits?.length || 0,
@@ -243,24 +279,6 @@ export const CustomerService = () => {
     return records;
   };
 
-  const getUSDCBalance = async (walletId: string, dfns_token: string) => {
-    if (!walletId) {
-      throw new Error("Wallet ID is required to get USDC balance.");
-    }
-
-    try {
-      const balance = await Parse.Cloud.run("dfnsGetUSDC", {
-        walletId,
-        dfns_token,
-      });
-
-      return { balance, error: null };
-    } catch (error: any) {
-      console.error("Error getting USDC balance:", error);
-      return { balance: null, error: error.message };
-    }
-  };
-
   return {
     getEvents,
     getMintedNfts,
@@ -274,6 +292,5 @@ export const CustomerService = () => {
     getProjects,
     getIdentityRegisteredUser,
     getTradeDealDeposits,
-    getUSDCBalance,
   };
 };
