@@ -152,12 +152,7 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
                     key={`field-${index}`}
                     className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
                   >
-                    <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">
-                      {(() => {
-                        const match = tradeFinanceDocumentationFields.find((field) => field.name === key);
-                        return match ? match.label : capitalizeEveryWord(key.replaceAll("_", " "));
-                      })()}
-                    </div>
+                    <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">{capitalizeEveryWord(key.replace("_", " "))}</div>
                     <div className="card-value truncate">
                       {tradeFinanceDocumentationFields.find((field: { name: string; type: string }) => field.name === key)?.type === "file" ? (
                         <button onClick={() => window.open(value as string, "_blank")} className="text-blue-500 hover:text-blue-700">
