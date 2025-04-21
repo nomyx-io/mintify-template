@@ -13,6 +13,8 @@ import { getGraphData, getKPIs } from "@/utils/dashboard";
 export default function Home() {
   const api = useMemo(() => CustomerService(), []);
   const [tokenGraphValues, setTokenGraphValues] = useState<GraphValues>();
+  const [stocksGraphValues, setStocksGraphValues] = useState<GraphValues>();
+  const [stocksValueGraphValues, setStocksValueGraphValues] = useState<GraphValues>();
   const [carbonGraphValues, setCarbonGraphValues] = useState<GraphValues>();
   const [eventDetails, setEventDetails] = useState<Events>({});
   const [kpisData, setkpisData] = useState<KPIs>();
@@ -23,6 +25,22 @@ export default function Home() {
 
       setkpisData(kpis);
       setEventDetails(events || {});
+
+      // Set stocks graph data
+      setStocksGraphValues({
+        labels: ["Total Stocks Outstanding", "Total Stocks Retired"],
+        values: [kpis?.activeTokens || 0, kpis?.retiredTokens || 0],
+      });
+
+      // Set stocks value graph data
+      setStocksValueGraphValues({
+        labels: ["Total Stocks Outstanding ($)", "Total Stocks Paid-off ($)"],
+        values: [
+          parseFloat(kpis?.activeTokenizedValue?.replace(/[^0-9.-]+/g, "") || "0"),
+          parseFloat(kpis?.totalRetiredAmount?.replace(/[^0-9.-]+/g, "") || "0"),
+        ],
+      });
+
       if (kpis?.totalDeposits > 0) {
         setTokenGraphValues({
           labels: ["Total Tokens Issued", "Total Deposits"],
@@ -56,6 +74,16 @@ export default function Home() {
       label: "Token Insights",
       key: "1",
       children: <BarChart data={getGraphData(tokenGraphValues)} title="Net Token Issued & Redeemed" />,
+    },
+    {
+      label: "Token Insights (Stocks)",
+      key: "2",
+      children: <BarChart data={getGraphData(stocksGraphValues)} title="Total Stocks Outstanding & Retired" />,
+    },
+    {
+      label: "Stock Insights",
+      key: "3",
+      children: <BarChart data={getGraphData(stocksValueGraphValues)} title="Stock Values" />,
     },
   ];
 
