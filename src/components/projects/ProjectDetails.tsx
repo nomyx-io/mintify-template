@@ -427,7 +427,13 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 {project.industryTemplate === Industries.TRADE_FINANCE ? (
                   <div className="flex gap-2">
                     <span className="mt-2 font-semibold">Current Funding: {formatPrice(project.totalDepositAmount || 0, "USD")} </span>
-                    <Button type="primary" className="bg-red-500 hover:!bg-red-600" onClick={() => setIsWithdrawModalVisible(true)}>
+                    <Button
+                      type="primary"
+                      className="bg-red-500 hover:!bg-red-600"
+                      onClick={() => setIsWithdrawModalVisible(true)}
+                      disabled={project.isWithdrawn}
+                      title={project.isWithdrawn ? "Project is already withdrawn" : ""}
+                    >
                       Withdraw From Pool
                     </Button>
 

@@ -279,6 +279,28 @@ export const CustomerService = () => {
     return records;
   };
 
+  const getPoolStats = async () => {
+    try {
+      const projects = await ParseClient.getRecords("TokenProject", [], [], ["*"]);
+      const tradeFinanceProjects = projects?.filter((project) => project.attributes.industryTemplate === Industries.TRADE_FINANCE) || [];
+
+      const activePools = tradeFinanceProjects.filter((project) => project.attributes.isWithdrawn === true).length;
+
+      const retiredPools = tradeFinanceProjects.filter((project) => project.attributes.isWithdrawn !== true).length;
+
+      return {
+        activePools,
+        retiredPools,
+      };
+    } catch (error) {
+      console.error("Error getting pool stats:", error);
+      return {
+        activePools: 0,
+        retiredPools: 0,
+      };
+    }
+  };
+
   return {
     getEvents,
     getMintedNfts,
@@ -292,5 +314,6 @@ export const CustomerService = () => {
     getProjects,
     getIdentityRegisteredUser,
     getTradeDealDeposits,
+    getPoolStats,
   };
 };

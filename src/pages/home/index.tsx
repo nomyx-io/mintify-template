@@ -15,13 +15,14 @@ export default function Home() {
   const [tokenGraphValues, setTokenGraphValues] = useState<GraphValues>();
   const [stocksGraphValues, setStocksGraphValues] = useState<GraphValues>();
   const [stocksValueGraphValues, setStocksValueGraphValues] = useState<GraphValues>();
+  const [poolGraphValues, setPoolGraphValues] = useState<GraphValues>();
   const [carbonGraphValues, setCarbonGraphValues] = useState<GraphValues>();
   const [eventDetails, setEventDetails] = useState<Events>({});
   const [kpisData, setkpisData] = useState<KPIs>();
 
   const fetchData = useCallback(async () => {
     try {
-      const [events, kpis] = await Promise.all([api.getEvents(), api.getKpis()]);
+      const [events, kpis, poolStats] = await Promise.all([api.getEvents(), api.getKpis(), api.getPoolStats()]);
 
       setkpisData(kpis);
       setEventDetails(events || {});
@@ -39,6 +40,12 @@ export default function Home() {
           parseFloat(kpis?.activeTokenizedValue?.replace(/[^0-9.-]+/g, "") || "0"),
           parseFloat(kpis?.totalRetiredAmount?.replace(/[^0-9.-]+/g, "") || "0"),
         ],
+      });
+
+      // Set pool graph data
+      setPoolGraphValues({
+        labels: ["Total Pools Active", "Total Pools Retired"],
+        values: [poolStats.activePools, poolStats.retiredPools],
       });
 
       if (kpis?.totalDeposits > 0) {
@@ -84,6 +91,11 @@ export default function Home() {
       label: "Stock Insights",
       key: "3",
       children: <BarChart data={getGraphData(stocksValueGraphValues)} title="Stock Values" />,
+    },
+    {
+      label: "Pool Insights",
+      key: "4",
+      children: <BarChart data={getGraphData(poolGraphValues)} title="Pool Statistics" />,
     },
   ];
 

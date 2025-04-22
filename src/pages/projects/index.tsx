@@ -50,6 +50,7 @@ export default function Projects() {
             industryTemplate: project.attributes.industryTemplate,
             tradeDealId: project.attributes.tradeDealId,
             projectInfo: project.attributes.projectInfo,
+            isWithdrawn: project.attributes.isWithdrawn || false,
             totalDepositAmount:
               tradeDealDeposits
                 ?.filter((t) => String(t.get("tradeDealId")) === String(project.attributes.tradeDealId))
