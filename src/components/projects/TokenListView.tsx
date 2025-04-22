@@ -131,6 +131,15 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     return true;
   };
 
+  const formatColumnTitle = (title: string): string => {
+    return typeof title === "string"
+      ? title
+          .replace(/_/g, " ") // Replace underscores with spaces
+          .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+          .replace(/\b\w/g, (c) => c.toUpperCase()) // Capitalize each word
+      : title;
+  };
+
   const handleStatusChange = async (tokenId: number, checked: boolean) => {
     if (!blockchainService) {
       toast.error("Blockchain service is not available.");
@@ -474,16 +483,13 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
           // Check if the column is non-null, non-undefined, not already in nonNullColumns, and not excluded
           if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
             nonNullColumns[key] = {
-              title: key
-                .replace(/([A-Z])/g, " $1") // Add a space before uppercase letters
-                .replace(/^./, (str) => str.toUpperCase()), // Capitalize the first letter
+              title: formatColumnTitle(key), // Use the formatting function here
               key,
             };
           }
         });
       } catch (error) {
         console.error("Error processing token for dynamic columns:", token, error);
-        // Continue with next token even if this one fails
       }
     });
 
@@ -501,9 +507,13 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
 
   const createColumns = (nonNullColumns: ColumnConfig[]) => {
     return nonNullColumns.map(({ title, key }) => ({
-      title,
+      title: key === "totalAmount" ? "Price" : title, // 🟢 Override display title
       dataIndex: industryTemplate === Industries.TRADE_FINANCE ? key : ["token", key],
       render: (value: any) => {
+        if (key === "totalAmount") {
+          return formatPrice(value / 1_000_000, "USD"); // 🟢 Format for USDC
+        }
+
         if (typeof value === "object") return "N/A";
         if (typeof value === "string" && isValidUrl(value)) {
           return (
@@ -512,12 +522,13 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
             </a>
           );
         }
+
         return <span>{value}</span>;
       },
       sorter: (a: any, b: any) => {
         const aValue = industryTemplate === Industries.TRADE_FINANCE ? a[key] : a.token[key];
         const bValue = industryTemplate === Industries.TRADE_FINANCE ? b[key] : b.token[key];
-        return typeof aValue === "string" && typeof bValue === "string" ? aValue.localeCompare(bValue) : 0;
+        return typeof aValue === "number" && typeof bValue === "number" ? aValue - bValue : 0;
       },
     }));
   };
