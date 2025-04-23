@@ -15,13 +15,17 @@ function DataKey({ children }: { children?: React.ReactNode }) {
 }
 
 function DataValue({ children, className }: { children?: React.ReactNode; className?: string }) {
+  const displayText = typeof children === "string" || typeof children === "number" ? children.toString() : undefined;
+
   return (
     <div
       className={`flex grow overflow-hidden items-center rounded h-10 pl-3 py-1 pr-2 bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark text-nomyx-text-light dark:text-nomyx-text-dark ${
         className || ""
       }`}
     >
-      {children}
+      <span className="truncate whitespace-nowrap overflow-hidden w-full" title={displayText}>
+        {children}
+      </span>
     </div>
   );
 }
@@ -51,7 +55,7 @@ export default function ProjectCard({ project, onProjectClick }: ProjectCardProp
         </DataRow>
         <DataRow>
           <DataKey>Total Token Value</DataKey>
-          <DataValue>$ {Intl.NumberFormat("en-US").format(project.totalValue)}</DataValue>
+          <DataValue>{`$ ${Intl.NumberFormat("en-US").format(project.totalValue)}`}</DataValue>
         </DataRow>
       </div>
     </Card>

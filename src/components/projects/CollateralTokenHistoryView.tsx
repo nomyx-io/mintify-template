@@ -23,10 +23,18 @@ const CollateralTokenHistoryView: React.FC<CollateralTokenHistoryViewProps> = ({
       sorter: (a, b) => a.investorId.localeCompare(b.investorId),
     },
     {
-      title: "To Hash",
+      title: "Tx Hash",
       dataIndex: "toHash",
       key: "toHash",
       ellipsis: true,
+      render: (hash: string) => {
+        const baseUrl = process.env.NEXT_PUBLIC_ETHERSCAN_BASE_URL || "https://sepolia.basescan.org/tx/";
+        return (
+          <a href={`${baseUrl}${hash}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+            {hash.slice(0, 6)}...{hash.slice(-4)}
+          </a>
+        );
+      },
     },
     {
       title: "Created Date",
@@ -39,7 +47,7 @@ const CollateralTokenHistoryView: React.FC<CollateralTokenHistoryViewProps> = ({
       dataIndex: "total",
       key: "total",
       sorter: (a, b) => a.total - b.total,
-      render: (value) => Intl.NumberFormat("en-US").format(value),
+      render: (value) => `${Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
     },
   ];
 

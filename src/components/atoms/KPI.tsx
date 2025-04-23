@@ -18,14 +18,16 @@ const KPI: React.FC<IndicatorProps> = ({ icon, title, value, className }) => {
   });
 
   return (
-    <Card className="flex-1 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+    <Card className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
       <Statistic
         title={<span className="text-nomyx-gray2-light dark:text-nomyx-gray2-dark">{title}</span>}
         value={value}
         formatter={() => (
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 overflow-hidden">
             {icon}
-            <span className={valueColorClass}>{value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
+            <span className={classNames(valueColorClass, "truncate text-lg sm:text-xl font-semibold max-w-[10rem]")} title={value?.toString()}>
+              {value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+            </span>
           </div>
         )}
         style={{ textAlign: "center" }}

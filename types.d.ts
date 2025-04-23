@@ -94,6 +94,7 @@ interface Project {
   tradeDealId?: number;
   projectInfo: string;
   totalDepositAmount?: number;
+  isWithdrawn?: boolean;
 }
 
 interface ProjectSaveData {
