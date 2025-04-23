@@ -301,6 +301,24 @@ export const CustomerService = () => {
     }
   };
 
+  const getUSDCBalance = async (walletId: string, dfns_token: string) => {
+    if (!walletId) {
+      throw new Error("Wallet ID is required to get USDC balance.");
+    }
+
+    try {
+      const balance = await Parse.Cloud.run("dfnsGetUSDC", {
+        walletId,
+        dfns_token,
+      });
+
+      return { balance, error: null };
+    } catch (error: any) {
+      console.error("Error getting USDC balance:", error);
+      return { balance: null, error: error.message };
+    }
+  };
+
   return {
     getEvents,
     getMintedNfts,
@@ -315,5 +333,6 @@ export const CustomerService = () => {
     getIdentityRegisteredUser,
     getTradeDealDeposits,
     getPoolStats,
+    getUSDCBalance,
   };
 };
