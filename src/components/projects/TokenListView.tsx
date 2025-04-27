@@ -480,6 +480,10 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
 
       try {
         Object.entries(tokenData).forEach(([key, value]) => {
+          // Skip depositAmount column for trade finance projects
+          if (industryTemplate === Industries.TRADE_FINANCE && key === "depositAmount") {
+            return;
+          }
           // Check if the column is non-null, non-undefined, not already in nonNullColumns, and not excluded
           if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
             nonNullColumns[key] = {
