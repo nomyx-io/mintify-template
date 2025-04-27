@@ -56,6 +56,8 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const [isDepositEnabled, setIsDepositEnabled] = useState(false);
   const [collateralTokenHistory, setCollateralTokenHistory] = useState<any[]>([]);
 
+  console.log("project data: ", project);
+
   const mockInterestTokenHistory = [
     {
       id: "53265985515",
@@ -426,7 +428,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
               <div className="flex items-center">
                 {project.industryTemplate === Industries.TRADE_FINANCE ? (
                   <div className="flex gap-2">
-                    <span className="mt-2 font-semibold">Current Funding: {formatPrice(project.totalDepositAmount! * 1000000 || 0, "USD")} </span>
+                    <span className="mt-2 font-semibold">Current Funding: {formatPrice((project.totalDepositAmount || 0) * 1e6, "USD")}</span>
                     <Button
                       type="primary"
                       className="bg-red-500 hover:!bg-red-600"

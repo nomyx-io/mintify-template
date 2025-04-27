@@ -55,7 +55,9 @@ export default function ProjectCard({ project, onProjectClick }: ProjectCardProp
         </DataRow>
         <DataRow>
           <DataKey>Total Token Value</DataKey>
-          <DataValue>{`$ ${Intl.NumberFormat("en-US").format(project.totalValue)}`}</DataValue>
+          <DataValue>
+            {`$${Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(project.totalValue / 1e6)}`}
+          </DataValue>
         </DataRow>
       </div>
     </Card>
