@@ -37,6 +37,7 @@ interface ProjectInfoField {
 const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const router = useRouter();
   const { walletPreference, dfnsToken, user } = useContext(UserContext);
+  const [isFullyRepaid, setIsFullyRepaid] = useState<boolean>(false);
   const [listings, setListings] = useState<any[]>([]);
   const [sales, setSales] = useState<any[]>([]);
   const [projectStockList, setProjectStockList] = useState<any[]>([]);
@@ -244,6 +245,24 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   }, [refresh, project.id]);
 
   useEffect(() => {
+    const loadTradeDealStatus = async () => {
+      if (project.industryTemplate === Industries.TRADE_FINANCE && project.tradeDealId) {
+        try {
+          const TradeDeal = Parse.Object.extend("TradeDeal");
+          const query = new Parse.Query(TradeDeal);
+          query.equalTo("tradeDealId", String(project.tradeDealId));
+          const tradeDeal = await query.first();
+          setIsFullyRepaid(tradeDeal?.get("isFullyRepaid") || false);
+        } catch (error) {
+          console.error("[UI] Error fetching trade deal status:", error);
+        }
+      }
+    };
+
+    loadTradeDealStatus();
+  }, [project.tradeDealId, project.industryTemplate]);
+
+  useEffect(() => {
     const loadInvestors = async () => {
       console.log("[UI] Calling cloud function getTradeDealInvestorSummary with ID:", project.tradeDealId);
 
@@ -439,7 +458,13 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                       Withdraw From Pool
                     </Button>
 
-                    <Button type="primary" className="bg-green-500 hover:!bg-green-600" onClick={() => setIsPaybackModalVisible(true)}>
+                    <Button
+                      type="primary"
+                      className="bg-green-500 hover:!bg-green-600"
+                      onClick={() => setIsPaybackModalVisible(true)}
+                      disabled={isFullyRepaid}
+                      title={isFullyRepaid ? "This pool has been fully repaid" : ""}
+                    >
                       Payback Pool
                     </Button>
 
