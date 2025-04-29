@@ -4,6 +4,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Spin, Layout, Card, Radio, Form, Input, Button } from "antd";
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { useAccount, useDisconnect } from "wagmi";
 
@@ -141,20 +142,20 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                           >
                             <Input.Password placeholder="Enter your password" className="input-field" />
                           </Form.Item>
-
-                          <Form.Item>
-                            <div className="flex justify-end">
-                              <Button type="primary" htmlType="submit" className="signup-button bg-blue-600 hover:bg-blue-700 text-nomyxWhite">
-                                Log in
-                              </Button>
+                          <div className="flex justify-between items-center">
+                            <div className="flex justify-between">
+                              <Link href="/forgot-password" className="font-semibold text-blue-600">
+                                Forgot Password?
+                              </Link>
                             </div>
-                          </Form.Item>
-
-                          {/* <div className="flex justify-between">
-              <a href="/forgot-password" className="text-blue-600 font-bold">
-                Forgot Password?
-              </a>
-            </div> */}
+                            <Form.Item>
+                              <div className="flex justify-end">
+                                <Button type="primary" htmlType="submit" className="signup-button bg-blue-600 hover:bg-blue-700 text-nomyxWhite">
+                                  Log in
+                                </Button>
+                              </div>
+                            </Form.Item>
+                          </div>
                         </Form>
                       ) : (
                         <div className="flex flex-col items-center">
