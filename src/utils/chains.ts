@@ -20,6 +20,26 @@ export const BASESEP_CHAIN: Chain = {
   testnet: true,
 };
 
+export const OPTSEP_CHAIN: Chain = {
+  id: 11155420,
+  network: "optimism",
+  name: "Optimism Sepolia",
+  nativeCurrency: {
+    name: "OP Sepolia",
+    symbol: "ETH",
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: [process.env.NEXT_PUBLIC_NETWORK_OPTIMISM_SEPOLIA || ""],
+    },
+    public: {
+      http: [process.env.NEXT_PUBLIC_NETWORK_OPTIMISM_SEPOLIA || ""],
+    },
+  },
+  testnet: true,
+};
+
 export const BASE_CHAIN: Chain = {
   id: 8453,
   name: "Base",
