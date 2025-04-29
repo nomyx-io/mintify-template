@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Card, Tabs } from "antd";
 import Head from "next/head";
+
 import BarChart from "@/components/atoms/Graphs/Barchart";
 import KPI from "@/components/atoms/KPI";
 import { EventFeed } from "@/components/molecules/EventFeed";

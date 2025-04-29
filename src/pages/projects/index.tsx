@@ -1,8 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "antd";
-import { useRouter } from "next/router";
 import Head from "next/head";
+import { useRouter } from "next/router";
+
 import { TelescopeIcon } from "@/assets";
 import CreateProjectModal from "@/components/projects/CreateProjectModal";
 import ProjectCard from "@/components/projects/ProjectCard";

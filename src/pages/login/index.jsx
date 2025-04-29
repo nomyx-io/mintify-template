@@ -2,8 +2,8 @@ import { useContext, useEffect, useState, useRef } from "react";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Spin, Layout, Card, Radio, Form, Input, Button } from "antd";
-import Image from "next/image";
 import Head from "next/head";
+import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { useAccount, useDisconnect } from "wagmi";
 
@@ -84,12 +84,12 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                 <Image src={logoDark} alt="Logo" width={630} height={240} priority className="" />
               </div>
             </div>
-          </div>
 
-          <div className="max-[550px]:hidden w-1/2 flex flex-col justify-center items-center p-2">
-            {/* The heading at the top */}
-            {/* <h1 className="text-right font-bold text-xl mb-4 w-full mt-8 mr-4">CARBON CREDIT MANAGER</h1> */}
-            {/* The container that will hold the button in the middle */}
+            {/* Right Side */}
+            <div className="max-[550px]:hidden w-1/2 flex flex-col justify-center items-center p-2">
+              {/* The heading at the top */}
+              {/* <h1 className="text-right font-bold text-xl mb-4 w-full mt-8 mr-4">CARBON CREDIT MANAGER</h1> */}
+              {/* The container that will hold the button in the middle */}
 
               <div className="flex-grow flex items-center justify-center w-full">
                 <div className="bg-nomyxDark1 bg-opacity-90 text-nomyxWhite shadow-lg rounded-lg p-4 max-w-2xl w-full">
@@ -167,8 +167,8 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
