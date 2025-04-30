@@ -510,31 +510,39 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   };
 
   const createColumns = (nonNullColumns: ColumnConfig[]) => {
-    return nonNullColumns.map(({ title, key }) => ({
-      title: key === "totalAmount" ? "Price" : title, // 🟢 Override display title
-      dataIndex: industryTemplate === Industries.TRADE_FINANCE ? key : ["token", key],
-      render: (value: any) => {
-        if (key === "totalAmount") {
-          return formatPrice(value / 1_000_000, "USD"); // 🟢 Format for USDC
-        }
+    return nonNullColumns.map(({ title, key }) => {
+      const isTotalAmount = key === "totalAmount";
+      const isIsinNumber = key === "isin_number";
+      const isParValue = key === "par_value";
+      return {
+        title: isTotalAmount ? "Price" : isIsinNumber ? "ISIN Number" : title,
+        dataIndex: industryTemplate === Industries.TRADE_FINANCE ? key : ["token", key],
+        render: (value: any) => {
+          if (isTotalAmount || isParValue) {
+            return formatPrice(isTotalAmount ? value / 1_000_000 : value, "USD") || "-";
+          }
+          if (typeof value === "object") return "N/A";
+          if (typeof value === "string" && isValidUrl(value)) {
+            return (
+              <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+                View Document
+              </a>
+            );
+          }
+          return <span>{value}</span>;
+        },
+        sorter: (a: any, b: any) => {
+          const aValue = industryTemplate === Industries.TRADE_FINANCE ? a[key] : a.token[key];
+          const bValue = industryTemplate === Industries.TRADE_FINANCE ? b[key] : b.token[key];
 
-        if (typeof value === "object") return "N/A";
-        if (typeof value === "string" && isValidUrl(value)) {
-          return (
-            <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
-              View Document
-            </a>
-          );
-        }
+          if (isTotalAmount) {
+            return (aValue ?? 0) - (bValue ?? 0);
+          }
 
-        return <span>{value}</span>;
-      },
-      sorter: (a: any, b: any) => {
-        const aValue = industryTemplate === Industries.TRADE_FINANCE ? a[key] : a.token[key];
-        const bValue = industryTemplate === Industries.TRADE_FINANCE ? b[key] : b.token[key];
-        return typeof aValue === "number" && typeof bValue === "number" ? aValue - bValue : 0;
-      },
-    }));
+          return typeof aValue === "string" && typeof bValue === "string" ? aValue.localeCompare(bValue) : 0;
+        },
+      };
+    });
   };
 
   const dynamicColumns = getDynamicColumns(); // This would be your method to get the first 7 non-null columns
