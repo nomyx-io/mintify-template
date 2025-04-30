@@ -35,7 +35,7 @@ export const tokenizedDebtFields = [
 export const tradeFinanceFields = [
   {
     label: "Trade Amount",
-    name: "tradeAmount",
+    name: "Trade Amount",
     type: "text",
     placeHolder: "Enter Trade Amount",
     rules: [requiredRule, numberRule],
@@ -150,8 +150,8 @@ export const tradeFinanceStockInfoFields = [
 
 export const tradeFinanceDocumentationFields = [
   {
-    label: "PPM",
-    name: "ppm",
+    label: "Private Placement Memorandum",
+    name: "Private Placement Memorandum",
     type: "file",
     placeHolder: "Upload Private Placement Memorandum",
     rules: [requiredRule],
@@ -162,7 +162,7 @@ export const tradeFinanceDocumentationFields = [
   },
   {
     label: "Custodian Contract",
-    name: "custodianContract",
+    name: "Custodian Contract",
     type: "file",
     placeHolder: "Upload Custodian Contract",
     rules: [requiredRule],
@@ -173,7 +173,7 @@ export const tradeFinanceDocumentationFields = [
   },
   {
     label: "Stock Certificate",
-    name: "stockCertificate",
+    name: "Stock Certificate",
     type: "file",
     placeHolder: "Upload Stock Certificate",
     rules: [requiredRule],
