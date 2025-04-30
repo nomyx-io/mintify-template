@@ -229,7 +229,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       }
       parseInitialize();
     } else {
-      toast.error("Sorry, you are not authorized!");
+      toast.error("We couldn't verify your login details. Please check your username and password.");
       setForceLogout(true);
     }
   };
