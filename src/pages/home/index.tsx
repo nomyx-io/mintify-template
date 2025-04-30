@@ -105,21 +105,26 @@ export default function Home() {
       <Head>
         <title>Dashboard - Nomyx Mintify</title>
       </Head>
-      <div className="w-full flex gap-3">
-        {" "}
-        {/* Chart container */}
-        <div className="flex lg:grid grid-cols-4 gap-3 pb-3 flex-wrap">
-          {getKPIs(kpisData)?.map((kpi) => <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />)}
+
+      <div className="flex flex-col lg:flex-row gap-3 w-full">
+        {/* Main dashboard section */}
+        <div className="flex flex-col gap-3 flex-grow">
+          {/* KPI cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {getKPIs(kpisData)?.map((kpi) => <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />)}
+          </div>
+
+          {/* Chart section */}
+          <Card className="w-full flex-grow p-0 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+            <Tabs items={items} />
+          </Card>
         </div>
-        <Card className="w-full flex-grow no-padding bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
-          <Tabs items={items}></Tabs>
+
+        {/* Sidebar: Event Feed */}
+        <Card className="w-full lg:w-[350px] max-h-[100vh] overflow-y-auto border-nomyx-gray4-light dark:border-nomyx-gray4-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark">
+          <EventFeed data={eventDetails} />
         </Card>
       </div>
-      <Card className="lg:h-auto max-h-[100vh] lg:max-w-sm overflow-y-auto border-nomyx-gray4-light dark:border-nomyx-gray4-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark flex-grow">
-        {" "}
-        {/* Event feed container */}
-        <EventFeed data={eventDetails} />
-      </Card>
     </>
   );
 }
