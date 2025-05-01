@@ -86,11 +86,6 @@ export default function Details({ service }: { service: BlockchainService }) {
   };
 
   const handleMint = async () => {
-    if (!blockchainService) {
-      toast.error("Blockchain service is not available.");
-      return;
-    }
-
     // Extract tradeDealId before generating metadata
     const tradeDealId = formData._tradeDealId;
     console.log("🔍 ##### Extracted tradeDealId from formData:", tradeDealId);
