@@ -23,6 +23,7 @@ import DfnsService from "@/services/DfnsService";
 import ParseClient from "@/services/ParseClient";
 import { WalletPreference } from "@/utils/constants";
 import { formatPrice } from "@/utils/currencyFormater";
+import { formatNumber } from "@/utils/numberFormatter";
 
 interface ProjectDetailsProps {
   project: Project;
@@ -414,15 +415,15 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                   >
                     <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
                       <span className="text-sm">Total Value</span>
-                      <h2 className="text-lg font-bold">{Intl.NumberFormat("en-US").format(project.totalValue)}</h2>
+                      <h2 className="text-lg font-bold">{formatNumber(project.totalValue)}</h2>
                     </div>
                     <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
                       <span className="text-sm">Project Creation Date</span>
                       <h2 className="text-lg font-bold">{project.createdAt?.toLocaleDateString()}</h2>
                     </div>
                     <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Total Tokens</span>
-                      <h2 className="text-lg font-bold">{totalTokens}</h2>
+                      <span className="text-sm">Tokens Available</span>
+                      <h2 className="text-lg font-bold">{formatNumber(totalTokens)}</h2>
                     </div>
                   </div>
                 )}

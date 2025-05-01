@@ -48,7 +48,9 @@ export const projectColumns: any = (onProjectClick: (project: Project) => void) 
     title: formatTitle("totalValue"),
     dataIndex: "totalValue",
     width: 300,
-    render: (totalValue: number) => "$ " + Intl.NumberFormat("en-US").format(totalValue),
+    render: (totalValue: number) => {
+      formatPrice(totalValue, "USD");
+    },
     sorter: (a: any, b: any) => a.totalValue - b.totalValue,
   },
 ];
