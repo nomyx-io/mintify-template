@@ -77,6 +77,16 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
     }
   };
 
+  const formatColumnTitle = (title: string): string => {
+    if (title === "isin_number") return "ISIN Number";
+
+    return title
+      .replace(/_/g, " ")
+      .replace(/([A-Z])/g, " $1")
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .trim();
+  };
+
   const getDynamicColumns = (maxColumns = 5): ColumnConfig[] => {
     const nonNullColumns: Record<string, ColumnConfig> = {};
     tokens.forEach((token) => {
@@ -84,10 +94,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
         Object.entries(token.token).forEach(([key, value]) => {
           if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
             nonNullColumns[key] = {
-              title: key
-                .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
-                .replaceAll("_", " ") // Replace underscores with spaces
-                .replace(/\b\w/g, (char) => char.toUpperCase()), // Capitalize first letter of every word,
+              title: formatColumnTitle(key),
               key,
             };
           }
@@ -96,10 +103,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
         Object.entries(token).forEach(([key, value]) => {
           if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
             nonNullColumns[key] = {
-              title: key
-                .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
-                .replaceAll("_", " ") // Replace underscores with spaces
-                .replace(/\b\w/g, (char) => char.toUpperCase()), // Capitalize first letter of every word,
+              title: formatColumnTitle(key),
               key,
             };
           }
