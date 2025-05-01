@@ -38,8 +38,12 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
 
   const title = detailView ? `Token - ${nftTitle}` : "Preview Token </>";
   const backButton = <Button onClick={() => router.back()} type="text" icon={<LeftOutlined />} />;
-  const capitalizeEveryWord = (str: string) => {
-    return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  const formatTitle = (title: string): string => {
+    if (title === "isin_number") return "ISIN Number";
+    if (title === "total_amount" || title === "par_value") {
+      return title.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+    return title.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
   const getAllTopics = useCallback(async () => {
@@ -152,12 +156,14 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
                     key={`field-${index}`}
                     className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
                   >
-                    <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">{capitalizeEveryWord(key.replace("_", " "))}</div>
+                    <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">{formatTitle(key)}</div>
                     <div className="card-value truncate">
                       {tradeFinanceDocumentationFields.find((field: { name: string; type: string }) => field.name === key)?.type === "file" ? (
                         <button onClick={() => window.open(value as string, "_blank")} className="text-blue-500 hover:text-blue-700">
                           View Document
                         </button>
+                      ) : key === "total_amount" || key === "par_value" ? (
+                        formatPrice(parseFloat(value as string))
                       ) : (
                         (value as string)
                       )}
