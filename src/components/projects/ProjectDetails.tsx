@@ -647,6 +647,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                   );
 
                   setIsWithdrawModalVisible(false);
+                  setRefresh(true); // Trigger refresh to update project data
                 } catch (error) {
                   console.error("Withdrawal error:", error);
                 }
