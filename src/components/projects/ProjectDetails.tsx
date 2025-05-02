@@ -161,7 +161,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
       }
     };
 
-    if (project.industryTemplate === Industries.TRADE_FINANCE && project.tradeDealId) {
+    if (project.industryTemplate === Industries.TRADE_FINANCE && project.tradeDealId != null) {
       fetchCollateralHistory();
     }
   }, [project.tradeDealId, project.industryTemplate]);
@@ -247,7 +247,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
   useEffect(() => {
     const loadTradeDealStatus = async () => {
-      if (project.industryTemplate === Industries.TRADE_FINANCE && project.tradeDealId) {
+      if (project.industryTemplate === Industries.TRADE_FINANCE && project.tradeDealId != null) {
         try {
           const TradeDeal = Parse.Object.extend("TradeDeal");
           const query = new Parse.Query(TradeDeal);
@@ -281,7 +281,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
       }
     };
 
-    if (project.industryTemplate === Industries.TRADE_FINANCE && project.tradeDealId) {
+    if (project.industryTemplate === Industries.TRADE_FINANCE && project.tradeDealId != null) {
       loadInvestors();
     }
   }, [project.tradeDealId, project.industryTemplate]);
@@ -392,7 +392,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 </div>
 
                 {/* Project Stats */}
-                {project.industryTemplate === Industries.TRADE_FINANCE ? (
+                {project.industryTemplate === Industries.TRADE_FINANCE && project.tradeDealId != null ? (
                   <>
                     {Array.isArray(projectInfo) && projectInfo.length > 0 && (
                       <div
@@ -647,6 +647,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                   );
 
                   setIsWithdrawModalVisible(false);
+                  project.isWithdrawn = true; // Set the flag to true on success
                 } catch (error) {
                   console.error("Withdrawal error:", error);
                 }
@@ -826,6 +827,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     );
 
                     setIsPaybackModalVisible(false);
+                    setIsFullyRepaid(true); // Set the flag to true on success
                     setSelectedStocks([]);
                     paybackPoolform.resetFields();
                   } catch (error) {
