@@ -263,3 +263,6 @@ label, p, h1, h2, h3, h4, h5, h6, input {
   @apply shadow placeholder-nomyxGray1 border-nomyxGray1 appearance-none border rounded-sm w-full py-2 px-3 leading-tight bg-nomyxDark2 !text-nomyxWhite;
   @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
 }
+.ant-btn-primary:disabled {
+  color: #ccc !important;
+}

@@ -571,9 +571,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
               </div>
               <span style={{ marginLeft: "10px", fontWeight: "bold" }}>{title}</span>{" "}
             </div>
-            <p className="text-xs !text-gray-500">
-              {description || "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
-            </p>
+            <p className="text-xs !text-gray-500">{description || ""}</p>
           </>
         );
       },
