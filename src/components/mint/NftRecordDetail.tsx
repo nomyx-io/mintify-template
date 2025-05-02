@@ -45,7 +45,12 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
     if (title === "par_value") {
       return title.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     }
-    return title.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    return typeof title === "string"
+      ? title
+          .replace(/_/g, " ") // Replace underscores with spaces
+          .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+          .replace(/\b\w/g, (c) => c.toUpperCase()) // Capitalize each word
+      : title;
   };
 
   const getAllTopics = useCallback(async () => {
