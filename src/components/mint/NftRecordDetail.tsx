@@ -10,6 +10,7 @@ import BlockchainService from "@/services/BlockchainService";
 import ParseClient from "@/services/ParseClient";
 import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
+import { formatNumber, formatNumberWithCommas } from "@/utils/numberFormatter";
 
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
@@ -40,10 +41,16 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
   const backButton = <Button onClick={() => router.back()} type="text" icon={<LeftOutlined />} />;
   const formatTitle = (title: string): string => {
     if (title === "isin_number") return "ISIN Number";
-    if (title === "total_amount" || title === "par_value") {
+    if (title === "totalAmount") return "Total Amount";
+    if (title === "par_value") {
       return title.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     }
-    return title.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    return typeof title === "string"
+      ? title
+          .replace(/_/g, " ") // Replace underscores with spaces
+          .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+          .replace(/\b\w/g, (c) => c.toUpperCase()) // Capitalize each word
+      : title;
   };
 
   const getAllTopics = useCallback(async () => {
@@ -162,8 +169,10 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
                         <button onClick={() => window.open(value as string, "_blank")} className="text-blue-500 hover:text-blue-700">
                           View Document
                         </button>
-                      ) : key === "total_amount" || key === "par_value" ? (
+                      ) : key === "totalAmount" || key === "par_value" ? (
                         formatPrice(parseFloat(value as string))
+                      ) : !isNaN(parseFloat(value as string)) ? (
+                        formatNumberWithCommas(parseFloat(value as string))
                       ) : (
                         (value as string)
                       )}

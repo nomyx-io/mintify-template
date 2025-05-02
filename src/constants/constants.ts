@@ -151,7 +151,7 @@ export const tradeFinanceStockInfoFields = [
 export const tradeFinanceDocumentationFields = [
   {
     label: "Private Placement Memorandum",
-    name: "Private Placement Memorandum",
+    name: "privatePlacementMemorandum",
     type: "file",
     placeHolder: "Upload Private Placement Memorandum",
     rules: [requiredRule],
@@ -162,7 +162,7 @@ export const tradeFinanceDocumentationFields = [
   },
   {
     label: "Custodian Contract",
-    name: "Custodian Contract",
+    name: "custodianContract",
     type: "file",
     placeHolder: "Upload Custodian Contract",
     rules: [requiredRule],
@@ -173,7 +173,7 @@ export const tradeFinanceDocumentationFields = [
   },
   {
     label: "Stock Certificate",
-    name: "Stock Certificate",
+    name: "stockCertificate",
     type: "file",
     placeHolder: "Upload Stock Certificate",
     rules: [requiredRule],
