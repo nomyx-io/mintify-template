@@ -66,7 +66,7 @@ export function getKPIs(data?: KPIs): KPIItem[] {
     {
       icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Funding",
-      value: formatPrice((data?.totalDepositAmount || 0) / 1_000_000, "USD"),
+      value: formatPrice(data?.totalDepositAmount || 0, "USD"),
     },
   ];
 

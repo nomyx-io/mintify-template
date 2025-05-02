@@ -113,6 +113,15 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
     return Object.values(nonNullColumns).slice(0, maxColumns);
   };
 
+  const isValidUrl = (str: string): boolean => {
+    try {
+      new URL(str);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const dynamicColumns = getDynamicColumns();
 
   return (
@@ -164,11 +173,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
               <div className="p-4">
                 {/* Title and Description */}
                 <h2 className="text-lg font-bold">{token?.nftTitle || token.token?.nftTitle || "Token Title"}</h2>
-                <p className="text-sm text-gray-600 mt-1 line-clamp-1">
-                  {token?.description ||
-                    token.token?.description ||
-                    "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
-                </p>
+                <p className="text-sm text-gray-600 mt-1 line-clamp-1">{token?.description || token.token?.description || ""}</p>
 
                 {/* Token Details Section */}
                 <div className="mt-4 grid gap-2">
@@ -185,7 +190,15 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                   ].map((item, index) => (
                     <div key={index} className="flex items-center justify-between">
                       <span className="font-semibold text-left">{item.label}</span>
-                      <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">{item.value}</span>
+                      {typeof item.value === "string" && isValidUrl(item.value) ? (
+                        <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">
+                          <a href={item.value} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+                            View Document
+                          </a>
+                        </span>
+                      ) : (
+                        <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">{item.value}</span>
+                      )}
                     </div>
                   ))}
                   {industryTemplate && industryTemplate === Industries.TOKENIZED_DEBT && (
