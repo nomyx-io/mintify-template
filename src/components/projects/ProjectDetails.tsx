@@ -827,6 +827,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                     );
 
                     setIsPaybackModalVisible(false);
+                    setIsFullyRepaid(true); // Set the flag to true on success
                     setSelectedStocks([]);
                     paybackPoolform.resetFields();
                   } catch (error) {
