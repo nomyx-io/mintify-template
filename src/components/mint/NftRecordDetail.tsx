@@ -32,7 +32,25 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
   const [identityDetail, setIdentityDetail] = React.useState<string>();
   const [projectType, setProjectType] = React.useState<string>();
 
-  const { transactionHash, claimTopics, id, nftTitle, description, price, projectId, projectStartDate, mintAddress, ...metadata } = data;
+  const {
+    transactionHash,
+    claimTopics,
+    id,
+    nftTitle,
+    description,
+    price,
+    projectId,
+    projectStartDate,
+    mintAddress,
+    createdAt,
+    isWithdrawn,
+    objectId,
+    updatedAt,
+    address,
+    owner,
+    totalAmount,
+    ...metadata
+  } = data;
 
   const colorKey = id || nftTitle;
   const color = hashToColor(`${colorKey as string}`);
@@ -143,6 +161,18 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
               <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Mint To</div>
               <div className="card-value truncate">{identityDetail}</div>
             </div>
+            {owner && (
+              <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+                <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Owner</div>
+                <div className="card-value truncate">{owner as string}</div>
+              </div>
+            )}
+            {totalAmount && !isNaN(Number(totalAmount)) && (
+              <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+                <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Price</div>
+                <div className="card-value truncate">{formatPrice(Number(totalAmount) / 1_000_000)}</div>
+              </div>
+            )}
             {projectType !== Industries.TRADE_FINANCE && (
               <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
                 <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Price</div>

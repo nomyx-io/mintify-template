@@ -4,6 +4,7 @@ import { EyeOutlined } from "@ant-design/icons";
 import { Table, Switch, Modal, Input, Button } from "antd";
 import { ethers } from "ethers";
 import { MoneyRecive, Eye } from "iconsax-react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 import { Industries } from "@/constants/constants";
@@ -36,6 +37,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   const [amount, setAmount] = useState<string>(""); // State for the input value
   const [isSubmitting, setIsSubmitting] = useState(false); // For submission state
   const { walletPreference, dfnsToken, user } = useContext(UserContext);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -60,7 +62,6 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
       }));
 
       console.log("updated tokens listed");
-
       setFilteredTokens(updatedTokens);
     } catch (error) {
       console.error("Error fetching listed tokens:", error);
@@ -90,7 +91,6 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
 
         if (currentStatus === expectedStatus) {
           console.log(`✅ Token ${tokenId} is now ${expectedStatus}`);
-
           // Update local state to match blockchain state
           setFilteredTokens((prevTokens) =>
             prevTokens.map((token) => (token.tokenId === tokenId ? { ...token, token: { ...token.token, status: expectedStatus } } : token))
@@ -500,6 +500,10 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     return Object.values(nonNullColumns).slice(0, maxColumns);
   };
 
+  const handleDetailViewClick = (id: string) => {
+    router.push(`/nft-detail/${id}`);
+  };
+
   const isValidUrl = (str: string): boolean => {
     try {
       new URL(str);
@@ -550,11 +554,16 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
 
   // Define columns conditionally based on `isSalesHistory`
   const listingColumns = [
-    // {
-    //   title: "",
-    //   dataIndex: "tokenId",
-    //   render: (tokenId: string) => <Eye className="cursor-pointer" onClick={() => handleDepositClick(tokenId)} />,
-    // },
+    ...(!isSalesHistory
+      ? [
+          {
+            title: () => <th style={{ width: "5%" }}></th>,
+            dataIndex: "objectId",
+            style: { width: "5%" },
+            render: (objectId: string) => <EyeOutlined className="cursor-pointer" onClick={() => handleDetailViewClick(objectId)} />,
+          },
+        ]
+      : []),
     {
       title: () => <th style={{ width: "20%" }}>Title</th>,
       dataIndex: "tokenId",
