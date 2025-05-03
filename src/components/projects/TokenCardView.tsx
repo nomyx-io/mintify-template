@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import { Card, Modal, Input, Button } from "antd";
 import { MoneyRecive } from "iconsax-react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 import { Industries } from "@/constants/constants";
@@ -26,6 +27,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
   const [amount, setAmount] = useState<string>(""); // State for the input value
   const [isSubmitting, setIsSubmitting] = useState(false); // For submission state
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const router = useRouter();
 
   const handleDepositClick = (tokenId: string) => {
     console.log("tokenId", tokenId);
@@ -75,6 +77,10 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
     } else {
       toast.warning("The total deposited amount exceeds the token price.");
     }
+  };
+
+  const handleDetailViewClick = (id: string) => {
+    router.push(`/nft-detail/${id}`);
   };
 
   const formatColumnTitle = (title: string): string => {
@@ -164,7 +170,9 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                   justifyContent: "center",
                   padding: "20px",
                   boxSizing: "border-box",
+                  cursor: "pointer",
                 }}
+                onClick={!isSalesHistory ? () => handleDetailViewClick(token?.objectId) : undefined}
               >
                 <GenerateSvgIcon color={color} />
               </div>
@@ -178,11 +186,13 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                 {/* Token Details Section */}
                 <div className="mt-4 grid gap-2">
                   {[
-                    ...(token.price > 0
+                    ...(token.price > 0 || token.totalAmount
                       ? [
                           {
-                            label: "Total Price",
-                            value: isSalesHistory ? formatPrice(token.price, "USD") : formatPrice(token.price / 1_000_000, "USD"),
+                            label: "Price",
+                            value: isSalesHistory
+                              ? formatPrice(token.price, "USD")
+                              : formatPrice(token.price ? token.price : token.totalAmount / 1_000_000, "USD"),
                           },
                         ]
                       : []),

@@ -18,7 +18,11 @@ export default function NftDetail() {
   useEffect(() => {
     const getData = async () => {
       let nft = await api.getMintedNftDetails(id as string);
-      setNftData({ ...nft, id: id });
+
+      // Destructure to omit the 'token' property
+      const { token, ...rest } = nft;
+
+      setNftData({ ...rest, id }); // Store the cleaned object
     };
 
     if (id) {
