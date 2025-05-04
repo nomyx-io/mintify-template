@@ -112,7 +112,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
           projectId,
         });
       }
-      console.log("projectID: ", projectId);
+
       let fields: NftDetailsInputField[] = [];
       if (projectFields) {
         fields = JSON.parse(projectFields).map((field: any) => ({

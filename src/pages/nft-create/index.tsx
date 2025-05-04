@@ -62,7 +62,7 @@ export default function Details({ service }: { service: BlockchainService }) {
         console.warn("User context not available after timeout. Redirecting to login...");
         router.push("/login");
       } else {
-        console.log("⚠️ Proceeding after timeout with available user context.");
+        console.log("Proceeding after timeout with available user context.");
         setIsUserChecked(true);
       }
     }, 5000);
