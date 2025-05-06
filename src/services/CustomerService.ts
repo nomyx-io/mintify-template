@@ -221,8 +221,8 @@ export const CustomerService = () => {
       totalStocks: tokenRecords.length,
       retiredTokens,
       activeTokens,
-      activeTokenizedValue: formatPrice(activeTokenizedValue, "USD"),
-      totalTokenizedValue: formatPrice(totalTokenizedValue, "USD"),
+      activeTokenizedValue: formatPrice(activeTokenizedValue / 1_000_000, "USD"),
+      totalTokenizedValue: formatPrice(totalTokenizedValue / 1_000_000, "USD"),
       totalRetiredAmount: formatPrice(totalRetiredAmount, "USD"),
       issuedValue: formatPrice(
         allTokens?.reduce((acc: number, record: any) => {

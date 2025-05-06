@@ -170,7 +170,7 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
             {totalAmount && !isNaN(Number(totalAmount)) && (
               <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
                 <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Price</div>
-                <div className="card-value truncate">{formatPrice(Number(totalAmount))}</div>
+                <div className="card-value truncate">{formatPrice(Number(totalAmount) / 1_000_000)}</div>
               </div>
             )}
             {projectType !== Industries.TRADE_FINANCE && (

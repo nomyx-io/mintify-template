@@ -3,6 +3,8 @@ import React from "react";
 import { Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 
+import { formatPrice } from "@/utils/currencyFormater";
+
 interface InvestorData {
   investorName: string;
   investorId: string;
@@ -34,7 +36,7 @@ const InvestorListView: React.FC<InvestorListViewProps> = ({ investors }) => {
       dataIndex: "amountDeposited",
       key: "amountDeposited",
       sorter: (a, b) => a.amountDeposited - b.amountDeposited,
-      render: (value) => (value / 1e6).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      render: (value) => (value != null ? formatPrice(value) : "-"),
     },
     {
       title: "Collateral Token Issued",
