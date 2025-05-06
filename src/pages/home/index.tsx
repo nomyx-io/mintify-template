@@ -36,6 +36,7 @@ interface KPIs {
   retiredTokens: number;
   activeTokenizedValue: string;
   totalRetiredAmount: string;
+  totalAssetsValue: string;
   [key: string]: any;
 }
 

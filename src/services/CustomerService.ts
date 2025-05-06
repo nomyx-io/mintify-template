@@ -216,6 +216,14 @@ export const CustomerService = () => {
       return acc + formatUSDC(record.attributes.totalAmount || "0");
     }, 0);
 
+    const totalAssetsValue =
+      allTokens?.reduce((acc: number, record: any) => {
+        // Prioritize totalAmount, fallback to price if totalAmount is undefined
+        const value = record.attributes.totalAmount || record.attributes.price || "0";
+        console.log(acc + Number(value));
+        return acc + Number(value);
+      }, 0) || 0;
+
     return {
       tokens: allTokens?.length || 0,
       totalStocks: tokenRecords.length,
@@ -224,6 +232,7 @@ export const CustomerService = () => {
       activeTokenizedValue: formatPrice(activeTokenizedValue / 1_000_000, "USD"),
       totalTokenizedValue: formatPrice(totalTokenizedValue / 1_000_000, "USD"),
       totalRetiredAmount: formatPrice(totalRetiredAmount, "USD"),
+      totalAssetsValue: formatPrice(totalAssetsValue, "USD"),
       issuedValue: formatPrice(
         allTokens?.reduce((acc: number, record: any) => {
           const price = parseFloat(record.attributes.price) || 0;

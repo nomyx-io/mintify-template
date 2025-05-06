@@ -10,6 +10,7 @@ type KPIs = {
   totalRetiredAmount?: string;
   activeTokenizedValue?: string;
   totalTokenizedValue?: string;
+  totalAssetsValue?: string;
   issuedValue?: string;
   totalDeposits?: number;
   totalDepositAmount?: number;
@@ -37,6 +38,11 @@ export function getKPIs(data?: KPIs): KPIItem[] {
       icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Active Stocks",
       value: data?.activeTokens,
+    },
+    {
+      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Total Assets Value",
+      value: data?.totalAssetsValue,
     },
     {
       icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
