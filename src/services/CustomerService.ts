@@ -218,9 +218,12 @@ export const CustomerService = () => {
 
     const totalAssetsValue =
       allTokens?.reduce((acc: number, record: any) => {
-        // Prioritize totalAmount, fallback to price if totalAmount is undefined
-        const value = record.attributes.totalAmount || record.attributes.price || "0";
-        console.log(acc + Number(value));
+        let value = 0;
+        if (record.attributes.totalAmount) {
+          value = record.attributes.totalAmount / 1_000_000;
+        } else if (record.attributes.price) {
+          value = Number(record.attributes.price);
+        }
         return acc + Number(value);
       }, 0) || 0;
 

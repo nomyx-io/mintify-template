@@ -30,6 +30,11 @@ export function getKPIs(data?: KPIs): KPIItem[] {
       value: data?.tokens,
     },
     {
+      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Total Assets Value",
+      value: data?.totalAssetsValue,
+    },
+    {
       icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Stocks",
       value: data?.totalStocks,
@@ -38,11 +43,6 @@ export function getKPIs(data?: KPIs): KPIItem[] {
       icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Active Stocks",
       value: data?.activeTokens,
-    },
-    {
-      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Assets Value",
-      value: data?.totalAssetsValue,
     },
     {
       icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
