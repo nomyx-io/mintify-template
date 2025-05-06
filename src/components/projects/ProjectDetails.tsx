@@ -357,7 +357,9 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
               <div className="flex items-center">
                 {project.industryTemplate === Industries.TRADE_FINANCE ? (
                   <div className="flex gap-2">
-                    <span className="mt-2 font-semibold">Current Funding: {formatPrice((project.totalDepositAmount || 0) * 1e6, "USD")}</span>
+                    <span className="mt-2 font-semibold">
+                      Current Funding: {formatPrice((project.isWithdrawn ? 0 : project.totalDepositAmount || 0) * 1e6, "USD")}
+                    </span>
                     <Button
                       type="primary"
                       className="bg-red-500 hover:!bg-red-600"
@@ -557,6 +559,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
 
                   setIsWithdrawModalVisible(false);
                   project.isWithdrawn = true; // Set the flag to true on success
+                  project.totalDepositAmount = 0; // Set total deposit amount to 0
                 } catch (error) {
                   console.error("Withdrawal error:", error);
                 }
