@@ -43,12 +43,34 @@ export default function Details({ service }: { service: BlockchainService }) {
   const blockchainService = walletPreference === WalletPreference.PRIVATE ? BlockchainService.getInstance() : service;
 
   useEffect(() => {
-    if (user === undefined) return;
-    if (!user) {
-      router.push("/login");
-    } else {
-      setIsUserChecked(true);
-    }
+    const checkUserInterval = setInterval(() => {
+      const token = localStorage.getItem("sessionToken");
+
+      if (user && token) {
+        console.log("User and token found, continuing...");
+        clearInterval(checkUserInterval);
+        clearTimeout(timeout); // clear the timeout in case polling resolves first
+        setIsUserChecked(true);
+      }
+    }, 200);
+
+    // Safety: timeout after 5 seconds to avoid infinite loop
+    const timeout = setTimeout(() => {
+      clearInterval(checkUserInterval);
+
+      if (!user) {
+        console.warn("User context not available after timeout. Redirecting to login...");
+        router.push("/login");
+      } else {
+        console.log("Proceeding after timeout with available user context.");
+        setIsUserChecked(true);
+      }
+    }, 5000);
+
+    return () => {
+      clearInterval(checkUserInterval);
+      clearTimeout(timeout);
+    };
   }, [user, router]);
 
   const listener = usePageUnloadGuard();
