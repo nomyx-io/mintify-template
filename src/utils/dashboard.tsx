@@ -23,7 +23,7 @@ type KPIItem = {
 };
 
 export function getKPIs(data?: KPIs): KPIItem[] {
-  const kpis: (KPIItem | false)[] = [
+  const kpis: KPIItem[] = [
     {
       icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Assets",
@@ -31,53 +31,61 @@ export function getKPIs(data?: KPIs): KPIItem[] {
     },
     {
       icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Assets Value",
-      value: data?.totalAssetsValue,
-    },
-    {
-      icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Stocks",
-      value: data?.totalStocks,
-    },
-    {
-      icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Active Stocks",
-      value: data?.activeTokens,
-    },
-    {
-      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Active Value of Tokenized Stocks",
-      value: data?.activeTokenizedValue,
-    },
-    {
-      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Value of Tokenized Stocks",
-      value: data?.totalTokenizedValue,
-    },
-    {
-      icon: <Setting className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Qty. Retired Stocks",
-      value: data?.retiredTokens,
-    },
-    {
-      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Retired Stocks",
-      value: data?.totalRetiredAmount,
-    },
-    parseFloat(data?.issuedValue || "0") > 0 && {
-      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
       title: "Total Issued Value",
       value: data?.issuedValue,
     },
-    {
-      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
-      title: "Total Funding",
-      value: formatPrice(data?.totalDepositAmount || 0, "USD"),
-    },
   ];
 
-  // Use type guard to ensure only KPIItem objects are returned
-  return kpis.filter((item): item is KPIItem => Boolean(item));
+  // Conditionally add other KPIs based on data availability
+  if (data?.totalStocks !== undefined) {
+    kpis.push({
+      icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Total Stocks",
+      value: data.totalStocks,
+    });
+  }
+
+  if (data?.activeTokens !== undefined) {
+    kpis.push({
+      icon: <Coin className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Total Active Stocks",
+      value: data.activeTokens,
+    });
+  }
+
+  if (data?.activeTokenizedValue !== undefined) {
+    kpis.push({
+      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Active Value of Tokenized Stocks",
+      value: data.activeTokenizedValue,
+    });
+  }
+
+  if (data?.retiredTokens !== undefined) {
+    kpis.push({
+      icon: <Setting className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Qty. Retired Stocks",
+      value: data.retiredTokens,
+    });
+  }
+
+  if (data?.totalRetiredAmount !== undefined) {
+    kpis.push({
+      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Retired Stocks",
+      value: data.totalRetiredAmount,
+    });
+  }
+
+  if (data?.totalDepositAmount !== undefined) {
+    kpis.push({
+      icon: <DollarSquare className="text-nomyx-text-light dark:text-nomyx-text-dark" />,
+      title: "Total Funding",
+      value: formatPrice(data.totalDepositAmount, "USD"),
+    });
+  }
+
+  return kpis;
 }
 
 export function getGraphData(graphValues?: GraphValues) {
