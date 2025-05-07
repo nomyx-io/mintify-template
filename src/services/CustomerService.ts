@@ -230,14 +230,16 @@ export const CustomerService = () => {
     return {
       tokens: allTokens?.length || 0,
       issuedValue: formatPrice(totalIssuedValue, "USD"),
-      totalStocks: tradeFinanceTokens.length,
-      retiredTokens,
-      activeTokens,
-      activeTokenizedValue: formatPrice(activeTokenizedValue, "USD"),
-      totalTokenizedValue: formatPrice(totalTokenizedValue, "USD"),
-      totalRetiredAmount: formatPrice(totalRetiredAmount, "USD"),
+      totalStocks: tradeFinanceTokens.length > 0 ? tradeFinanceTokens.length : undefined,
+      retiredTokens: tradeFinanceTokens.length > 0 ? retiredTokens : undefined,
+      activeTokens: tradeFinanceTokens.length > 0 ? activeTokens : undefined,
+      activeTokenizedValue: tradeFinanceTokens.length > 0 ? formatPrice(activeTokenizedValue, "USD") : undefined,
+      totalTokenizedValue: tradeFinanceTokens.length > 0 ? formatPrice(totalTokenizedValue, "USD") : undefined,
+      totalRetiredAmount: tradeFinanceTokens.length > 0 ? formatPrice(totalRetiredAmount, "USD") : undefined,
       totalDeposits: tradeDealDeposits?.length || 0,
-      totalDepositAmount: Array.isArray(tradeDealDeposits) ? tradeDealDeposits.reduce((acc, t) => acc + Number(t.attributes?.amount || 0), 0) : 0,
+      totalDepositAmount: Array.isArray(tradeDealDeposits)
+        ? tradeDealDeposits.reduce((acc, t) => acc + Number(t.attributes?.amount || 0), 0)
+        : undefined,
     };
   };
 
