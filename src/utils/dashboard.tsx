@@ -10,7 +10,6 @@ type KPIs = {
   totalRetiredAmount?: string;
   activeTokenizedValue?: string;
   totalTokenizedValue?: string;
-  totalAssetsValue?: string;
   issuedValue?: string;
   totalDeposits?: number;
   totalDepositAmount?: number;
