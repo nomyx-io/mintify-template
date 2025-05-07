@@ -39,22 +39,52 @@ export default class BlockchainService {
    */
 
   constructor() {
-    let ethObject = (window as any).ethereum;
-    this.provider = new ethers.BrowserProvider(ethObject);
-    this.provider.getSigner().then((signer) => (this.signer = signer));
+    // Initialize properties with default values
+    this.provider = null as unknown as ethers.BrowserProvider;
+    this.signer = null;
+    this.gfMintService = undefined;
+    this.treasuryService = undefined;
+    this.usdcService = undefined;
+    this.marketplaceService = undefined;
+    this.carbonCreditService = undefined;
+    this.tradeDealService = undefined;
 
-    const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL;
-    if (rpcUrl) {
-      this.dedicatedProvider = new ethers.JsonRpcProvider(rpcUrl);
-      console.log("Using dedicated RPC provider:", rpcUrl);
+    try {
+      let ethObject = (window as any).ethereum;
+
+      // Only initialize if ethereum object exists
+      if (ethObject && typeof ethObject !== "undefined") {
+        this.provider = new ethers.BrowserProvider(ethObject);
+
+        // Initialize signer with promise handling
+        this.provider
+          .getSigner()
+          .then((signer) => {
+            this.signer = signer;
+            console.log("Signer initialized successfully");
+          })
+          .catch((error) => {
+            console.warn("Failed to get signer initially, will retry when needed:", error);
+          });
+      } else {
+        console.warn("Ethereum object not found in window. Web3 functionality may be limited.");
+      }
+
+      const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL;
+      if (rpcUrl) {
+        this.dedicatedProvider = new ethers.JsonRpcProvider(rpcUrl);
+        console.log("Using dedicated RPC provider:", rpcUrl);
+      }
+
+      this.gemforceMint = this.gemforceMint.bind(this);
+      this.getClaimTopics = this.getClaimTopics.bind(this);
+
+      this.parseClient.initialize();
+
+      this.init();
+    } catch (error) {
+      console.error("Error during BlockchainService initialization:", error);
     }
-
-    this.gemforceMint = this.gemforceMint.bind(this);
-    this.getClaimTopics = this.getClaimTopics.bind(this);
-
-    this.parseClient.initialize();
-
-    this.init();
   }
 
   private async init() {
