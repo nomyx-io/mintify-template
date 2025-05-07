@@ -3,6 +3,7 @@ import moment from "moment";
 import Parse from "parse";
 
 import { Industries } from "@/constants/constants";
+import { KPIs } from "@/types/kpis";
 import { formatPrice } from "@/utils/currencyFormater";
 
 import ParseClient from "./ParseClient";

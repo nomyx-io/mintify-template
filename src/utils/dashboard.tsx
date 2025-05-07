@@ -1,19 +1,8 @@
 import { Coin, Setting, ArrowUp, DollarSquare } from "iconsax-react";
 
-import { formatPrice } from "./currencyFormater";
+import { KPIs } from "@/types/kpis";
 
-type KPIs = {
-  tokens: number;
-  totalStocks?: number;
-  retiredTokens?: number;
-  activeTokens?: number;
-  totalRetiredAmount?: string;
-  activeTokenizedValue?: string;
-  totalTokenizedValue?: string;
-  issuedValue?: string;
-  totalDeposits?: number;
-  totalDepositAmount?: number;
-};
+import { formatPrice } from "./currencyFormater";
 
 type KPIItem = {
   icon: JSX.Element;
