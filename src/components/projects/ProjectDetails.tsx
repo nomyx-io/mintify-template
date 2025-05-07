@@ -143,7 +143,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
         if (project?.projectInfo) {
           try {
             const parsedProjectInfo = JSON.parse(project.projectInfo);
-            console.log("=========================", parsedProjectInfo);
             setProjectInfo(parsedProjectInfo);
           } catch (parseError) {
             console.error("Error parsing project info:", parseError);
