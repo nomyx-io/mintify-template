@@ -12,7 +12,7 @@ import ProjectListView from "@/components/projects/ProjectListView";
 import ProjectsHeader from "@/components/projects/ProjectsHeader";
 import { Industries } from "@/constants/constants";
 import { getDashboardLayout } from "@/Layouts";
-import { CustomerService } from "@/services/CustomerService";
+import { CustomerService, formatUSDC } from "@/services/CustomerService";
 
 export default function Projects() {
   const [open, setOpen] = useState(false);
@@ -53,17 +53,18 @@ export default function Projects() {
                 const { CARBON_CREDIT, TOKENIZED_DEBT, TRADE_FINANCE } = Industries;
 
                 if (industryTemplate === TRADE_FINANCE) {
-                  // For Trade Finance: use totalAmount
-                  return acc + Number(token.attributes.totalAmount || 0);
+                  // For Trade Finance: use formatUSDC on totalAmount and multiply by 1e6
+                  const formattedAmount = formatUSDC(token.attributes.totalAmount || 0);
+                  return acc + formattedAmount * 1e6;
                 } else if (industryTemplate === CARBON_CREDIT) {
                   // For Carbon Credit: use price
                   const price = Number(token.attributes.price || 0);
-                  return acc + price;
+                  return acc + price * 1e6;
                 } else if (industryTemplate === TOKENIZED_DEBT) {
                   // For Tokenized Debt: use price * existingCredits
                   const price = Number(token.attributes.price || 0);
                   const existingCredits = Number(token.attributes.existingCredits || 1);
-                  return acc + price * existingCredits;
+                  return acc + price * existingCredits * 1e6;
                 } else {
                   // Future Templates
                   return 0;
