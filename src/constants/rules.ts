@@ -14,6 +14,12 @@ export const alphaNumericRule = {
   message: "Only alphanumeric characters are allowed.",
 };
 
+export const alphaNumericWithSpaceRule = {
+  required: true,
+  pattern: Regex.alphaNumericAndSpace,
+  message: "Only alphanumeric characters and spaces are allowed.",
+};
+
 export const walletAddressRule = {
   required: true,
   pattern: Regex.walletAddressRegex,
