@@ -455,11 +455,11 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                           label: "Investors",
                           children: <InvestorListView investors={investors} />,
                         },
-                        // {
-                        //   key: "3",
-                        //   label: "Collateral Token History",
-                        //   children: <CollateralTokenHistoryView records={collateralTokenHistory} />,
-                        // },
+                        {
+                          key: "3",
+                          label: "Collateral Token History",
+                          children: <CollateralTokenHistoryView records={collateralTokenHistory} />,
+                        },
                       ]
                     : []),
                   ...(project.industryTemplate !== Industries.TRADE_FINANCE
