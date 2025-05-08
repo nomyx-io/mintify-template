@@ -14,15 +14,7 @@ import ProjectsHeader from "@/components/projects/ProjectsHeader";
 import { Industries } from "@/constants/constants";
 import { getDashboardLayout } from "@/Layouts";
 import { CustomerService } from "@/services/CustomerService";
-
-const formatUSDC = (value: string | number): number => {
-  try {
-    return Number(ethers.formatUnits(value.toString(), 6));
-  } catch (error) {
-    console.error("Error formatting USDC value:", error);
-    return 0;
-  }
-};
+import { formatUSDC } from "@/utils/currencyFormater";
 
 export default function Projects() {
   const [open, setOpen] = useState(false);
