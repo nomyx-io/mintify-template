@@ -10,6 +10,7 @@ import ProjectCard from "@/components/projects/ProjectCard";
 import ProjectDetails from "@/components/projects/ProjectDetails";
 import ProjectListView from "@/components/projects/ProjectListView";
 import ProjectsHeader from "@/components/projects/ProjectsHeader";
+import { Industries } from "@/constants/constants";
 import { getDashboardLayout } from "@/Layouts";
 import { CustomerService } from "@/services/CustomerService";
 
@@ -45,7 +46,29 @@ export default function Projects() {
             description: project.attributes.description,
             logo: project.attributes.logo,
             coverImage: project.attributes.coverImage,
-            totalValue: projectTokens?.reduce((acc, token) => acc + Number(token.attributes.totalAmount), 0) || 0,
+            totalValue:
+              projectTokens?.reduce((acc, token) => {
+                // Calculate totalValue based on industry type
+                const industryTemplate = project.attributes.industryTemplate;
+                const { CARBON_CREDIT, TOKENIZED_DEBT, TRADE_FINANCE } = Industries;
+
+                if (industryTemplate === TRADE_FINANCE) {
+                  // For Trade Finance: use totalAmount
+                  return acc + Number(token.attributes.totalAmount || 0);
+                } else if (industryTemplate === CARBON_CREDIT) {
+                  // For Carbon Credit: use price
+                  const price = Number(token.attributes.price || 0);
+                  return acc + price;
+                } else if (industryTemplate === TOKENIZED_DEBT) {
+                  // For Tokenized Debt: use price * existingCredits
+                  const price = Number(token.attributes.price || 0);
+                  const existingCredits = Number(token.attributes.existingCredits || 1);
+                  return acc + price * existingCredits;
+                } else {
+                  // Future Templates
+                  return 0;
+                }
+              }, 0) || 0,
             totalTokens: projectTokens?.length || 0,
             createdAt: project.createdAt,
             industryTemplate: project.attributes.industryTemplate,
