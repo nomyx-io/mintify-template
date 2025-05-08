@@ -3,22 +3,43 @@ import Parse from "parse";
 export default class ParseClient {
   static createdSchemas: any = [];
 
-  public static initialize() {
+  private static isInitialized = false;
+  private static currentSessionToken: string | null = null;
+
+  public static initialize(sessionToken?: string) {
+    if (this.isInitialized && sessionToken === this.currentSessionToken) {
+      return; // Skip if already initialized with same token
+    }
+
     Parse.initialize(process.env.NEXT_PUBLIC_PARSE_APPLICATION_ID || "", process.env.NEXT_PUBLIC_PARSE_JAVASCRIPT_KEY || "");
     Parse.serverURL = process.env.NEXT_PUBLIC_PARSE_SERVER_URL + "/parse";
     Parse.javaScriptKey = process.env.NEXT_PUBLIC_PARSE_JAVASCRIPT_KEY;
 
-    // Middleware: Automatically use the session token (JWT) for all
     if (typeof window !== "undefined") {
-      const sessionToken = localStorage.getItem("sessionToken");
-      if (sessionToken) {
-        Parse.User.become(sessionToken).catch((error) => {
+      const tokenToUse = sessionToken || localStorage.getItem("sessionToken");
+
+      if (tokenToUse) {
+        this.currentSessionToken = tokenToUse;
+        Parse.User.become(tokenToUse).catch((error) => {
           console.error("Error becoming user with sessionToken:", error);
+          // Clear invalid token
+          localStorage.removeItem("sessionToken");
+          this.currentSessionToken = null;
         });
       }
     }
+
+    this.isInitialized = true;
   }
 
+  public static updateSessionToken(newToken: string) {
+    this.currentSessionToken = newToken;
+    if (this.isInitialized) {
+      Parse.User.become(newToken).catch((error) => {
+        console.error("Error updating session token:", error);
+      });
+    }
+  }
   /**
    * get a record from the parse database
    * @param collectionName

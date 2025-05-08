@@ -9,6 +9,7 @@ import KPI from "@/components/atoms/KPI";
 import { EventFeed } from "@/components/molecules/EventFeed";
 import { getDashboardLayout } from "@/Layouts";
 import { CustomerService } from "@/services/CustomerService";
+import { KPIs } from "@/types/kpis";
 import { getGraphData, getKPIs } from "@/utils/dashboard";
 
 // Define necessary interfaces
@@ -27,16 +28,6 @@ interface Events {
 interface GraphValues {
   labels: string[];
   values: number[];
-}
-
-interface KPIs {
-  tokens: number;
-  totalDeposits: number;
-  activeTokens: number;
-  retiredTokens: number;
-  activeTokenizedValue: string;
-  totalRetiredAmount: string;
-  [key: string]: any;
 }
 
 interface PoolStats {
@@ -97,8 +88,6 @@ export default function Home() {
       const events = eventsResult.status === "fulfilled" ? eventsResult.value : {};
       const kpis = kpisResult.status === "fulfilled" ? kpisResult.value : undefined;
       const poolStats = poolStatsResult.status === "fulfilled" ? poolStatsResult.value : { activePools: 0, retiredPools: 0 };
-
-      console.log("Dashboard data fetched successfully");
 
       // Update state with the fetched data, with checks for undefined values
       if (kpis) {

@@ -11,7 +11,7 @@ import {
   tradeFinanceStockInfoFields,
   tradeFinanceDocumentationFields,
 } from "@/constants/constants";
-import { requiredRule, numberRule, alphaNumericRule, walletAddressRule } from "@/constants/rules";
+import { requiredRule, numberRule, alphaNumericRule, alphaNumericWithSpaceRule, walletAddressRule } from "@/constants/rules";
 import { CustomerService } from "@/services/CustomerService";
 import { Regex } from "@/utils/regex";
 
@@ -174,7 +174,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
               name="nftTitle"
               label="Title"
               placeholder="Enter Token Title"
-              rules={[requiredRule, alphaNumericRule, { max: 30 }]}
+              rules={[requiredRule, alphaNumericWithSpaceRule, { max: 30 }]}
             />
             {projectList.find((p) => p.id === projectId)?.industryTemplate !== Industries.TRADE_FINANCE && (
               <VariableFormInput
