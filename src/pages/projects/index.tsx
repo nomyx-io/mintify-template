@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "antd";
+import { ethers } from "ethers";
 import Head from "next/head";
 import { useRouter } from "next/router";
 
@@ -12,7 +13,16 @@ import ProjectListView from "@/components/projects/ProjectListView";
 import ProjectsHeader from "@/components/projects/ProjectsHeader";
 import { Industries } from "@/constants/constants";
 import { getDashboardLayout } from "@/Layouts";
-import { CustomerService, formatUSDC } from "@/services/CustomerService";
+import { CustomerService } from "@/services/CustomerService";
+
+const formatUSDC = (value: string | number): number => {
+  try {
+    return Number(ethers.formatUnits(value.toString(), 6));
+  } catch (error) {
+    console.error("Error formatting USDC value:", error);
+    return 0;
+  }
+};
 
 export default function Projects() {
   const [open, setOpen] = useState(false);
@@ -53,18 +63,18 @@ export default function Projects() {
                 const { CARBON_CREDIT, TOKENIZED_DEBT, TRADE_FINANCE } = Industries;
 
                 if (industryTemplate === TRADE_FINANCE) {
-                  // For Trade Finance: use formatUSDC on totalAmount and multiply by 1e6
+                  // For Trade Finance: use formatUSDC on totalAmount
                   const formattedAmount = formatUSDC(token.attributes.totalAmount || 0);
-                  return acc + formattedAmount * 1e6;
+                  return acc + formattedAmount;
                 } else if (industryTemplate === CARBON_CREDIT) {
                   // For Carbon Credit: use price
                   const price = Number(token.attributes.price || 0);
-                  return acc + price * 1e6;
+                  return acc + price;
                 } else if (industryTemplate === TOKENIZED_DEBT) {
                   // For Tokenized Debt: use price * existingCredits
                   const price = Number(token.attributes.price || 0);
                   const existingCredits = Number(token.attributes.existingCredits || 1);
-                  return acc + price * existingCredits * 1e6;
+                  return acc + price * existingCredits;
                 } else {
                   // Future Templates
                   return 0;
