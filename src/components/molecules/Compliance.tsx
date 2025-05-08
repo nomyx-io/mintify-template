@@ -1,8 +1,9 @@
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from "react";
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from "react";
 
 import { Transfer, Card } from "antd";
 
 import BlockchainService from "@/services/BlockchainService";
+import { CustomerService } from "@/services/CustomerService";
 
 interface ComplianceProps {
   selectedClaims: string[];
@@ -14,9 +15,10 @@ const Compliance = ({ selectedClaims, setSelectedClaims }: ComplianceProps) => {
   const [targetKeys, setTargetKeys] = useState<string[]>(selectedClaims);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const service = BlockchainService.getInstance();
+  const api = useMemo(() => CustomerService(), []);
 
   const getClaimTopics = useCallback(async () => {
-    const claims: Parse.Object[] | null | undefined = service && (await service.getClaimTopics());
+    const claims = await api.getClaimTopics();
     if (claims) {
       const data: ClaimTopic[] = claims.map((item: Parse.Object) => {
         return {

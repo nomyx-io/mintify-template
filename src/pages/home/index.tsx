@@ -98,8 +98,6 @@ export default function Home() {
       const kpis = kpisResult.status === "fulfilled" ? kpisResult.value : undefined;
       const poolStats = poolStatsResult.status === "fulfilled" ? poolStatsResult.value : { activePools: 0, retiredPools: 0 };
 
-      console.log("Dashboard data fetched successfully");
-
       // Update state with the fetched data, with checks for undefined values
       if (kpis) {
         setkpisData(kpis);

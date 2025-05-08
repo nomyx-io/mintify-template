@@ -20,6 +20,7 @@ import TopNavBar from "@/components/molecules/TopNavBar";
 import NomyxAppContext from "@/context/NomyxAppContext";
 import Web3Providers from "@/context/Web3Providers";
 import BlockchainService from "@/services/BlockchainService";
+import ParseClient from "@/services/ParseClient";
 import { generateRandomString } from "@/utils/regex";
 
 import { UserContext } from "../context/UserContext";
@@ -79,7 +80,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  parseInitialize();
+  //parseInitialize();
 
   const getToken = async (request: any) => {
     try {
@@ -227,7 +228,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         const _blockchainService = BlockchainService.getInstance();
         setBlockchainService(_blockchainService);
       }
-      parseInitialize();
+      ParseClient.initialize(token);
     } else {
       toast.error("We couldn't verify your login details. Please check your username and password.");
       setForceLogout(true);
