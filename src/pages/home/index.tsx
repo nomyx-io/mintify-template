@@ -275,7 +275,7 @@ export default function Home() {
             ) : error ? (
               <div className="w-full text-center py-4">Unable to load KPI data</div>
             ) : (
-              <div className="flex flex-wrap w-full -mx-1">
+              <div className="flex flex-wrap w-full -mx-1 gap-y-4">
                 {getKPIs(kpisData)?.map((kpi) => (
                   <div
                     key={kpi.title}
