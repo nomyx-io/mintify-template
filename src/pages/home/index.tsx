@@ -188,46 +188,42 @@ export default function Home() {
       {
         label: "Token Insights",
         key: "1",
-        children: tokenGraphValues ? (
-          <BarChart data={getGraphData(tokenGraphValues)} title="Net Token Issued & Redeemed" />
-        ) : (
-          <div className="flex justify-center items-center h-64">
-            <Spin />
-          </div>
-        ),
+        children:
+          tokenGraphValues && tokenGraphValues.values.some((value) => value > 0) ? (
+            <BarChart data={getGraphData(tokenGraphValues)} title="Net Token Issued & Redeemed" />
+          ) : (
+            <div className="flex justify-center items-center h-64 text-gray-500">No Data Available</div>
+          ),
       },
       {
         label: "Token Insights (Stocks)",
         key: "2",
-        children: stocksGraphValues ? (
-          <BarChart data={getGraphData(stocksGraphValues)} title="Total Stocks Outstanding & Retired" />
-        ) : (
-          <div className="flex justify-center items-center h-64">
-            <Spin />
-          </div>
-        ),
+        children:
+          stocksGraphValues && stocksGraphValues.values.some((value) => value > 0) ? (
+            <BarChart data={getGraphData(stocksGraphValues)} title="Total Stocks Outstanding & Retired" />
+          ) : (
+            <div className="flex justify-center items-center h-64 text-gray-500">No Data Available</div>
+          ),
       },
       {
         label: "Stock Insights",
         key: "3",
-        children: stocksValueGraphValues ? (
-          <BarChart data={getGraphData(stocksValueGraphValues)} title="Stock Values" />
-        ) : (
-          <div className="flex justify-center items-center h-64">
-            <Spin />
-          </div>
-        ),
+        children:
+          stocksValueGraphValues && stocksValueGraphValues.values.some((value) => value > 0) ? (
+            <BarChart data={getGraphData(stocksValueGraphValues)} title="Stock Values" />
+          ) : (
+            <div className="flex justify-center items-center h-64 text-gray-500">No Data Available</div>
+          ),
       },
       {
         label: "Pool Insights",
         key: "4",
-        children: poolGraphValues ? (
-          <BarChart data={getGraphData(poolGraphValues)} title="Pool Statistics" />
-        ) : (
-          <div className="flex justify-center items-center h-64">
-            <Spin />
-          </div>
-        ),
+        children:
+          poolGraphValues && poolGraphValues.values.some((value) => value > 0) ? (
+            <BarChart data={getGraphData(poolGraphValues)} title="Pool Statistics" />
+          ) : (
+            <div className="flex justify-center items-center h-64 text-gray-500">No Data Available</div>
+          ),
       },
     ],
     [tokenGraphValues, stocksGraphValues, stocksValueGraphValues, poolGraphValues]
