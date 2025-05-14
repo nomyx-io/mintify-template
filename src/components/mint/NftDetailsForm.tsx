@@ -56,11 +56,17 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
   const [additionalFields, setAdditionalFields] = useState<NftDetailsInputField[]>([]);
   const [mintToType, setMintToType] = useState<"registered" | "new">("registered");
 
-  Form.useWatch((values) => {
-    if (values.projectId && values.projectId !== projectId) {
-      setProjectId(values.projectId);
+  const watchedProjectId = Form.useWatch("projectId", form);
+
+  useEffect(() => {
+    if (watchedProjectId && watchedProjectId !== projectId) {
+      form.resetFields();
+      form.setFieldsValue({
+        projectId: watchedProjectId,
+      });
+      setProjectId(watchedProjectId);
     }
-  }, form);
+  }, [watchedProjectId, projectId, form]);
 
   const fetchProjects = useCallback(async () => {
     try {
