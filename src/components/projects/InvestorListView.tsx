@@ -95,7 +95,7 @@ const InvestorListView: React.FC<InvestorListViewProps> = ({ investors }) => {
 
   return (
     <>
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-4 pt-4 pr-4">
         <Button type="primary" icon={<DownloadOutlined />} onClick={handleDownload} className="bg-blue-500 hover:bg-blue-600">
           Download CSV
         </Button>
