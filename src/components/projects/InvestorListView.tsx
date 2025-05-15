@@ -68,44 +68,22 @@ const InvestorListView: React.FC<InvestorListViewProps> = ({ investors }) => {
   ];
 
   const handleDownload = () => {
-    // Create headers including deposit details
-    const baseHeaders = columns
-      .filter((col): col is ColumnType<InvestorData> => "dataIndex" in col && typeof col.dataIndex === "string")
-      .map((col) => col.title);
-
-    const headers = [...baseHeaders, "Deposit Amount", "Deposit Date"].join(",");
+    // Only include investor name and ID in base info
+    const headers = ["Investor Name", "Investor ID", "Deposit Amount", "Deposit Date"].join(",");
 
     // Create rows with deposit details
     const rows = investors.flatMap((investor) => {
+      const baseInfo = `${investor.investorName},${investor.investorId}`;
+
       // If no deposits, create one row with base info only
       if (!investor.deposits || investor.deposits.length === 0) {
-        const baseInfo = columns
-          .filter((col): col is ColumnType<InvestorData> => "dataIndex" in col && typeof col.dataIndex === "string")
-          .map((col) => {
-            const value = investor[col.dataIndex as keyof InvestorData];
-            if (value === null || value === undefined) return "";
-            if (col.dataIndex === "amountDeposited") return formatPrice(value as number).replace(/,/g, "");
-            return value;
-          })
-          .join(",");
         return [`${baseInfo},,`];
       }
 
       // Create a row for each deposit
       return investor.deposits.map((deposit) => {
-        const baseInfo = columns
-          .filter((col): col is ColumnType<InvestorData> => "dataIndex" in col && typeof col.dataIndex === "string")
-          .map((col) => {
-            const value = investor[col.dataIndex as keyof InvestorData];
-            if (value === null || value === undefined) return "";
-            if (col.dataIndex === "amountDeposited") return formatPrice(value as number).replace(/,/g, "");
-            return value;
-          })
-          .join(",");
-
         const depositAmount = formatPrice(deposit.amount).replace(/,/g, "");
         const depositDate = new Date(deposit.depositedAt).toISOString().replace("T", " ").slice(0, 16);
-
         return `${baseInfo},${depositAmount},${depositDate}`;
       });
     });
