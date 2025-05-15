@@ -104,18 +104,18 @@ const InvestorListView: React.FC<InvestorListViewProps> = ({ investors }) => {
 
   const expandedRowRender = (record: InvestorData) => {
     return (
-      <div className="p-4 bg-gray-50">
-        <h4 className="text-lg font-semibold mb-3">Deposit History</h4>
+      <div className="p-4 bg-gray-50 dark:bg-gray-800">
+        <h4 className="text-lg font-semibold mb-3 dark:text-white">Deposit History</h4>
         <div className="space-y-2">
           {record.deposits.map((deposit, index) => (
-            <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+            <div key={index} className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg shadow-sm">
               <div className="flex items-center space-x-4">
-                <span className="text-gray-600">Amount:</span>
-                <span className="font-medium">{formatPrice(deposit.amount)}</span>
+                <span className="text-gray-600 dark:text-gray-300">Amount:</span>
+                <span className="font-medium dark:text-white">{formatPrice(deposit.amount)}</span>
               </div>
               <div className="flex items-center space-x-4">
-                <span className="text-gray-600">Date:</span>
-                <span className="font-medium">
+                <span className="text-gray-600 dark:text-gray-300">Date:</span>
+                <span className="font-medium dark:text-white">
                   {new Date(deposit.depositedAt).toLocaleDateString("en-US", {
                     year: "numeric",
                     month: "long",
