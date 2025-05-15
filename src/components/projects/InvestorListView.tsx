@@ -147,6 +147,14 @@ const InvestorListView: React.FC<InvestorListViewProps> = ({ investors }) => {
         expandable={{
           expandedRowRender,
           expandRowByClick: true,
+          expandIcon: ({ expanded, onExpand, record }) => (
+            <button
+              onClick={(e) => onExpand(record, e)}
+              className={`transition-transform ${expanded ? "rotate-90" : ""} text-gray-600 dark:text-gray-300`}
+            >
+              ▶
+            </button>
+          ),
         }}
         pagination={{
           position: ["bottomCenter"],
