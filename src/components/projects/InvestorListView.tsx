@@ -6,10 +6,16 @@ import type { ColumnsType, ColumnType } from "antd/es/table";
 
 import { formatPrice } from "@/utils/currencyFormater";
 
+interface DepositData {
+  amount: number;
+  depositedAt: Date;
+}
+
 interface InvestorData {
   investorName: string;
   investorId: string;
   amountDeposited: number;
+  deposits: DepositData[];
   collateralTokenIssued: number;
   collateralTokenLockupPeriod: string;
   interestTokensIssued: number;
@@ -62,21 +68,46 @@ const InvestorListView: React.FC<InvestorListViewProps> = ({ investors }) => {
   ];
 
   const handleDownload = () => {
-    // Filter columns to only include those with dataIndex
-    const exportColumns = columns.filter((col): col is ColumnType<InvestorData> => "dataIndex" in col && typeof col.dataIndex === "string");
+    // Create headers including deposit details
+    const baseHeaders = columns
+      .filter((col): col is ColumnType<InvestorData> => "dataIndex" in col && typeof col.dataIndex === "string")
+      .map((col) => col.title);
 
-    // Convert data to CSV format
-    const headers = exportColumns.map((col) => col.title).join(",");
-    const rows = investors.map((investor) => {
-      return exportColumns
-        .map((col) => {
-          const value = investor[col.dataIndex as keyof InvestorData];
-          // Handle null values and formatting
-          if (value === null || value === undefined) return "";
-          if (col.dataIndex === "amountDeposited") return formatPrice(value as number).replace(/,/g, "");
-          return value;
-        })
-        .join(",");
+    const headers = [...baseHeaders, "Deposit Amount", "Deposit Date"].join(",");
+
+    // Create rows with deposit details
+    const rows = investors.flatMap((investor) => {
+      // If no deposits, create one row with base info only
+      if (!investor.deposits || investor.deposits.length === 0) {
+        const baseInfo = columns
+          .filter((col): col is ColumnType<InvestorData> => "dataIndex" in col && typeof col.dataIndex === "string")
+          .map((col) => {
+            const value = investor[col.dataIndex as keyof InvestorData];
+            if (value === null || value === undefined) return "";
+            if (col.dataIndex === "amountDeposited") return formatPrice(value as number).replace(/,/g, "");
+            return value;
+          })
+          .join(",");
+        return [`${baseInfo},,`];
+      }
+
+      // Create a row for each deposit
+      return investor.deposits.map((deposit) => {
+        const baseInfo = columns
+          .filter((col): col is ColumnType<InvestorData> => "dataIndex" in col && typeof col.dataIndex === "string")
+          .map((col) => {
+            const value = investor[col.dataIndex as keyof InvestorData];
+            if (value === null || value === undefined) return "";
+            if (col.dataIndex === "amountDeposited") return formatPrice(value as number).replace(/,/g, "");
+            return value;
+          })
+          .join(",");
+
+        const depositAmount = formatPrice(deposit.amount).replace(/,/g, "");
+        const depositDate = new Date(deposit.depositedAt).toISOString().replace("T", " ").slice(0, 16);
+
+        return `${baseInfo},${depositAmount},${depositDate}`;
+      });
     });
 
     const csv = [headers, ...rows].join("\n");
@@ -93,6 +124,36 @@ const InvestorListView: React.FC<InvestorListViewProps> = ({ investors }) => {
     window.URL.revokeObjectURL(url);
   };
 
+  const expandedRowRender = (record: InvestorData) => {
+    return (
+      <div className="p-4 bg-gray-50">
+        <h4 className="text-lg font-semibold mb-3">Deposit History</h4>
+        <div className="space-y-2">
+          {record.deposits.map((deposit, index) => (
+            <div key={index} className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm">
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-600">Amount:</span>
+                <span className="font-medium">{formatPrice(deposit.amount)}</span>
+              </div>
+              <div className="flex items-center space-x-4">
+                <span className="text-gray-600">Date:</span>
+                <span className="font-medium">
+                  {new Date(deposit.depositedAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="flex justify-end mb-4 pt-4 pr-4">
@@ -105,6 +166,10 @@ const InvestorListView: React.FC<InvestorListViewProps> = ({ investors }) => {
         dataSource={investors}
         rowKey="investorId"
         className="custom-table"
+        expandable={{
+          expandedRowRender,
+          expandRowByClick: true,
+        }}
         pagination={{
           position: ["bottomCenter"],
           showSizeChanger: true,
