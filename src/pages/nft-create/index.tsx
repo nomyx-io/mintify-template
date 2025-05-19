@@ -310,8 +310,15 @@ export default function Details({ service }: { service: BlockchainService }) {
           <NftDetailsForm form={form} onFinish={handlePreview} />
           <Compliance selectedClaims={selectedClaims} setSelectedClaims={setSelectedClaims} />
           <div className="actions flex gap-3">
-            <Button onClick={() => router.push("/home")}>Cancel</Button>
-            <Button onClick={form.submit}>Preview</Button>
+            <Button className="text-black bg-white hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark" onClick={() => router.push("/home")}>
+              Cancel
+            </Button>
+            <Button
+              className="text-black bg-white hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark border border-gray-300"
+              onClick={form.submit}
+            >
+              Preview
+            </Button>
           </div>
         </div>
       )}

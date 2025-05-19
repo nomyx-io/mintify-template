@@ -216,6 +216,7 @@ export const CustomerService = () => {
       }, 0);
 
       const activeTokenizedValue = tradeFinanceTokens.reduce((acc: number, record: any) => {
+
         if (record.attributes.isWithdrawn !== true) {
           return acc + formatUSDC(record.attributes.totalAmount || "0");
         }
