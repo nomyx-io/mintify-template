@@ -138,6 +138,17 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
     const fetchData = async () => {
       try {
         const projectTokens = await api.getProjectTokens(["projectId"], [project.id]);
+
+        // Parse projectInfo for all industry templates if available
+        if (project?.projectInfo) {
+          try {
+            const parsedProjectInfo = JSON.parse(project.projectInfo);
+            setProjectInfo(parsedProjectInfo);
+          } catch (parseError) {
+            console.error("Error parsing project info:", parseError);
+          }
+        }
+
         if (project.industryTemplate === Industries.TRADE_FINANCE) {
           // For trade finance template, populate projectStockList
           setProjectStockList(projectTokens);
