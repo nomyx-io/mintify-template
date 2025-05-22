@@ -172,7 +172,14 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                   boxSizing: "border-box",
                   cursor: "pointer",
                 }}
-                onClick={!isSalesHistory ? () => handleDetailViewClick(token?.objectId) : undefined}
+                onClick={
+                  !isSalesHistory
+                    ? () =>
+                        industryTemplate && industryTemplate == Industries.TRADE_FINANCE
+                          ? handleDetailViewClick(token?.objectId)
+                          : handleDetailViewClick(token?.token?.objectId)
+                    : undefined
+                }
               >
                 <GenerateSvgIcon color={color} />
               </div>

@@ -141,12 +141,12 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
         if (project.industryTemplate === Industries.TRADE_FINANCE) {
           // For trade finance template, populate projectStockList
           setProjectStockList(projectTokens);
-          const parsedProjectInfo = JSON.parse(project?.projectInfo);
-          setProjectInfo(parsedProjectInfo);
         } else {
           // For other templates, fetch listings and sales as before
           await Promise.all([fetchListings(projectTokens), fetchSales(projectTokens)]);
         }
+        const parsedProjectInfo = JSON.parse(project?.projectInfo);
+        setProjectInfo(parsedProjectInfo);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -301,44 +301,23 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
                 </div>
 
                 {/* Project Stats */}
-                {project.industryTemplate === Industries.TRADE_FINANCE && project.tradeDealId != null ? (
-                  <>
-                    {Array.isArray(projectInfo) && projectInfo.length > 0 && (
-                      <div
-                        className={`mt-6 md:mt-0 grid grid-cols-2 md:grid-cols-4 gap-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100`}
-                        style={{ maxWidth: "100%", overflow: "hidden" }}
-                      >
-                        {projectInfo.map((item, index) => (
-                          <div key={index} className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                            <span className="text-sm">{item.key}</span>
-                            <h2 className="text-lg font-bold">{item.value}</h2>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div
-                    className={`mt-6 md:mt-0 flex flex-col md:flex-row md:flex-nowrap space-y-4 md:space-y-0 md:space-x-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100`}
-                    style={{ maxWidth: "100%", overflow: "hidden" }}
-                  >
-                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Total Value</span>
-                      <h2 className="text-lg font-bold">{formatNumber(project.totalValue)}</h2>
+                <>
+                  {Array.isArray(projectInfo) && projectInfo.length > 0 && (
+                    <div
+                      className={`mt-6 md:mt-0 grid grid-cols-2 md:grid-cols-4 gap-4 bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark p-4 rounded-lg shadow-md transition-opacity duration-500 opacity-100`}
+                      style={{ maxWidth: "100%", overflow: "hidden" }}
+                    >
+                      {projectInfo.map((item, index) => (
+                        <div key={index} className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
+                          <span className="text-sm">{item.key}</span>
+                          <h2 className="text-lg font-bold">{item.value}</h2>
+                        </div>
+                      ))}
                     </div>
-                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Project Creation Date</span>
-                      <h2 className="text-lg font-bold">{project.createdAt?.toLocaleDateString()}</h2>
-                    </div>
-                    <div className="stat-item bg-nomyx-dark1-light dark:bg-nomyx-dark1-dark p-3 rounded-lg text-center">
-                      <span className="text-sm">Tokens Available</span>
-                      <h2 className="text-lg font-bold">{formatNumber(totalTokens)}</h2>
-                    </div>
-                  </div>
-                )}
+                  )}
+                </>
               </div>
             </div>
-
             {/* Header Section with Search Bar */}
             <div className="flex justify-between items-center p-2 rounded-lg bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark text-nomyx-text-light dark:text-nomyx-text-dark mt-4">
               {/* Search Bar */}
