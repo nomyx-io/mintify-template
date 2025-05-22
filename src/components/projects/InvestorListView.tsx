@@ -107,7 +107,7 @@ const InvestorListView: React.FC<InvestorListViewProps> = ({ investors }) => {
       <div className="p-4 bg-gray-50 dark:bg-gray-800">
         <h4 className="text-lg font-semibold mb-3 dark:text-white">Deposit History</h4>
         <div className="space-y-2">
-          {record.deposits.map((deposit, index) => (
+          {record.deposits?.map((deposit, index) => (
             <div key={index} className="flex items-center justify-between bg-white dark:bg-gray-700 p-3 rounded-lg shadow-sm">
               <div className="flex items-center space-x-4">
                 <span className="text-gray-600 dark:text-gray-300">Amount:</span>
