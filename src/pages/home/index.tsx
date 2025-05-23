@@ -9,6 +9,7 @@ import KPI from "@/components/atoms/KPI";
 import { EventFeed } from "@/components/molecules/EventFeed";
 import { getDashboardLayout } from "@/Layouts";
 import { CustomerService } from "@/services/CustomerService";
+import { KPIs } from "@/types/kpis";
 import { getGraphData, getKPIs } from "@/utils/dashboard";
 
 // Define necessary interfaces
@@ -27,16 +28,6 @@ interface Events {
 interface GraphValues {
   labels: string[];
   values: number[];
-}
-
-interface KPIs {
-  tokens: number;
-  totalDeposits: number;
-  activeTokens: number;
-  retiredTokens: number;
-  activeTokenizedValue: string;
-  totalRetiredAmount: string;
-  [key: string]: any;
 }
 
 interface PoolStats {
@@ -197,46 +188,42 @@ export default function Home() {
       {
         label: "Token Insights",
         key: "1",
-        children: tokenGraphValues ? (
-          <BarChart data={getGraphData(tokenGraphValues)} title="Net Token Issued & Redeemed" />
-        ) : (
-          <div className="flex justify-center items-center h-64">
-            <Spin />
-          </div>
-        ),
+        children:
+          tokenGraphValues && tokenGraphValues.values.some((value) => value > 0) ? (
+            <BarChart data={getGraphData(tokenGraphValues)} title="Net Token Issued & Redeemed" />
+          ) : (
+            <div className="flex justify-center items-center h-64 text-gray-500">No Data Available</div>
+          ),
       },
       {
         label: "Token Insights (Stocks)",
         key: "2",
-        children: stocksGraphValues ? (
-          <BarChart data={getGraphData(stocksGraphValues)} title="Total Stocks Outstanding & Retired" />
-        ) : (
-          <div className="flex justify-center items-center h-64">
-            <Spin />
-          </div>
-        ),
+        children:
+          stocksGraphValues && stocksGraphValues.values.some((value) => value > 0) ? (
+            <BarChart data={getGraphData(stocksGraphValues)} title="Total Stocks Outstanding & Retired" />
+          ) : (
+            <div className="flex justify-center items-center h-64 text-gray-500">No Data Available</div>
+          ),
       },
       {
         label: "Stock Insights",
         key: "3",
-        children: stocksValueGraphValues ? (
-          <BarChart data={getGraphData(stocksValueGraphValues)} title="Stock Values" />
-        ) : (
-          <div className="flex justify-center items-center h-64">
-            <Spin />
-          </div>
-        ),
+        children:
+          stocksValueGraphValues && stocksValueGraphValues.values.some((value) => value > 0) ? (
+            <BarChart data={getGraphData(stocksValueGraphValues)} title="Stock Values" />
+          ) : (
+            <div className="flex justify-center items-center h-64 text-gray-500">No Data Available</div>
+          ),
       },
       {
         label: "Pool Insights",
         key: "4",
-        children: poolGraphValues ? (
-          <BarChart data={getGraphData(poolGraphValues)} title="Pool Statistics" />
-        ) : (
-          <div className="flex justify-center items-center h-64">
-            <Spin />
-          </div>
-        ),
+        children:
+          poolGraphValues && poolGraphValues.values.some((value) => value > 0) ? (
+            <BarChart data={getGraphData(poolGraphValues)} title="Pool Statistics" />
+          ) : (
+            <div className="flex justify-center items-center h-64 text-gray-500">No Data Available</div>
+          ),
       },
     ],
     [tokenGraphValues, stocksGraphValues, stocksValueGraphValues, poolGraphValues]
@@ -275,19 +262,41 @@ export default function Home() {
           )}
 
           {/* KPI cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="flex flex-col gap-3">
             {loading ? (
               // Show loading skeleton for KPIs
-              Array.from({ length: 4 }).map((_, index) => (
-                <Card
-                  key={index}
-                  className="h-24 animate-pulse bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
-                />
-              ))
+              <div className="flex flex-wrap w-full -mx-1">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="px-2 w-full sm:w-1/2 lg:w-1/4">
+                    <Card className="h-24 animate-pulse bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark" />
+                  </div>
+                ))}
+              </div>
             ) : error ? (
-              <div className="col-span-4 text-center">Unable to load KPI data</div>
+              <div className="w-full text-center py-4">Unable to load KPI data</div>
             ) : (
-              getKPIs(kpisData)?.map((kpi) => <KPI key={kpi.title} icon={kpi.icon} title={kpi.title} value={kpi.value} />)
+              <div className="flex flex-wrap w-full -mx-1 gap-y-4">
+                {getKPIs(kpisData)?.map((kpi) => (
+                  <div
+                    key={kpi.title}
+                    className={`px-2 ${
+                      getKPIs(kpisData)?.length === 1
+                        ? "w-full"
+                        : getKPIs(kpisData)?.length === 2
+                          ? "w-1/2"
+                          : getKPIs(kpisData)?.length === 3
+                            ? "w-1/3"
+                            : getKPIs(kpisData)?.length === 4
+                              ? "w-1/4"
+                              : getKPIs(kpisData)?.length === 5
+                                ? "w-1/5"
+                                : "min-w-[250px] flex-grow"
+                    }`}
+                  >
+                    <KPI icon={kpi.icon} title={kpi.title} value={kpi.value} />
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 

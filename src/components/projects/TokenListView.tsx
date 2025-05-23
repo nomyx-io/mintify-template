@@ -560,7 +560,14 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
             title: () => <th style={{ width: "5%" }}></th>,
             dataIndex: "objectId",
             style: { width: "5%" },
-            render: (objectId: string) => <EyeOutlined className="cursor-pointer" onClick={() => handleDetailViewClick(objectId)} />,
+            render: (objectId: string, record: any) => (
+              <EyeOutlined
+                className="cursor-pointer"
+                onClick={() =>
+                  industryTemplate === Industries.TRADE_FINANCE ? handleDetailViewClick(objectId) : handleDetailViewClick(record.token?.objectId)
+                }
+              />
+            ),
           },
         ]
       : []),

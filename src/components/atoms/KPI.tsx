@@ -18,7 +18,7 @@ const KPI: React.FC<IndicatorProps> = ({ icon, title, value, className }) => {
   });
 
   return (
-    <Card className="bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+    <Card className="w-full bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
       <Statistic
         title={<span className="text-nomyx-gray2-light dark:text-nomyx-gray2-dark">{title}</span>}
         value={value}

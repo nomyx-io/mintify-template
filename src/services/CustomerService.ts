@@ -3,19 +3,11 @@ import moment from "moment";
 import Parse from "parse";
 
 import { Industries } from "@/constants/constants";
-import { formatPrice } from "@/utils/currencyFormater";
+import { KPIs } from "@/types/kpis";
+import { formatPrice, formatUSDC } from "@/utils/currencyFormater";
 import { SessionSync } from "@/utils/sessionSync";
 
 import ParseClient from "./ParseClient";
-
-const formatUSDC = (value: string | number): number => {
-  try {
-    return Number(ethers.formatUnits(value.toString(), 6));
-  } catch (error) {
-    console.error("Error formatting USDC value:", error);
-    return 0;
-  }
-};
 
 export const CustomerService = () => {
   ParseClient.initialize();
@@ -104,17 +96,17 @@ export const CustomerService = () => {
     return withSession(async () => {
       try {
         // Retrieve tokens from the Token class
-        const tokenRecords = await ParseClient.getRecords("Token", fieldNames, fieldValues, ["*"], undefined, undefined, undefined, "desc");
+        const tradeFinanceTokens = await ParseClient.getRecords("Token", fieldNames, fieldValues, ["*"], undefined, undefined, undefined, "desc");
 
-        if (!tokenRecords || tokenRecords.length === 0) {
+        if (!tradeFinanceTokens || tradeFinanceTokens.length === 0) {
           return [];
         }
 
         // Extract token objectIds
-        const tokenObjectIds = tokenRecords.map((token) => token.id);
+        const tokenObjectIds = tradeFinanceTokens.map((token) => token.id);
 
         if (tokenObjectIds.length === 0) {
-          return tokenRecords.map((record) => ({ ...record, depositAmount: 0 }));
+          return tradeFinanceTokens.map((record) => ({ ...record, depositAmount: 0 }));
         }
 
         // Query TokenDeposit for all tokens at once
@@ -135,8 +127,8 @@ export const CustomerService = () => {
         });
 
         let sanitizedRecords = [];
-        if (tokenRecords && tokenRecords.length > 0) {
-          sanitizedRecords = JSON.parse(JSON.stringify(tokenRecords || []));
+        if (tradeFinanceTokens && tradeFinanceTokens.length > 0) {
+          sanitizedRecords = JSON.parse(JSON.stringify(tradeFinanceTokens || []));
         }
         // Append depositAmount to each token record and correctly assign the updated array
         sanitizedRecords = sanitizedRecords.map((record: any) => ({
@@ -189,7 +181,6 @@ export const CustomerService = () => {
           price: record.token.price,
         }));
       }
-
       return sanitizedRecords;
     });
   };
@@ -207,51 +198,59 @@ export const CustomerService = () => {
       );
 
       // Filter tokens to only include those from trade finance projects
-      const tokenRecords =
+      const tradeFinanceTokens =
         allTokens?.filter((token) => {
           const projectId = token.attributes.projectId;
           return tradeFinanceProjects.has(projectId);
         }) || [];
 
       // Calculate KPIs using filtered tokens
-      const retiredTokens = tokenRecords.filter((record) => record.attributes.isWithdrawn === true).length;
-      const activeTokens = tokenRecords.filter((record) => record.attributes.isWithdrawn !== true).length;
+      const retiredTokens = tradeFinanceTokens.filter((record) => record.attributes.isWithdrawn === true).length;
+      const activeTokens = tradeFinanceTokens.filter((record) => record.attributes.isWithdrawn !== true).length;
 
-      const totalRetiredAmount = tokenRecords.reduce((acc: number, record: any) => {
+      const totalRetiredAmount = tradeFinanceTokens.reduce((acc: number, record: any) => {
         if (record.attributes.isWithdrawn === true) {
           return acc + formatUSDC(record.attributes.totalAmount || "0");
         }
         return acc;
       }, 0);
 
-      const activeTokenizedValue = tokenRecords.reduce((acc: number, record: any) => {
+      const activeTokenizedValue = tradeFinanceTokens.reduce((acc: number, record: any) => {
+
         if (record.attributes.isWithdrawn !== true) {
           return acc + formatUSDC(record.attributes.totalAmount || "0");
         }
         return acc;
       }, 0);
 
-      const totalTokenizedValue = tokenRecords.reduce((acc: number, record: any) => {
+      const totalTokenizedValue = tradeFinanceTokens.reduce((acc: number, record: any) => {
         return acc + formatUSDC(record.attributes.totalAmount || "0");
       }, 0);
 
+      const totalIssuedValue =
+        allTokens?.reduce((acc: number, record: any) => {
+          let value = 0;
+          if (record.attributes.totalAmount) {
+            value = formatUSDC(record.attributes.totalAmount || "0");
+          } else if (record.attributes.price) {
+            value = Number(record.attributes.price);
+          }
+          return acc + Number(value);
+        }, 0) || 0;
+
       return {
         tokens: allTokens?.length || 0,
-        totalStocks: tokenRecords.length,
-        retiredTokens,
-        activeTokens,
-        activeTokenizedValue: formatPrice(activeTokenizedValue / 1_000_000, "USD"),
-        totalTokenizedValue: formatPrice(totalTokenizedValue / 1_000_000, "USD"),
-        totalRetiredAmount: formatPrice(totalRetiredAmount, "USD"),
-        issuedValue: formatPrice(
-          allTokens?.reduce((acc: number, record: any) => {
-            const price = parseFloat(record.attributes.price) || 0;
-            return acc + price;
-          }, 0) || 0,
-          "USD"
-        ),
+        issuedValue: formatPrice(totalIssuedValue, "USD"),
+        totalStocks: tradeFinanceTokens.length > 0 ? tradeFinanceTokens.length : undefined,
+        retiredTokens: tradeFinanceTokens.length > 0 ? retiredTokens : undefined,
+        activeTokens: tradeFinanceTokens.length > 0 ? activeTokens : undefined,
+        activeTokenizedValue: tradeFinanceTokens.length > 0 ? formatPrice(activeTokenizedValue, "USD") : undefined,
+        totalTokenizedValue: tradeFinanceTokens.length > 0 ? formatPrice(totalTokenizedValue, "USD") : undefined,
+        totalRetiredAmount: tradeFinanceTokens.length > 0 ? formatPrice(totalRetiredAmount, "USD") : undefined,
         totalDeposits: tradeDealDeposits?.length || 0,
-        totalDepositAmount: Array.isArray(tradeDealDeposits) ? tradeDealDeposits.reduce((acc, t) => acc + Number(t.attributes?.amount || 0), 0) : 0,
+        totalDepositAmount: Array.isArray(tradeDealDeposits)
+          ? tradeDealDeposits.reduce((acc, t) => acc + Number(t.attributes?.amount || 0), 0)
+          : undefined,
       };
     });
   };

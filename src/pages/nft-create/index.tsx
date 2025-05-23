@@ -40,6 +40,9 @@ export default function Details({ service }: { service: BlockchainService }) {
 
   const [isUserChecked, setIsUserChecked] = useState(false);
 
+  const { address, isConnected } = useAccount();
+  const [isProviderReady, setIsProviderReady] = useState(false);
+
   const blockchainService = walletPreference === WalletPreference.PRIVATE ? BlockchainService.getInstance() : service;
 
   useEffect(() => {
@@ -72,6 +75,23 @@ export default function Details({ service }: { service: BlockchainService }) {
       clearTimeout(timeout);
     };
   }, [user, router]);
+
+  useEffect(() => {
+    // Check if the provider is available
+    const checkProvider = async () => {
+      try {
+        // Small delay to ensure provider has time to initialize
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Set provider as ready
+        setIsProviderReady(true);
+      } catch (error) {
+        console.error("Error initializing Web3 provider:", error);
+      }
+    };
+
+    checkProvider();
+  }, []);
 
   const listener = usePageUnloadGuard();
   useEffect(() => {
@@ -276,7 +296,7 @@ export default function Details({ service }: { service: BlockchainService }) {
     }
   };
 
-  if (!isUserChecked) return null;
+  if (!isUserChecked) return <div className="w-full text-center py-8">Loading user data...</div>;
 
   return (
     <>
