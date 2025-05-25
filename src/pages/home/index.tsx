@@ -315,7 +315,7 @@ export default function Home() {
         </div>
 
         {/* Sidebar: Event Feed */}
-        <Card className="w-full lg:w-[350px] max-h-[100vh] overflow-y-auto border-nomyx-gray4-light dark:border-nomyx-gray4-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark">
+        <Card className="w-full lg:w-[600px] max-h-[110vh] overflow-y-auto border-nomyx-gray4-light dark:border-nomyx-gray4-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark">
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <Spin />
