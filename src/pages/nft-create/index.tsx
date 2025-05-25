@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useContext, useRef } from "react";
+import React, { useEffect, useState, useContext } from "react";
 
 import { Button, Form } from "antd";
 import { ethers } from "ethers";
@@ -29,8 +29,7 @@ const tokenizedDebtService = TokenizedDebtService();
 const tradeFinanceService = TradeFinanceService();
 
 export default function Details({ service }: { service: BlockchainService }) {
-  const contextValue = useContext(UserContext);
-  const { walletPreference, dfnsToken, user } = contextValue;
+  const { walletPreference, dfnsToken, user } = useContext(UserContext);
   const router = useRouter();
   const [form] = Form.useForm();
 
@@ -39,21 +38,10 @@ export default function Details({ service }: { service: BlockchainService }) {
   const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
   const [industry, setIndustry] = useState<Industries | null>(null);
 
-  // State to track when we're ready to render
-  const [isHydrated, setIsHydrated] = useState(false);
-  const [isContextReady, setIsContextReady] = useState(false);
-  const [initializationError, setInitializationError] = useState<string | null>(null);
-
-  // Refs to prevent race conditions
-  const initializationRef = useRef(false);
-  const mountedRef = useRef(true);
+  // Simple loading state - no complex initialization needed since _app.js handles it
+  const [pageReady, setPageReady] = useState(false);
 
   const { address, isConnected } = useAccount();
-
-  // Force client-side hydration detection
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
 
   // Get blockchain service
   const getBlockchainService = () => {
@@ -70,155 +58,34 @@ export default function Details({ service }: { service: BlockchainService }) {
 
   const blockchainService = getBlockchainService();
 
-  // Component cleanup
+  // Simple effect - since _app.js ensures context is ready, we just need basic validation
   useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+    console.log("Mint page: Checking context...", {
+      user: !!user,
+      walletPreference,
+      dfnsToken: !!dfnsToken,
+    });
 
-  // CRITICAL: Wait for both hydration AND context to be ready
-  useEffect(() => {
-    if (!isHydrated) return; // Wait for hydration first
-    if (initializationRef.current) return; // Prevent double execution
+    // Quick validation - if no user, redirect to login
+    const sessionToken = typeof window !== "undefined" ? localStorage.getItem("sessionToken") : null;
 
-    initializationRef.current = true;
+    if (!user || !sessionToken) {
+      console.log("Mint page: No user or token, redirecting to login");
+      router.push("/login");
+      return;
+    }
 
-    const validateAndSetContext = async () => {
-      try {
-        console.log("🔍 Starting context validation...");
+    if (walletPreference === null || walletPreference === undefined) {
+      console.log("Mint page: No wallet preference, showing error");
+      toast.error("Wallet preference not set. Please complete your profile setup.");
+      router.push("/profile-setup"); // or wherever they set wallet preference
+      return;
+    }
 
-        // Check if we're in browser environment
-        if (typeof window === "undefined") {
-          console.log("❌ Not in browser environment");
-          return;
-        }
-
-        // Get session token synchronously first
-        const sessionToken = localStorage.getItem("sessionToken");
-        console.log("📋 Session token exists:", !!sessionToken);
-
-        if (!sessionToken) {
-          console.log("❌ No session token, redirecting to login");
-          router.replace("/login");
-          return;
-        }
-
-        // Log current context state
-        console.log("📊 Current context state:", {
-          user: !!user,
-          walletPreference: walletPreference,
-          dfnsToken: !!dfnsToken,
-          contextValue: !!contextValue,
-        });
-
-        // Check if context is completely empty (hydration mismatch)
-        const isContextEmpty = !user && !walletPreference && !dfnsToken;
-
-        if (isContextEmpty) {
-          console.log("⚠️ Context appears empty, this might be a hydration issue");
-
-          // Force a small delay to let context hydrate
-          await new Promise((resolve) => setTimeout(resolve, 100));
-
-          // Check again after delay
-          const { user: delayedUser, walletPreference: delayedWalletPreference, dfnsToken: delayedDfnsToken } = contextValue;
-
-          console.log("📊 Context after delay:", {
-            user: !!delayedUser,
-            walletPreference: delayedWalletPreference,
-            dfnsToken: !!delayedDfnsToken,
-          });
-
-          // If still empty, there's a real hydration problem
-          if (!delayedUser && !delayedWalletPreference && !delayedDfnsToken) {
-            console.log("❌ Context still empty after delay - hydration mismatch detected");
-            setInitializationError("Session context not properly loaded. Please refresh the page or log in again.");
-            return;
-          }
-        }
-
-        // Wait for complete context (with timeout)
-        let attempts = 0;
-        const maxAttempts = 50; // 5 seconds max
-
-        while (attempts < maxAttempts && mountedRef.current) {
-          const currentUser = contextValue.user;
-          const currentWalletPreference = contextValue.walletPreference;
-          const currentDfnsToken = contextValue.dfnsToken;
-          const currentSessionToken = localStorage.getItem("sessionToken");
-
-          // Check for complete context
-          const hasCompleteContext = currentUser && currentSessionToken && currentWalletPreference !== null && currentWalletPreference !== undefined;
-
-          if (hasCompleteContext) {
-            console.log(`✅ Complete context validated after ${attempts * 100}ms`);
-            break;
-          }
-
-          // Log every 10 attempts (every second)
-          if (attempts % 10 === 0 && attempts > 0) {
-            console.log(`⏳ Still waiting for context... attempt ${attempts}/${maxAttempts}`);
-            console.log("📊 Current state:", {
-              user: !!currentUser,
-              walletPreference: currentWalletPreference,
-              dfnsToken: !!currentDfnsToken,
-              sessionToken: !!currentSessionToken,
-            });
-          }
-
-          attempts++;
-          await new Promise((resolve) => setTimeout(resolve, 100));
-        }
-
-        // Final validation
-        const finalUser = contextValue.user;
-        const finalWalletPreference = contextValue.walletPreference;
-        const finalSessionToken = localStorage.getItem("sessionToken");
-
-        if (!finalUser || !finalSessionToken) {
-          console.log("❌ Final validation failed - missing user or session");
-          router.replace("/login");
-          return;
-        }
-
-        if (finalWalletPreference === null || finalWalletPreference === undefined) {
-          console.log("❌ Final validation failed - missing wallet preference");
-          setInitializationError("User profile incomplete. Please complete your wallet setup.");
-          return;
-        }
-
-        // Environment validation
-        const parseServerUrl = process.env.NEXT_PUBLIC_PARSE_SERVER_URL;
-        const chainId = process.env.NEXT_PUBLIC_HARDHAT_CHAIN_ID;
-
-        if (!parseServerUrl || !chainId) {
-          throw new Error("Missing required environment variables");
-        }
-
-        // Final service check
-        if (finalWalletPreference === WalletPreference.PRIVATE && typeof window !== "undefined" && window.ethereum) {
-          console.log("✅ Ethereum provider available");
-        }
-
-        // All checks passed - mark context as ready
-        if (mountedRef.current) {
-          console.log("🎉 Context validation completed successfully");
-          setIsContextReady(true);
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error("❌ Context validation failed:", errorMessage);
-
-        if (mountedRef.current) {
-          setInitializationError(`Context validation failed: ${errorMessage}`);
-        }
-      }
-    };
-
-    validateAndSetContext();
-  }, [isHydrated, contextValue, user, walletPreference, dfnsToken, router]);
+    // All good, mark page as ready
+    console.log("Mint page: Context validated, page ready");
+    setPageReady(true);
+  }, [user, walletPreference, router]);
 
   const listener = usePageUnloadGuard();
   useEffect(() => {
@@ -433,30 +300,11 @@ export default function Details({ service }: { service: BlockchainService }) {
     }
   };
 
-  // Don't render anything until hydrated
-  if (!isHydrated) {
-    return null; // Prevents hydration mismatches
-  }
-
-  // Show error state if context validation failed
-  if (initializationError) {
+  // Show loading while page is getting ready
+  if (!pageReady) {
     return (
       <div className="w-full text-center py-8">
-        <div className="text-red-500 mb-4">{initializationError}</div>
-        <div className="space-y-2">
-          <Button onClick={() => window.location.reload()}>Refresh Page</Button>
-          <Button onClick={() => router.push("/login")}>Back to Login</Button>
-        </div>
-      </div>
-    );
-  }
-
-  // Show loading state while context is being validated
-  if (!isContextReady) {
-    return (
-      <div className="w-full text-center py-8">
-        <div className="mb-2">Loading user session...</div>
-        <div className="text-sm text-gray-500">Validating authentication...</div>
+        <div className="mb-2">Setting up mint page...</div>
       </div>
     );
   }
