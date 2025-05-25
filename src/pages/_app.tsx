@@ -240,20 +240,19 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     if (token) {
       const { valid, roles, walletPreference, user, dfnsToken } = await validateToken(token);
       if (valid && roles.length > 0) {
+        // Set all states synchronously
         setRole(roles);
         setUser(user);
         setDfnsToken(dfnsToken);
         setWalletPreference(walletPreference);
         setIsConnected(true);
       } else {
-        // Token is invalid or roles are empty
         localStorage.removeItem("sessionToken");
         setForceLogout(true);
       }
     }
     setInitializing(false);
   };
-
   useEffect(() => {
     restoreSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps

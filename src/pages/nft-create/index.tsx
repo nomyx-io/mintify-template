@@ -38,66 +38,93 @@ export default function Details({ service }: { service: BlockchainService }) {
   const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
   const [industry, setIndustry] = useState<Industries | null>(null);
 
-  const [isUserChecked, setIsUserChecked] = useState(false);
+  // Simplified loading state - combines all checks into one
+  const [isPageReady, setIsPageReady] = useState(false);
+  const [initializationError, setInitializationError] = useState<string | null>(null);
 
   const { address, isConnected } = useAccount();
-  const [isProviderReady, setIsProviderReady] = useState(false);
 
   const blockchainService = walletPreference === WalletPreference.PRIVATE ? BlockchainService.getInstance() : service;
 
+  // Single effect to handle all initialization
   useEffect(() => {
-    const checkUserInterval = setInterval(() => {
-      const token = localStorage.getItem("sessionToken");
+    let mounted = true;
 
-      if (user && token) {
-        console.log("User and token found, continuing...");
-        clearInterval(checkUserInterval);
-        clearTimeout(timeout); // clear the timeout in case polling resolves first
-        setIsUserChecked(true);
-      }
-    }, 200);
-
-    // Safety: timeout after 5 seconds to avoid infinite loop
-    const timeout = setTimeout(() => {
-      clearInterval(checkUserInterval);
-
-      if (!user) {
-        console.warn("User context not available after timeout. Redirecting to login...");
-        router.push("/login");
-      } else {
-        console.log("Proceeding after timeout with available user context.");
-        setIsUserChecked(true);
-      }
-    }, 5000);
-
-    return () => {
-      clearInterval(checkUserInterval);
-      clearTimeout(timeout);
-    };
-  }, [user, router]);
-
-  useEffect(() => {
-    // Check if the provider is available
-    const checkProvider = async () => {
+    const initializePage = async () => {
       try {
-        // Small delay to ensure provider has time to initialize
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        // Check if component is still mounted
+        if (!mounted) return;
 
-        // Set provider as ready
-        setIsProviderReady(true);
+        // Step 1: Wait for user context with more robust checking
+        const maxAttempts = 25; // 5 seconds total (25 * 200ms)
+        let attempts = 0;
+
+        while (attempts < maxAttempts && mounted) {
+          const token = localStorage.getItem("sessionToken");
+
+          if (user && token) {
+            console.log("User and token verified, proceeding with initialization");
+            break;
+          }
+
+          attempts++;
+          await new Promise((resolve) => setTimeout(resolve, 200));
+        }
+
+        // If user still not available after polling, check one more time
+        if (!user && mounted) {
+          const token = localStorage.getItem("sessionToken");
+          if (!token) {
+            console.warn("No session token found, redirecting to login");
+            router.push("/login");
+            return;
+          }
+
+          // Give it one more second for context to update
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+
+          if (!user && mounted) {
+            setInitializationError("User session could not be established. Please try refreshing the page.");
+            return;
+          }
+        }
+
+        // Step 2: Initialize provider if needed (only for private wallet)
+        if (walletPreference === WalletPreference.PRIVATE && mounted) {
+          // Check if ethereum provider is available
+          if (typeof window !== "undefined" && window.ethereum) {
+            // Give provider time to initialize
+            await new Promise((resolve) => setTimeout(resolve, 100));
+          }
+        }
+
+        // Step 3: All checks passed, mark page as ready
+        if (mounted) {
+          setIsPageReady(true);
+          console.log("Page initialization completed successfully");
+        }
       } catch (error) {
-        console.error("Error initializing Web3 provider:", error);
+        console.error("Error during page initialization:", error);
+        if (mounted) {
+          setInitializationError("Failed to initialize page. Please refresh and try again.");
+        }
       }
     };
 
-    checkProvider();
-  }, []);
+    // Start initialization
+    initializePage();
+
+    // Cleanup function
+    return () => {
+      mounted = false;
+    };
+  }, [user, walletPreference, router]); // Dependencies that should trigger re-initialization
 
   const listener = usePageUnloadGuard();
   useEffect(() => {
     listener.onBeforeUnload = () => true;
     return () => {
-      listener.onBeforeUnload = () => true; // or () => false
+      listener.onBeforeUnload = () => true;
     };
   }, [listener]);
 
@@ -296,7 +323,20 @@ export default function Details({ service }: { service: BlockchainService }) {
     }
   };
 
-  if (!isUserChecked) return <div className="w-full text-center py-8">Loading user data...</div>;
+  // Show error state if initialization failed
+  if (initializationError) {
+    return (
+      <div className="w-full text-center py-8">
+        <div className="text-red-500 mb-4">{initializationError}</div>
+        <Button onClick={() => window.location.reload()}>Refresh Page</Button>
+      </div>
+    );
+  }
+
+  // Show loading state while page is initializing
+  if (!isPageReady) {
+    return <div className="w-full text-center py-8">Loading user data...</div>;
+  }
 
   return (
     <>
