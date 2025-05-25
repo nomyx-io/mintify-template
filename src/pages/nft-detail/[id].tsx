@@ -17,12 +17,18 @@ export default function NftDetail() {
 
   useEffect(() => {
     const getData = async () => {
-      let nft = await api.getMintedNftDetails(id as string);
+      const nft = await api.getMintedNftDetails(id as string);
 
-      // Destructure to omit the 'token' property
-      const { token, ...rest } = nft;
+      const { token, totalAmount, ...rest } = nft;
 
-      setNftData({ ...rest, id }); // Store the cleaned object
+      let parsedAmount = totalAmount;
+
+      if (totalAmount != null) {
+        const numericAmount = Number(totalAmount);
+        parsedAmount = numericAmount / 1_000_000;
+      }
+
+      setNftData({ ...rest, id, totalAmount: parsedAmount });
     };
 
     if (id) {
