@@ -35,6 +35,15 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
     }
   }, [user, router]);
 
+  // Reset handling flag when user context changes (successful login)
+  useEffect(() => {
+    if (user && isHandlingLoginRef.current) {
+      // Login was successful, reset the handling flag
+      isHandlingLoginRef.current = false;
+      setIsLoggingIn(false);
+    }
+  }, [user]);
+
   // Handle force logout
   useEffect(() => {
     if (forceLogout) {
