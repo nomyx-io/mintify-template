@@ -35,6 +35,8 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
+//export const UserContext = createContext(() => {});
+
 let provider: BrowserProvider;
 
 const validateToken = async (token: string) => {
@@ -58,9 +60,24 @@ const validateToken = async (token: string) => {
     return {
       valid: false,
       roles: [],
-      walletPreference: null, // Changed from "" to null for consistency
+      walletPreference: "",
       dfnsToken: null,
     };
+  }
+};
+
+// Helper function to safely initialize blockchain service
+const initializeBlockchainService = async () => {
+  try {
+    const service = BlockchainService.getInstance();
+    if (!service) return null;
+
+    // Wait for service to complete internal initialization
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return service;
+  } catch (error) {
+    console.warn("BlockchainService initialization failed:", error);
+    return null;
   }
 };
 
@@ -70,17 +87,15 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const [role, setRole] = useState<string[]>([]);
   const [forceLogout, setForceLogout] = useState(false);
   const [status, setStatus] = useState(true);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(null); // State to hold user
   const [walletPreference, setWalletPreference] = useState<WalletPreference | null>(null);
   const [dfnsToken, setDfnsToken] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [initializing, setInitializing] = useState(true);
   const [loading, setLoading] = useState(false);
-
-  // NEW: Track if context is fully loaded
-  const [contextReady, setContextReady] = useState(false);
-
   const router = useRouter();
+
+  //parseInitialize();
 
   const getToken = async (request: any) => {
     try {
@@ -96,7 +111,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     } catch (error) {
       console.log("Error during authentication:", error);
       return {
-        walletPreference: null, // Changed from "" to null
+        walletPreference: "",
         token: "",
         roles: [],
         user: null,
@@ -126,7 +141,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         const message = error.reason ? error.reason : error.message;
         toast.error(message);
         setForceLogout(true);
-        return;
       }
     } else {
       signature = storedSignature.signature;
@@ -137,18 +151,14 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       message: message,
       signature: signature,
     });
-
     if (roles.length > 0 && roles.includes("CentralAuthority")) {
-      // CRITICAL: Set all context states atomically
       setRole([...roles]);
       setUser(user);
+      setStatus(false);
       setWalletPreference(walletPreference);
       setDfnsToken(dfnsToken);
-      setStatus(false);
-      setIsConnected(true);
-      setContextReady(true); // Mark context as ready
-
       localStorage.setItem("sessionToken", token);
+
       localStorage.setItem(
         "signature",
         JSON.stringify({
@@ -161,32 +171,33 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         toast.error("Sorry You are not Authorized !");
         setForceLogout(true);
       }
+
       setStatus(true);
-      setContextReady(true); // Even on failure, mark as ready
     }
 
     const _blockchainService = BlockchainService.getInstance();
     setBlockchainService(_blockchainService);
 
-    if (provider) {
-      provider.getNetwork().then(async (network: Network) => {
-        const chainId: string = `${network.chainId}`;
-        const config = process.env.NEXT_PUBLIC_HARDHAT_CHAIN_ID;
+    provider.getNetwork().then(async (network: Network) => {
+      const chainId: string = `${network.chainId}`;
 
-        if (!config || config !== chainId) {
-          setIsConnected(false);
-          return;
-        }
-        setIsConnected(true);
-        parseInitialize();
-      });
-    }
+      const config = process.env.NEXT_PUBLIC_HARDHAT_CHAIN_ID;
+
+      if (!config || config !== chainId) {
+        // setUnsupportedNetworkDialogVisible(true);
+        setIsConnected(false);
+        return;
+      }
+      setIsConnected(true);
+      parseInitialize();
+    });
   }, [isConnected]);
 
   const onLogoutEmailPassword = async () => {
     try {
       const token = localStorage.getItem("sessionToken");
       if (token) {
+        // Invalidate the session token on the server
         await axios.post(
           `${process.env.NEXT_PUBLIC_PARSE_SERVER_URL}/auth/logout`,
           {},
@@ -203,7 +214,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       return;
     }
 
-    // Reset all states atomically
+    // Reset client-side state
     setRole([]);
     setWalletPreference(null);
     setDfnsToken(null);
@@ -211,134 +222,72 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     setForceLogout(false);
     setIsConnected(false);
     localStorage.removeItem("sessionToken");
-
-    // CRITICAL: Set contextReady to true (not false) for logout state
-    setContextReady(true);
+    //setBlockchainService(null);
 
     toast.success("Logged out successfully.");
   };
 
-  // Define the onLogin function (Username/Password Login)
+  // Define the onLogin function (Username/Password Login) - ENHANCED
   const onLogin = async (email: string, password: string) => {
-    console.log("onLogin called with:", { email, password: "***" });
+    const { token, roles, walletPreference, user, dfnsToken } = await getToken({ email, password });
 
-    try {
-      const { token, roles, walletPreference, user, dfnsToken } = await getToken({ email, password });
+    if (roles.length > 0) {
+      setRole([...roles]);
+      setUser(user);
+      setDfnsToken(dfnsToken);
+      setWalletPreference(walletPreference);
+      localStorage.setItem("sessionToken", token);
+      setIsConnected(true);
 
-      console.log("getToken result:", {
-        token: !!token,
-        roles: roles?.length || 0,
-        walletPreference,
-        user: !!user,
-        dfnsToken: !!dfnsToken,
-      });
-
-      if (roles.length > 0) {
-        console.log("Setting login context...", { user: !!user, walletPreference, dfnsToken: !!dfnsToken });
-
-        // CRITICAL: Set all context states atomically in the correct order
-        setRole([...roles]);
-        setUser(user);
-        setDfnsToken(dfnsToken);
-        setWalletPreference(walletPreference);
-        setIsConnected(true);
-        setContextReady(true); // Mark context as ready
-
-        localStorage.setItem("sessionToken", token);
-
-        // Initialize blockchain service if needed
-        if (typeof window !== "undefined" && (window as any).ethereum) {
-          const _blockchainService = BlockchainService.getInstance();
-          setBlockchainService(_blockchainService);
-        }
-
-        ParseClient.initialize(token);
-        console.log("Login context set successfully");
-      } else {
-        // DON'T trigger forceLogout for invalid credentials - just show toast
-        console.log("Login failed: no valid roles");
-        toast.error("We couldn't verify your login details. Please check your username and password.");
-        // Context is already ready, no need to change contextReady state
-        throw new Error("Invalid credentials"); // This will be caught and handled by the login component
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error("Login error in onLogin:", errorMessage);
-
-      // Show error toast if not already shown
-      if (!errorMessage.includes("Invalid credentials")) {
-        toast.error("Login failed. Please try again.");
+      // Always initialize blockchainService for email login
+      const service = await initializeBlockchainService();
+      if (service) {
+        setBlockchainService(service);
       }
 
-      // Re-throw so login component can handle it
-      throw error;
+      ParseClient.initialize(token);
+    } else {
+      toast.error("We couldn't verify your login details. Please check your username and password.");
+      setForceLogout(true);
     }
   };
 
   const restoreSession = async () => {
-    console.log("Starting session restoration...");
-
-    // Check if we're in browser environment
-    if (typeof window === "undefined") {
-      setInitializing(false);
-      setContextReady(true);
-      return;
-    }
-
     const token = localStorage.getItem("sessionToken");
-    console.log("Session token exists:", !!token);
-
     if (token) {
-      try {
-        console.log("Validating session token...");
-        const { valid, roles, walletPreference, user, dfnsToken } = await validateToken(token);
-        console.log("Token validation result:", { valid, roles: roles?.length, walletPreference, user: !!user, dfnsToken: !!dfnsToken });
+      const { valid, roles, walletPreference, user, dfnsToken } = await validateToken(token);
+      if (valid && roles.length > 0) {
+        setRole(roles);
+        setUser(user);
+        setDfnsToken(dfnsToken);
+        setWalletPreference(walletPreference);
+        setIsConnected(true);
 
-        if (valid && roles.length > 0) {
-          console.log("Restoring session context...");
-
-          // CRITICAL: Set all states atomically to prevent hydration mismatches
-          setRole(roles);
-          setUser(user);
-          setDfnsToken(dfnsToken);
-          setWalletPreference(walletPreference);
-          setIsConnected(true);
-
-          console.log("Session context restored successfully");
-        } else {
-          console.log("Invalid session, cleaning up...");
-          localStorage.removeItem("sessionToken");
-          setForceLogout(true);
+        // Initialize blockchain service for restored sessions
+        const service = await initializeBlockchainService();
+        if (service) {
+          setBlockchainService(service);
         }
-      } catch (error) {
-        console.error("Session restoration error:", error);
+      } else {
+        // Token is invalid or roles are empty
         localStorage.removeItem("sessionToken");
         setForceLogout(true);
       }
-    } else {
-      console.log("No session token found");
     }
-
-    // CRITICAL: Always mark as ready, even if no session
-    setContextReady(true);
     setInitializing(false);
-    console.log("Session restoration completed");
   };
 
-  // Initialize session on mount
   useEffect(() => {
     restoreSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Loading effect for role changes
   useEffect(() => {
     if (role.length > 0) {
       setLoading(true);
-      const timer = setTimeout(() => {
+      setTimeout(() => {
         setLoading(false);
-      }, 500); // Reduced from 1000ms
-
-      return () => clearTimeout(timer);
+      }, 1000);
     }
   }, [role]);
 
@@ -347,48 +296,32 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   };
 
   const onDisconnect = () => {
-    console.log("Disconnecting user...");
     setRole([]);
+    setForceLogout(true);
     setDfnsToken(null);
     setUser(null);
     setWalletPreference(null);
     setForceLogout(false);
     setIsConnected(false);
     localStorage.removeItem("sessionToken");
-
-    // CRITICAL: Keep contextReady as true for logged-out state
-    setContextReady(true);
   };
 
   const getLayout = Component.getLayout || ((page: React.ReactNode) => page);
 
   useEffect(() => {
-    const isLoginRoute = window.location.pathname === "/login" || window.location.pathname === "/";
-    const hasNoRole = role.length === 0;
-    setStatus(isLoginRoute && hasNoRole);
-  }, [role]);
+    (window.location.pathname == "/login" && role.length == 0) || window.location.pathname == "/" ? setStatus(true) : setStatus(false);
+  }, [status, role]);
 
-  // Client-side mount detection
   useEffect(() => {
     setMounted(true);
 
-    // Initialize ethereum provider
-    if (typeof window !== "undefined" && (window as any).ethereum) {
-      try {
-        let ethObject: ethers.Eip1193Provider = (window as any).ethereum;
-        provider = new ethers.BrowserProvider(ethObject);
-      } catch (error) {
-        console.warn("Error initializing ethereum provider:", error);
-      }
-    }
+    let ethObject: ethers.Eip1193Provider = window.ethereum;
+
+    provider = new ethers.BrowserProvider(ethObject);
   }, []);
 
-  // Don't render anything until mounted (prevents hydration mismatches)
-  if (!mounted) {
-    return null;
-  }
+  if (!mounted) return <></>;
 
-  // Theme configuration
   let isDarkMode = true;
   const { defaultAlgorithm, darkAlgorithm } = theme;
   const algorithm = isDarkMode ? darkAlgorithm : defaultAlgorithm;
@@ -408,32 +341,17 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     },
   };
 
-  // Show loading screen during initialization
-  if (initializing || !contextReady) {
+  if (initializing) {
     return (
       <div className="z-50 h-screen w-screen flex justify-center items-center">
-        <div className="text-center">
-          <Spin size="large" />
-          <div className="mt-4 text-lg">{initializing ? "Loading application..." : "Preparing user session..."}</div>
-        </div>
+        <Spin />
       </div>
     );
   }
 
   return (
     <NomyxAppContext.Provider value={{ blockchainService, setBlockchainService }}>
-      <UserContext.Provider
-        value={{
-          role,
-          setRole,
-          walletPreference,
-          setWalletPreference,
-          dfnsToken,
-          setDfnsToken,
-          user,
-          setUser,
-        }}
-      >
+      <UserContext.Provider value={{ role, setRole, walletPreference, setWalletPreference, dfnsToken, setDfnsToken, user, setUser }}>
         {/* Loading Spinner Overlay */}
         {loading && (
           <div className="z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]">
@@ -452,6 +370,25 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                 pauseOnHover
               />
               {isConnected && user && <TopNavBar onDisconnect={onDisconnect} onLogout={onLogoutEmailPassword} />}
+              <PrivateRoute
+                handleForecLogout={handleForceLogout}
+                forceLogout={forceLogout}
+                role={role}
+                onConnect={onConnect}
+                isConnected={isConnected}
+              >
+                {getLayout(
+                  <Component
+                    {...pageProps}
+                    role={role}
+                    service={blockchainService}
+                    onConnect={onConnect}
+                    onDisconnect={onDisconnect}
+                    forceLogout={forceLogout}
+                    onLogin={onLogin}
+                  />
+                )}
+              </PrivateRoute>
               <PrivateRoute
                 handleForecLogout={handleForceLogout}
                 forceLogout={forceLogout}

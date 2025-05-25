@@ -38,60 +38,66 @@ export default function Details({ service }: { service: BlockchainService }) {
   const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
   const [industry, setIndustry] = useState<Industries | null>(null);
 
-  // Simple loading state - no complex initialization needed since _app.js handles it
-  const [pageReady, setPageReady] = useState(false);
+  const [isUserChecked, setIsUserChecked] = useState(false);
 
   const { address, isConnected } = useAccount();
+  const [isProviderReady, setIsProviderReady] = useState(false);
 
-  // Get blockchain service
-  const getBlockchainService = () => {
-    try {
-      if (walletPreference === WalletPreference.PRIVATE) {
-        return BlockchainService.getInstance();
-      }
-      return service || BlockchainService.getInstance();
-    } catch (error) {
-      console.warn("Error getting blockchain service:", error);
-      return null;
-    }
-  };
+  const blockchainService = walletPreference === WalletPreference.PRIVATE ? BlockchainService.getInstance() : service;
 
-  const blockchainService = getBlockchainService();
-
-  // Simple effect - since _app.js ensures context is ready, we just need basic validation
   useEffect(() => {
-    console.log("Mint page: Checking context...", {
-      user: !!user,
-      walletPreference,
-      dfnsToken: !!dfnsToken,
-    });
+    const checkUserInterval = setInterval(() => {
+      const token = localStorage.getItem("sessionToken");
 
-    // Quick validation - if no user, redirect to login
-    const sessionToken = typeof window !== "undefined" ? localStorage.getItem("sessionToken") : null;
+      if (user && token) {
+        console.log("User and token found, continuing...");
+        clearInterval(checkUserInterval);
+        clearTimeout(timeout); // clear the timeout in case polling resolves first
+        setIsUserChecked(true);
+      }
+    }, 200);
 
-    if (!user || !sessionToken) {
-      console.log("Mint page: No user or token, redirecting to login");
-      router.push("/login");
-      return;
-    }
+    // Safety: timeout after 5 seconds to avoid infinite loop
+    const timeout = setTimeout(() => {
+      clearInterval(checkUserInterval);
 
-    if (walletPreference === null || walletPreference === undefined) {
-      console.log("Mint page: No wallet preference, showing error");
-      toast.error("Wallet preference not set. Please complete your profile setup.");
-      router.push("/profile-setup"); // or wherever they set wallet preference
-      return;
-    }
+      if (!user) {
+        console.warn("User context not available after timeout. Redirecting to login...");
+        router.push("/login");
+      } else {
+        console.log("Proceeding after timeout with available user context.");
+        setIsUserChecked(true);
+      }
+    }, 5000);
 
-    // All good, mark page as ready
-    console.log("Mint page: Context validated, page ready");
-    setPageReady(true);
-  }, [user, walletPreference, router]);
+    return () => {
+      clearInterval(checkUserInterval);
+      clearTimeout(timeout);
+    };
+  }, [user, router]);
+
+  useEffect(() => {
+    // Check if the provider is available
+    const checkProvider = async () => {
+      try {
+        // Small delay to ensure provider has time to initialize
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Set provider as ready
+        setIsProviderReady(true);
+      } catch (error) {
+        console.error("Error initializing Web3 provider:", error);
+      }
+    };
+
+    checkProvider();
+  }, []);
 
   const listener = usePageUnloadGuard();
   useEffect(() => {
     listener.onBeforeUnload = () => true;
     return () => {
-      listener.onBeforeUnload = () => true;
+      listener.onBeforeUnload = () => true; // or () => false
     };
   }, [listener]);
 
@@ -126,18 +132,8 @@ export default function Details({ service }: { service: BlockchainService }) {
     setPreview(false);
   };
 
-  const handleNavigation = (path: string) => {
-    resetFormStates();
-    router.push(path);
-  };
-
   const handleMint = async () => {
     try {
-      const currentBlockchainService = getBlockchainService();
-      if (!currentBlockchainService && walletPreference === WalletPreference.PRIVATE) {
-        throw new Error("Blockchain service is not available. Please refresh the page and ensure your wallet is connected.");
-      }
-
       const tradeDealId = formData._tradeDealId;
       if (industry === Industries.TRADE_FINANCE && formData.totalAmount) {
         const parsed = parseFloat(formData.totalAmount);
@@ -164,7 +160,7 @@ export default function Details({ service }: { service: BlockchainService }) {
       const tokenUrlFields: { [key: string]: string } = {};
 
       if (walletPreference === WalletPreference.PRIVATE) {
-        const result = await currentBlockchainService?.gemforceMint(nftMetadata);
+        const result = await blockchainService?.gemforceMint(nftMetadata);
         if (!result) {
           throw new Error("Failed to mint: gemforceMint returned undefined");
         }
@@ -223,7 +219,7 @@ export default function Details({ service }: { service: BlockchainService }) {
           const depositToast = toast.loading("Depositing Stock into Fund pool...");
           try {
             if (walletPreference === WalletPreference.PRIVATE) {
-              await currentBlockchainService?.tdDepositInvoice(tradeDealId, tokenId);
+              await blockchainService?.tdDepositInvoice(tradeDealId, tokenId);
             } else {
               const depositResult = await DfnsService.dfnsTdDepositInvoice(walletId, safeDfnsToken, tradeDealId, tokenId);
               if (depositResult.error) throw new Error(depositResult.error);
@@ -265,7 +261,7 @@ export default function Details({ service }: { service: BlockchainService }) {
         const listingToast = toast.loading("Listing token on the marketplace...");
         try {
           if (walletPreference === WalletPreference.PRIVATE) {
-            await currentBlockchainService?.listItem(mintAddress, tokenId, usdcPrice, true);
+            await blockchainService?.listItem(mintAddress, tokenId, usdcPrice, true);
           } else {
             const listingRes = await DfnsService.dfnsListItem(walletId, safeDfnsToken, mintAddress, tokenId, price, true);
             if (listingRes?.error) throw new Error(listingRes.error);
@@ -300,14 +296,7 @@ export default function Details({ service }: { service: BlockchainService }) {
     }
   };
 
-  // Show loading while page is getting ready
-  if (!pageReady) {
-    return (
-      <div className="w-full text-center py-8">
-        <div className="mb-2">Setting up mint page...</div>
-      </div>
-    );
-  }
+  if (!isUserChecked) return <div className="w-full text-center py-8">Loading user data...</div>;
 
   return (
     <>
@@ -321,10 +310,7 @@ export default function Details({ service }: { service: BlockchainService }) {
           <NftDetailsForm form={form} onFinish={handlePreview} />
           <Compliance selectedClaims={selectedClaims} setSelectedClaims={setSelectedClaims} />
           <div className="actions flex gap-3">
-            <Button
-              className="text-black bg-white hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark"
-              onClick={() => handleNavigation("/home")}
-            >
+            <Button className="text-black bg-white hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark" onClick={() => router.push("/home")}>
               Cancel
             </Button>
             <Button
