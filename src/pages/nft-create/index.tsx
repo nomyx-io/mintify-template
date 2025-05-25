@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useContext, useRef } from "react";
+import React, { useEffect, useState, useContext } from "react";
 
 import { Button, Form } from "antd";
 import { ethers } from "ethers";
@@ -38,163 +38,66 @@ export default function Details({ service }: { service: BlockchainService }) {
   const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
   const [industry, setIndustry] = useState<Industries | null>(null);
 
-  const [isPageReady, setIsPageReady] = useState(false);
-  const [initializationError, setInitializationError] = useState<string | null>(null);
-
-  // Use ref to prevent double initialization and track mount state
-  const initializationRef = useRef(false);
-  const mountedRef = useRef(true);
+  const [isUserChecked, setIsUserChecked] = useState(false);
 
   const { address, isConnected } = useAccount();
+  const [isProviderReady, setIsProviderReady] = useState(false);
 
-  // Get blockchain service with better error handling
-  const getBlockchainService = () => {
-    try {
-      if (walletPreference === WalletPreference.PRIVATE) {
-        return BlockchainService.getInstance();
+  const blockchainService = walletPreference === WalletPreference.PRIVATE ? BlockchainService.getInstance() : service;
+
+  useEffect(() => {
+    const checkUserInterval = setInterval(() => {
+      const token = localStorage.getItem("sessionToken");
+
+      if (user && token) {
+        console.log("User and token found, continuing...");
+        clearInterval(checkUserInterval);
+        clearTimeout(timeout); // clear the timeout in case polling resolves first
+        setIsUserChecked(true);
       }
-      return service || BlockchainService.getInstance();
-    } catch (error) {
-      console.warn("Error getting blockchain service:", error);
-      return null;
-    }
-  };
+    }, 200);
 
-  const blockchainService = getBlockchainService();
+    // Safety: timeout after 5 seconds to avoid infinite loop
+    const timeout = setTimeout(() => {
+      clearInterval(checkUserInterval);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    mountedRef.current = true;
+      if (!user) {
+        console.warn("User context not available after timeout. Redirecting to login...");
+        router.push("/login");
+      } else {
+        console.log("Proceeding after timeout with available user context.");
+        setIsUserChecked(true);
+      }
+    }, 5000);
+
     return () => {
-      mountedRef.current = false;
+      clearInterval(checkUserInterval);
+      clearTimeout(timeout);
     };
-  }, []);
+  }, [user, router]);
 
-  // Main initialization effect
   useEffect(() => {
-    // Prevent double initialization
-    if (initializationRef.current) return;
-    initializationRef.current = true;
-
-    const initializePage = async () => {
+    // Check if the provider is available
+    const checkProvider = async () => {
       try {
-        // Check if we're still mounted
-        if (!mountedRef.current) return;
+        // Small delay to ensure provider has time to initialize
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
-        // Reset any previous errors
-        setInitializationError(null);
-
-        // For production environments, add a small delay to ensure all contexts are loaded
-        if (process.env.NODE_ENV === "production") {
-          await new Promise((resolve) => setTimeout(resolve, 100));
-        }
-
-        // Step 1: Validate environment
-        const requiredEnvVars = {
-          parseServerUrl: process.env.NEXT_PUBLIC_PARSE_SERVER_URL,
-          chainId: process.env.NEXT_PUBLIC_HARDHAT_CHAIN_ID,
-        };
-
-        const missingVars = Object.entries(requiredEnvVars)
-          .filter(([key, value]) => !value)
-          .map(([key]) => `NEXT_PUBLIC_${key.toUpperCase()}`);
-
-        if (missingVars.length > 0) {
-          throw new Error(`Missing environment variables: ${missingVars.join(", ")}`);
-        }
-
-        // Step 2: Wait for complete user context
-        const maxWaitTime = process.env.NODE_ENV === "production" ? 10000 : 5000; // Longer timeout for production
-        const pollInterval = 100;
-        const maxAttempts = maxWaitTime / pollInterval;
-        let attempts = 0;
-
-        while (attempts < maxAttempts && mountedRef.current) {
-          // Check for session token
-          let sessionToken = null;
-          try {
-            sessionToken = typeof window !== "undefined" ? localStorage.getItem("sessionToken") : null;
-          } catch (e) {
-            console.warn("LocalStorage access error:", e);
-            break; // If we can't access localStorage, something is seriously wrong
-          }
-
-          // All required context data must be present
-          const hasCompleteContext = user && sessionToken && walletPreference !== null && walletPreference !== undefined;
-
-          if (hasCompleteContext) {
-            console.log(`Complete user context loaded after ${attempts * pollInterval}ms`);
-            break;
-          }
-
-          // Log progress every second in production
-          if (process.env.NODE_ENV === "production" && attempts % 10 === 0 && attempts > 0) {
-            console.log(`Still waiting for context... (${attempts * pollInterval}ms elapsed)`);
-          }
-
-          attempts++;
-          await new Promise((resolve) => setTimeout(resolve, pollInterval));
-        }
-
-        // Verify we have everything we need
-        if (!mountedRef.current) return;
-
-        const sessionToken = typeof window !== "undefined" ? localStorage.getItem("sessionToken") : null;
-
-        if (!user || !sessionToken) {
-          console.warn("User authentication failed");
-          router.push("/login");
-          return;
-        }
-
-        if (walletPreference === null || walletPreference === undefined) {
-          throw new Error("Wallet preference not set. Please complete your profile setup.");
-        }
-
-        // Step 3: Initialize services
-        if (walletPreference === WalletPreference.PRIVATE) {
-          // For private wallets, ensure Web3 provider is available
-          if (typeof window !== "undefined" && window.ethereum) {
-            // Give provider extra time to initialize in production
-            const providerDelay = process.env.NODE_ENV === "production" ? 500 : 200;
-            await new Promise((resolve) => setTimeout(resolve, providerDelay));
-          }
-        }
-
-        // Step 4: Verify blockchain service
-        const currentBlockchainService = getBlockchainService();
-        if (!currentBlockchainService && walletPreference === WalletPreference.PRIVATE) {
-          console.warn("⚠️ Blockchain service not available, but continuing...");
-        }
-
-        // All checks passed
-        if (mountedRef.current) {
-          console.log("Page ready for use");
-          setIsPageReady(true);
-        }
+        // Set provider as ready
+        setIsProviderReady(true);
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        console.error("Page initialization failed:", errorMessage);
-
-        if (mountedRef.current) {
-          setInitializationError(errorMessage);
-        }
+        console.error("Error initializing Web3 provider:", error);
       }
     };
 
-    initializePage();
-
-    // Cleanup function
-    return () => {
-      // Don't reset initializationRef here to prevent re-running
-    };
-  }, [user, walletPreference, router, service]);
+    checkProvider();
+  }, []);
 
   const listener = usePageUnloadGuard();
   useEffect(() => {
     listener.onBeforeUnload = () => true;
     return () => {
-      listener.onBeforeUnload = () => true;
+      listener.onBeforeUnload = () => true; // or () => false
     };
   }, [listener]);
 
@@ -231,12 +134,6 @@ export default function Details({ service }: { service: BlockchainService }) {
 
   const handleMint = async () => {
     try {
-      // Double-check blockchain service availability
-      const currentBlockchainService = getBlockchainService();
-      if (!currentBlockchainService && walletPreference === WalletPreference.PRIVATE) {
-        throw new Error("Blockchain service is not available. Please refresh the page and ensure your wallet is connected.");
-      }
-
       const tradeDealId = formData._tradeDealId;
       if (industry === Industries.TRADE_FINANCE && formData.totalAmount) {
         const parsed = parseFloat(formData.totalAmount);
@@ -263,7 +160,7 @@ export default function Details({ service }: { service: BlockchainService }) {
       const tokenUrlFields: { [key: string]: string } = {};
 
       if (walletPreference === WalletPreference.PRIVATE) {
-        const result = await currentBlockchainService?.gemforceMint(nftMetadata);
+        const result = await blockchainService?.gemforceMint(nftMetadata);
         if (!result) {
           throw new Error("Failed to mint: gemforceMint returned undefined");
         }
@@ -322,7 +219,7 @@ export default function Details({ service }: { service: BlockchainService }) {
           const depositToast = toast.loading("Depositing Stock into Fund pool...");
           try {
             if (walletPreference === WalletPreference.PRIVATE) {
-              await currentBlockchainService?.tdDepositInvoice(tradeDealId, tokenId);
+              await blockchainService?.tdDepositInvoice(tradeDealId, tokenId);
             } else {
               const depositResult = await DfnsService.dfnsTdDepositInvoice(walletId, safeDfnsToken, tradeDealId, tokenId);
               if (depositResult.error) throw new Error(depositResult.error);
@@ -364,7 +261,7 @@ export default function Details({ service }: { service: BlockchainService }) {
         const listingToast = toast.loading("Listing token on the marketplace...");
         try {
           if (walletPreference === WalletPreference.PRIVATE) {
-            await currentBlockchainService?.listItem(mintAddress, tokenId, usdcPrice, true);
+            await blockchainService?.listItem(mintAddress, tokenId, usdcPrice, true);
           } else {
             const listingRes = await DfnsService.dfnsListItem(walletId, safeDfnsToken, mintAddress, tokenId, price, true);
             if (listingRes?.error) throw new Error(listingRes.error);
@@ -399,30 +296,7 @@ export default function Details({ service }: { service: BlockchainService }) {
     }
   };
 
-  // Show error state if initialization failed
-  if (initializationError) {
-    return (
-      <div className="w-full text-center py-8">
-        <div className="text-red-500 mb-4">{initializationError}</div>
-        <div className="space-y-2">
-          <Button onClick={() => window.location.reload()}>Refresh Page</Button>
-          <div className="text-sm text-gray-500">If this persists, try logging out and back in.</div>
-        </div>
-      </div>
-    );
-  }
-
-  // Show loading state while page is initializing
-  if (!isPageReady) {
-    return (
-      <div className="w-full text-center py-8">
-        <div className="mb-2">Loading user data...</div>
-        <div className="text-sm text-gray-500">
-          {process.env.NODE_ENV === "production" ? "Initializing services..." : "Setting up development environment..."}
-        </div>
-      </div>
-    );
-  }
+  if (!isUserChecked) return <div className="w-full text-center py-8">Loading user data...</div>;
 
   return (
     <>
