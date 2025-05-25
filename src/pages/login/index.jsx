@@ -23,7 +23,7 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
 
   useEffect(() => {
     if (user) {
-      router.replace("/nft-create");
+      router.replace("/home");
     }
   }, [user]);
 
@@ -37,7 +37,7 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
   const handleStandardLogin = async (values) => {
     const { email, password } = values;
     await onLogin(email, password); // Invoke the onLogin function passed from App
-    router.replace("/nft-create"); // Redirect after successful login
+    router.replace("/home"); // Redirect after successful login
   };
 
   const handleConnect = async ({ address, connector, isReconnected }) => {
