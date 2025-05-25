@@ -5,7 +5,7 @@ import { Spin, Layout, Card, Radio, Form, Input, Button } from "antd";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router"; // Use next/router instead of next/navigation for pages router
+import { useRouter } from "next/router";
 import { useAccount, useDisconnect } from "wagmi";
 
 import logoDark from "../../assets/nomyx_logo_dark.png";
