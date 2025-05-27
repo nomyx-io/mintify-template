@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 
+import Head from "next/head";
 import { useRouter } from "next/router";
 
 import { getDashboardLayout } from "@/Layouts";
@@ -17,7 +18,11 @@ export default function NftDetail() {
   useEffect(() => {
     const getData = async () => {
       let nft = await api.getMintedNftDetails(id as string);
-      setNftData({ ...nft, id: id });
+
+      // Destructure to omit the 'token' property
+      const { token, ...rest } = nft;
+
+      setNftData({ ...rest, id }); // Store the cleaned object
     };
 
     if (id) {
@@ -25,6 +30,15 @@ export default function NftDetail() {
     }
   }, [api, id]);
 
-  return <div className="grid gap-3">{nftData && <NftRecordDetail detailView data={nftData} />}</div>;
+  return (
+    <>
+      <Head>
+        <title>NFT Details - Nomyx Mintify</title>
+      </Head>
+      <div className="grid gap-3">
+        {nftData ? <NftRecordDetail detailView={true} data={nftData} /> : <div className="text-center text-gray-500">Loading NFT details...</div>}
+      </div>
+    </>
+  );
 }
 NftDetail.getLayout = getDashboardLayout;

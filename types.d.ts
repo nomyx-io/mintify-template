@@ -63,11 +63,6 @@ interface MintedToken {
   _tokenId: string;
 }
 
-interface KPIs {
-  tokens: number;
-  issuedValue: string;
-}
-
 interface Events {
   [key: string]: {
     data: TokenEvent[];
@@ -90,6 +85,10 @@ interface Project {
   totalValue: number;
   createdAt: Date;
   industryTemplate?: string;
+  tradeDealId?: number;
+  projectInfo: string;
+  totalDepositAmount?: number;
+  isWithdrawn?: boolean;
 }
 
 interface ProjectSaveData {

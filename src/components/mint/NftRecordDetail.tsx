@@ -5,10 +5,12 @@ import { Button, Card, Checkbox } from "antd";
 import { useRouter } from "next/router";
 
 import { ShareIcon } from "@/assets";
+import { Industries, tradeFinanceDocumentationFields } from "@/constants/constants";
 import BlockchainService from "@/services/BlockchainService";
 import ParseClient from "@/services/ParseClient";
 import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
+import { formatNumber, formatNumberWithCommas } from "@/utils/numberFormatter";
 
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
@@ -28,16 +30,45 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
   const [allTopics, setAllTopics] = React.useState<ClaimTopic[]>();
   const [projectName, setProjectName] = React.useState<string>();
   const [identityDetail, setIdentityDetail] = React.useState<string>();
+  const [projectType, setProjectType] = React.useState<string>();
 
-  const { transactionHash, claimTopics, id, nftTitle, description, price, projectId, projectStartDate, mintAddress, ...metadata } = data;
+  const {
+    transactionHash,
+    claimTopics,
+    id,
+    nftTitle,
+    description,
+    price,
+    projectId,
+    projectStartDate,
+    mintAddress,
+    createdAt,
+    isWithdrawn,
+    objectId,
+    updatedAt,
+    address,
+    owner,
+    totalAmount,
+    ...metadata
+  } = data;
 
   const colorKey = id || nftTitle;
   const color = hashToColor(`${colorKey as string}`);
 
   const title = detailView ? `Token - ${nftTitle}` : "Preview Token </>";
   const backButton = <Button onClick={() => router.back()} type="text" icon={<LeftOutlined />} />;
-  const capitalizeEveryWord = (str: string) => {
-    return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  const formatTitle = (title: string): string => {
+    if (title === "isin_number") return "ISIN Number";
+    if (title === "totalAmount") return "Total Amount";
+    if (title === "par_value") {
+      return title.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+    return typeof title === "string"
+      ? title
+          .replace(/_/g, " ") // Replace underscores with spaces
+          .replace(/([A-Z])/g, " $1") // Add space before uppercase letters
+          .replace(/\b\w/g, (c) => c.toUpperCase()) // Capitalize each word
+      : title;
   };
 
   const getAllTopics = useCallback(async () => {
@@ -60,6 +91,7 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
     const project = await ParseClient.getRecord("TokenProject", ["objectId"], [projectId as string]);
     if (project) {
       setProjectName(project.attributes.title as string);
+      setProjectType(project.attributes.industryTemplate as string);
     }
   }, [projectId]);
 
@@ -108,7 +140,9 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
             </div>
             <div className="p-4 py-8">
               <h1 className="text-3xl font bold">{nftTitle as string}</h1>
-              <p className="!text-nomyx-gray1-light dark:!text-nomyx-gray1-dark">{description as string}</p>
+              {projectType !== Industries.TRADE_FINANCE && (
+                <p className="!text-nomyx-gray1-light dark:!text-nomyx-gray1-dark">{description as string}</p>
+              )}
             </div>
           </div>
         </div>
@@ -127,27 +161,55 @@ const NftRecordDetail = ({ handleMint, handleBack, data, detailView = false }: N
               <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Mint To</div>
               <div className="card-value truncate">{identityDetail}</div>
             </div>
-            <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
-              <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Price</div>
-              <div className="card-value truncate">{formatPrice(parseFloat(price as string))}</div>
-            </div>
+            {owner && (
+              <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+                <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Owner</div>
+                <div className="card-value truncate">{owner as string}</div>
+              </div>
+            )}
+            {totalAmount && !isNaN(Number(totalAmount)) && (
+              <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+                <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Price</div>
+                <div className="card-value truncate">{formatPrice(Number(totalAmount))}</div>
+              </div>
+            )}
+            {projectType !== Industries.TRADE_FINANCE && (
+              <div className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
+                <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">Price</div>
+                <div className="card-value truncate">{formatPrice(parseFloat(price as string))}</div>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="mb-4">
           <div className="p-2 font-bold">Token Data</div>
           <div className="grid grid-cols-2 border-t border-b border-nomyx-gray4-light dark:border-nomyx-gray4-dark">
-            {Object.entries(metadata).map(([key, value], index) => {
-              return (
-                <div
-                  key={`field-${index}`}
-                  className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
-                >
-                  <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">{capitalizeEveryWord(key.replace("_", " "))}</div>
-                  <div className="card-value truncate">{value as string}</div>
-                </div>
-              );
-            })}
+            {Object.entries(metadata)
+              .filter(([key, value]) => key !== "_tradeDealId" && key !== "industryTemplate")
+              .map(([key, value], index) => {
+                return (
+                  <div
+                    key={`field-${index}`}
+                    className="p-2 border-b odd:border-r last:border-0 odd:[&:nth-last-child(2)]:border-b-0  border-nomyx-gray4-light dark:border-nomyx-gray4-dark"
+                  >
+                    <div className="text-nomyx-gray3-light dark:text-nomyx-gray3-dark">{formatTitle(key)}</div>
+                    <div className="card-value truncate">
+                      {tradeFinanceDocumentationFields.find((field: { name: string; type: string }) => field.name === key)?.type === "file" ? (
+                        <button onClick={() => window.open(value as string, "_blank")} className="text-blue-500 hover:text-blue-700">
+                          View Document
+                        </button>
+                      ) : key === "totalAmount" || key === "par_value" ? (
+                        formatPrice(parseFloat(value as string))
+                      ) : !isNaN(parseFloat(value as string)) ? (
+                        formatNumberWithCommas(parseFloat(value as string))
+                      ) : (
+                        (value as string)
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         </div>
 

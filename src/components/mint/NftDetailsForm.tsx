@@ -1,14 +1,33 @@
-import React, { useCallback, useEffect, useMemo, useState, useRef, use } from "react";
+import React, { useCallback, useEffect, useMemo, useState, useRef } from "react";
 
-import { Card, Form, FormInstance, Radio } from "antd";
+import { Card, Form, FormInstance, Radio, FormRule } from "antd";
 import { useRouter } from "next/router";
 
-import { Industries, carbonCreditFields, tradeFinanceFields, tokenizedDebtFields } from "@/constants/constants";
-import { requiredRule, numberRule, alphaNumericRule, walletAddressRule } from "@/constants/rules";
+import {
+  Industries,
+  carbonCreditFields,
+  tradeFinanceFields,
+  tokenizedDebtFields,
+  tradeFinanceStockInfoFields,
+  tradeFinanceDocumentationFields,
+} from "@/constants/constants";
+import { requiredRule, numberRule, alphaNumericRule, alphaNumericWithSpaceRule, walletAddressRule } from "@/constants/rules";
 import { CustomerService } from "@/services/CustomerService";
 import { Regex } from "@/utils/regex";
 
 import VariableFormInput from "../atoms/VariableFormInput";
+
+interface NftDetailsInputField {
+  label: string;
+  name: string;
+  type: string;
+  placeHolder?: string;
+  rules?: FormRule[];
+  disabled?: boolean;
+  prefix?: string;
+  options?: { label: string; value: string }[];
+  className?: string;
+}
 
 interface NftDetailsFormProps {
   form: FormInstance;
@@ -28,6 +47,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       startDate: string;
       fields: string;
       industryTemplate: string;
+      tradeDealId?: number;
     }[]
   >([]);
 
@@ -36,11 +56,17 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
   const [additionalFields, setAdditionalFields] = useState<NftDetailsInputField[]>([]);
   const [mintToType, setMintToType] = useState<"registered" | "new">("registered");
 
-  Form.useWatch((values) => {
-    if (values.projectId && values.projectId !== projectId) {
-      setProjectId(values.projectId);
+  const watchedProjectId = Form.useWatch("projectId", form);
+
+  useEffect(() => {
+    if (watchedProjectId && watchedProjectId !== projectId) {
+      form.resetFields();
+      form.setFieldsValue({
+        projectId: watchedProjectId,
+      });
+      setProjectId(watchedProjectId);
     }
-  }, form);
+  }, [watchedProjectId, projectId, form]);
 
   const fetchProjects = useCallback(async () => {
     try {
@@ -52,6 +78,7 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
           startDate: project.createdAt.toLocaleDateString(),
           fields: project.attributes.fields,
           industryTemplate: project.attributes.industryTemplate,
+          tradeDealId: project.attributes.tradeDealId,
         })) || []
       );
     } catch (error) {
@@ -78,13 +105,18 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
     fetchRegisteredUsers();
   }, [fetchProjects, fetchRegisteredUsers]);
 
+  const [showTradeFinanceFields, setShowTradeFinanceFields] = useState(false);
+
   useEffect(() => {
     const project = projectList.find((project) => project.id === projectId);
     if (project) {
       const projectFields = project.fields;
       const projectStartDate = project.startDate;
       if (projectStartDate) {
-        form.setFieldsValue({ projectStartDate, projectId });
+        form.setFieldsValue({
+          projectStartDate,
+          projectId,
+        });
       }
 
       let fields: NftDetailsInputField[] = [];
@@ -95,6 +127,9 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
           type: field.type,
         }));
       }
+
+      // Set showTradeFinanceFields based on the project's industry template
+      setShowTradeFinanceFields(project.industryTemplate === Industries.TRADE_FINANCE);
 
       switch (project.industryTemplate) {
         case Industries.CARBON_CREDIT:
@@ -124,7 +159,18 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
       <Form
         form={form}
         layout="vertical"
-        onFinish={(values) => onFinish({ ...values, industryTemplate: projectList.find((p) => p.id === projectId)?.industryTemplate })}
+        onFinish={(values) => {
+          const project = projectList.find((p) => p.id === projectId);
+          const formData = {
+            ...values,
+          };
+          formData.industryTemplate = project?.industryTemplate;
+          // add tradeDealId to formData if the project is Trade Finance
+          if (project?.industryTemplate === Industries.TRADE_FINANCE) {
+            formData._tradeDealId = project?.tradeDealId;
+          }
+          onFinish(formData);
+        }}
       >
         <div className="flex flex-col divide-y divide-[#484848]">
           <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
@@ -134,15 +180,17 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
               name="nftTitle"
               label="Title"
               placeholder="Enter Token Title"
-              rules={[requiredRule, alphaNumericRule, { max: 30 }]}
+              rules={[requiredRule, alphaNumericWithSpaceRule, { max: 30 }]}
             />
-            <VariableFormInput
-              type="text"
-              name="description"
-              label="Description"
-              placeholder="Add a description for the NFT"
-              rules={[requiredRule, { max: 256 }]}
-            />
+            {projectList.find((p) => p.id === projectId)?.industryTemplate !== Industries.TRADE_FINANCE && (
+              <VariableFormInput
+                type="text"
+                name="description"
+                label="Description"
+                placeholder="Add a description for the NFT"
+                rules={[requiredRule, { max: 256 }]}
+              />
+            )}
             <VariableFormInput
               type="select"
               name="projectId"
@@ -187,15 +235,35 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
                 <VariableFormInput type="text" name="mintAddress" label="" placeholder="Enter Wallet Address" rules={[walletAddressRule]} />
               )}
             </div>
-            <VariableFormInput
-              type="text"
-              name="price"
-              label={projectList.find((p) => p.id === projectId)?.industryTemplate === Industries.CARBON_CREDIT ? "Price Per Credit" : "Price"}
-              placeholder="Enter Price"
-              rules={[requiredRule, numberRule]}
-              prefix="$"
-            />
+            {projectList.find((p) => p.id === projectId)?.industryTemplate !== Industries.TRADE_FINANCE && (
+              <VariableFormInput type="text" name="price" label="Price" placeholder="Enter Price" rules={[requiredRule, numberRule]} prefix="$" />
+            )}
+            {projectList.find((p) => p.id === projectId)?.industryTemplate === Industries.TRADE_FINANCE && (
+              <VariableFormInput type="number" name="totalAmount" label="Price" placeholder="Price" rules={[requiredRule, numberRule]} prefix="$" />
+            )}
           </div>
+
+          {/* Stock Information Section for Trade Finance */}
+          {/* {showTradeFinanceFields && (
+            <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
+              <p className="col-span-2 font-bold pb-6">Stock Information</p>
+              {tradeFinanceStockInfoFields.map((field, index) => (
+                <VariableFormInput
+                  key={`stock-info-${index}`}
+                  name={field.name}
+                  label={field.label}
+                  type={field.type}
+                  rules={field.rules ?? [requiredRule]}
+                  disabled={field.disabled}
+                  prefix={field.prefix || ""}
+                  placeHolder={field.placeHolder}
+                  options={field.options}
+                  className={field.className}
+                />
+              ))}
+            </div>
+          )} */}
+
           {additionalFields.length > 0 && (
             <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
               <p className="col-span-2 font-bold pb-6">Token Fields</p>
@@ -209,12 +277,33 @@ const NftDetailsForm = ({ form, onFinish }: NftDetailsFormProps) => {
                     rules={field.rules ?? [requiredRule]}
                     disabled={field.disabled}
                     prefix={field?.prefix || ""}
-                    placeholder={field.placeHolder}
+                    placeHolder={field.placeHolder}
                     options={field.options}
                     className={field.className}
                   />
                 );
               })}
+            </div>
+          )}
+
+          {/* Related Documentation Section for Trade Finance */}
+          {showTradeFinanceFields && (
+            <div className="grid grid-cols-2 first:pt-0 gap-x-4 pt-6">
+              <p className="col-span-2 font-bold pb-6">Related Documentation</p>
+              {tradeFinanceDocumentationFields.map((field, index) => (
+                <VariableFormInput
+                  key={`documentation-${index}`}
+                  name={field.name}
+                  label={field.label}
+                  type={field.type}
+                  rules={field.rules ?? [requiredRule]}
+                  disabled={field.disabled}
+                  prefix={field.prefix || ""}
+                  placeHolder={field.placeHolder}
+                  options={field.options}
+                  className={field.className}
+                />
+              ))}
             </div>
           )}
         </div>

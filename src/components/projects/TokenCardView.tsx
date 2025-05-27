@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import { Card, Modal, Input, Button } from "antd";
 import { MoneyRecive } from "iconsax-react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 import { Industries } from "@/constants/constants";
@@ -26,6 +27,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
   const [amount, setAmount] = useState<string>(""); // State for the input value
   const [isSubmitting, setIsSubmitting] = useState(false); // For submission state
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const router = useRouter();
 
   const handleDepositClick = (tokenId: string) => {
     console.log("tokenId", tokenId);
@@ -77,19 +79,53 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
     }
   };
 
+  const handleDetailViewClick = (id: string) => {
+    router.push(`/nft-detail/${id}`);
+  };
+
+  const formatColumnTitle = (title: string): string => {
+    if (title === "isin_number") return "ISIN Number";
+
+    return title
+      .replace(/_/g, " ")
+      .replace(/([A-Z])/g, " $1")
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+      .trim();
+  };
+
   const getDynamicColumns = (maxColumns = 5): ColumnConfig[] => {
     const nonNullColumns: Record<string, ColumnConfig> = {};
     tokens.forEach((token) => {
-      Object.entries(token.token).forEach(([key, value]) => {
-        if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
-          nonNullColumns[key] = {
-            title: key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase()),
-            key,
-          };
-        }
-      });
+      if (industryTemplate != Industries.TRADE_FINANCE) {
+        Object.entries(token.token).forEach(([key, value]) => {
+          if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
+            nonNullColumns[key] = {
+              title: formatColumnTitle(key),
+              key,
+            };
+          }
+        });
+      } else {
+        Object.entries(token).forEach(([key, value]) => {
+          if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
+            nonNullColumns[key] = {
+              title: formatColumnTitle(key),
+              key,
+            };
+          }
+        });
+      }
     });
     return Object.values(nonNullColumns).slice(0, maxColumns);
+  };
+
+  const isValidUrl = (str: string): boolean => {
+    try {
+      new URL(str);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const dynamicColumns = getDynamicColumns();
@@ -106,7 +142,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
           // Create column data for each token
           const dynamicColumnData: ColumnData[] = dynamicColumns.map((column) => ({
             label: column.title,
-            value: token.token?.[column.key] || "-",
+            value: industryTemplate != Industries.TRADE_FINANCE ? token.token?.[column.key] : token?.[column.key] || "-",
           }));
 
           return (
@@ -134,7 +170,16 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                   justifyContent: "center",
                   padding: "20px",
                   boxSizing: "border-box",
+                  cursor: "pointer",
                 }}
+                onClick={
+                  !isSalesHistory
+                    ? () =>
+                        industryTemplate && industryTemplate == Industries.TRADE_FINANCE
+                          ? handleDetailViewClick(token?.objectId)
+                          : handleDetailViewClick(token?.token?.objectId)
+                    : undefined
+                }
               >
                 <GenerateSvgIcon color={color} />
               </div>
@@ -142,24 +187,35 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
               {/* Content Section */}
               <div className="p-4">
                 {/* Title and Description */}
-                <h2 className="text-lg font-bold">{token.token?.nftTitle || "Token Title"}</h2>
-                <p className="text-sm text-gray-600 mt-1 line-clamp-1">
-                  {token.token?.description ||
-                    "This is a placeholder description for the token. Lorem ipsum dolor sit amet, consectetur adipiscing elit."}
-                </p>
+                <h2 className="text-lg font-bold">{token?.nftTitle || token.token?.nftTitle || "Token Title"}</h2>
+                <p className="text-sm text-gray-600 mt-1 line-clamp-1">{token?.description || token.token?.description || ""}</p>
 
                 {/* Token Details Section */}
                 <div className="mt-4 grid gap-2">
                   {[
-                    {
-                      label: "Total Price",
-                      value: isSalesHistory ? formatPrice(token.price, "USD") : formatPrice(token.price / 1_000_000, "USD"),
-                    },
+                    ...(token.price > 0 || token.totalAmount
+                      ? [
+                          {
+                            label: "Price",
+                            value: isSalesHistory
+                              ? formatPrice(token.price, "USD")
+                              : formatPrice(token.price ? token.price : token.totalAmount / 1_000_000, "USD"),
+                          },
+                        ]
+                      : []),
                     ...dynamicColumnData,
                   ].map((item, index) => (
                     <div key={index} className="flex items-center justify-between">
                       <span className="font-semibold text-left">{item.label}</span>
-                      <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">{item.value}</span>
+                      {typeof item.value === "string" && isValidUrl(item.value) ? (
+                        <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">
+                          <a href={item.value} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">
+                            View Document
+                          </a>
+                        </span>
+                      ) : (
+                        <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">{item.value}</span>
+                      )}
                     </div>
                   ))}
                   {industryTemplate && industryTemplate === Industries.TOKENIZED_DEBT && (

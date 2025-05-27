@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Button } from "antd";
+import { ethers } from "ethers";
+import Head from "next/head";
 import { useRouter } from "next/router";
 
 import { TelescopeIcon } from "@/assets";
@@ -9,8 +11,10 @@ import ProjectCard from "@/components/projects/ProjectCard";
 import ProjectDetails from "@/components/projects/ProjectDetails";
 import ProjectListView from "@/components/projects/ProjectListView";
 import ProjectsHeader from "@/components/projects/ProjectsHeader";
+import { Industries } from "@/constants/constants";
 import { getDashboardLayout } from "@/Layouts";
 import { CustomerService } from "@/services/CustomerService";
+import { formatUSDC } from "@/utils/currencyFormater";
 
 export default function Projects() {
   const [open, setOpen] = useState(false);
@@ -34,7 +38,7 @@ export default function Projects() {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const [tokens, projects] = await Promise.all([api.getMintedNfts(), api.getProjects()]);
+      const [tokens, projects, tradeDealDeposits] = await Promise.all([api.getMintedNfts(), api.getProjects(), api.getTradeDealDeposits()]);
       setProjectList(
         projects?.map((project) => {
           const projectTokens = tokens?.filter((token) => token.attributes.projectId === project.id);
@@ -44,10 +48,41 @@ export default function Projects() {
             description: project.attributes.description,
             logo: project.attributes.logo,
             coverImage: project.attributes.coverImage,
-            totalValue: projectTokens?.reduce((acc, token) => acc + Number(token.attributes.price), 0) || 0,
+            totalValue:
+              projectTokens?.reduce((acc, token) => {
+                // Calculate totalValue based on industry type
+                const industryTemplate = project.attributes.industryTemplate;
+                const { CARBON_CREDIT, TOKENIZED_DEBT, TRADE_FINANCE } = Industries;
+
+                if (industryTemplate === TRADE_FINANCE) {
+                  // For Trade Finance: use formatUSDC on totalAmount
+                  const formattedAmount = formatUSDC(token.attributes.totalAmount || 0);
+                  return acc + formattedAmount;
+                } else if (industryTemplate === CARBON_CREDIT) {
+                  // For Carbon Credit: use price
+                  const price = Number(token.attributes.price || 0);
+                  return acc + price;
+                } else if (industryTemplate === TOKENIZED_DEBT) {
+                  // For Tokenized Debt: use price * existingCredits
+                  const price = Number(token.attributes.price || 0);
+                  const existingCredits = Number(token.attributes.existingCredits || 1);
+                  return acc + price * existingCredits;
+                } else {
+                  // Future Templates
+                  return 0;
+                }
+              }, 0) || 0,
             totalTokens: projectTokens?.length || 0,
             createdAt: project.createdAt,
             industryTemplate: project.attributes.industryTemplate,
+            tradeDealId: project.attributes.tradeDealId,
+            projectInfo: project.attributes.projectInfo,
+            isWithdrawn: project.attributes.isWithdrawn || false,
+            totalDepositAmount:
+              tradeDealDeposits
+                ?.filter((t) => String(t.get("tradeDealId")) === String(project.attributes.tradeDealId))
+                .map((t) => Number(t.get("amount")) / 1_000_000)
+                .reduce((acc, val) => acc + val, 0) || 0,
           };
         }) || []
       );
@@ -71,6 +106,9 @@ export default function Projects() {
 
   return (
     <>
+      <Head>
+        <title>Projects - Nomyx Mintify</title>
+      </Head>
       <CreateProjectModal open={open} setOpen={setOpen} onCreateSuccess={onCreateSuccess} />
       {!selectedProject && <ProjectsHeader setOpen={setOpen} />}
       {selectedProject ? (

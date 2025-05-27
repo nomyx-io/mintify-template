@@ -61,6 +61,14 @@ export const EventFeed = ({ data }: EventFeedProps) => {
     });
   }
 
+  function formatEventName(name: string): string {
+    return name
+      .replace(/([a-z])([A-Z])/g, "$1 $2") // insert space between lowercase and uppercase
+      .replace(/([A-Z])([A-Z][a-z])/g, "$1 $2") // insert space between capital acronyms and normal capitalized words
+      .replace(/\d+$/, (match) => ` ${match}`) // separate trailing numbers
+      .trim();
+  }
+
   return (
     <div className="w-full">
       <div className="flex items-center justify-between relative text-nomyx-text-light dark:text-nomyx-text-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark border-b border-nomyx-gray4-light dark:border-nomyx-gray4-dark py-4 px-6">
@@ -102,7 +110,13 @@ export const EventFeed = ({ data }: EventFeedProps) => {
             <div key={key} className="text-nomyx-text-light dark:text-nomyx-text-dark bg-nomyx-dark2-light dark:bg-nomyx-dark2-dark">
               <h3 className="px-4 pt-4">{key}</h3>
               {value.data.map((item: TokenEvent, index: number) => (
-                <IconCard key={`${key}-${index}`} icon={<Coin />} name={item.name} description={item.description || ""} value={item.value} />
+                <IconCard
+                  key={`${key}-${index}`}
+                  icon={<Coin />}
+                  name={formatEventName(item.name)}
+                  description={item.description || ""}
+                  value={item.value}
+                />
               ))}
             </div>
           );

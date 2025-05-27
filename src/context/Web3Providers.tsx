@@ -6,14 +6,15 @@ import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 
 import { WalletAddressProvider } from "@/context/WalletAddressContext";
-import { BASESEP_CHAIN, LOCALHOST_CHAIN, BASE_CHAIN } from "@/utils/chains";
+import { BASESEP_CHAIN, LOCALHOST_CHAIN, BASE_CHAIN, OPTSEP_CHAIN } from "@/utils/chains";
 
 const localhost = LOCALHOST_CHAIN;
 const baseSep = BASESEP_CHAIN;
 const base = BASE_CHAIN;
+const optSep = OPTSEP_CHAIN;
 
 const { chains, publicClient } = configureChains(
-  [baseSep, base],
+  [baseSep, base, optSep],
   [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || "" }), publicProvider()]
 );
 
@@ -24,7 +25,7 @@ const { connectors } = getDefaultWallets({
 });
 
 const wagmiConfig = createConfig({
-  autoConnect: true,
+  autoConnect: false,
   connectors,
   publicClient,
 });

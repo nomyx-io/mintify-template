@@ -3,6 +3,7 @@ import React, { useEffect, useState, useContext } from "react";
 
 import { Button, Form } from "antd";
 import { ethers } from "ethers";
+import Head from "next/head";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import { useAccount } from "wagmi";
@@ -15,6 +16,7 @@ import { getDashboardLayout } from "@/Layouts";
 import BlockchainService from "@/services/BlockchainService";
 import { CarbonCreditService } from "@/services/CarbonCreditService";
 import DfnsService from "@/services/DfnsService";
+import ParseClient from "@/services/ParseClient";
 import { TokenizedDebtService } from "@/services/TokenizedDebtService";
 import { TradeFinanceService } from "@/services/TradeFinanceService";
 
@@ -35,16 +37,69 @@ export default function Details({ service }: { service: BlockchainService }) {
   const [formData, setFormData] = useState<any>({});
   const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
   const [industry, setIndustry] = useState<Industries | null>(null);
-  const blockchainService = BlockchainService.getInstance();
 
-  const listener = usePageUnloadGuard();
-  listener.onBeforeUnload = () => {
-    return true;
-  };
+  const [isUserChecked, setIsUserChecked] = useState(false);
+
+  const { address, isConnected } = useAccount();
+  const [isProviderReady, setIsProviderReady] = useState(false);
+
+  const blockchainService = walletPreference === WalletPreference.PRIVATE ? BlockchainService.getInstance() : service;
 
   useEffect(() => {
-    !user && router.push("/login");
+    const checkUserInterval = setInterval(() => {
+      const token = localStorage.getItem("sessionToken");
+
+      if (user && token) {
+        console.log("User and token found, continuing...");
+        clearInterval(checkUserInterval);
+        clearTimeout(timeout); // clear the timeout in case polling resolves first
+        setIsUserChecked(true);
+      }
+    }, 200);
+
+    // Safety: timeout after 5 seconds to avoid infinite loop
+    const timeout = setTimeout(() => {
+      clearInterval(checkUserInterval);
+
+      if (!user) {
+        console.warn("User context not available after timeout. Redirecting to login...");
+        router.push("/login");
+      } else {
+        console.log("Proceeding after timeout with available user context.");
+        setIsUserChecked(true);
+      }
+    }, 5000);
+
+    return () => {
+      clearInterval(checkUserInterval);
+      clearTimeout(timeout);
+    };
   }, [user, router]);
+
+  useEffect(() => {
+    // Check if the provider is available
+    const checkProvider = async () => {
+      try {
+        // Small delay to ensure provider has time to initialize
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Set provider as ready
+        setIsProviderReady(true);
+      } catch (error) {
+        console.error("Error initializing Web3 provider:", error);
+      }
+    };
+
+    checkProvider();
+  }, []);
+
+  const listener = usePageUnloadGuard();
+  useEffect(() => {
+    listener.onBeforeUnload = () => true;
+    return () => {
+      listener.onBeforeUnload = () => true; // or () => false
+    };
+  }, [listener]);
 
   const handlePreview = (values: any) => {
     setFormData(values);
@@ -58,71 +113,69 @@ export default function Details({ service }: { service: BlockchainService }) {
 
   const generateMetadata = (values: Record<string, any>): Metadata[] => {
     const metadataFields: Metadata[] = [];
-
     Object.entries(values).forEach(([key, value]) => {
       if (value || value === 0) {
-        const metadataField = {
-          key,
-          attributeType: 1,
-          value,
-        };
-
-        metadataFields.push(metadataField);
+        metadataFields.push({ key, attributeType: 1, value });
       }
     });
-    const claimsTopics = {
+    metadataFields.push({
       key: "claimTopics",
       attributeType: 0,
-      value: selectedClaims ? selectedClaims.join(",") : selectedClaims,
-    };
-
-    metadataFields.push(claimsTopics);
+      value: selectedClaims.join(","),
+    });
     return metadataFields;
   };
 
+  const resetFormStates = () => {
+    form.resetFields();
+    setSelectedClaims([]);
+    setPreview(false);
+  };
+
   const handleMint = async () => {
-    if (!blockchainService) {
-      toast.error("Blockchain service is not available.");
-      return;
-    }
-
-    const nftMetadata = generateMetadata(formData);
-    const mintAddress = nftMetadata.find((value) => value.key === "mintAddress")?.value;
-
-    if (!mintAddress) {
-      toast.error("Wallet address is not available.");
-      return;
-    }
-
-    const walletId = user?.walletId || null;
-    let safeDfnsToken = dfnsToken ?? "";
-
     try {
-      console.log("🔹 DFNS Token Before Minting:", safeDfnsToken);
-      console.log("🔹 Wallet ID Before Minting:", walletId);
+      const tradeDealId = formData._tradeDealId;
+      if (industry === Industries.TRADE_FINANCE && formData.totalAmount) {
+        const parsed = parseFloat(formData.totalAmount);
+        if (!isNaN(parsed)) formData.totalAmount = (parsed * 1_000_000).toFixed(0);
+      }
+
+      delete formData._tradeDealId;
+      delete formData.industryTemplate;
+      delete formData.tradeAmount;
+
+      const nftMetadata = generateMetadata(formData);
+      const mintAddress = nftMetadata.find((v) => v.key === "mintAddress")?.value;
+      if (!mintAddress) return toast.error("Wallet address is not available.");
+
+      const walletId = user?.walletId || null;
+      const safeDfnsToken = dfnsToken ?? "";
 
       if (walletPreference === WalletPreference.MANAGED && (!walletId || !dfnsToken)) {
         throw new Error("Missing wallet credentials for DFNS transactions.");
       }
 
-      // Start minting process
       const mintingToast = toast.loading("Minting token...");
       let tokenId, transactionHash;
+      const tokenUrlFields: { [key: string]: string } = {};
 
       if (walletPreference === WalletPreference.PRIVATE) {
-        // **PRIVATE WALLET: Use BlockchainService**
-        ({ tokenId, transactionHash } = await blockchainService.gemforceMint(nftMetadata));
-      } else {
-        // **MANAGED WALLET: Use DFNS Service**
-        const response = await DfnsService.dfnsGemforceMint(walletId, safeDfnsToken, nftMetadata);
-        console.log("✅ DFNS Mint Complete Response:", response);
-
-        if (response.completeResponse) {
-          tokenId = response.completeResponse.tokenId;
-          transactionHash = response.completeResponse.transactionHash;
-        } else {
-          throw new Error("DFNS minting did not return a valid response.");
+        const result = await blockchainService?.gemforceMint(nftMetadata);
+        if (!result) {
+          throw new Error("Failed to mint: gemforceMint returned undefined");
         }
+        ({ tokenId, transactionHash } = result);
+      } else {
+        const modifiedNftMetadata = nftMetadata.filter((item) => {
+          if (typeof item.value === "string" && item.value.match(/^(http:\/\/|ipfs:\/\/)[^\s]+$/)) {
+            tokenUrlFields[item.key] = item.value;
+            return false;
+          }
+          return true;
+        });
+        const response = await DfnsService.dfnsGemforceMint(walletId, safeDfnsToken, modifiedNftMetadata);
+        if (!response.completeResponse) throw new Error("DFNS minting did not return a valid response.");
+        ({ tokenId, transactionHash } = response.completeResponse);
       }
 
       toast.update(mintingToast, {
@@ -132,28 +185,26 @@ export default function Details({ service }: { service: BlockchainService }) {
         autoClose: 5000,
       });
 
-      // **Introduce a short delay to allow blockchain to settle**
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((r) => setTimeout(r, 2000));
 
-      // **Handle Industry-Specific Logic**
       switch (industry) {
         case Industries.CARBON_CREDIT:
-          const carbonCreditToast = toast.loading("Initializing carbon credits...");
+          const ccToast = toast.loading("Initializing carbon credits...");
           try {
             if (walletPreference === WalletPreference.PRIVATE) {
-              await carbonCreditService.initializeCarbonCredit(tokenId, formData?.existingCredits || "0");
+              await carbonCreditService.initializeCarbonCredit(tokenId, formData.existingCredits || "0");
             } else {
-              await DfnsService.dfnsInitializeCarbonCredit(walletId, safeDfnsToken, tokenId, formData?.existingCredits || "0");
+              await DfnsService.dfnsInitializeCarbonCredit(walletId, safeDfnsToken, tokenId, formData.existingCredits || "0");
             }
-            toast.update(carbonCreditToast, {
+            toast.update(ccToast, {
               render: `✅ Carbon credits initialized for token ID: ${tokenId}`,
               type: "success",
               isLoading: false,
               autoClose: 5000,
             });
-          } catch (error) {
-            toast.update(carbonCreditToast, {
-              render: `❌ Error initializing carbon credits: ${error}`,
+          } catch (err) {
+            toast.update(ccToast, {
+              render: `Error initializing carbon credits: ${err}`,
               type: "error",
               isLoading: false,
               autoClose: 5000,
@@ -161,94 +212,111 @@ export default function Details({ service }: { service: BlockchainService }) {
           }
           break;
 
-        case Industries.TOKENIZED_DEBT:
         case Industries.TRADE_FINANCE:
-          // Additional cases if needed
-          break;
+          if (typeof tradeDealId !== "number") {
+            return toast.error("Trade deal ID is required for trade finance tokens");
+          }
+          const depositToast = toast.loading("Depositing Stock into Fund pool...");
+          try {
+            if (walletPreference === WalletPreference.PRIVATE) {
+              await blockchainService?.tdDepositInvoice(tradeDealId, tokenId);
+            } else {
+              const depositResult = await DfnsService.dfnsTdDepositInvoice(walletId, safeDfnsToken, tradeDealId, tokenId);
+              if (depositResult.error) throw new Error(depositResult.error);
+            }
+            toast.update(depositToast, {
+              render: `Invoice successfully deposited to trade deal ${tradeDealId}`,
+              type: "success",
+              isLoading: false,
+              autoClose: 5000,
+            });
+          } catch (err) {
+            toast.update(depositToast, {
+              render: `Error depositing stock: ${err}`,
+              type: "error",
+              isLoading: false,
+              autoClose: 5000,
+            });
+            throw err;
+          }
 
-        default:
+          if (Object.keys(tokenUrlFields).length > 0) {
+            for (let i = 1; i <= 3; i++) {
+              try {
+                const result = await ParseClient.updateTokenUrls(tokenId, tokenUrlFields);
+                if (result) break;
+                await new Promise((r) => setTimeout(r, 2000));
+              } catch (err) {
+                if (i === 3) console.error(`Failed to update token URLs after ${i} attempts`);
+              }
+            }
+          }
           break;
       }
 
-      // **Introduce another short delay before listing**
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // **Proceed with Listing**
-      const price = nftMetadata.find((value) => value.key === "price")?.value || "0";
-      const usdcPrice = ethers.parseUnits(price, 6);
-      toast.info(`ℹ️ Calculated total price in USDC: ${price || "0"}`, { autoClose: 3000 });
-
-      const listingToast = toast.loading("Listing token on the marketplace...");
-
-      let listingResponse;
-      try {
-        if (walletPreference === WalletPreference.PRIVATE) {
-          await blockchainService.listItem(mintAddress, tokenId, usdcPrice, true);
-        } else {
-          listingResponse = await DfnsService.dfnsListItem(walletId, safeDfnsToken, mintAddress, tokenId, price, true);
+      if (industry !== Industries.TRADE_FINANCE) {
+        await new Promise((r) => setTimeout(r, 2000));
+        const price = nftMetadata.find((v) => v.key === "price")?.value || "0";
+        const usdcPrice = ethers.parseUnits(price, 6);
+        const listingToast = toast.loading("Listing token on the marketplace...");
+        try {
+          if (walletPreference === WalletPreference.PRIVATE) {
+            await blockchainService?.listItem(mintAddress, tokenId, usdcPrice, true);
+          } else {
+            const listingRes = await DfnsService.dfnsListItem(walletId, safeDfnsToken, mintAddress, tokenId, price, true);
+            if (listingRes?.error) throw new Error(listingRes.error);
+          }
+          toast.update(listingToast, {
+            render: `Token successfully listed with ID: ${tokenId}`,
+            type: "success",
+            isLoading: false,
+            autoClose: 5000,
+          });
+        } catch (err) {
+          toast.update(listingToast, {
+            render: `Error during listing: ${err}`,
+            type: "error",
+            isLoading: false,
+            autoClose: 5000,
+          });
         }
-
-        console.log("✅ DFNS Listing Response:", listingResponse);
-
-        if (listingResponse?.error) {
-          throw new Error(`DFNS Listing Error: ${listingResponse.error}`);
-        }
-
-        toast.update(listingToast, {
-          render: `✅ Token successfully listed with ID: ${tokenId}`,
-          type: "success",
-          isLoading: false,
-          autoClose: 5000,
-        });
-
-        // **Introduce a final short delay after listing**
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        resetFormStates();
-        toast.success(`🎉 Successfully minted and listed NFT with Token ID: ${tokenId}`);
-        return tokenId;
-      } catch (error) {
-        toast.update(listingToast, {
-          render: `❌ Error during listing: ${error}`,
-          type: "error",
-          isLoading: false,
-          autoClose: 5000,
-        });
-        throw error;
       }
+
+      resetFormStates();
+      toast.success(
+        industry === Industries.TRADE_FINANCE
+          ? `Successfully minted NFT with Token ID: ${tokenId}`
+          : `Successfully minted and listed NFT with Token ID: ${tokenId}`
+      );
+      return tokenId;
     } catch (e) {
-      let errorMessage = "An error occurred during the minting/listing process.";
-      if (e instanceof Error) {
-        errorMessage = e.message;
-      } else if (typeof e === "string") {
-        errorMessage = e;
-      }
-      console.error("❌ Error:", e);
       toast.dismiss();
-      toast.error(errorMessage);
+      toast.error(e instanceof Error ? e.message : String(e));
+      console.error("Error:", e);
     }
   };
 
-  const resetFormStates = () => {
-    form.resetFields();
-    setSelectedClaims([]);
-    setPreview(false);
-  };
+  if (!isUserChecked) return <div className="w-full text-center py-8">Loading user data...</div>;
 
   return (
     <>
+      <Head>
+        <title>Mint Tokens - Nomyx Mintify</title>
+      </Head>
       {preview ? (
         <NftPreview data={{ ...formData, claimTopics: selectedClaims.join(",") }} handleBack={handleBack} handleMint={handleMint} />
       ) : (
         <div className="w-full flex flex-col gap-3">
           <NftDetailsForm form={form} onFinish={handlePreview} />
           <Compliance selectedClaims={selectedClaims} setSelectedClaims={setSelectedClaims} />
-
           <div className="actions flex gap-3">
-            <Button className="text-nomyx-text-light dark:text-nomyx-text-dark hover:!bg-transparent" onClick={() => router.push("/home")}>
+            <Button className="text-black bg-white hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark" onClick={() => router.push("/home")}>
               Cancel
             </Button>
-            <Button className="text-nomyx-text-light dark:text-nomyx-text-dark hover:!bg-transparent" onClick={form.submit}>
+            <Button
+              className="text-black bg-white hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark border border-gray-300"
+              onClick={form.submit}
+            >
               Preview
             </Button>
           </div>
@@ -257,4 +325,5 @@ export default function Details({ service }: { service: BlockchainService }) {
     </>
   );
 }
+
 Details.getLayout = getDashboardLayout;
