@@ -389,25 +389,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                   />
                 )}
               </PrivateRoute>
-              <PrivateRoute
-                handleForecLogout={handleForceLogout}
-                forceLogout={forceLogout}
-                role={role}
-                onConnect={onConnect}
-                isConnected={isConnected}
-              >
-                {getLayout(
-                  <Component
-                    {...pageProps}
-                    role={role}
-                    service={blockchainService}
-                    onConnect={onConnect}
-                    onDisconnect={onDisconnect}
-                    forceLogout={forceLogout}
-                    onLogin={onLogin}
-                  />
-                )}
-              </PrivateRoute>
             </ConfigProvider>
           </NextThemesProvider>
         </Web3Providers>
