@@ -12,10 +12,12 @@ import { BrowserProvider, ethers, Network } from "ethers";
 import { NextPage } from "next";
 import { AppProps } from "next/app";
 import { useRouter } from "next/router";
+import { SessionProvider } from "next-auth/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { toast, ToastContainer } from "react-toastify";
 
 import PrivateRoute from "@/components/atoms/PrivateRoute";
+import AutoLogout from "@/components/auth/AutoLogout";
 import TopNavBar from "@/components/molecules/TopNavBar";
 import NomyxAppContext from "@/context/NomyxAppContext";
 import Web3Providers from "@/context/Web3Providers";
@@ -350,49 +352,55 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   }
 
   return (
-    <NomyxAppContext.Provider value={{ blockchainService, setBlockchainService }}>
-      <UserContext.Provider value={{ role, setRole, walletPreference, setWalletPreference, dfnsToken, setDfnsToken, user, setUser }}>
-        {/* Loading Spinner Overlay */}
-        {loading && (
-          <div className="z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]">
-            <Spin />
-          </div>
-        )}
-        <Web3Providers>
-          <NextThemesProvider attribute="class">
-            <ConfigProvider theme={antTheme}>
-              <ToastContainer
-                position="top-right"
-                className="toast-background"
-                progressClassName="toast-progress-bar"
-                autoClose={4000}
-                closeOnClick
-                pauseOnHover
-              />
-              {isConnected && user && <TopNavBar onDisconnect={onDisconnect} onLogout={onLogoutEmailPassword} />}
-              <PrivateRoute
-                handleForecLogout={handleForceLogout}
-                forceLogout={forceLogout}
-                role={role}
-                onConnect={onConnect}
-                isConnected={isConnected}
-              >
-                {getLayout(
-                  <Component
-                    {...pageProps}
-                    role={role}
-                    service={blockchainService}
-                    onConnect={onConnect}
-                    onDisconnect={onDisconnect}
-                    forceLogout={forceLogout}
-                    onLogin={onLogin}
-                  />
-                )}
-              </PrivateRoute>
-            </ConfigProvider>
-          </NextThemesProvider>
-        </Web3Providers>
-      </UserContext.Provider>
-    </NomyxAppContext.Provider>
+    <SessionProvider refetchInterval={0}>
+      <NomyxAppContext.Provider value={{ blockchainService, setBlockchainService }}>
+        <UserContext.Provider value={{ role, setRole, walletPreference, setWalletPreference, dfnsToken, setDfnsToken, user, setUser }}>
+          {/* Loading Spinner Overlay */}
+          {loading && (
+            <div className="z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]">
+              <Spin />
+            </div>
+          )}
+          <Web3Providers>
+            <NextThemesProvider attribute="class">
+              <ConfigProvider theme={antTheme}>
+                <AutoLogout />
+                <ToastContainer
+                  position="top-right"
+                  className="toast-background"
+                  progressClassName="toast-progress-bar"
+                  autoClose={4000}
+                  closeOnClick
+                  pauseOnHover
+                />
+                {isConnected && user && <TopNavBar onDisconnect={onDisconnect} onLogout={onLogoutEmailPassword} />}
+                <PrivateRoute
+                  handleForecLogout={handleForceLogout}
+                  forceLogout={forceLogout}
+                  role={role}
+                  onConnect={onConnect}
+                  isConnected={isConnected}
+                >
+                  {getLayout(
+                    <Component
+                      {...pageProps}
+                      role={role}
+                      service={blockchainService}
+                      onConnect={onConnect}
+                      onDisconnect={onDisconnect}
+                      forceLogout={forceLogout}
+                      onLogin={onLogin}
+                    />
+                  )}
+                </PrivateRoute>
+                {/* {!isConnected && (
+                <Component {...pageProps} forceLogout={forceLogout} onConnect={onConnect} onDisconnect={onDisconnect} onLogin={onLogin} />
+              )} */}
+              </ConfigProvider>
+            </NextThemesProvider>
+          </Web3Providers>
+        </UserContext.Provider>
+      </NomyxAppContext.Provider>
+    </SessionProvider>
   );
 }

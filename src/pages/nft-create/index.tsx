@@ -314,7 +314,7 @@ export default function Details({ service }: { service: BlockchainService }) {
               Cancel
             </Button>
             <Button
-              className="text-black bg-white hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark border border-gray-300"
+              className="bg-nomyx-blue-light hover:!bg-nomyx-dark1-light hover:dark:!bg-nomyx-dark1-dark border border-gray-300"
               onClick={form.submit}
             >
               Preview
