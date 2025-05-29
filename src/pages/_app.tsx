@@ -68,6 +68,21 @@ const validateToken = async (token: string) => {
   }
 };
 
+// Helper function to safely initialize blockchain service
+const initializeBlockchainService = async () => {
+  try {
+    const service = BlockchainService.getInstance();
+    if (!service) return null;
+
+    // Wait for service to complete internal initialization
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return service;
+  } catch (error) {
+    console.warn("BlockchainService initialization failed:", error);
+    return null;
+  }
+};
+
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const [mounted, setMounted] = useState(false);
   const [blockchainService, setBlockchainService] = useState<BlockchainService | null>(null);
@@ -178,7 +193,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       setIsConnected(true);
       parseInitialize();
     });
-  }, []);
+  }, [isConnected]);
 
   const onLogoutEmailPassword = async () => {
     try {
@@ -214,7 +229,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     toast.success("Logged out successfully.");
   };
 
-  // Define the onLogin function (Username/Password Login)
+  // Define the onLogin function (Username/Password Login) - ENHANCED
   const onLogin = async (email: string, password: string) => {
     const { token, roles, walletPreference, user, dfnsToken } = await getToken({ email, password });
 
@@ -225,11 +240,13 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       setWalletPreference(walletPreference);
       localStorage.setItem("sessionToken", token);
       setIsConnected(true);
-      // Initialize blockchainService if required for standard login
-      if ((window as any).ethereum) {
-        const _blockchainService = BlockchainService.getInstance();
-        setBlockchainService(_blockchainService);
+
+      // Always initialize blockchainService for email login
+      const service = await initializeBlockchainService();
+      if (service) {
+        setBlockchainService(service);
       }
+
       ParseClient.initialize(token);
     } else {
       toast.error("We couldn't verify your login details. Please check your username and password.");
@@ -247,6 +264,12 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         setDfnsToken(dfnsToken);
         setWalletPreference(walletPreference);
         setIsConnected(true);
+
+        // Initialize blockchain service for restored sessions
+        const service = await initializeBlockchainService();
+        if (service) {
+          setBlockchainService(service);
+        }
       } else {
         // Token is invalid or roles are empty
         localStorage.removeItem("sessionToken");
