@@ -27,25 +27,60 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
   // Prevent infinite redirects and double execution
   const hasRedirectedRef = useRef(false);
   const isHandlingLoginRef = useRef(false);
+  const navigationTimeoutRef = useRef(null);
 
-  // Handle user context changes (login success)
+  // Enhanced redirect logic with navigation state coordination
   useEffect(() => {
     const checkAndRedirect = async () => {
-      const session = await getSession();
-      if (session?.user?.accessToken) {
-        router.replace("/home");
+      // Don't redirect if we've already redirected or are in the middle of login
+      if (hasRedirectedRef.current || isHandlingLoginRef.current) {
+        return;
+      }
+
+      try {
+        const session = await getSession();
+
+        // Only redirect if we have a valid session and haven't redirected yet
+        if (session?.user?.accessToken && !hasRedirectedRef.current) {
+          console.log("Login successful, redirecting to home...");
+          hasRedirectedRef.current = true;
+
+          // Clear any existing navigation timeout
+          if (navigationTimeoutRef.current) {
+            clearTimeout(navigationTimeoutRef.current);
+          }
+
+          // Add a small delay to ensure app state is fully updated
+          navigationTimeoutRef.current = setTimeout(() => {
+            if (!hasRedirectedRef.current) return; // Double-check we should still redirect
+
+            router.replace("/home").catch((error) => {
+              console.error("Redirect error:", error);
+              // Reset redirect flag on error so user can try again
+              hasRedirectedRef.current = false;
+            });
+          }, 100);
+        }
+      } catch (error) {
+        console.error("Error checking session for redirect:", error);
       }
     };
 
-    checkAndRedirect();
+    // Only run if we have a user and aren't already handling login
+    if (user && !isHandlingLoginRef.current) {
+      checkAndRedirect();
+    }
   }, [user, router]);
 
   // Reset handling flag when user context changes (successful login)
   useEffect(() => {
     if (user && isHandlingLoginRef.current) {
-      // Login was successful, reset the handling flag
-      isHandlingLoginRef.current = false;
-      setIsLoggingIn(false);
+      console.log("User context updated after login");
+      // Small delay to let the user context fully propagate
+      setTimeout(() => {
+        isHandlingLoginRef.current = false;
+        setIsLoggingIn(false);
+      }, 100);
     }
   }, [user]);
 
@@ -56,23 +91,37 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
       hasRedirectedRef.current = false;
       setIsConnectTriggered(false);
       setIsLoggingIn(false);
+      isHandlingLoginRef.current = false;
+
+      // Clear navigation timeout
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+      }
+
       disconnect();
     }
   }, [forceLogout, disconnect]);
 
-  // Reset refs when component unmounts or user logs out
+  // Reset refs when component unmounts
   useEffect(() => {
     return () => {
       hasRedirectedRef.current = false;
       isHandlingLoginRef.current = false;
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+      }
     };
   }, []);
 
-  // Handle standard login form submission
+  // Enhanced standard login with better state management
   const handleStandardLogin = async (values) => {
-    if (isHandlingLoginRef.current) return; // Prevent double submission
+    if (isHandlingLoginRef.current || hasRedirectedRef.current) {
+      console.log("Login already in progress or user already redirected");
+      return;
+    }
 
     try {
+      console.log("Starting standard login...");
       isHandlingLoginRef.current = true;
       setIsLoggingIn(true);
 
@@ -81,17 +130,30 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
 
       await onLogin(email, password);
 
-      // Don't manually redirect here - let the useEffect handle it when user context updates
       console.log("Login request completed, waiting for context update...");
+
+      // Set a timeout to reset state if login doesn't complete
+      setTimeout(() => {
+        if (isHandlingLoginRef.current && !user) {
+          console.log("Login timeout, resetting state");
+          isHandlingLoginRef.current = false;
+          setIsLoggingIn(false);
+        }
+      }, 10000); // 10 second timeout
     } catch (error) {
       console.error("Login error:", error);
       isHandlingLoginRef.current = false;
       setIsLoggingIn(false);
+      hasRedirectedRef.current = false; // Allow retry on error
     }
   };
 
+  // Enhanced wallet connection with better state management
   const handleConnect = async ({ address, connector, isReconnected }) => {
-    if (isConnectTriggered || isHandlingLoginRef.current) return; // Prevent double execution
+    if (isConnectTriggered || isHandlingLoginRef.current || hasRedirectedRef.current) {
+      console.log("Connection already in progress or user already redirected");
+      return;
+    }
 
     try {
       console.log("Connected with address: ", address);
@@ -103,13 +165,23 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
 
       await onConnect(address, connector);
 
-      // Don't manually redirect here - let the useEffect handle it when user context updates
       console.log("Wallet connection completed, waiting for context update...");
+
+      // Set a timeout to reset state if connection doesn't complete
+      setTimeout(() => {
+        if (isHandlingLoginRef.current && !user) {
+          console.log("Connection timeout, resetting state");
+          setIsConnectTriggered(false);
+          setIsLoggingIn(false);
+          isHandlingLoginRef.current = false;
+        }
+      }, 10000); // 10 second timeout
     } catch (error) {
       console.error("Connection error:", error);
       setIsConnectTriggered(false);
       setIsLoggingIn(false);
       isHandlingLoginRef.current = false;
+      hasRedirectedRef.current = false; // Allow retry on error
     }
   };
 
@@ -119,8 +191,16 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
     setIsLoggingIn(false);
     hasRedirectedRef.current = false;
     isHandlingLoginRef.current = false;
+
+    // Clear navigation timeout
+    if (navigationTimeoutRef.current) {
+      clearTimeout(navigationTimeoutRef.current);
+    }
+
     onDisconnect();
-    router.replace("/"); // Redirect to root path upon disconnect
+
+    // Use replace instead of router.replace to avoid navigation conflicts
+    window.location.href = "/"; // Force a full page refresh to avoid state issues
   };
 
   useAccount({
@@ -128,8 +208,20 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
     onDisconnect: handleDisconnect,
   });
 
-  // Show loading state during login process
-  const showLoadingState = isConnected || isLoggingIn || (user && !hasRedirectedRef.current);
+  // Enhanced loading state logic
+  const showLoadingState = isConnected || isLoggingIn || (user && !hasRedirectedRef.current) || isHandlingLoginRef.current;
+
+  // Debug logging
+  useEffect(() => {
+    console.log("Login component state:", {
+      showLoadingState,
+      isConnected,
+      isLoggingIn,
+      hasUser: !!user,
+      hasRedirected: hasRedirectedRef.current,
+      isHandlingLogin: isHandlingLoginRef.current,
+    });
+  }, [showLoadingState, isConnected, isLoggingIn, user]);
 
   return (
     <>
@@ -149,6 +241,10 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
             <div className="text-center">
               <Spin size="large" />
               <div className="mt-4 text-lg text-white">{isLoggingIn ? "Signing in..." : "Redirecting..."}</div>
+              <div className="mt-2 text-sm text-gray-300">
+                Debug: Connected:{isConnected ? "Y" : "N"} | Logging:{isLoggingIn ? "Y" : "N"} | User:{user ? "Y" : "N"} | Redirected:
+                {hasRedirectedRef.current ? "Y" : "N"}
+              </div>
             </div>
           </div>
         ) : (
@@ -178,7 +274,7 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                           value={loginPreference}
                           onChange={(e) => setLoginPreference(e.target.value)}
                           buttonStyle="solid"
-                          disabled={isLoggingIn} // Disable during login
+                          disabled={isLoggingIn || isHandlingLoginRef.current}
                         >
                           <Radio.Button value={LoginPreference.USERNAME_PASSWORD} className="login-radio-button">
                             Standard
@@ -195,7 +291,7 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                           onFinish={handleStandardLogin}
                           className="w-full"
                           initialValues={{ email: "", password: "" }}
-                          disabled={isLoggingIn} // Disable form during login
+                          disabled={isLoggingIn || isHandlingLoginRef.current}
                         >
                           <Form.Item
                             name="email"
@@ -208,7 +304,12 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                               },
                             ]}
                           >
-                            <Input type="email" placeholder="Enter your email" className="input-field" disabled={isLoggingIn} />
+                            <Input
+                              type="email"
+                              placeholder="Enter your email"
+                              className="input-field"
+                              disabled={isLoggingIn || isHandlingLoginRef.current}
+                            />
                           </Form.Item>
 
                           <Form.Item
@@ -221,7 +322,11 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                               },
                             ]}
                           >
-                            <Input.Password placeholder="Enter your password" className="input-field" disabled={isLoggingIn} />
+                            <Input.Password
+                              placeholder="Enter your password"
+                              className="input-field"
+                              disabled={isLoggingIn || isHandlingLoginRef.current}
+                            />
                           </Form.Item>
 
                           <div className="flex justify-between items-center">
@@ -236,10 +341,10 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                                   type="primary"
                                   htmlType="submit"
                                   className="signup-button bg-blue-600 hover:bg-blue-700 text-nomyxWhite"
-                                  loading={isLoggingIn}
-                                  disabled={isLoggingIn}
+                                  loading={isLoggingIn || isHandlingLoginRef.current}
+                                  disabled={isLoggingIn || isHandlingLoginRef.current}
                                 >
-                                  {isLoggingIn ? "Signing in..." : "Log in"}
+                                  {isLoggingIn || isHandlingLoginRef.current ? "Signing in..." : "Log in"}
                                 </Button>
                               </div>
                             </Form.Item>
