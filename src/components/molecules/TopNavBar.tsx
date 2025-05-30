@@ -4,6 +4,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Layout } from "antd/es";
 import Image from "next/image";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { useAccount, useDisconnect } from "wagmi";
 
 import logoDark from "@/assets/nomyx_logo_dark.png";
@@ -12,7 +13,7 @@ import ThemeToggle from "@/components/atoms/ThemeToggle";
 import { CustomerService } from "@/services/CustomerService";
 import { formatPrice } from "@/utils/currencyFormater";
 
-import { UserContext } from "../../context/UserContext";
+// import { UserContext } from "../../context/UserContext";
 import { WalletPreference } from "../../utils/constants";
 
 // import { UserContext } from "@/pages/_app";
@@ -25,7 +26,11 @@ interface TopNavBarProps {
 }
 
 const TopNavBar: React.FC<TopNavBarProps> = ({ onDisconnect, onLogout }) => {
-  const { walletPreference, dfnsToken, user } = useContext(UserContext);
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  const walletPreference = user?.walletPreference;
+  const dfnsToken = user?.dfns_token;
+
   const { disconnect } = useDisconnect();
 
   const [usdcBalance, setUsdcBalance] = useState("0.00");

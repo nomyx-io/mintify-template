@@ -6,17 +6,19 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useSession, getSession } from "next-auth/react";
 import { useAccount, useDisconnect } from "wagmi";
 
 import logoDark from "../../assets/nomyx_logo_dark.png";
 import logoLight from "../../assets/nomyx_logo_light.png";
-import { UserContext } from "../../context/UserContext";
+// import { UserContext } from "../../context/UserContext";
 import { LoginPreference } from "../../utils/constants";
 
 export default function Login({ forceLogout, onConnect, onDisconnect, onLogin }) {
   const [loginPreference, setLoginPreference] = useState(LoginPreference.USERNAME_PASSWORD);
   const router = useRouter();
-  const { user } = useContext(UserContext);
+  const { data: session, status } = useSession();
+  const user = session?.user;
   const { disconnect } = useDisconnect();
   const { isConnected } = useAccount();
   const [isConnectTriggered, setIsConnectTriggered] = useState(false);
@@ -28,11 +30,14 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
 
   // Handle user context changes (login success)
   useEffect(() => {
-    if (user && !hasRedirectedRef.current && !isHandlingLoginRef.current) {
-      hasRedirectedRef.current = true;
-      console.log("User authenticated, redirecting to home...");
-      router.replace("/home");
-    }
+    const checkAndRedirect = async () => {
+      const session = await getSession();
+      if (session?.user?.accessToken) {
+        router.replace("/home");
+      }
+    };
+
+    checkAndRedirect();
   }, [user, router]);
 
   // Reset handling flag when user context changes (successful login)
@@ -143,7 +148,7 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
           <div className="flex flex-1 flex-col lg:flex-row items-center justify-center">
             <div className="text-center">
               <Spin size="large" />
-              <div className="mt-4 text-lg">{isLoggingIn ? "Signing in..." : "Redirecting..."}</div>
+              <div className="mt-4 text-lg text-white">{isLoggingIn ? "Signing in..." : "Redirecting..."}</div>
             </div>
           </div>
         ) : (

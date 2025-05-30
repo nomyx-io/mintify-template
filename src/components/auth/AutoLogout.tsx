@@ -10,24 +10,24 @@ const AutoLogout = () => {
 
   useEffect(() => {
     if (status === "loading") {
-      console.log("⏳ Session is still loading... Waiting.");
+      console.log("Session is still loading... Waiting.");
       return;
     }
 
     if (!session?.expires) {
-      console.warn("⚠️ No session expiration found. Skipping logout timer.");
+      console.warn("No session expiration found. Skipping logout timer.");
       return;
     }
-
+    console.log("Session values", session);
     const expTime = new Date(session.expires).getTime();
 
-    // ✅ Only update expiration time if it actually changes
+    // Only update expiration time if it actually changes
     if (expTime !== expirationTime) {
       setExpirationTime(expTime);
-      console.log(`✅ AutoLogout initialized - Session expires at: ${new Date(expTime).toLocaleTimeString()}`);
+      console.log(`AutoLogout initialized - Session expires at: ${new Date(expTime).toLocaleTimeString()}`);
     }
 
-    // ✅ Ensure initialization only happens once per login
+    // Ensure initialization only happens once per login
     if (!isInitialized) {
       setTimeout(() => {
         setIsInitialized(true);
@@ -40,20 +40,20 @@ const AutoLogout = () => {
 
     const intervalId = setInterval(() => {
       const timeRemaining = expirationTime - Date.now();
-      console.log(`⏳ Time remaining: ${Math.round(timeRemaining / 1000)}s`);
+      console.log(`Time remaining: ${Math.round(timeRemaining / 1000)}s`);
 
       if (timeRemaining <= 0) {
-        console.log("🚨 Session expired! Clearing session and logging out...");
+        console.log("Session expired! Clearing session and logging out...");
         clearInterval(intervalId); // Ensure logout only happens once
 
-        // ✅ Clear session before calling signOut to prevent session refresh issues
+        // Clear session before calling signOut to prevent session refresh issues
         localStorage.clear(); // Clear any stored session data
         sessionStorage.clear();
         setHasLoggedOut(true); // Prevent multiple logouts
-        signOut(); // 🚀 **Trigger full logout & redirect**
+        signOut(); //**Trigger full logout & redirect**
 
         setTimeout(() => {
-          window.location.href = "/login"; // ✅ Force a hard page refresh to ensure full logout
+          window.location.href = "/login"; // Force a hard page refresh to ensure full logout
         }, 1000);
       }
     }, 1000); // Runs every second

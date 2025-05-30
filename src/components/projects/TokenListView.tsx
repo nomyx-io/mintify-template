@@ -5,6 +5,7 @@ import { Table, Switch, Modal, Input, Button } from "antd";
 import { ethers } from "ethers";
 import { MoneyRecive, Eye } from "iconsax-react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 
 import { Industries } from "@/constants/constants";
@@ -15,7 +16,7 @@ import { ColumnConfig, EXCLUDED_COLUMNS } from "@/types/dynamicTableColumn";
 import { hashToColor } from "@/utils/colorUtils";
 import { formatPrice } from "@/utils/currencyFormater";
 
-import { UserContext } from "../../context/UserContext";
+// import { UserContext } from "../../context/UserContext";
 import { WalletPreference } from "../../utils/constants";
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
@@ -36,7 +37,11 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
   const [selectedTokenId, setSelectedTokenId] = useState<string | null>(null);
   const [amount, setAmount] = useState<string>(""); // State for the input value
   const [isSubmitting, setIsSubmitting] = useState(false); // For submission state
-  const { walletPreference, dfnsToken, user } = useContext(UserContext);
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  const walletPreference = user?.walletPreference;
+  const dfnsToken = user?.dfns_token;
+
   const router = useRouter();
 
   useEffect(() => {
@@ -150,7 +155,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
     const toastId = toast.loading(checked ? "Listing token on the marketplace..." : "Delisting token...");
 
     try {
-      const walletId = user?.walletId || null;
+      const walletId = user?.walletId || "";
       const safeDfnsToken = dfnsToken || "";
 
       if (walletPreference === WalletPreference.MANAGED && (!walletId || !safeDfnsToken)) {
@@ -371,7 +376,7 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
         throw new Error("Missing required deposit details.");
       }
 
-      const walletId = user?.walletId || null;
+      const walletId = user?.walletId || "";
       const safeDfnsToken = dfnsToken || "";
 
       if (walletPreference === WalletPreference.MANAGED && (!walletId || !safeDfnsToken)) {

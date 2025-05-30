@@ -5,6 +5,7 @@ import { Button, Form } from "antd";
 import { ethers } from "ethers";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useAccount } from "wagmi";
 
@@ -21,7 +22,7 @@ import { TokenizedDebtService } from "@/services/TokenizedDebtService";
 import { TradeFinanceService } from "@/services/TradeFinanceService";
 
 import NftPreview from "../../components/mint/NftRecordDetail";
-import { UserContext } from "../../context/UserContext";
+//import { UserContext } from "../../context/UserContext";
 import { WalletPreference } from "../../utils/constants";
 
 const carbonCreditService = CarbonCreditService();
@@ -29,7 +30,11 @@ const tokenizedDebtService = TokenizedDebtService();
 const tradeFinanceService = TradeFinanceService();
 
 export default function Details({ service }: { service: BlockchainService }) {
-  const { walletPreference, dfnsToken, user } = useContext(UserContext);
+  const { data: session, status } = useSession();
+  const user: any = session?.user;
+  const walletPreference = user?.walletPreference;
+  const dfnsToken = user?.dfns_Token;
+
   const router = useRouter();
   const [form] = Form.useForm();
 
@@ -62,7 +67,7 @@ export default function Details({ service }: { service: BlockchainService }) {
       clearInterval(checkUserInterval);
 
       if (!user) {
-        console.warn("User context not available after timeout. Redirecting to login...");
+        console.warn("User session not available after timeout. Redirecting to login...");
         router.push("/login");
       } else {
         console.log("Proceeding after timeout with available user context.");
