@@ -5,11 +5,12 @@ import { Button, Form, GetProp, Input, message, Modal, Select, UploadProps, Chec
 import { Rule } from "antd/es/form";
 import { useWatch } from "antd/es/form/Form";
 import { Trash } from "iconsax-react";
+import { useSession } from "next-auth/react";
 import { FormFinishInfo } from "rc-field-form/es/FormContext";
 import { toast } from "react-toastify";
 
 import { industryOptions, Industries } from "@/constants/constants";
-import { UserContext } from "@/context/UserContext";
+// import { UserContext } from "@/context/UserContext";
 import BlockchainService from "@/services/BlockchainService";
 import { CustomerService } from "@/services/CustomerService";
 import DfnsService from "@/services/DfnsService";
@@ -64,7 +65,11 @@ export default function CreateProjectModal({ open, setOpen, onCreateSuccess }: C
   const [addedFields, setAddedFields] = useState<AddedField[]>([]);
   const [projectInfoFields, setProjectInfoFields] = useState<ProjectInfoField[]>([]);
   const [selectedClaims, setSelectedClaims] = useState<string[]>([]);
-  const { walletPreference, dfnsToken, user } = useContext(UserContext);
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  const walletPreference = user?.walletPreference;
+  const dfnsToken = user?.dfns_token;
+
   const requiredRule = { required: true, message: "This field is required." };
   const uniqueRule: Rule = ({ getFieldValue }) => ({
     validator(_, value: string) {

@@ -12,10 +12,13 @@ import { BrowserProvider, ethers, Network } from "ethers";
 import { NextPage } from "next";
 import { AppProps } from "next/app";
 import { useRouter } from "next/router";
+import { SessionProvider } from "next-auth/react";
+import { signIn, getCsrfToken, getSession, signOut, useSession } from "next-auth/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { toast, ToastContainer } from "react-toastify";
 
 import PrivateRoute from "@/components/atoms/PrivateRoute";
+import AutoLogout from "@/components/auth/AutoLogout";
 import TopNavBar from "@/components/molecules/TopNavBar";
 import NomyxAppContext from "@/context/NomyxAppContext";
 import Web3Providers from "@/context/Web3Providers";
@@ -23,7 +26,7 @@ import BlockchainService from "@/services/BlockchainService";
 import ParseClient from "@/services/ParseClient";
 import { generateRandomString } from "@/utils/regex";
 
-import { UserContext } from "../context/UserContext";
+// import { UserContext } from "../context/UserContext";
 import parseInitialize from "../services/parseInitialize";
 import { WalletPreference } from "../utils/constants";
 
@@ -66,13 +69,28 @@ const validateToken = async (token: string) => {
   }
 };
 
-export default function App({ Component, pageProps }: AppPropsWithLayout) {
+// Helper function to safely initialize blockchain service
+const initializeBlockchainService = async () => {
+  try {
+    const service = BlockchainService.getInstance();
+    if (!service) return null;
+
+    // Wait for service to complete internal initialization
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return service;
+  } catch (error) {
+    console.warn("BlockchainService initialization failed:", error);
+    return null;
+  }
+};
+
+export default function App({ Component, pageProps: { session, ...pageProps } }: AppPropsWithLayout) {
   const [mounted, setMounted] = useState(false);
   const [blockchainService, setBlockchainService] = useState<BlockchainService | null>(null);
   const [role, setRole] = useState<string[]>([]);
   const [forceLogout, setForceLogout] = useState(false);
   const [status, setStatus] = useState(true);
-  const [user, setUser] = useState(null); // State to hold user
+  const [user, setUser] = useState({}); // State to hold user
   const [walletPreference, setWalletPreference] = useState<WalletPreference | null>(null);
   const [dfnsToken, setDfnsToken] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -176,7 +194,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       setIsConnected(true);
       parseInitialize();
     });
-  }, []);
+  }, [isConnected]);
 
   const onLogoutEmailPassword = async () => {
     try {
@@ -192,6 +210,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
             },
           }
         );
+        await signOut({ callbackUrl: "/login" });
       }
     } catch (error) {
       console.error("Error during logout:", error);
@@ -203,7 +222,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     setRole([]);
     setWalletPreference(null);
     setDfnsToken(null);
-    setUser(null);
+    setUser({});
     setForceLogout(false);
     setIsConnected(false);
     localStorage.removeItem("sessionToken");
@@ -212,26 +231,57 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     toast.success("Logged out successfully.");
   };
 
-  // Define the onLogin function (Username/Password Login)
+  // Define the onLogin function (Username/Password Login) - ENHANCED
   const onLogin = async (email: string, password: string) => {
-    const { token, roles, walletPreference, user, dfnsToken } = await getToken({ email, password });
+    // const { token, roles, walletPreference, user, dfnsToken } = await getToken({ email, password });
 
-    if (roles.length > 0) {
-      setRole([...roles]);
-      setUser(user);
-      setDfnsToken(dfnsToken);
-      setWalletPreference(walletPreference);
-      localStorage.setItem("sessionToken", token);
-      setIsConnected(true);
-      // Initialize blockchainService if required for standard login
-      if ((window as any).ethereum) {
-        const _blockchainService = BlockchainService.getInstance();
-        setBlockchainService(_blockchainService);
+    const result = await signIn("standard", {
+      email: email.toLowerCase(),
+      password,
+      redirect: false,
+    });
+    if (!result?.ok) {
+      toast.dismiss("login");
+      toast.error(result?.status === 401 ? "Incorrect username / password" : "An error occurred.");
+      return;
+    }
+
+    // Check session with retries
+    const maxRetries = 5;
+    let session = null;
+
+    for (let i = 0; i < maxRetries; i++) {
+      session = await getSession();
+      if (session?.user?.accessToken) {
+        if (session?.user?.roles.length > 0) {
+          setRole([...session.user.roles]);
+          setUser(session?.user);
+          setDfnsToken(session?.user.dfns_token);
+          setWalletPreference(walletPreference);
+          localStorage.setItem("sessionToken", session.user.accessToken);
+          setIsConnected(true);
+
+          // Always initialize blockchainService for email login
+          const service = await initializeBlockchainService();
+          if (service) {
+            setBlockchainService(service);
+          }
+
+          ParseClient.initialize(session.user.accessToken);
+        } else {
+          toast.error("We couldn't verify your login details. Please check your username and password.");
+          setForceLogout(true);
+        }
+        break;
       }
-      ParseClient.initialize(token);
-    } else {
-      toast.error("We couldn't verify your login details. Please check your username and password.");
-      setForceLogout(true);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    if (!session?.user?.accessToken) {
+      toast.dismiss("login");
+      toast.error("Session initialization failed");
+      window.location.href = "/login"; // Force reload login page
+      return;
     }
   };
 
@@ -245,10 +295,30 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         setDfnsToken(dfnsToken);
         setWalletPreference(walletPreference);
         setIsConnected(true);
+
+        // Initialize blockchain service for restored sessions
+        const service = await initializeBlockchainService();
+        if (service) {
+          setBlockchainService(service);
+        }
+        session = await getSession();
+        user.dfns_Token = dfnsToken;
+        user.roles = roles;
+        user.walletPreference = walletPreference;
+        if (session) {
+          session.user = user;
+          session.expires = new Date(user.exp * 1000);
+        }
       } else {
         // Token is invalid or roles are empty
         localStorage.removeItem("sessionToken");
         setForceLogout(true);
+        setRole([]);
+        setWalletPreference(null);
+        setDfnsToken(null);
+        setUser({});
+        setIsConnected(false);
+        window.location.href = "/login";
       }
     }
     setInitializing(false);
@@ -276,7 +346,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     setRole([]);
     setForceLogout(true);
     setDfnsToken(null);
-    setUser(null);
+    setUser({});
     setWalletPreference(null);
     setForceLogout(false);
     setIsConnected(false);
@@ -327,8 +397,9 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   }
 
   return (
-    <NomyxAppContext.Provider value={{ blockchainService, setBlockchainService }}>
-      <UserContext.Provider value={{ role, setRole, walletPreference, setWalletPreference, dfnsToken, setDfnsToken, user, setUser }}>
+    <SessionProvider refetchInterval={0}>
+      <AutoLogout />
+      <NomyxAppContext.Provider value={{ blockchainService, setBlockchainService }}>
         {/* Loading Spinner Overlay */}
         {loading && (
           <div className="z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]">
@@ -372,7 +443,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
             </ConfigProvider>
           </NextThemesProvider>
         </Web3Providers>
-      </UserContext.Provider>
-    </NomyxAppContext.Provider>
+      </NomyxAppContext.Provider>
+    </SessionProvider>
   );
 }

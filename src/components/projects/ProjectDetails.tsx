@@ -6,6 +6,7 @@ import { Button, Card, Tabs } from "antd";
 import { SearchNormal1, Category, RowVertical, ArrowLeft, Copy } from "iconsax-react";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { useSession } from "next-auth/react";
 import Parse from "parse";
 import { toast } from "react-toastify";
 
@@ -16,7 +17,7 @@ import InvestorListView from "@/components/projects/InvestorListView";
 import TokenCardView from "@/components/projects/TokenCardView";
 import TokenListView from "@/components/projects/TokenListView";
 import { Industries } from "@/constants/constants";
-import { UserContext } from "@/context/UserContext";
+// import { UserContext } from "@/context/UserContext";
 import BlockchainService from "@/services/BlockchainService";
 import { CustomerService } from "@/services/CustomerService";
 import DfnsService from "@/services/DfnsService";
@@ -37,7 +38,11 @@ interface ProjectInfoField {
 
 const ProjectDetails: React.FC<ProjectDetailsProps> = ({ project, onBack }) => {
   const router = useRouter();
-  const { walletPreference, dfnsToken, user } = useContext(UserContext);
+  const { data: session, status } = useSession();
+  const user = session?.user;
+  const walletPreference = user?.walletPreference;
+  const dfnsToken = user?.dfns_token;
+
   const [isFullyRepaid, setIsFullyRepaid] = useState<boolean>(false);
   const [listings, setListings] = useState<any[]>([]);
   const [sales, setSales] = useState<any[]>([]);

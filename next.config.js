@@ -27,6 +27,7 @@ const nextConfig = {
     "rc-tree",
     "rc-tooltip",
     "rc-table",
+    "next-auth",
   ],
   images: {
     remotePatterns: [
