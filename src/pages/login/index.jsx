@@ -15,167 +15,79 @@ import { LoginPreference } from "../../utils/constants";
 
 export default function Login({ forceLogout, onConnect, onDisconnect, onLogin }) {
   const [loginPreference, setLoginPreference] = useState(LoginPreference.USERNAME_PASSWORD);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const router = useRouter();
   const { user } = useContext(UserContext);
   const { disconnect } = useDisconnect();
   const { isConnected } = useAccount();
-  const [isConnectTriggered, setIsConnectTriggered] = useState(false);
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // SINGLE source of truth for redirect state
-  const redirectStateRef = useRef({
-    hasRedirected: false,
-    isHandlingLogin: false,
-    redirectInProgress: false,
-  });
+  const hasRedirectedRef = useRef(false);
 
-  // Centralized redirect function to prevent duplicates
-  const performRedirect = useCallback(
-    (reason) => {
-      const state = redirectStateRef.current;
-
-      if (state.hasRedirected || state.redirectInProgress) {
-        console.log(`Redirect blocked - already ${state.hasRedirected ? "redirected" : "in progress"}`, { reason });
-        return false;
-      }
-
-      state.redirectInProgress = true;
-      state.hasRedirected = true;
-
-      console.log(`User authenticated, redirecting to home... (${reason})`);
-
-      // Use replace to avoid back button issues
-      router.replace("/home").finally(() => {
-        state.redirectInProgress = false;
-      });
-
-      return true;
-    },
-    [router]
-  );
-
-  // SINGLE effect to handle user authentication and redirect
+  // Handle user authentication and redirect
   useEffect(() => {
-    if (user && !redirectStateRef.current.hasRedirected) {
-      performRedirect("user context change");
+    if (user && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      router.replace("/home");
     }
-  }, [user, performRedirect]);
-
-  // Reset state on login completion
-  useEffect(() => {
-    if (user && redirectStateRef.current.isHandlingLogin) {
-      redirectStateRef.current.isHandlingLogin = false;
-      setIsLoggingIn(false);
-    }
-  }, [user]);
+  }, [user, router]);
 
   // Handle force logout
   useEffect(() => {
     if (forceLogout) {
-      console.log("Force logout triggered");
-      // Reset ALL state
-      redirectStateRef.current = {
-        hasRedirected: false,
-        isHandlingLogin: false,
-        redirectInProgress: false,
-      };
-      setIsConnectTriggered(false);
+      hasRedirectedRef.current = false;
       setIsLoggingIn(false);
       disconnect();
     }
   }, [forceLogout, disconnect]);
 
-  // Cleanup on unmount
+  // Reset state when component unmounts
   useEffect(() => {
     return () => {
-      redirectStateRef.current = {
-        hasRedirected: false,
-        isHandlingLogin: false,
-        redirectInProgress: false,
-      };
+      hasRedirectedRef.current = false;
     };
   }, []);
 
-  // Handle standard login form submission
   const handleStandardLogin = async (values) => {
-    if (redirectStateRef.current.isHandlingLogin) {
-      console.log("Login already in progress, skipping...");
-      return;
-    }
+    if (isLoggingIn) return;
 
     try {
-      redirectStateRef.current.isHandlingLogin = true;
       setIsLoggingIn(true);
-
       const { email, password } = values;
-      console.log("Attempting standard login...");
-
       await onLogin(email, password);
-      console.log("Login request completed, waiting for context update...");
     } catch (error) {
       console.error("Login error:", error);
-      redirectStateRef.current.isHandlingLogin = false;
       setIsLoggingIn(false);
     }
   };
 
-  // Debounced connect handler to prevent rapid-fire calls
   const handleConnect = useCallback(
-    async ({ address, connector, isReconnected }) => {
-      const state = redirectStateRef.current;
-
-      if (isConnectTriggered || state.isHandlingLogin || state.hasRedirected) {
-        console.log("Connect handler blocked - already processing", {
-          isConnectTriggered,
-          isHandlingLogin: state.isHandlingLogin,
-          hasRedirected: state.hasRedirected,
-        });
-        return;
-      }
+    async ({ address, connector }) => {
+      if (isLoggingIn || hasRedirectedRef.current) return;
 
       try {
-        console.log("Connected with address: ", address);
-
-        state.isHandlingLogin = true;
-        setIsConnectTriggered(true);
         setIsLoggingIn(true);
-
         await onConnect(address, connector);
-        console.log("Wallet connection completed, waiting for context update...");
       } catch (error) {
         console.error("Connection error:", error);
-        setIsConnectTriggered(false);
         setIsLoggingIn(false);
-        state.isHandlingLogin = false;
       }
     },
-    [isConnectTriggered, onConnect]
+    [isLoggingIn, onConnect]
   );
 
   const handleDisconnect = useCallback(() => {
-    console.log("Handling disconnect...");
-
-    // Reset all state
-    redirectStateRef.current = {
-      hasRedirected: false,
-      isHandlingLogin: false,
-      redirectInProgress: false,
-    };
-    setIsConnectTriggered(false);
+    hasRedirectedRef.current = false;
     setIsLoggingIn(false);
-
     onDisconnect();
     router.replace("/");
   }, [onDisconnect, router]);
 
-  // Use useAccount hook with memoized handlers
   useAccount({
     onConnect: handleConnect,
     onDisconnect: handleDisconnect,
   });
 
-  // Show loading state during login process
-  const showLoadingState = isConnected || isLoggingIn || (user && !redirectStateRef.current.hasRedirected);
+  const showLoadingState = isConnected || isLoggingIn || (user && !hasRedirectedRef.current);
 
   return (
     <>

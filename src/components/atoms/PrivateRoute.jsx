@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
+import { Spin } from "antd";
 import { useRouter } from "next/router";
 import { useAccount, useDisconnect } from "wagmi";
 
@@ -7,64 +8,49 @@ function PrivateRoute({ children, onConnect, role, forceLogout, handleForecLogou
   const { disconnect } = useDisconnect();
   const router = useRouter();
   const { address, isConnecting } = useAccount();
-  const [history, setHistory] = useState([]);
+  const redirectingRef = useRef(false);
 
   const handleDisconnect = () => {
     disconnect();
     handleForecLogout();
   };
 
+  // Handle authentication and routing
   useEffect(() => {
-    // Allowed routes that shouldn't redirect to /login
-    const allowedRoutes = ["/forgot-password", "/reset-password/[token]"];
-    // Check if the current route is an allowed route
+    const allowedRoutes = ["/login", "/forgot-password", "/reset-password/[token]"];
     const isAllowedRoute = allowedRoutes.includes(router.pathname) || router.pathname.startsWith("/reset-password/");
-    if (!isConnected && !address && !isAllowedRoute) {
-      router.push("/login");
+
+    // Redirect to login if not authenticated and not on allowed routes
+    if (!isConnected && !address && !isAllowedRoute && !redirectingRef.current) {
+      redirectingRef.current = true;
+      router.push("/login").finally(() => {
+        redirectingRef.current = false;
+      });
     }
+
+    // Trigger wallet connection if connected but no role
     if (isConnected && role.length === 0) {
       onConnect();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [address, isConnected, role]);
+  }, [address, isConnected, role, router, onConnect]);
 
+  // Handle force logout
   useEffect(() => {
-    if (isConnected && role.length > 0) {
-      const redirectTarget = history[1] == "/" || history[1] == "/login" ? "/home" : history[1] || history[0];
-      if (redirectTarget) {
-        router.push(redirectTarget);
-      }
+    if (forceLogout) {
+      handleDisconnect();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, isConnected]);
-
-  useEffect(() => {
-    forceLogout && handleDisconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [forceLogout]);
 
-  useEffect(() => {
-    const handleRouteChange = (url) => {
-      setHistory((prevHistory) => {
-        const newHistory = [url, ...prevHistory].slice(0, 3);
-        return newHistory;
-      });
-    };
+  // Show loading state when connected but waiting for role
+  if (isConnected && role.length === 0) {
+    return (
+      <div className="z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center">
+        <Spin size="large" />
+      </div>
+    );
+  }
 
-    handleRouteChange(router.asPath);
-    router.events.on("routeChangeComplete", handleRouteChange);
-
-    return () => {
-      router.events.off("routeChangeComplete", handleRouteChange);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  return isConnected && role.length == 0 ? (
-    <div className="z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center"></div>
-  ) : (
-    children
-  );
+  return children;
 }
 
 export default PrivateRoute;
