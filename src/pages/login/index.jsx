@@ -1,11 +1,11 @@
-import { useContext, useEffect, useState, useRef } from "react";
+import { useContext, useEffect, useState, useRef, useCallback } from "react";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Spin, Layout, Card, Radio, Form, Input, Button } from "antd";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/router"; // Use next/router instead of next/navigation for pages router
+import { useRouter } from "next/router";
 import { useAccount, useDisconnect } from "wagmi";
 
 import logoDark from "../../assets/nomyx_logo_dark.png";
@@ -22,24 +22,49 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
   const [isConnectTriggered, setIsConnectTriggered] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // Prevent infinite redirects and double execution
-  const hasRedirectedRef = useRef(false);
-  const isHandlingLoginRef = useRef(false);
+  // SINGLE source of truth for redirect state
+  const redirectStateRef = useRef({
+    hasRedirected: false,
+    isHandlingLogin: false,
+    redirectInProgress: false,
+  });
 
-  // Handle user context changes (login success)
+  // Centralized redirect function to prevent duplicates
+  const performRedirect = useCallback(
+    (reason) => {
+      const state = redirectStateRef.current;
+
+      if (state.hasRedirected || state.redirectInProgress) {
+        console.log(`Redirect blocked - already ${state.hasRedirected ? "redirected" : "in progress"}`, { reason });
+        return false;
+      }
+
+      state.redirectInProgress = true;
+      state.hasRedirected = true;
+
+      console.log(`User authenticated, redirecting to home... (${reason})`);
+
+      // Use replace to avoid back button issues
+      router.replace("/home").finally(() => {
+        state.redirectInProgress = false;
+      });
+
+      return true;
+    },
+    [router]
+  );
+
+  // SINGLE effect to handle user authentication and redirect
   useEffect(() => {
-    if (user && !hasRedirectedRef.current && !isHandlingLoginRef.current) {
-      hasRedirectedRef.current = true;
-      console.log("User authenticated, redirecting to home...");
-      router.replace("/home");
+    if (user && !redirectStateRef.current.hasRedirected) {
+      performRedirect("user context change");
     }
-  }, [user, router]);
+  }, [user, performRedirect]);
 
-  // Reset handling flag when user context changes (successful login)
+  // Reset state on login completion
   useEffect(() => {
-    if (user && isHandlingLoginRef.current) {
-      // Login was successful, reset the handling flag
-      isHandlingLoginRef.current = false;
+    if (user && redirectStateRef.current.isHandlingLogin) {
+      redirectStateRef.current.isHandlingLogin = false;
       setIsLoggingIn(false);
     }
   }, [user]);
@@ -48,83 +73,109 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
   useEffect(() => {
     if (forceLogout) {
       console.log("Force logout triggered");
-      hasRedirectedRef.current = false;
+      // Reset ALL state
+      redirectStateRef.current = {
+        hasRedirected: false,
+        isHandlingLogin: false,
+        redirectInProgress: false,
+      };
       setIsConnectTriggered(false);
       setIsLoggingIn(false);
       disconnect();
     }
   }, [forceLogout, disconnect]);
 
-  // Reset refs when component unmounts or user logs out
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      hasRedirectedRef.current = false;
-      isHandlingLoginRef.current = false;
+      redirectStateRef.current = {
+        hasRedirected: false,
+        isHandlingLogin: false,
+        redirectInProgress: false,
+      };
     };
   }, []);
 
   // Handle standard login form submission
   const handleStandardLogin = async (values) => {
-    if (isHandlingLoginRef.current) return; // Prevent double submission
+    if (redirectStateRef.current.isHandlingLogin) {
+      console.log("Login already in progress, skipping...");
+      return;
+    }
 
     try {
-      isHandlingLoginRef.current = true;
+      redirectStateRef.current.isHandlingLogin = true;
       setIsLoggingIn(true);
 
       const { email, password } = values;
       console.log("Attempting standard login...");
 
       await onLogin(email, password);
-
-      // Don't manually redirect here - let the useEffect handle it when user context updates
       console.log("Login request completed, waiting for context update...");
     } catch (error) {
       console.error("Login error:", error);
-      isHandlingLoginRef.current = false;
+      redirectStateRef.current.isHandlingLogin = false;
       setIsLoggingIn(false);
     }
   };
 
-  const handleConnect = async ({ address, connector, isReconnected }) => {
-    if (isConnectTriggered || isHandlingLoginRef.current) return; // Prevent double execution
+  // Debounced connect handler to prevent rapid-fire calls
+  const handleConnect = useCallback(
+    async ({ address, connector, isReconnected }) => {
+      const state = redirectStateRef.current;
 
-    try {
-      console.log("Connected with address: ", address);
-      console.log("Connect Triggered");
+      if (isConnectTriggered || state.isHandlingLogin || state.hasRedirected) {
+        console.log("Connect handler blocked - already processing", {
+          isConnectTriggered,
+          isHandlingLogin: state.isHandlingLogin,
+          hasRedirected: state.hasRedirected,
+        });
+        return;
+      }
 
-      isHandlingLoginRef.current = true;
-      setIsConnectTriggered(true);
-      setIsLoggingIn(true);
+      try {
+        console.log("Connected with address: ", address);
 
-      await onConnect(address, connector);
+        state.isHandlingLogin = true;
+        setIsConnectTriggered(true);
+        setIsLoggingIn(true);
 
-      // Don't manually redirect here - let the useEffect handle it when user context updates
-      console.log("Wallet connection completed, waiting for context update...");
-    } catch (error) {
-      console.error("Connection error:", error);
-      setIsConnectTriggered(false);
-      setIsLoggingIn(false);
-      isHandlingLoginRef.current = false;
-    }
-  };
+        await onConnect(address, connector);
+        console.log("Wallet connection completed, waiting for context update...");
+      } catch (error) {
+        console.error("Connection error:", error);
+        setIsConnectTriggered(false);
+        setIsLoggingIn(false);
+        state.isHandlingLogin = false;
+      }
+    },
+    [isConnectTriggered, onConnect]
+  );
 
-  const handleDisconnect = () => {
+  const handleDisconnect = useCallback(() => {
     console.log("Handling disconnect...");
+
+    // Reset all state
+    redirectStateRef.current = {
+      hasRedirected: false,
+      isHandlingLogin: false,
+      redirectInProgress: false,
+    };
     setIsConnectTriggered(false);
     setIsLoggingIn(false);
-    hasRedirectedRef.current = false;
-    isHandlingLoginRef.current = false;
-    onDisconnect();
-    router.replace("/"); // Redirect to root path upon disconnect
-  };
 
+    onDisconnect();
+    router.replace("/");
+  }, [onDisconnect, router]);
+
+  // Use useAccount hook with memoized handlers
   useAccount({
     onConnect: handleConnect,
     onDisconnect: handleDisconnect,
   });
 
   // Show loading state during login process
-  const showLoadingState = isConnected || isLoggingIn || (user && !hasRedirectedRef.current);
+  const showLoadingState = isConnected || isLoggingIn || (user && !redirectStateRef.current.hasRedirected);
 
   return (
     <>
@@ -173,7 +224,7 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                           value={loginPreference}
                           onChange={(e) => setLoginPreference(e.target.value)}
                           buttonStyle="solid"
-                          disabled={isLoggingIn} // Disable during login
+                          disabled={isLoggingIn}
                         >
                           <Radio.Button value={LoginPreference.USERNAME_PASSWORD} className="login-radio-button">
                             Standard
@@ -190,7 +241,7 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
                           onFinish={handleStandardLogin}
                           className="w-full"
                           initialValues={{ email: "", password: "" }}
-                          disabled={isLoggingIn} // Disable form during login
+                          disabled={isLoggingIn}
                         >
                           <Form.Item
                             name="email"
