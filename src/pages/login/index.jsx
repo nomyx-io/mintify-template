@@ -130,6 +130,13 @@ export default function Login({ forceLogout, onConnect, onDisconnect, onLogin })
 
       await onLogin(email, password);
 
+      const session = await getSession();
+
+      if (session?.user?.exp) {
+        const expiresAt = session.user.exp * 1000;
+        localStorage.setItem("expiresAt", String(expiresAt));
+      }
+
       console.log("Login request completed, waiting for context update...");
 
       // Set a timeout to reset state if login doesn't complete

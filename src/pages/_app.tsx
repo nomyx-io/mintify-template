@@ -18,7 +18,6 @@ import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { toast, ToastContainer } from "react-toastify";
 
 import PrivateRoute from "@/components/atoms/PrivateRoute";
-import AutoLogout from "@/components/auth/AutoLogout";
 import TopNavBar from "@/components/molecules/TopNavBar";
 import NomyxAppContext from "@/context/NomyxAppContext";
 import Web3Providers from "@/context/Web3Providers";
@@ -567,9 +566,6 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
         }, 1000);
         return;
       }
-
-      // Skip blockchain service initialization for email login to avoid MetaMask conflicts
-      console.log("Email login completed, skipping blockchain service to avoid MetaMask conflicts");
     } catch (error: any) {
       console.error("Login error:", error);
       toast.error("Login failed. Please try again.");
@@ -712,7 +708,6 @@ export default function App({ Component, pageProps: { session, ...pageProps } }:
 
   return (
     <SessionProvider refetchInterval={0}>
-      <AutoLogout />
       <NomyxAppContext.Provider value={{ blockchainService, setBlockchainService }}>
         {/* Loading Spinner Overlay */}
         {loading && (
