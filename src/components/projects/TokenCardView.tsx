@@ -107,7 +107,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
         });
       } else {
         Object.entries(token).forEach(([key, value]) => {
-          if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
+          if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key) && key != "totalAmount") {
             nonNullColumns[key] = {
               title: formatColumnTitle(key),
               key,
