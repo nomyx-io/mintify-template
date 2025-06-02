@@ -9,7 +9,7 @@ import { Industries } from "@/constants/constants";
 import { DepositService } from "@/services/DepositService";
 import { ColumnConfig, EXCLUDED_COLUMNS, ColumnData } from "@/types/dynamicTableColumn";
 import { hashToColor } from "@/utils/colorUtils";
-import { formatPrice } from "@/utils/currencyFormater";
+import { formatPrice, formatUSDC } from "@/utils/currencyFormater";
 
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
@@ -98,6 +98,8 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
     tokens.forEach((token) => {
       if (industryTemplate != Industries.TRADE_FINANCE) {
         Object.entries(token.token).forEach(([key, value]) => {
+          console.log("++++++++++++++++++++++++++++++++");
+          console.log(key, value);
           if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
             nonNullColumns[key] = {
               title: formatColumnTitle(key),
@@ -199,7 +201,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                             label: "Price",
                             value: isSalesHistory
                               ? formatPrice(token.price, "USD")
-                              : formatPrice(token.price ? token.price : token.totalAmount / 1_000_000, "USD"),
+                              : formatPrice(token.price ? formatUSDC(token.price) : formatUSDC(token.totalAmount), "USD"),
                           },
                         ]
                       : []),
