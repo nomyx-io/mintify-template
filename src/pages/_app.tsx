@@ -37,6 +37,11 @@ type AppPropsWithLayout = AppProps & {
 
 let provider: BrowserProvider;
 
+// Auto-logout configuration
+const AUTO_LOGOUT_TIME = 30 * 60 * 1000; // 30 minutes in milliseconds
+const WARNING_TIME = 5 * 60 * 1000; // Show warning 5 minutes before logout
+const SESSION_CHECK_INTERVAL = 60 * 1000; // Check session every minute
+
 const validateToken = async (token: string) => {
   try {
     const response = await axios.get(`${process.env.NEXT_PUBLIC_PARSE_SERVER_URL}/auth/validate`, {
@@ -89,6 +94,11 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const router = useRouter();
 
   const pendingNavigationRef = useRef<string | null>(null);
+  const autoLogoutTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const sessionCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastActivityRef = useRef<number>(Date.now());
+  const warningShownRef = useRef<boolean>(false);
 
   const safePush = useCallback(
     (url: string) => {
@@ -103,6 +113,174 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     },
     [router, isNavigating]
   );
+
+  // Clear auto-logout timers
+  const clearAutoLogoutTimers = useCallback(() => {
+    if (autoLogoutTimerRef.current) {
+      clearTimeout(autoLogoutTimerRef.current);
+      autoLogoutTimerRef.current = null;
+    }
+    if (warningTimerRef.current) {
+      clearTimeout(warningTimerRef.current);
+      warningTimerRef.current = null;
+    }
+    if (sessionCheckIntervalRef.current) {
+      clearInterval(sessionCheckIntervalRef.current);
+      sessionCheckIntervalRef.current = null;
+    }
+  }, []);
+
+  // Auto-logout function
+  const performAutoLogout = useCallback(async () => {
+    clearAutoLogoutTimers();
+
+    // Clear session immediately
+    setRole([]);
+    setWalletPreference(null);
+    setDfnsToken(null);
+    setUser(null);
+    setIsConnected(false);
+    localStorage.removeItem("sessionToken");
+    localStorage.removeItem("lastActivity");
+    localStorage.removeItem("lastActivity");
+    localStorage.removeItem("signature");
+    localStorage.removeItem("lastActivity");
+
+    // Try to logout from server (don't wait for response)
+    try {
+      const token = localStorage.getItem("sessionToken");
+      if (token) {
+        axios
+          .post(
+            `${process.env.NEXT_PUBLIC_PARSE_SERVER_URL}/auth/logout`,
+            {},
+            {
+              headers: {
+                "x-parse-session-token": token,
+              },
+            }
+          )
+          .catch(() => {}); // Ignore errors since session is already expired
+      }
+    } catch (error) {
+      // Ignore errors - we're logging out anyway
+    }
+
+    toast.error("Session expired due to inactivity. Please log in again.");
+    setForceLogout(true);
+
+    // Force redirect to login
+    if (router.asPath !== "/login") {
+      router.replace("/login");
+    }
+  }, [clearAutoLogoutTimers, router]);
+
+  // Store activity timestamp in localStorage
+  const updateLastActivity = useCallback(() => {
+    const now = Date.now();
+    lastActivityRef.current = now;
+    localStorage.setItem("lastActivity", now.toString());
+    warningShownRef.current = false;
+  }, []);
+
+  // Check if session has expired based on stored timestamp
+  const checkSessionExpiry = useCallback(() => {
+    if (!isConnected || role.length === 0) return false;
+
+    const now = Date.now();
+    const storedActivity = localStorage.getItem("lastActivity");
+    const lastActivity = storedActivity ? parseInt(storedActivity) : lastActivityRef.current;
+
+    const timeSinceActivity = now - lastActivity;
+    const timeUntilExpiry = AUTO_LOGOUT_TIME - timeSinceActivity;
+
+    // Session has expired
+    if (timeSinceActivity >= AUTO_LOGOUT_TIME) {
+      performAutoLogout();
+      return true;
+    }
+
+    // Show warning if within warning period and not already shown
+    if (timeUntilExpiry <= WARNING_TIME && !warningShownRef.current) {
+      warningShownRef.current = true;
+      const minutesLeft = Math.ceil(timeUntilExpiry / (60 * 1000));
+      toast.warning(`Your session will expire in ${minutesLeft} minute${minutesLeft !== 1 ? "s" : ""} due to inactivity.`, {
+        autoClose: 10000,
+      });
+    }
+
+    return false;
+  }, [isConnected, role.length, performAutoLogout]);
+
+  // Reset auto-logout timer
+  const resetAutoLogoutTimer = useCallback(() => {
+    if (!isConnected || role.length === 0) return;
+
+    clearAutoLogoutTimers();
+    updateLastActivity();
+
+    // Set up periodic session checking
+    sessionCheckIntervalRef.current = setInterval(() => {
+      checkSessionExpiry();
+    }, SESSION_CHECK_INTERVAL);
+
+    // Initial check
+    checkSessionExpiry();
+  }, [isConnected, role.length, clearAutoLogoutTimers, updateLastActivity, checkSessionExpiry]);
+
+  // Track user activity
+  const handleUserActivity = useCallback(() => {
+    const now = Date.now();
+    // Only reset timer if it's been more than 1 minute since last activity (debounce)
+    if (now - lastActivityRef.current > 60000) {
+      updateLastActivity();
+    }
+  }, [updateLastActivity]);
+
+  // Set up activity listeners and session checking
+  useEffect(() => {
+    if (!isConnected || role.length === 0) {
+      clearAutoLogoutTimers();
+      return;
+    }
+
+    // Activity events to track
+    const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart", "click"];
+
+    // Add event listeners
+    events.forEach((event) => {
+      document.addEventListener(event, handleUserActivity, true);
+    });
+
+    // Start the session checking
+    resetAutoLogoutTimer();
+
+    // Check session when tab becomes visible (handles tab switching/PC wake)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        checkSessionExpiry();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Check session when window gains focus (handles PC wake/tab switching)
+    const handleFocus = () => {
+      checkSessionExpiry();
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    // Cleanup
+    return () => {
+      events.forEach((event) => {
+        document.removeEventListener(event, handleUserActivity, true);
+      });
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+      clearAutoLogoutTimers();
+    };
+  }, [isConnected, role.length, handleUserActivity, resetAutoLogoutTimer, checkSessionExpiry]);
 
   useEffect(() => {
     const handleRouteChangeStart = () => setIsNavigating(true);
@@ -218,6 +396,8 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   }, [isConnected]);
 
   const onLogoutEmailPassword = async () => {
+    clearAutoLogoutTimers();
+
     try {
       const token = localStorage.getItem("sessionToken");
       if (token) {
@@ -311,10 +491,13 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   }, []);
 
   const handleForceLogout = () => {
+    clearAutoLogoutTimers();
     setForceLogout(false);
   };
 
   const onDisconnect = () => {
+    clearAutoLogoutTimers();
+
     setRole([]);
     setForceLogout(true);
     setDfnsToken(null);
@@ -342,6 +525,13 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     let ethObject: ethers.Eip1193Provider = window.ethereum;
     provider = new ethers.BrowserProvider(ethObject);
   }, []);
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      clearAutoLogoutTimers();
+    };
+  }, [clearAutoLogoutTimers]);
 
   if (!mounted) return <></>;
 
