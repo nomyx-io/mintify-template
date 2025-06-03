@@ -3,7 +3,7 @@ import "@/styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import "react-toastify/dist/ReactToastify.css";
 
-import React, { createContext, ReactElement, ReactNode, useEffect, useState, useCallback } from "react";
+import React, { createContext, ReactElement, ReactNode, useEffect, useState, useCallback, useRef } from "react";
 
 import { ConfigProvider, theme } from "antd";
 import { Spin } from "antd";
@@ -35,9 +35,12 @@ type AppPropsWithLayout = AppProps & {
   Component: NextPageWithLayout;
 };
 
-//export const UserContext = createContext(() => {});
-
 let provider: BrowserProvider;
+
+// Auto-logout configuration
+const AUTO_LOGOUT_TIME = 30 * 60 * 1000; // 30 minutes in milliseconds
+const WARNING_TIME = 5 * 60 * 1000; // Show warning 5 minutes before logout
+const SESSION_CHECK_INTERVAL = 60 * 1000; // Check session every minute
 
 const validateToken = async (token: string) => {
   try {
@@ -66,21 +69,234 @@ const validateToken = async (token: string) => {
   }
 };
 
+const initializeBlockchainService = async () => {
+  try {
+    const service = BlockchainService.getInstance();
+    return service;
+  } catch (error) {
+    console.warn("BlockchainService initialization failed:", error);
+    return null;
+  }
+};
+
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const [mounted, setMounted] = useState(false);
   const [blockchainService, setBlockchainService] = useState<BlockchainService | null>(null);
   const [role, setRole] = useState<string[]>([]);
   const [forceLogout, setForceLogout] = useState(false);
   const [status, setStatus] = useState(true);
-  const [user, setUser] = useState(null); // State to hold user
+  const [user, setUser] = useState(null);
   const [walletPreference, setWalletPreference] = useState<WalletPreference | null>(null);
   const [dfnsToken, setDfnsToken] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [initializing, setInitializing] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const router = useRouter();
 
-  //parseInitialize();
+  const pendingNavigationRef = useRef<string | null>(null);
+  const autoLogoutTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const sessionCheckIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastActivityRef = useRef<number>(Date.now());
+  const warningShownRef = useRef<boolean>(false);
+
+  const safePush = useCallback(
+    (url: string) => {
+      if (pendingNavigationRef.current === url || isNavigating) {
+        return;
+      }
+
+      pendingNavigationRef.current = url;
+      router.push(url).finally(() => {
+        pendingNavigationRef.current = null;
+      });
+    },
+    [router, isNavigating]
+  );
+
+  // Clear auto-logout timers
+  const clearAutoLogoutTimers = useCallback(() => {
+    if (autoLogoutTimerRef.current) {
+      clearTimeout(autoLogoutTimerRef.current);
+      autoLogoutTimerRef.current = null;
+    }
+    if (warningTimerRef.current) {
+      clearTimeout(warningTimerRef.current);
+      warningTimerRef.current = null;
+    }
+    if (sessionCheckIntervalRef.current) {
+      clearInterval(sessionCheckIntervalRef.current);
+      sessionCheckIntervalRef.current = null;
+    }
+  }, []);
+
+  // Auto-logout function
+  const performAutoLogout = useCallback(async () => {
+    clearAutoLogoutTimers();
+
+    // Clear session immediately
+    setRole([]);
+    setWalletPreference(null);
+    setDfnsToken(null);
+    setUser(null);
+    setIsConnected(false);
+    localStorage.removeItem("sessionToken");
+    localStorage.removeItem("lastActivity");
+    localStorage.removeItem("lastActivity");
+    localStorage.removeItem("signature");
+    localStorage.removeItem("lastActivity");
+
+    // Try to logout from server (don't wait for response)
+    try {
+      const token = localStorage.getItem("sessionToken");
+      if (token) {
+        axios
+          .post(
+            `${process.env.NEXT_PUBLIC_PARSE_SERVER_URL}/auth/logout`,
+            {},
+            {
+              headers: {
+                "x-parse-session-token": token,
+              },
+            }
+          )
+          .catch(() => {}); // Ignore errors since session is already expired
+      }
+    } catch (error) {
+      // Ignore errors - we're logging out anyway
+    }
+
+    toast.error("Session expired due to inactivity. Please log in again.");
+    setForceLogout(true);
+
+    // Force redirect to login
+    if (router.asPath !== "/login") {
+      router.replace("/login");
+    }
+  }, [clearAutoLogoutTimers, router]);
+
+  // Store activity timestamp in localStorage
+  const updateLastActivity = useCallback(() => {
+    const now = Date.now();
+    lastActivityRef.current = now;
+    localStorage.setItem("lastActivity", now.toString());
+    warningShownRef.current = false;
+  }, []);
+
+  // Check if session has expired based on stored timestamp
+  const checkSessionExpiry = useCallback(() => {
+    if (!isConnected || role.length === 0) return false;
+
+    const now = Date.now();
+    const storedActivity = localStorage.getItem("lastActivity");
+    const lastActivity = storedActivity ? parseInt(storedActivity) : lastActivityRef.current;
+
+    const timeSinceActivity = now - lastActivity;
+    const timeUntilExpiry = AUTO_LOGOUT_TIME - timeSinceActivity;
+
+    // Session has expired
+    if (timeSinceActivity >= AUTO_LOGOUT_TIME) {
+      performAutoLogout();
+      return true;
+    }
+
+    // Show warning if within warning period and not already shown
+    if (timeUntilExpiry <= WARNING_TIME && !warningShownRef.current) {
+      warningShownRef.current = true;
+      const minutesLeft = Math.ceil(timeUntilExpiry / (60 * 1000));
+      toast.warning(`Your session will expire in ${minutesLeft} minute${minutesLeft !== 1 ? "s" : ""} due to inactivity.`, {
+        autoClose: 10000,
+      });
+    }
+
+    return false;
+  }, [isConnected, role.length, performAutoLogout]);
+
+  // Reset auto-logout timer
+  const resetAutoLogoutTimer = useCallback(() => {
+    if (!isConnected || role.length === 0) return;
+
+    clearAutoLogoutTimers();
+    updateLastActivity();
+
+    // Set up periodic session checking
+    sessionCheckIntervalRef.current = setInterval(() => {
+      checkSessionExpiry();
+    }, SESSION_CHECK_INTERVAL);
+
+    // Initial check
+    checkSessionExpiry();
+  }, [isConnected, role.length, clearAutoLogoutTimers, updateLastActivity, checkSessionExpiry]);
+
+  // Track user activity
+  const handleUserActivity = useCallback(() => {
+    const now = Date.now();
+    // Only reset timer if it's been more than 1 minute since last activity (debounce)
+    if (now - lastActivityRef.current > 60000) {
+      updateLastActivity();
+    }
+  }, [updateLastActivity]);
+
+  // Set up activity listeners and session checking
+  useEffect(() => {
+    if (!isConnected || role.length === 0) {
+      clearAutoLogoutTimers();
+      return;
+    }
+
+    // Activity events to track
+    const events = ["mousedown", "mousemove", "keypress", "scroll", "touchstart", "click"];
+
+    // Add event listeners
+    events.forEach((event) => {
+      document.addEventListener(event, handleUserActivity, true);
+    });
+
+    // Start the session checking
+    resetAutoLogoutTimer();
+
+    // Check session when tab becomes visible (handles tab switching/PC wake)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        checkSessionExpiry();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Check session when window gains focus (handles PC wake/tab switching)
+    const handleFocus = () => {
+      checkSessionExpiry();
+    };
+
+    window.addEventListener("focus", handleFocus);
+
+    // Cleanup
+    return () => {
+      events.forEach((event) => {
+        document.removeEventListener(event, handleUserActivity, true);
+      });
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+      clearAutoLogoutTimers();
+    };
+  }, [isConnected, role.length, handleUserActivity, resetAutoLogoutTimer, checkSessionExpiry]);
+
+  useEffect(() => {
+    const handleRouteChangeStart = () => setIsNavigating(true);
+    const handleRouteChangeComplete = () => setIsNavigating(false);
+    const handleRouteChangeError = () => setIsNavigating(false);
+
+    router.events.on("routeChangeStart", handleRouteChangeStart);
+    router.events.on("routeChangeComplete", handleRouteChangeComplete);
+    router.events.on("routeChangeError", handleRouteChangeError);
+
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChangeStart);
+      router.events.off("routeChangeComplete", handleRouteChangeComplete);
+      router.events.off("routeChangeError", handleRouteChangeError);
+    };
+  }, [router]);
 
   const getToken = async (request: any) => {
     try {
@@ -106,16 +322,17 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   };
 
   const onConnect = useCallback(async () => {
-    if (isConnected) {
-      return;
-    }
+    if (isConnected) return;
+
     const RandomString = generateRandomString(10);
     let message = `Sign this message to validate that you are the owner of the account. Random string: ${RandomString}`;
     let storedSignature = null;
+
     if (typeof window !== "undefined") {
       const signature = localStorage.getItem("signature");
       storedSignature = signature ? JSON.parse(signature) : null;
     }
+
     let signature;
 
     if (!storedSignature) {
@@ -126,6 +343,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         const message = error.reason ? error.reason : error.message;
         toast.error(message);
         setForceLogout(true);
+        return;
       }
     } else {
       signature = storedSignature.signature;
@@ -136,6 +354,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       message: message,
       signature: signature,
     });
+
     if (roles.length > 0 && roles.includes("CentralAuthority")) {
       setRole([...roles]);
       setUser(user);
@@ -156,7 +375,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
         toast.error("Sorry You are not Authorized !");
         setForceLogout(true);
       }
-
       setStatus(true);
     }
 
@@ -165,24 +383,24 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
     provider.getNetwork().then(async (network: Network) => {
       const chainId: string = `${network.chainId}`;
-
       const config = process.env.NEXT_PUBLIC_HARDHAT_CHAIN_ID;
 
       if (!config || config !== chainId) {
-        // setUnsupportedNetworkDialogVisible(true);
         setIsConnected(false);
         return;
       }
+
       setIsConnected(true);
       parseInitialize();
     });
-  }, []);
+  }, [isConnected]);
 
   const onLogoutEmailPassword = async () => {
+    clearAutoLogoutTimers();
+
     try {
       const token = localStorage.getItem("sessionToken");
       if (token) {
-        // Invalidate the session token on the server
         await axios.post(
           `${process.env.NEXT_PUBLIC_PARSE_SERVER_URL}/auth/logout`,
           {},
@@ -207,12 +425,15 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     setForceLogout(false);
     setIsConnected(false);
     localStorage.removeItem("sessionToken");
-    //setBlockchainService(null);
 
     toast.success("Logged out successfully.");
+
+    // Redirect to login if not already there
+    if (router.asPath !== "/login" && !isNavigating) {
+      safePush("/login");
+    }
   };
 
-  // Define the onLogin function (Username/Password Login)
   const onLogin = async (email: string, password: string) => {
     const { token, roles, walletPreference, user, dfnsToken } = await getToken({ email, password });
 
@@ -223,12 +444,18 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       setWalletPreference(walletPreference);
       localStorage.setItem("sessionToken", token);
       setIsConnected(true);
-      // Initialize blockchainService if required for standard login
-      if ((window as any).ethereum) {
-        const _blockchainService = BlockchainService.getInstance();
-        setBlockchainService(_blockchainService);
+
+      const service = await initializeBlockchainService();
+      if (service) {
+        setBlockchainService(service);
       }
+
       ParseClient.initialize(token);
+
+      // Redirect from login page after successful login
+      if (router.asPath === "/login" && !isNavigating) {
+        safePush("/");
+      }
     } else {
       toast.error("We couldn't verify your login details. Please check your username and password.");
       setForceLogout(true);
@@ -239,14 +466,19 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     const token = localStorage.getItem("sessionToken");
     if (token) {
       const { valid, roles, walletPreference, user, dfnsToken } = await validateToken(token);
+
       if (valid && roles.length > 0) {
         setRole(roles);
         setUser(user);
         setDfnsToken(dfnsToken);
         setWalletPreference(walletPreference);
         setIsConnected(true);
+
+        const service = await initializeBlockchainService();
+        if (service) {
+          setBlockchainService(service);
+        }
       } else {
-        // Token is invalid or roles are empty
         localStorage.removeItem("sessionToken");
         setForceLogout(true);
       }
@@ -256,23 +488,16 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
 
   useEffect(() => {
     restoreSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (role.length > 0) {
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-      }, 1000);
-    }
-  }, [role]);
-
   const handleForceLogout = () => {
+    clearAutoLogoutTimers();
     setForceLogout(false);
   };
 
   const onDisconnect = () => {
+    clearAutoLogoutTimers();
+
     setRole([]);
     setForceLogout(true);
     setDfnsToken(null);
@@ -281,21 +506,32 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
     setForceLogout(false);
     setIsConnected(false);
     localStorage.removeItem("sessionToken");
+
+    // Redirect to login if not already there
+    if (router.asPath !== "/login" && !isNavigating) {
+      safePush("/login");
+    }
   };
 
   const getLayout = Component.getLayout || ((page: React.ReactNode) => page);
 
   useEffect(() => {
-    (window.location.pathname == "/login" && role.length == 0) || window.location.pathname == "/" ? setStatus(true) : setStatus(false);
+    const shouldShowStatus = (window.location.pathname == "/login" && role.length == 0) || window.location.pathname == "/";
+    setStatus(shouldShowStatus);
   }, [status, role]);
 
   useEffect(() => {
     setMounted(true);
-
     let ethObject: ethers.Eip1193Provider = window.ethereum;
-
     provider = new ethers.BrowserProvider(ethObject);
   }, []);
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      clearAutoLogoutTimers();
+    };
+  }, [clearAutoLogoutTimers]);
 
   if (!mounted) return <></>;
 
@@ -329,12 +565,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
   return (
     <NomyxAppContext.Provider value={{ blockchainService, setBlockchainService }}>
       <UserContext.Provider value={{ role, setRole, walletPreference, setWalletPreference, dfnsToken, setDfnsToken, user, setUser }}>
-        {/* Loading Spinner Overlay */}
-        {loading && (
-          <div className="z-50 h-screen w-screen overflow-hidden absolute top-0 left-0 flex justify-center items-center bg-[#00000040]">
-            <Spin />
-          </div>
-        )}
         <Web3Providers>
           <NextThemesProvider attribute="class">
             <ConfigProvider theme={antTheme}>
@@ -366,9 +596,6 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
                   />
                 )}
               </PrivateRoute>
-              {/* {!isConnected && (
-                <Component {...pageProps} forceLogout={forceLogout} onConnect={onConnect} onDisconnect={onDisconnect} onLogin={onLogin} />
-              )} */}
             </ConfigProvider>
           </NextThemesProvider>
         </Web3Providers>
