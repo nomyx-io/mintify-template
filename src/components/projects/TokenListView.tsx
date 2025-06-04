@@ -13,7 +13,7 @@ import { DepositService } from "@/services/DepositService";
 import DfnsService from "@/services/DfnsService";
 import { ColumnConfig, EXCLUDED_COLUMNS } from "@/types/dynamicTableColumn";
 import { hashToColor } from "@/utils/colorUtils";
-import { formatPrice } from "@/utils/currencyFormater";
+import { formatNumber, formatPrice } from "@/utils/currencyFormater";
 
 import { UserContext } from "../../context/UserContext";
 import { WalletPreference } from "../../utils/constants";
@@ -524,6 +524,17 @@ const TokenListView: React.FC<TokenListViewProps> = ({ tokens, isSalesHistory, i
         render: (value: any) => {
           if (isTotalAmount || isParValue) {
             return formatPrice(isTotalAmount ? value / 1_000_000 : value, "USD") || "-";
+          }
+          if (
+            value !== undefined &&
+            value !== null &&
+            !isNaN(Number(value)) &&
+            !isValidUrl(value?.toString()) &&
+            key !== "tokenId" &&
+            key !== "mintAddress" &&
+            key !== "existingCredits"
+          ) {
+            return formatNumber(Number(value));
           }
           if (typeof value === "object") return "N/A";
           if (typeof value === "string" && isValidUrl(value)) {
