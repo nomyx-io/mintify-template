@@ -9,7 +9,7 @@ import { Industries } from "@/constants/constants";
 import { DepositService } from "@/services/DepositService";
 import { ColumnConfig, EXCLUDED_COLUMNS, ColumnData } from "@/types/dynamicTableColumn";
 import { hashToColor } from "@/utils/colorUtils";
-import { formatPrice, formatUSDC } from "@/utils/currencyFormater";
+import { formatPrice, formatUSDC, formatNumber } from "@/utils/currencyFormater";
 
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
@@ -214,7 +214,17 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                           </a>
                         </span>
                       ) : (
-                        <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">{item.value}</span>
+                        <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">
+                          {item.value !== undefined &&
+                          item.value !== null &&
+                          !isNaN(Number(item.value)) &&
+                          !isValidUrl(item.value?.toString()) &&
+                          item.label !== "Token Id" &&
+                          item.label !== "Mint Address" &&
+                          item.label !== "Existing Credits"
+                            ? formatNumber(Number(item.value))
+                            : item.value}
+                        </span>
                       )}
                     </div>
                   ))}
