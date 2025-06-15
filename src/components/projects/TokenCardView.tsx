@@ -9,7 +9,7 @@ import { Industries } from "@/constants/constants";
 import { DepositService } from "@/services/DepositService";
 import { ColumnConfig, EXCLUDED_COLUMNS, ColumnData } from "@/types/dynamicTableColumn";
 import { hashToColor } from "@/utils/colorUtils";
-import { formatPrice } from "@/utils/currencyFormater";
+import { formatPrice, formatUSDC, formatNumber } from "@/utils/currencyFormater";
 
 import { GenerateSvgIcon } from "../atoms/TokenSVG";
 
@@ -107,7 +107,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
         });
       } else {
         Object.entries(token).forEach(([key, value]) => {
-          if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key)) {
+          if (value != null && !(key in nonNullColumns) && !EXCLUDED_COLUMNS.has(key) && key != "totalAmount") {
             nonNullColumns[key] = {
               title: formatColumnTitle(key),
               key,
@@ -199,7 +199,7 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                             label: "Price",
                             value: isSalesHistory
                               ? formatPrice(token.price, "USD")
-                              : formatPrice(token.price ? token.price : token.totalAmount / 1_000_000, "USD"),
+                              : formatPrice(token.price ? formatUSDC(token.price) : formatUSDC(token.totalAmount), "USD"),
                           },
                         ]
                       : []),
@@ -214,7 +214,17 @@ const TokenCardView: React.FC<TokenCardViewProps> = ({ tokens, isSalesHistory, i
                           </a>
                         </span>
                       ) : (
-                        <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">{item.value}</span>
+                        <span className="bg-gray-100 dark:bg-nomyx-dark1-dark p-2 rounded text-right w-2/3">
+                          {item.value !== undefined &&
+                          item.value !== null &&
+                          !isNaN(Number(item.value)) &&
+                          !isValidUrl(item.value?.toString()) &&
+                          item.label !== "Token Id" &&
+                          item.label !== "Mint Address" &&
+                          item.label !== "Existing Credits"
+                            ? formatNumber(Number(item.value))
+                            : item.value}
+                        </span>
                       )}
                     </div>
                   ))}

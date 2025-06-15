@@ -15,3 +15,11 @@ export const formatUSDC = (value: string | number): number => {
     return 0;
   }
 };
+export function formatNumber(value: any) {
+  const userLocale = navigator.language || "en-US";
+  const formatter = new Intl.NumberFormat(userLocale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return formatter.format(value);
+}
