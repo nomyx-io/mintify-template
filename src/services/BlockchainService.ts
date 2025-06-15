@@ -81,7 +81,10 @@ export default class BlockchainService {
 
       this.parseClient.initialize();
 
-      this.init();
+      this.init().catch((error) => {
+        console.error("BlockchainService initialization failed:", error);
+        // Service will exist but some functionality may be limited
+      });
     } catch (error) {
       console.error("Error during BlockchainService initialization:", error);
     }
